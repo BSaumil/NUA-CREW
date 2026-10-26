@@ -22,7 +22,11 @@ export async function login(form: FormData) {
   const { data, error } = await (
     await api()
   ).POST('/v1/auth/login', {
-    body: { email: str(form, 'email'), password: String(form.get('password') ?? '') },
+    body: {
+      email: str(form, 'email'),
+      password: String(form.get('password') ?? ''),
+      client: 'web',
+    },
   });
   if (!data) back('/login', 'error', errorMessage(error));
   else if (data.role !== 'employer')
