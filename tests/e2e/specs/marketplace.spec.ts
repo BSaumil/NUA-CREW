@@ -95,3 +95,53 @@ test('unauthenticated users are sent to log in and see no private data', async (
   await page.goto(`${WEB}/applications`);
   await expect(page).toHaveURL(/\/login/);
 });
+
+test('employer edits a live job, unpublishes it, then republishes; viewers cannot', async ({
+  browser,
+}) => {
+  const stamp = Date.now();
+  const title = `E2E Edit ${stamp}`;
+  const renamed = `E2E Edited ${stamp}`;
+  const owner = await as(browser, HIRE, 'owner-a@nua-crew.example.com');
+  await owner.goto(`${HIRE}/jobs/new`);
+  await owner.getByLabel('Job title').fill(title);
+  await owner.getByLabel('Description').fill('Weekend shifts on the machine.');
+  await owner.getByRole('button', { name: 'Save draft' }).click();
+  await owner.getByRole('button', { name: 'Publish' }).click();
+  await expect(owner.getByRole('status')).toContainText('Job published');
+  const jobUrl = owner.url().split('?')[0]!;
+
+  // Edit in place: new title, newly disclosed pay.
+  await owner.getByRole('link', { name: 'Edit' }).click();
+  await expect(owner.getByRole('note')).toContainText('This job is live');
+  await owner.getByLabel('Job title').fill(renamed);
+  await owner.getByLabel('From', { exact: true }).fill('30');
+  await owner.getByLabel('To', { exact: true }).fill('34');
+  await owner.getByRole('button', { name: 'Save changes' }).click();
+  await expect(owner.getByRole('status')).toContainText('Changes saved');
+  await expect(owner.getByRole('heading', { name: renamed })).toBeVisible();
+
+  const anon = await (await browser.newContext()).newPage();
+  const search = `${WEB}/jobs?q=${encodeURIComponent(renamed)}`;
+  await anon.goto(search);
+  await expect(anon.getByRole('link', { name: renamed })).toBeVisible();
+
+  // Unpublish: gone from public search, still editable by the employer.
+  await owner.getByRole('button', { name: 'Unpublish' }).click();
+  await expect(owner.getByRole('status')).toContainText('Job unpublished');
+  await anon.goto(search);
+  await expect(anon.getByRole('link', { name: renamed })).toHaveCount(0);
+
+  // Republish brings it back.
+  await owner.getByRole('button', { name: 'Publish' }).click();
+  await expect(owner.getByRole('status')).toContainText('Job published');
+  await anon.goto(search);
+  await expect(anon.getByRole('link', { name: renamed })).toBeVisible();
+
+  // A read-only team member sees no editing controls.
+  const viewer = await as(browser, HIRE, 'viewer-a@nua-crew.example.com');
+  await viewer.goto(jobUrl);
+  await expect(viewer.getByRole('heading', { name: renamed })).toBeVisible();
+  await expect(viewer.getByRole('link', { name: 'Edit' })).toHaveCount(0);
+  await expect(viewer.getByRole('button', { name: 'Unpublish' })).toHaveCount(0);
+});

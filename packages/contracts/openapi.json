@@ -101,7 +101,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "title", "employer_name", "suburb", "status"],
+        "required": [
+          "id",
+          "title",
+          "employer_name",
+          "suburb",
+          "status"
+        ],
         "title": "ApplicationJobOut",
         "type": "object"
       },
@@ -179,7 +185,14 @@
             "type": "string"
           }
         },
-        "required": ["id", "status", "cover_note", "created_at", "updated_at", "job"],
+        "required": [
+          "id",
+          "status",
+          "cover_note",
+          "created_at",
+          "updated_at",
+          "job"
+        ],
         "title": "CandidateApplicationOut",
         "type": "object"
       },
@@ -208,7 +221,12 @@
             "type": "string"
           }
         },
-        "required": ["email", "password", "full_name", "accept_terms"],
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "accept_terms"
+        ],
         "title": "CandidateRegister",
         "type": "object"
       },
@@ -219,7 +237,9 @@
             "type": "boolean"
           }
         },
-        "required": ["granted"],
+        "required": [
+          "granted"
+        ],
         "title": "ConsentIn",
         "type": "object"
       },
@@ -367,7 +387,12 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "abn", "verification_status"],
+        "required": [
+          "id",
+          "name",
+          "abn",
+          "verification_status"
+        ],
         "title": "EmployerOut",
         "type": "object"
       },
@@ -423,7 +448,13 @@
             "type": "string"
           }
         },
-        "required": ["email", "password", "full_name", "organisation_name", "accept_terms"],
+        "required": [
+          "email",
+          "password",
+          "full_name",
+          "organisation_name",
+          "accept_terms"
+        ],
         "title": "EmployerRegister",
         "type": "object"
       },
@@ -543,7 +574,11 @@
             "title": "Verification Status"
           }
         },
-        "required": ["id", "name", "verification_status"],
+        "required": [
+          "id",
+          "name",
+          "verification_status"
+        ],
         "title": "JobEmployerOut",
         "type": "object"
       },
@@ -568,7 +603,13 @@
             "type": "string"
           },
           "employment_type": {
-            "enum": ["full_time", "part_time", "casual", "contract", "shift"],
+            "enum": [
+              "full_time",
+              "part_time",
+              "casual",
+              "contract",
+              "shift"
+            ],
             "title": "Employment Type",
             "type": "string"
           },
@@ -629,7 +670,13 @@
           "pay_period": {
             "anyOf": [
               {
-                "enum": ["hour", "day", "week", "month", "year"],
+                "enum": [
+                  "hour",
+                  "day",
+                  "week",
+                  "month",
+                  "year"
+                ],
                 "type": "string"
               },
               {
@@ -667,7 +714,11 @@
             "type": "string"
           }
         },
-        "required": ["title", "description", "employment_type"],
+        "required": [
+          "title",
+          "description",
+          "employment_type"
+        ],
         "title": "JobIn",
         "type": "object"
       },
@@ -693,7 +744,12 @@
             "type": "integer"
           }
         },
-        "required": ["items", "total", "page", "page_size"],
+        "required": [
+          "items",
+          "total",
+          "page",
+          "page_size"
+        ],
         "title": "JobList",
         "type": "object"
       },
@@ -943,7 +999,16 @@
             "type": "string"
           },
           "state": {
-            "enum": ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"],
+            "enum": [
+              "ACT",
+              "NSW",
+              "NT",
+              "QLD",
+              "SA",
+              "TAS",
+              "VIC",
+              "WA"
+            ],
             "title": "State",
             "type": "string"
           },
@@ -954,7 +1019,12 @@
             "type": "string"
           }
         },
-        "required": ["name", "suburb", "state", "postcode"],
+        "required": [
+          "name",
+          "suburb",
+          "state",
+          "postcode"
+        ],
         "title": "LocationIn",
         "type": "object"
       },
@@ -982,7 +1052,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "name", "suburb", "state", "postcode"],
+        "required": [
+          "id",
+          "name",
+          "suburb",
+          "state",
+          "postcode"
+        ],
         "title": "LocationOut",
         "type": "object"
       },
@@ -999,14 +1075,22 @@
             "type": "string"
           }
         },
-        "required": ["email", "password"],
+        "required": [
+          "email",
+          "password"
+        ],
         "title": "Login",
         "type": "object"
       },
       "MatchComponent": {
         "properties": {
           "basis": {
-            "enum": ["verified", "self_declared", "inferred", "not_evaluated"],
+            "enum": [
+              "verified",
+              "self_declared",
+              "inferred",
+              "not_evaluated"
+            ],
             "title": "Basis",
             "type": "string"
           },
@@ -1038,7 +1122,14 @@
             "type": "integer"
           }
         },
-        "required": ["key", "weight", "evaluated", "score", "evidence", "basis"],
+        "required": [
+          "key",
+          "weight",
+          "evaluated",
+          "score",
+          "evidence",
+          "basis"
+        ],
         "title": "MatchComponent",
         "type": "object"
       },
@@ -1088,7 +1179,13 @@
             "type": "array"
           }
         },
-        "required": ["job_id", "estimate", "gates", "components", "missing_skills"],
+        "required": [
+          "job_id",
+          "estimate",
+          "gates",
+          "components",
+          "missing_skills"
+        ],
         "title": "MatchOut",
         "type": "object"
       },
@@ -1116,7 +1213,11 @@
             "type": "string"
           }
         },
-        "required": ["id", "email", "role"],
+        "required": [
+          "id",
+          "email",
+          "role"
+        ],
         "title": "MeOut",
         "type": "object"
       },
@@ -1128,12 +1229,18 @@
             "type": "string"
           },
           "role": {
-            "enum": ["recruiter", "viewer"],
+            "enum": [
+              "recruiter",
+              "viewer"
+            ],
             "title": "Role",
             "type": "string"
           }
         },
-        "required": ["email", "role"],
+        "required": [
+          "email",
+          "role"
+        ],
         "title": "MemberIn",
         "type": "object"
       },
@@ -1153,7 +1260,11 @@
             "type": "string"
           }
         },
-        "required": ["user_id", "email", "role"],
+        "required": [
+          "user_id",
+          "email",
+          "role"
+        ],
         "title": "MemberOut",
         "type": "object"
       },
@@ -1169,7 +1280,10 @@
             "type": "string"
           }
         },
-        "required": ["employer_id", "role"],
+        "required": [
+          "employer_id",
+          "role"
+        ],
         "title": "MembershipOut",
         "type": "object"
       },
@@ -1182,7 +1296,9 @@
             "type": "string"
           }
         },
-        "required": ["note"],
+        "required": [
+          "note"
+        ],
         "title": "NoteIn",
         "type": "object"
       },
@@ -1235,7 +1351,15 @@
             "type": "string"
           }
         },
-        "required": ["id", "kind", "title", "body", "data", "read_at", "created_at"],
+        "required": [
+          "id",
+          "kind",
+          "title",
+          "body",
+          "data",
+          "read_at",
+          "created_at"
+        ],
         "title": "NotificationOut",
         "type": "object"
       },
@@ -1285,7 +1409,11 @@
             "title": "Valid Until"
           }
         },
-        "required": ["legal_basis", "license", "permitted_fields"],
+        "required": [
+          "legal_basis",
+          "license",
+          "permitted_fields"
+        ],
         "title": "PermissionIn",
         "type": "object"
       },
@@ -1353,7 +1481,13 @@
           "preferred_employment_types": {
             "default": [],
             "items": {
-              "enum": ["full_time", "part_time", "casual", "contract", "shift"],
+              "enum": [
+                "full_time",
+                "part_time",
+                "casual",
+                "contract",
+                "shift"
+              ],
               "type": "string"
             },
             "title": "Preferred Employment Types",
@@ -1373,7 +1507,16 @@
           "state": {
             "anyOf": [
               {
-                "enum": ["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"],
+                "enum": [
+                  "ACT",
+                  "NSW",
+                  "NT",
+                  "QLD",
+                  "SA",
+                  "TAS",
+                  "VIC",
+                  "WA"
+                ],
                 "type": "string"
               },
               {
@@ -1407,7 +1550,9 @@
             "title": "Summary"
           }
         },
-        "required": ["full_name"],
+        "required": [
+          "full_name"
+        ],
         "title": "ProfileIn",
         "type": "object"
       },
@@ -1550,7 +1695,10 @@
             "type": "string"
           }
         },
-        "required": ["title", "content_text"],
+        "required": [
+          "title",
+          "content_text"
+        ],
         "title": "ResumeIn",
         "type": "object"
       },
@@ -1573,7 +1721,11 @@
             "type": "array"
           }
         },
-        "required": ["id", "title", "versions"],
+        "required": [
+          "id",
+          "title",
+          "versions"
+        ],
         "title": "ResumeOut",
         "type": "object"
       },
@@ -1586,7 +1738,9 @@
             "type": "string"
           }
         },
-        "required": ["content_text"],
+        "required": [
+          "content_text"
+        ],
         "title": "ResumeVersionIn",
         "type": "object"
       },
@@ -1611,7 +1765,12 @@
             "type": "integer"
           }
         },
-        "required": ["id", "version", "content_text", "created_at"],
+        "required": [
+          "id",
+          "version",
+          "content_text",
+          "created_at"
+        ],
         "title": "ResumeVersionOut",
         "type": "object"
       },
@@ -1624,7 +1783,10 @@
             "type": "object"
           },
           "kind": {
-            "enum": ["fixture", "ats_feed"],
+            "enum": [
+              "fixture",
+              "ats_feed"
+            ],
             "title": "Kind",
             "type": "string"
           },
@@ -1640,7 +1802,11 @@
             "type": "string"
           }
         },
-        "required": ["slug", "name", "kind"],
+        "required": [
+          "slug",
+          "name",
+          "kind"
+        ],
         "title": "SourceIn",
         "type": "object"
       },
@@ -1668,7 +1834,13 @@
             "type": "string"
           }
         },
-        "required": ["id", "slug", "name", "kind", "status"],
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "kind",
+          "status"
+        ],
         "title": "SourceOut",
         "type": "object"
       },
@@ -1687,12 +1859,21 @@
             "title": "Note"
           },
           "to_status": {
-            "enum": ["under_review", "shortlisted", "interview", "offer", "hired", "rejected"],
+            "enum": [
+              "under_review",
+              "shortlisted",
+              "interview",
+              "offer",
+              "hired",
+              "rejected"
+            ],
             "title": "To Status",
             "type": "string"
           }
         },
-        "required": ["to_status"],
+        "required": [
+          "to_status"
+        ],
         "title": "StatusChangeIn",
         "type": "object"
       },
@@ -1718,7 +1899,11 @@
             "type": "string"
           }
         },
-        "required": ["access_token", "role", "user_id"],
+        "required": [
+          "access_token",
+          "role",
+          "user_id"
+        ],
         "title": "TokenOut",
         "type": "object"
       },
@@ -1754,7 +1939,11 @@
             "type": "string"
           }
         },
-        "required": ["loc", "msg", "type"],
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
         "title": "ValidationError",
         "type": "object"
       },
@@ -1767,12 +1956,19 @@
             "type": "string"
           },
           "status": {
-            "enum": ["pending", "verified", "rejected"],
+            "enum": [
+              "pending",
+              "verified",
+              "rejected"
+            ],
             "title": "Status",
             "type": "string"
           }
         },
-        "required": ["status", "evidence"],
+        "required": [
+          "status",
+          "evidence"
+        ],
         "title": "VerifyEmployerIn",
         "type": "object"
       }
@@ -1810,7 +2006,9 @@
           }
         },
         "summary": "Healthz",
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/readyz": {
@@ -1833,7 +2031,9 @@
           }
         },
         "summary": "Readyz",
-        "tags": ["health"]
+        "tags": [
+          "health"
+        ]
       }
     },
     "/v1/admin/employers": {
@@ -1889,7 +2089,9 @@
           }
         ],
         "summary": "List Employers",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/admin/employers/{employer_id}/verification": {
@@ -1946,7 +2148,9 @@
           }
         ],
         "summary": "Verify Employer",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/admin/ingestion/sources": {
@@ -1990,7 +2194,9 @@
           }
         ],
         "summary": "Create Source",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/admin/ingestion/sources/{source_id}/permissions": {
@@ -2050,7 +2256,9 @@
           }
         ],
         "summary": "Grant Permission",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/admin/ingestion/sources/{source_id}/run": {
@@ -2094,7 +2302,9 @@
           }
         ],
         "summary": "Run",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/admin/ingestion/sources/{source_id}/takedown": {
@@ -2144,7 +2354,9 @@
           }
         ],
         "summary": "Takedown",
-        "tags": ["admin"]
+        "tags": [
+          "admin"
+        ]
       }
     },
     "/v1/auth/login": {
@@ -2183,7 +2395,9 @@
           }
         },
         "summary": "Login",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/v1/auth/me": {
@@ -2207,7 +2421,9 @@
           }
         ],
         "summary": "Me",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/v1/auth/register/candidate": {
@@ -2246,7 +2462,9 @@
           }
         },
         "summary": "Register Candidate",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/v1/auth/register/employer": {
@@ -2285,7 +2503,9 @@
           }
         },
         "summary": "Register Employer",
-        "tags": ["auth"]
+        "tags": [
+          "auth"
+        ]
       }
     },
     "/v1/candidate/applications": {
@@ -2313,7 +2533,9 @@
           }
         ],
         "summary": "My Applications",
-        "tags": ["applications"]
+        "tags": [
+          "applications"
+        ]
       }
     },
     "/v1/candidate/applications/{application_id}": {
@@ -2359,7 +2581,9 @@
           }
         ],
         "summary": "My Application",
-        "tags": ["applications"]
+        "tags": [
+          "applications"
+        ]
       }
     },
     "/v1/candidate/applications/{application_id}/withdraw": {
@@ -2405,7 +2629,9 @@
           }
         ],
         "summary": "Withdraw",
-        "tags": ["applications"]
+        "tags": [
+          "applications"
+        ]
       }
     },
     "/v1/candidate/consents/talent-discovery": {
@@ -2450,7 +2676,9 @@
           }
         ],
         "summary": "Talent Discovery Consent",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       }
     },
     "/v1/candidate/profile": {
@@ -2474,7 +2702,9 @@
           }
         ],
         "summary": "Get Profile",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       },
       "put": {
         "operationId": "put_profile_v1_candidate_profile_put",
@@ -2516,7 +2746,9 @@
           }
         ],
         "summary": "Put Profile",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       }
     },
     "/v1/candidate/resumes": {
@@ -2544,7 +2776,9 @@
           }
         ],
         "summary": "List Resumes",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       },
       "post": {
         "operationId": "create_resume_v1_candidate_resumes_post",
@@ -2586,7 +2820,9 @@
           }
         ],
         "summary": "Create Resume",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       }
     },
     "/v1/candidate/resumes/{resume_id}": {
@@ -2632,7 +2868,9 @@
           }
         ],
         "summary": "Get Resume",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       }
     },
     "/v1/candidate/resumes/{resume_id}/versions": {
@@ -2688,7 +2926,9 @@
           }
         ],
         "summary": "Add Resume Version",
-        "tags": ["candidate"]
+        "tags": [
+          "candidate"
+        ]
       }
     },
     "/v1/employers": {
@@ -2716,7 +2956,9 @@
           }
         ],
         "summary": "My Employers",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}": {
@@ -2762,7 +3004,9 @@
           }
         ],
         "summary": "Get Employer",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/applications/{application_id}": {
@@ -2818,7 +3062,9 @@
           }
         ],
         "summary": "Get Application",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/applications/{application_id}/notes": {
@@ -2884,7 +3130,9 @@
           }
         ],
         "summary": "Add Note",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/applications/{application_id}/status": {
@@ -2950,7 +3198,9 @@
           }
         ],
         "summary": "Set Status",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/jobs": {
@@ -3000,7 +3250,9 @@
           }
         ],
         "summary": "List Jobs",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       },
       "post": {
         "operationId": "create_job_v1_employers__employer_id__jobs_post",
@@ -3054,7 +3306,9 @@
           }
         ],
         "summary": "Create Job",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/jobs/{job_id}": {
@@ -3110,7 +3364,9 @@
           }
         ],
         "summary": "Get Job",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       },
       "put": {
         "operationId": "update_job_v1_employers__employer_id__jobs__job_id__put",
@@ -3174,7 +3430,9 @@
           }
         ],
         "summary": "Update Job",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/jobs/{job_id}/applications": {
@@ -3234,7 +3492,9 @@
           }
         ],
         "summary": "Job Applications",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/jobs/{job_id}/close": {
@@ -3290,7 +3550,9 @@
           }
         ],
         "summary": "Close Job",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/jobs/{job_id}/publish": {
@@ -3346,7 +3608,68 @@
           }
         ],
         "summary": "Publish Job",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/jobs/{job_id}/unpublish": {
+      "post": {
+        "description": "Take a live job offline without closing it; it can be edited and republished.",
+        "operationId": "unpublish_job_v1_employers__employer_id__jobs__job_id__unpublish_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Unpublish Job",
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/locations": {
@@ -3396,7 +3719,9 @@
           }
         ],
         "summary": "List Locations",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       },
       "post": {
         "operationId": "add_location_v1_employers__employer_id__locations_post",
@@ -3450,7 +3775,9 @@
           }
         ],
         "summary": "Add Location",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/employers/{employer_id}/members": {
@@ -3500,7 +3827,9 @@
           }
         ],
         "summary": "List Members",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       },
       "post": {
         "operationId": "add_member_v1_employers__employer_id__members_post",
@@ -3554,7 +3883,9 @@
           }
         ],
         "summary": "Add Member",
-        "tags": ["employer"]
+        "tags": [
+          "employer"
+        ]
       }
     },
     "/v1/jobs": {
@@ -3711,7 +4042,9 @@
           }
         },
         "summary": "Search Jobs",
-        "tags": ["jobs"]
+        "tags": [
+          "jobs"
+        ]
       }
     },
     "/v1/jobs/{job_id}": {
@@ -3752,7 +4085,9 @@
           }
         },
         "summary": "Get Job",
-        "tags": ["jobs"]
+        "tags": [
+          "jobs"
+        ]
       }
     },
     "/v1/jobs/{job_id}/applications": {
@@ -3825,7 +4160,9 @@
           }
         ],
         "summary": "Apply",
-        "tags": ["applications"]
+        "tags": [
+          "applications"
+        ]
       }
     },
     "/v1/jobs/{job_id}/match": {
@@ -3871,7 +4208,9 @@
           }
         ],
         "summary": "Match",
-        "tags": ["jobs"]
+        "tags": [
+          "jobs"
+        ]
       }
     },
     "/v1/notifications": {
@@ -3899,7 +4238,9 @@
           }
         ],
         "summary": "List Notifications",
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     },
     "/v1/notifications/{notification_id}/read": {
@@ -3945,7 +4286,9 @@
           }
         ],
         "summary": "Mark Read",
-        "tags": ["notifications"]
+        "tags": [
+          "notifications"
+        ]
       }
     }
   }

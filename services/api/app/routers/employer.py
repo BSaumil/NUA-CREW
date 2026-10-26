@@ -211,6 +211,22 @@ async def publish_job(
     return (await to_out(session, [job]))[0]
 
 
+@router.post("/{employer_id}/jobs/{job_id}/unpublish", response_model=JobOut)
+async def unpublish_job(
+    employer_id: uuid.UUID, job_id: uuid.UUID, _: Recruiter, user: CurrentUser, session: Session
+) -> JobOut:
+    """Take a live job offline without closing it; it can be edited and republished."""
+    job = await _own_job(session, employer_id, job_id)
+    if job.status != "published":
+        raise conflict("not_published", "Only a published job can be unpublished")
+    job.status = "unpublished"
+    await session.flush()
+    out = (await to_out(session, [job]))[0]
+    await record_version(session, job, out.skills, user.id)
+    await audit(session, user.id, "job.unpublished", "job", job.id)
+    return out
+
+
 @router.post("/{employer_id}/jobs/{job_id}/close", response_model=JobOut)
 async def close_job(
     employer_id: uuid.UUID, job_id: uuid.UUID, _: Recruiter, user: CurrentUser, session: Session

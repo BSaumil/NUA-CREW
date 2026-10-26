@@ -69,33 +69,62 @@ export async function logout() {
   redirect('/login');
 }
 
-export async function createJob(form: FormData) {
-  const { employerId } = await requireEmployer();
+function jobBody(form: FormData) {
   const skills = str(form, 'skills')
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean);
   const num = (k: string) => str(form, k) || null;
+  return {
+    title: str(form, 'title'),
+    description: str(form, 'description'),
+    employment_type: str(form, 'employment_type') as never,
+    category: str(form, 'category') || null,
+    location_id: str(form, 'location_id') || null,
+    pay_min: num('pay_min'),
+    pay_max: num('pay_max'),
+    pay_period: (num('pay_period') ?? undefined) as never,
+    super_included:
+      ({ included: true, plus: false } as Record<string, boolean>)[str(form, 'super')] ?? null,
+    skills,
+  };
+}
+
+export async function createJob(form: FormData) {
+  const { employerId } = await requireEmployer();
   const { data, error } = await (
     await api()
   ).POST('/v1/employers/{employer_id}/jobs', {
     params: { path: { employer_id: employerId } },
-    body: {
-      title: str(form, 'title'),
-      description: str(form, 'description'),
-      employment_type: str(form, 'employment_type') as never,
-      category: str(form, 'category') || null,
-      location_id: str(form, 'location_id') || null,
-      pay_min: num('pay_min'),
-      pay_max: num('pay_max'),
-      pay_period: (num('pay_period') ?? undefined) as never,
-      super_included:
-        ({ included: true, plus: false } as Record<string, boolean>)[str(form, 'super')] ?? null,
-      skills,
-    },
+    body: jobBody(form),
   });
   if (!data) back('/jobs/new', 'error', errorMessage(error));
   else redirect(`/jobs/${data.id}?notice=${encodeURIComponent('Draft saved')}`);
+}
+
+export async function updateJob(form: FormData) {
+  const { employerId } = await requireEmployer();
+  const id = str(form, 'job_id');
+  const { error } = await (
+    await api()
+  ).PUT('/v1/employers/{employer_id}/jobs/{job_id}', {
+    params: { path: { employer_id: employerId, job_id: id } },
+    body: jobBody(form),
+  });
+  if (error) back(`/jobs/${id}/edit`, 'error', errorMessage(error));
+  back(`/jobs/${id}`, 'notice', 'Changes saved');
+}
+
+export async function unpublishJob(form: FormData) {
+  const { employerId } = await requireEmployer();
+  const id = str(form, 'job_id');
+  const { error } = await (
+    await api()
+  ).POST('/v1/employers/{employer_id}/jobs/{job_id}/unpublish', {
+    params: { path: { employer_id: employerId, job_id: id } },
+  });
+  if (error) back(`/jobs/${id}`, 'error', errorMessage(error));
+  back(`/jobs/${id}`, 'notice', 'Job unpublished. It is no longer visible to candidates.');
 }
 
 export async function publishJob(form: FormData) {

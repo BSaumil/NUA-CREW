@@ -450,3 +450,48 @@ async def test_notification_isolation(client):
     assert (
         await client.post(f"/v1/notifications/{uuid.uuid4()}/read", headers=emp)
     ).status_code == 404
+
+
+async def test_edit_unpublish_and_republish_cycle(client):
+    emp, eid = await verified_employer(client, "owner@a.example.com")
+    view, _ = await register_employer(client, "view@a.example.com", "Other")
+    job = await published_job(client, emp, eid)
+    base = f"/v1/employers/{eid}/jobs/{job['id']}"
+
+    # edit a live job in place: title and pay change, history is kept
+    edited = {
+        **JOB,
+        "title": "Head Barista",
+        "pay_min": "31",
+        "pay_max": "36",
+        "location_id": job["location_id"],
+    }
+    r = await client.put(base, json=edited, headers=emp)
+    assert r.status_code == 200 and r.json()["title"] == "Head Barista"
+    assert (await client.get(f"/v1/jobs/{job['id']}")).json()["pay_min"] == "31.00"
+
+    # unpublish hides it from the public but keeps it editable; viewers/other tenants cannot
+    assert (await client.post(f"{base}/unpublish", headers=view)).status_code == 404
+    r = await client.post(f"{base}/unpublish", headers=emp)
+    assert r.status_code == 200 and r.json()["status"] == "unpublished"
+    assert (await client.get(f"/v1/jobs/{job['id']}")).status_code == 404
+    assert (await client.get("/v1/jobs")).json()["total"] == 0
+    assert (await client.post(f"{base}/unpublish", headers=emp)).status_code == 409
+
+    assert (
+        await client.put(base, json={**edited, "title": "Barista (weekends)"}, headers=emp)
+    ).status_code == 200
+    assert (await client.post(f"{base}/publish", headers=emp)).json()["status"] == "published"
+    assert (await client.get("/v1/jobs", params={"q": "weekends"})).json()["total"] == 1
+
+    await client.post(f"{base}/close", headers=emp)
+    assert (await client.post(f"{base}/unpublish", headers=emp)).status_code == 409
+    assert (await client.put(base, json=edited, headers=emp)).status_code == 409
+    async with db_as() as s:
+        n = (await s.execute(text("select count(*) from job_versions"))).scalar()
+        a = (
+            await s.execute(
+                text("select count(*) from audit_events where action='job.unpublished'")
+            )
+        ).scalar()
+    assert n >= 5 and a == 1

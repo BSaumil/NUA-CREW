@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Button, EmptyState, SalaryDisclosure, StatusBadge } from '@nua-crew/ui';
+import { Button, ButtonLink, EmptyState, SalaryDisclosure, StatusBadge } from '@nua-crew/ui';
 import { api, canWrite, requireEmployer } from '@/lib/api';
-import { closeJob, publishJob } from '../../actions';
+import { closeJob, publishJob, unpublishJob } from '../../actions';
 import { Flash, flashFrom } from '../../components';
 
 export const metadata: Metadata = { title: 'Manage job' };
@@ -40,10 +40,23 @@ export default async function ManageJob({
       />
       {canWrite(role) ? (
         <div className="nua-row">
+          {job.status !== 'closed' && job.status !== 'expired' ? (
+            <ButtonLink href={`/jobs/${job.id}/edit`} variant="secondary">
+              Edit
+            </ButtonLink>
+          ) : null}
           {job.status === 'draft' || job.status === 'unpublished' ? (
             <form action={publishJob}>
               <input type="hidden" name="job_id" value={job.id} />
               <Button type="submit">Publish</Button>
+            </form>
+          ) : null}
+          {job.status === 'published' ? (
+            <form action={unpublishJob}>
+              <input type="hidden" name="job_id" value={job.id} />
+              <Button type="submit" variant="secondary">
+                Unpublish
+              </Button>
             </form>
           ) : null}
           {job.status === 'published' ? (
