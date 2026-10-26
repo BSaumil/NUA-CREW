@@ -1,0 +1,62 @@
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from starlette.responses import Response
+
+from app.config import get_settings
+from app.db import dispose_engine
+from app.errors import install_error_handlers
+from app.routers import (
+    admin,
+    applications,
+    auth,
+    candidate,
+    employer,
+    health,
+    jobs_public,
+    notifications,
+)
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    yield
+    await dispose_engine()
+
+
+def create_app() -> FastAPI:
+    settings = get_settings()
+    app = FastAPI(title="NUA CREW API", version="0.1.0", lifespan=lifespan)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.cors_origins,
+        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_headers=["Authorization", "Content-Type", "Idempotency-Key"],
+    )
+
+    @app.middleware("http")
+    async def security_headers(request: Request, call_next):  # type: ignore[no-untyped-def]
+        response: Response = await call_next(request)
+        response.headers.setdefault("X-Content-Type-Options", "nosniff")
+        response.headers.setdefault("Referrer-Policy", "no-referrer")
+        response.headers.setdefault("Cache-Control", "no-store")
+        return response
+
+    install_error_handlers(app)
+    for r in (
+        health.router,
+        auth.router,
+        candidate.router,
+        jobs_public.router,
+        applications.router,
+        employer.router,
+        notifications.router,
+        admin.router,
+    ):
+        app.include_router(r)
+    return app
+
+
+app = create_app()
