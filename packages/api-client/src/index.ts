@@ -6,7 +6,8 @@ export type { Schemas };
 export type ApiOptions = {
   baseUrl: string;
   token?: string | null;
-  fetch?: typeof fetch;
+  /** Custom transport; receives the fully built Request (openapi-fetch calls `fetch(request)`). */
+  fetch?: (input: Request) => Promise<Response>;
 };
 
 /** Typed client generated from the API's OpenAPI document. Never logs bodies (PII). */

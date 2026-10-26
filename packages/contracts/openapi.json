@@ -5966,6 +5966,25 @@
         ]
       }
     },
+    "/v1/notifications/read-all": {
+      "post": {
+        "operationId": "mark_all_read_v1_notifications_read_all_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark All Read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
     "/v1/notifications/{notification_id}/read": {
       "post": {
         "operationId": "mark_read_v1_notifications__notification_id__read_post",

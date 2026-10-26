@@ -4,3 +4,6 @@ packages/contracts/src/schema.d.ts
 services/
 brand/
 docs/
+apps/mobile/dist
+apps/mobile/dist-native
+apps/mobile/.expo

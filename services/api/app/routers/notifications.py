@@ -1,7 +1,7 @@
 import uuid
 
-from fastapi import APIRouter
-from sqlalchemy import func, select
+from fastapi import APIRouter, Response
+from sqlalchemy import func, select, update
 
 from app.deps import CurrentUser, Session
 from app.errors import not_found
@@ -21,6 +21,16 @@ async def list_notifications(user: CurrentUser, session: Session) -> list[Notifi
             .limit(100)
         )
     )
+
+
+@router.post("/read-all", status_code=204)
+async def mark_all_read(user: CurrentUser, session: Session) -> Response:
+    await session.execute(
+        update(Notification)
+        .where(Notification.user_id == user.id, Notification.read_at.is_(None))
+        .values(read_at=func.now())
+    )
+    return Response(status_code=204)
 
 
 @router.post("/{notification_id}/read", response_model=NotificationOut)

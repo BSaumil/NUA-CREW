@@ -1026,6 +1026,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/notifications/read-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark All Read */
+        post: operations["mark_all_read_v1_notifications_read_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notifications/{notification_id}/read": {
         parameters: {
             query?: never;
@@ -3959,6 +3976,24 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["NotificationOut"][];
                 };
+            };
+        };
+    };
+    mark_all_read_v1_notifications_read_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };

@@ -495,3 +495,28 @@ async def test_edit_unpublish_and_republish_cycle(client):
             )
         ).scalar()
     assert n >= 5 and a == 1
+
+
+async def test_mark_all_notifications_read_only_affects_the_caller(client):
+    emp, eid = await verified_employer(client, "owner@a.example.com")
+    job = await published_job(client, emp, eid)
+    c1 = await register_candidate(client, "c1@x.example.com")
+    c2 = await register_candidate(client, "c2@x.example.com")
+    for h in (c1, c2):
+        await client.post(f"/v1/jobs/{job['id']}/applications", json={}, headers=h)
+    for a in (
+        await client.get(f"/v1/employers/{eid}/jobs/{job['id']}/applications", headers=emp)
+    ).json():
+        await client.post(
+            f"/v1/employers/{eid}/applications/{a['application_id']}/status",
+            json={"to_status": "under_review"},
+            headers=emp,
+        )
+    assert (await client.post("/v1/notifications/read-all", headers=c1)).status_code == 204
+    assert all(n["read_at"] for n in (await client.get("/v1/notifications", headers=c1)).json())
+    assert all(
+        n["read_at"] is None for n in (await client.get("/v1/notifications", headers=c2)).json()
+    )
+    assert any(
+        n["read_at"] is None for n in (await client.get("/v1/notifications", headers=emp)).json()
+    )

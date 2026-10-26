@@ -17,3 +17,7 @@ __pycache__/
 .mypy_cache/
 .DS_Store
 next-env.d.ts
+dist-native/
+.expo/
+apps/mobile/dist/
+expo-env.d.ts
