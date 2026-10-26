@@ -10,6 +10,7 @@ from app.db import dispose_engine
 from app.errors import install_error_handlers
 from app.ratelimit import RedisLimiter, get_limiter
 from app.routers import (
+    account,
     admin,
     applications,
     auth,
@@ -18,6 +19,7 @@ from app.routers import (
     health,
     jobs_public,
     notifications,
+    saved,
 )
 
 
@@ -58,6 +60,8 @@ def create_app() -> FastAPI:
         employer.router,
         notifications.router,
         admin.router,
+        saved.router,
+        account.router,
     ):
         app.include_router(r)
     return app

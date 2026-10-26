@@ -27,11 +27,16 @@ class LocationIn(BaseModel):
     postcode: Postcode
 
 
+Client = Literal["web", "mobile"]
+
+
 class CandidateRegister(BaseModel):
     email: EmailStr
     password: Password
     full_name: Name
     accept_terms: Literal[True]
+    client: Client = "web"  # mobile clients receive a refresh token
+    device_label: str | None = Field(None, max_length=100)
 
 
 class EmployerRegister(BaseModel):
@@ -55,6 +60,8 @@ class EmployerRegister(BaseModel):
 class Login(BaseModel):
     email: EmailStr
     password: str = Field(max_length=128)
+    client: Client = "web"
+    device_label: str | None = Field(None, max_length=100)
 
 
 class TokenOut(BaseModel):
@@ -62,6 +69,12 @@ class TokenOut(BaseModel):
     token_type: Literal["bearer"] = "bearer"
     role: str
     user_id: uuid.UUID
+    expires_in: int = 1800
+    refresh_token: str | None = None
+
+
+class RefreshIn(BaseModel):
+    refresh_token: str = Field(min_length=20, max_length=200)
 
 
 class MembershipOut(Orm):
@@ -104,6 +117,7 @@ class ProfileOut(Orm):
     min_hourly_pay: Decimal | None
     max_commute_km: int | None
     discoverable: bool
+    push_enabled: bool = True
     skills: list[str] = []
 
 
@@ -222,6 +236,7 @@ class JobOut(BaseModel):
     skills: list[str]
     employer: JobEmployerOut
     location_id: uuid.UUID | None = None
+    distance_km: float | None = None  # straight-line, approximate; only for near-me searches
 
 
 class JobList(BaseModel):
@@ -397,3 +412,70 @@ class SourceHealthOut(Orm):
 class IngestionStatsOut(BaseModel):
     tasks: dict[str, int]
     sources: list[SourceHealthOut]
+
+
+# ---- mobile: saved jobs/searches, devices, account ----
+class SearchParamsIn(BaseModel):
+    """The subset of search filters that can be saved (and alerted on)."""
+
+    q: str | None = Field(None, max_length=200)
+    suburb: str | None = Field(None, max_length=100)
+    state: State | None = None
+    employment_type: EmploymentType | None = None
+    category: str | None = Field(None, max_length=100)
+    skill: str | None = Field(None, max_length=100)
+    min_hourly: float | None = Field(None, ge=0, le=1000)
+    near_lat: float | None = Field(None, ge=-90, le=90)
+    near_lng: float | None = Field(None, ge=-180, le=180)
+    radius_km: float | None = Field(None, gt=0, le=200)
+    posted_within_days: int | None = Field(None, ge=1, le=90)
+
+    @model_validator(mode="after")
+    def _near(self) -> "SearchParamsIn":
+        if (self.near_lat is None) != (self.near_lng is None):
+            raise ValueError("near_lat and near_lng go together")
+        return self
+
+
+class SavedSearchIn(BaseModel):
+    name: Name
+    params: SearchParamsIn
+    alerts_enabled: bool = True
+
+
+class SavedSearchPatch(BaseModel):
+    name: Name | None = None
+    alerts_enabled: bool | None = None
+
+
+class SavedSearchOut(BaseModel):
+    id: uuid.UUID
+    name: str
+    params: dict[str, object]
+    alerts_enabled: bool
+    last_alerted_at: datetime | None
+    created_at: datetime
+
+
+class SavedJobOut(BaseModel):
+    job: JobOut
+    saved_at: datetime
+    is_open: bool
+
+
+class DeviceIn(BaseModel):
+    token: Annotated[str, StringConstraints(min_length=10, max_length=300)]
+    platform: Literal["ios", "android"]
+
+
+class NotificationSettingsIn(BaseModel):
+    push_enabled: bool
+
+
+class PasswordChangeIn(BaseModel):
+    current_password: str = Field(max_length=128)
+    new_password: Password
+
+
+class DeleteAccountIn(BaseModel):
+    password: str = Field(max_length=128)

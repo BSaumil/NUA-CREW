@@ -2,20 +2,17 @@ import uuid
 from typing import Annotated
 
 from fastapi import APIRouter, Query
-from sqlalchemy import func, or_, select
+from sqlalchemy import select
 
 from app.deps import Candidate, Session
-from app.errors import not_found
+from app.errors import ApiError, not_found
 from app.models import CandidateSkill, Job, JobSkill, Skill
 from app.schemas import JobList, JobOut, MatchOut
-from app.services.jobs import is_open, slugify, to_out
+from app.services.jobs import is_open, to_out
 from app.services.matching import CandidateCtx, JobCtx, compute_match
+from app.services.search import SearchParams, Sort, build
 
 router = APIRouter(prefix="/v1/jobs", tags=["jobs"])
-
-
-def _open_filter() -> list[object]:
-    return [Job.status == "published", or_(Job.expires_at.is_(None), Job.expires_at > func.now())]
 
 
 @router.get("", response_model=JobList)
@@ -27,40 +24,35 @@ async def search_jobs(
     employment_type: str | None = None,
     category: Annotated[str | None, Query(max_length=100)] = None,
     skill: Annotated[str | None, Query(max_length=100)] = None,
+    min_hourly: Annotated[float | None, Query(ge=0, le=1000)] = None,
+    near_lat: Annotated[float | None, Query(ge=-90, le=90)] = None,
+    near_lng: Annotated[float | None, Query(ge=-180, le=180)] = None,
+    radius_km: Annotated[float | None, Query(gt=0, le=200)] = None,
+    posted_within_days: Annotated[int | None, Query(ge=1, le=90)] = None,
+    sort: Sort = "relevance",
     page: Annotated[int, Query(ge=1, le=1000)] = 1,
     page_size: Annotated[int, Query(ge=1, le=50)] = 20,
 ) -> JobList:
-    """Public search over open jobs (Postgres full-text + structured filters)."""
-    where = _open_filter()
-    if suburb:
-        where.append(func.lower(Job.suburb) == suburb.lower())
-    if state:
-        where.append(Job.state == state.upper())
-    if employment_type:
-        where.append(Job.employment_type == employment_type)
-    if category:
-        where.append(func.lower(Job.category) == category.lower())
-    if skill:
-        where.append(
-            Job.id.in_(
-                select(JobSkill.job_id)
-                .join(Skill, Skill.id == JobSkill.skill_id)
-                .where(Skill.slug == slugify(skill))
-            )
-        )
-    stmt = select(Job).where(*where)  # type: ignore[arg-type]
-    count_stmt = select(func.count()).select_from(Job).where(*where)  # type: ignore[arg-type]
-    if q and q.strip():
-        tsq = func.websearch_to_tsquery("english", q)
-        stmt = stmt.where(Job.search_vector.op("@@")(tsq)).order_by(
-            func.ts_rank_cd(Job.search_vector, tsq).desc(), Job.published_at.desc()
-        )
-        count_stmt = count_stmt.where(Job.search_vector.op("@@")(tsq))
-    else:
-        stmt = stmt.order_by(Job.published_at.desc().nulls_last(), Job.id)
+    """Public search over open jobs: full-text, structured filters, pay floor and "near me".
+
+    Coordinates are used for this request only and are never stored or logged.
+    """
+    if (near_lat is None) != (near_lng is None):
+        raise ApiError(422, "near_incomplete", "Provide both near_lat and near_lng")
+    if sort == "distance" and near_lat is None:
+        raise ApiError(422, "near_required", "sort=distance needs near_lat and near_lng")
+    params = SearchParams(
+        q=q, suburb=suburb, state=state, employment_type=employment_type, category=category,
+        skill=skill, min_hourly=min_hourly, near_lat=near_lat, near_lng=near_lng,
+        radius_km=radius_km, posted_within_days=posted_within_days, sort=sort,
+    )  # fmt: skip
+    stmt, count_stmt = build(params)
     total = await session.scalar(count_stmt) or 0
     jobs = list(await session.scalars(stmt.limit(page_size).offset((page - 1) * page_size)))
-    return JobList(items=await to_out(session, jobs), total=total, page=page, page_size=page_size)
+    items = await to_out(
+        session, jobs, origin=(near_lat, near_lng) if near_lat is not None else None
+    )
+    return JobList(items=items, total=total, page=page, page_size=page_size)
 
 
 async def _open_job(session: Session, job_id: uuid.UUID) -> Job:

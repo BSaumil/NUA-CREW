@@ -127,6 +127,7 @@ class CandidateProfile(TimestampMixin, Base):
     discoverable: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("false")
     )
+    push_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
 
 
 class Skill(Base):
@@ -283,6 +284,8 @@ class Job(TimestampMixin, Base):
     apply_url: Mapped[str | None] = mapped_column(Text)
     source_employer_name: Mapped[str | None] = mapped_column(String(200))
     attribution: Mapped[str | None] = mapped_column(Text)
+    lat: Mapped[float | None] = mapped_column(Numeric(9, 6))  # approximate suburb centroid
+    lng: Mapped[float | None] = mapped_column(Numeric(9, 6))
     published_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
@@ -481,7 +484,8 @@ class ApplicationEvent(Base):
     event_type: Mapped[str] = mapped_column(String(24), nullable=False)
     from_status: Mapped[str | None] = mapped_column(String(16))
     to_status: Mapped[str | None] = mapped_column(String(16))
-    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    # Plain id, not a foreign key: append-only history cannot be nulled out when an account goes.
+    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     actor_role: Mapped[str] = mapped_column(String(16), nullable=False)
     visible_to_candidate: Mapped[bool] = mapped_column(
         Boolean, nullable=False, server_default=text("true")
@@ -505,6 +509,7 @@ class Notification(Base):
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
     read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    pushed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -515,7 +520,8 @@ class AuditEvent(Base):
 
     __tablename__ = "audit_events"
     id: Mapped[uuid.UUID] = _uuid_pk()
-    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    # Deliberately NOT a foreign key: audit history must survive account deletion (ADR-007).
+    actor_user_id: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     action: Mapped[str] = mapped_column(String(100), nullable=False, index=True)
     entity_type: Mapped[str] = mapped_column(String(64), nullable=False)
     entity_id: Mapped[str | None] = mapped_column(String(64))
@@ -523,5 +529,75 @@ class AuditEvent(Base):
         "metadata", JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class RefreshToken(Base):
+    """Rotating refresh tokens (hashed). Reuse of a rotated token revokes the whole family."""
+
+    __tablename__ = "refresh_tokens"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    family_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), nullable=False, index=True)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False, unique=True)
+    device_label: Mapped[str | None] = mapped_column(String(100))
+    family_started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class SavedJob(Base):
+    __tablename__ = "saved_jobs"
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), primary_key=True
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("jobs.id", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class SavedSearch(Base):
+    __tablename__ = "saved_searches"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    name: Mapped[str] = mapped_column(String(100), nullable=False)
+    params: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)
+    alerts_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
+    last_alerted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class DeviceToken(Base):
+    """Push tokens. Deleted on logout, account deletion, or when the provider reports them dead."""
+
+    __tablename__ = "device_tokens"
+    __table_args__ = (
+        CheckConstraint(_in("platform", ("ios", "android")), name="ck_device_platform"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    token: Mapped[str] = mapped_column(String(300), nullable=False, unique=True)
+    platform: Mapped[str] = mapped_column(String(8), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_seen_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

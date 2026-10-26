@@ -38,6 +38,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * Delete Account
+         * @description Permanently erase a candidate account and everything attached to it.
+         *
+         *     Hiring records held by employers about this person (their application rows) go too; whether
+         *     employers have a retention obligation is a legal question tracked in the launch gates.
+         *     The audit trail is kept but only holds the (now orphaned) user id.
+         */
+        delete: operations["delete_account_v1_account_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/export": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Export Account
+         * @description Everything NUA CREW holds about the caller, as JSON. Employer-authored notes are excluded:
+         *     they are the employer's records, not the candidate's personal data.
+         */
+        get: operations["export_account_v1_account_export_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/account/password": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change Password */
+        post: operations["change_password_v1_account_password_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/employers": {
         parameters: {
             query?: never;
@@ -268,6 +330,43 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Logout
+         * @description Sign out this device. Idempotent; never reveals whether the token existed.
+         */
+        post: operations["logout_v1_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/logout-all": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout All */
+        post: operations["logout_all_v1_auth_logout_all_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/me": {
         parameters: {
             query?: never;
@@ -279,6 +378,26 @@ export interface paths {
         get: operations["me_v1_auth_me_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Refresh
+         * @description Exchange a refresh token for a new access token and a new refresh token (rotation).
+         */
+        post: operations["refresh_v1_auth_refresh_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -390,6 +509,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/candidate/notification-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Notification Settings */
+        put: operations["notification_settings_v1_candidate_notification_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/profile": {
         parameters: {
             query?: never;
@@ -455,6 +591,118 @@ export interface paths {
         /** Add Resume Version */
         post: operations["add_resume_version_v1_candidate_resumes__resume_id__versions_post"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/saved-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved Jobs */
+        get: operations["list_saved_jobs_v1_candidate_saved_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/saved-jobs/ids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Saved Job Ids
+         * @description Lightweight list so clients can draw the heart on search results.
+         */
+        get: operations["saved_job_ids_v1_candidate_saved_jobs_ids_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/saved-jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Save Job */
+        put: operations["save_job_v1_candidate_saved_jobs__job_id__put"];
+        post?: never;
+        /** Unsave Job */
+        delete: operations["unsave_job_v1_candidate_saved_jobs__job_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/saved-searches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Saved Searches */
+        get: operations["list_saved_searches_v1_candidate_saved_searches_get"];
+        put?: never;
+        /** Create Saved Search */
+        post: operations["create_saved_search_v1_candidate_saved_searches_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/saved-searches/{search_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Saved Search */
+        delete: operations["delete_saved_search_v1_candidate_saved_searches__search_id__delete"];
+        options?: never;
+        head?: never;
+        /** Patch Saved Search */
+        patch: operations["patch_saved_search_v1_candidate_saved_searches__search_id__patch"];
+        trace?: never;
+    };
+    "/v1/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Register Device
+         * @description Upsert a push token. If the phone changed hands, the token follows the latest sign-in.
+         */
+        post: operations["register_device_v1_devices_post"];
+        /** Unregister Device */
+        delete: operations["unregister_device_v1_devices_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -697,7 +945,9 @@ export interface paths {
         };
         /**
          * Search Jobs
-         * @description Public search over open jobs (Postgres full-text + structured filters).
+         * @description Public search over open jobs: full-text, structured filters, pay floor and "near me".
+         *
+         *     Coordinates are used for this request only and are never stored or logged.
          */
         get: operations["search_jobs_v1_jobs_get"];
         put?: never;
@@ -879,6 +1129,14 @@ export interface components {
              */
             accept_terms: true;
             /**
+             * Client
+             * @default web
+             * @enum {string}
+             */
+            client: "web" | "mobile";
+            /** Device Label */
+            device_label?: string | null;
+            /**
              * Email
              * Format: email
              */
@@ -892,6 +1150,21 @@ export interface components {
         ConsentIn: {
             /** Granted */
             granted: boolean;
+        };
+        /** DeleteAccountIn */
+        DeleteAccountIn: {
+            /** Password */
+            password: string;
+        };
+        /** DeviceIn */
+        DeviceIn: {
+            /**
+             * Platform
+             * @enum {string}
+             */
+            platform: "ios" | "android";
+            /** Token */
+            token: string;
         };
         /** EmployerApplicationOut */
         EmployerApplicationOut: {
@@ -1065,6 +1338,8 @@ export interface components {
             category: string | null;
             /** Description */
             description: string;
+            /** Distance Km */
+            distance_km?: number | null;
             employer: components["schemas"]["JobEmployerOut"];
             /** Employment Type */
             employment_type: string;
@@ -1140,6 +1415,14 @@ export interface components {
         };
         /** Login */
         Login: {
+            /**
+             * Client
+             * @default web
+             * @enum {string}
+             */
+            client: "web" | "mobile";
+            /** Device Label */
+            device_label?: string | null;
             /**
              * Email
              * Format: email
@@ -1271,6 +1554,18 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** NotificationSettingsIn */
+        NotificationSettingsIn: {
+            /** Push Enabled */
+            push_enabled: boolean;
+        };
+        /** PasswordChangeIn */
+        PasswordChangeIn: {
+            /** Current Password */
+            current_password: string;
+            /** New Password */
+            new_password: string;
+        };
         /** PermissionIn */
         PermissionIn: {
             /** Attribution */
@@ -1335,6 +1630,11 @@ export interface components {
             /** Preferred Employment Types */
             preferred_employment_types: string[];
             /**
+             * Push Enabled
+             * @default true
+             */
+            push_enabled: boolean;
+            /**
              * Skills
              * @default []
              */
@@ -1345,6 +1645,11 @@ export interface components {
             suburb: string | null;
             /** Summary */
             summary: string | null;
+        };
+        /** RefreshIn */
+        RefreshIn: {
+            /** Refresh Token */
+            refresh_token: string;
         };
         /** ResumeIn */
         ResumeIn: {
@@ -1387,6 +1692,58 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** SavedJobOut */
+        SavedJobOut: {
+            /** Is Open */
+            is_open: boolean;
+            job: components["schemas"]["JobOut"];
+            /**
+             * Saved At
+             * Format: date-time
+             */
+            saved_at: string;
+        };
+        /** SavedSearchIn */
+        SavedSearchIn: {
+            /**
+             * Alerts Enabled
+             * @default true
+             */
+            alerts_enabled: boolean;
+            /** Name */
+            name: string;
+            params: components["schemas"]["SearchParamsIn"];
+        };
+        /** SavedSearchOut */
+        SavedSearchOut: {
+            /** Alerts Enabled */
+            alerts_enabled: boolean;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Alerted At */
+            last_alerted_at: string | null;
+            /** Name */
+            name: string;
+            /** Params */
+            params: {
+                [key: string]: unknown;
+            };
+        };
+        /** SavedSearchPatch */
+        SavedSearchPatch: {
+            /** Alerts Enabled */
+            alerts_enabled?: boolean | null;
+            /** Name */
+            name?: string | null;
+        };
         /** ScheduleIn */
         ScheduleIn: {
             /** Interval Seconds */
@@ -1396,6 +1753,34 @@ export interface components {
              * @default 60
              */
             min_interval_seconds: number;
+        };
+        /**
+         * SearchParamsIn
+         * @description The subset of search filters that can be saved (and alerted on).
+         */
+        SearchParamsIn: {
+            /** Category */
+            category?: string | null;
+            /** Employment Type */
+            employment_type?: ("full_time" | "part_time" | "casual" | "contract" | "shift") | null;
+            /** Min Hourly */
+            min_hourly?: number | null;
+            /** Near Lat */
+            near_lat?: number | null;
+            /** Near Lng */
+            near_lng?: number | null;
+            /** Posted Within Days */
+            posted_within_days?: number | null;
+            /** Q */
+            q?: string | null;
+            /** Radius Km */
+            radius_km?: number | null;
+            /** Skill */
+            skill?: string | null;
+            /** State */
+            state?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
+            /** Suburb */
+            suburb?: string | null;
         };
         /** SourceHealthOut */
         SourceHealthOut: {
@@ -1507,6 +1892,13 @@ export interface components {
         TokenOut: {
             /** Access Token */
             access_token: string;
+            /**
+             * Expires In
+             * @default 1800
+             */
+            expires_in: number;
+            /** Refresh Token */
+            refresh_token?: string | null;
             /** Role */
             role: string;
             /**
@@ -1593,6 +1985,88 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+        };
+    };
+    delete_account_v1_account_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeleteAccountIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    export_account_v1_account_export_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    change_password_v1_account_password_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PasswordChangeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2011,6 +2485,55 @@ export interface operations {
             };
         };
     };
+    logout_v1_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    logout_all_v1_auth_logout_all_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     me_v1_auth_me_get: {
         parameters: {
             query?: never;
@@ -2027,6 +2550,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeOut"];
+                };
+            };
+        };
+    };
+    refresh_v1_auth_refresh_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
@@ -2212,6 +2768,39 @@ export interface operations {
             };
         };
     };
+    notification_settings_v1_candidate_notification_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NotificationSettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_profile_v1_candidate_profile_get: {
         parameters: {
             query?: never;
@@ -2372,6 +2961,283 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["ResumeOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_saved_jobs_v1_candidate_saved_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedJobOut"][];
+                };
+            };
+        };
+    };
+    saved_job_ids_v1_candidate_saved_jobs_ids_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": string[];
+                };
+            };
+        };
+    };
+    save_job_v1_candidate_saved_jobs__job_id__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unsave_job_v1_candidate_saved_jobs__job_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_saved_searches_v1_candidate_saved_searches_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchOut"][];
+                };
+            };
+        };
+    };
+    create_saved_search_v1_candidate_saved_searches_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedSearchIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_saved_search_v1_candidate_saved_searches__search_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_saved_search_v1_candidate_saved_searches__search_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                search_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SavedSearchPatch"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SavedSearchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    register_device_v1_devices_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    unregister_device_v1_devices_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
@@ -2942,6 +3808,12 @@ export interface operations {
                 employment_type?: string | null;
                 category?: string | null;
                 skill?: string | null;
+                min_hourly?: number | null;
+                near_lat?: number | null;
+                near_lng?: number | null;
+                radius_km?: number | null;
+                posted_within_days?: number | null;
+                sort?: "relevance" | "newest" | "pay" | "distance";
                 page?: number;
                 page_size?: number;
             };

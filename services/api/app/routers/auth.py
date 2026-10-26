@@ -22,9 +22,11 @@ from app.schemas import (
     Login,
     MembershipOut,
     MeOut,
+    RefreshIn,
     TokenOut,
 )
 from app.security import create_access_token, hash_password, verify_password
+from app.services import tokens
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -50,9 +52,22 @@ async def _create_user(session: Session, email: str, password: str, role: str) -
     return user
 
 
-def _token(user: User) -> TokenOut:
+async def _token(
+    session: Session,
+    user: User,
+    client: str = "web",
+    device_label: str | None = None,
+    refresh: str | None = None,
+) -> TokenOut:
+    """Web gets short-lived access tokens only; mobile also gets a rotating refresh token."""
+    if client == "mobile" and refresh is None:
+        refresh = await tokens.issue(session, user, device_label)
     return TokenOut(
-        access_token=create_access_token(user.id, user.role), role=user.role, user_id=user.id
+        access_token=create_access_token(user.id, user.role),
+        role=user.role,
+        user_id=user.id,
+        expires_in=get_settings().access_token_minutes * 60,
+        refresh_token=refresh,
     )
 
 
@@ -65,7 +80,7 @@ async def register_candidate(
         user = await _create_user(session, body.email, body.password, "candidate")
         session.add(CandidateProfile(user_id=user.id, full_name=body.full_name))
         await audit(session, user.id, "user.registered", "user", user.id, role="candidate")
-        return _token(user)
+        return await _token(session, user, body.client, body.device_label)
 
 
 @router.post("/register/employer", response_model=TokenOut, status_code=201)
@@ -85,7 +100,7 @@ async def register_employer(body: EmployerRegister, session: Session, request: R
         if body.location:
             session.add(Location(employer_id=employer.id, **body.location.model_dump()))
         await audit(session, user.id, "employer.registered", "employer", employer.id)
-        return _token(user)
+        return await _token(session, user)
 
 
 @router.post("/login", response_model=TokenOut)
@@ -97,7 +112,35 @@ async def login(body: Login, session: Session, request: Request) -> TokenOut:
     ok = verify_password(body.password, user.password_hash if user else None)
     if not ok or user is None or not user.is_active:
         raise ApiError(401, "invalid_credentials", "Email or password is incorrect")
-    return _token(user)
+    async with system_scope(session):
+        return await _token(session, user, body.client, body.device_label)
+
+
+@router.post("/refresh", response_model=TokenOut)
+async def refresh(body: RefreshIn, session: Session, request: Request) -> TokenOut:
+    """Exchange a refresh token for a new access token and a new refresh token (rotation)."""
+    await _throttle(request, "refresh", body.refresh_token[:16])
+    async with system_scope(session):
+        try:
+            user, new = await tokens.rotate(session, body.refresh_token)
+        except ApiError:
+            # Reuse detection revokes the family; that change must persist despite the 401.
+            await session.commit()
+            raise
+        return await _token(session, user, "mobile", refresh=new)
+
+
+@router.post("/logout", status_code=204)
+async def logout(body: RefreshIn, session: Session) -> None:
+    """Sign out this device. Idempotent; never reveals whether the token existed."""
+    async with system_scope(session):
+        await tokens.revoke_by_raw(session, body.refresh_token)
+
+
+@router.post("/logout-all", status_code=204)
+async def logout_all(user: CurrentUser, session: Session) -> None:
+    async with system_scope(session):
+        await tokens.revoke_all(session, user.id)
 
 
 @router.get("/me", response_model=MeOut)

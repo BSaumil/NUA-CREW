@@ -203,6 +203,27 @@
             "title": "Accept Terms",
             "type": "boolean"
           },
+          "client": {
+            "default": "web",
+            "enum": [
+              "web",
+              "mobile"
+            ],
+            "title": "Client",
+            "type": "string"
+          },
+          "device_label": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Label"
+          },
           "email": {
             "format": "email",
             "title": "Email",
@@ -241,6 +262,44 @@
           "granted"
         ],
         "title": "ConsentIn",
+        "type": "object"
+      },
+      "DeleteAccountIn": {
+        "properties": {
+          "password": {
+            "maxLength": 128,
+            "title": "Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "password"
+        ],
+        "title": "DeleteAccountIn",
+        "type": "object"
+      },
+      "DeviceIn": {
+        "properties": {
+          "platform": {
+            "enum": [
+              "ios",
+              "android"
+            ],
+            "title": "Platform",
+            "type": "string"
+          },
+          "token": {
+            "maxLength": 300,
+            "minLength": 10,
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "platform"
+        ],
+        "title": "DeviceIn",
         "type": "object"
       },
       "EmployerApplicationOut": {
@@ -816,6 +875,17 @@
             "title": "Description",
             "type": "string"
           },
+          "distance_km": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Distance Km"
+          },
           "employer": {
             "$ref": "#/components/schemas/JobEmployerOut"
           },
@@ -1088,6 +1158,27 @@
       },
       "Login": {
         "properties": {
+          "client": {
+            "default": "web",
+            "enum": [
+              "web",
+              "mobile"
+            ],
+            "title": "Client",
+            "type": "string"
+          },
+          "device_label": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Device Label"
+          },
           "email": {
             "format": "email",
             "title": "Email",
@@ -1387,6 +1478,40 @@
         "title": "NotificationOut",
         "type": "object"
       },
+      "NotificationSettingsIn": {
+        "properties": {
+          "push_enabled": {
+            "title": "Push Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "push_enabled"
+        ],
+        "title": "NotificationSettingsIn",
+        "type": "object"
+      },
+      "PasswordChangeIn": {
+        "properties": {
+          "current_password": {
+            "maxLength": 128,
+            "title": "Current Password",
+            "type": "string"
+          },
+          "new_password": {
+            "maxLength": 128,
+            "minLength": 12,
+            "title": "New Password",
+            "type": "string"
+          }
+        },
+        "required": [
+          "current_password",
+          "new_password"
+        ],
+        "title": "PasswordChangeIn",
+        "type": "object"
+      },
       "PermissionIn": {
         "properties": {
           "attribution": {
@@ -1646,6 +1771,11 @@
             "title": "Preferred Employment Types",
             "type": "array"
           },
+          "push_enabled": {
+            "default": true,
+            "title": "Push Enabled",
+            "type": "boolean"
+          },
           "skills": {
             "default": [],
             "items": {
@@ -1702,6 +1832,21 @@
           "discoverable"
         ],
         "title": "ProfileOut",
+        "type": "object"
+      },
+      "RefreshIn": {
+        "properties": {
+          "refresh_token": {
+            "maxLength": 200,
+            "minLength": 20,
+            "title": "Refresh Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RefreshIn",
         "type": "object"
       },
       "ResumeIn": {
@@ -1798,6 +1943,132 @@
         "title": "ResumeVersionOut",
         "type": "object"
       },
+      "SavedJobOut": {
+        "properties": {
+          "is_open": {
+            "title": "Is Open",
+            "type": "boolean"
+          },
+          "job": {
+            "$ref": "#/components/schemas/JobOut"
+          },
+          "saved_at": {
+            "format": "date-time",
+            "title": "Saved At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job",
+          "saved_at",
+          "is_open"
+        ],
+        "title": "SavedJobOut",
+        "type": "object"
+      },
+      "SavedSearchIn": {
+        "properties": {
+          "alerts_enabled": {
+            "default": true,
+            "title": "Alerts Enabled",
+            "type": "boolean"
+          },
+          "name": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "params": {
+            "$ref": "#/components/schemas/SearchParamsIn"
+          }
+        },
+        "required": [
+          "name",
+          "params"
+        ],
+        "title": "SavedSearchIn",
+        "type": "object"
+      },
+      "SavedSearchOut": {
+        "properties": {
+          "alerts_enabled": {
+            "title": "Alerts Enabled",
+            "type": "boolean"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "last_alerted_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Alerted At"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "params": {
+            "additionalProperties": true,
+            "title": "Params",
+            "type": "object"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "params",
+          "alerts_enabled",
+          "last_alerted_at",
+          "created_at"
+        ],
+        "title": "SavedSearchOut",
+        "type": "object"
+      },
+      "SavedSearchPatch": {
+        "properties": {
+          "alerts_enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alerts Enabled"
+          },
+          "name": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Name"
+          }
+        },
+        "title": "SavedSearchPatch",
+        "type": "object"
+      },
       "ScheduleIn": {
         "properties": {
           "interval_seconds": {
@@ -1822,6 +2093,165 @@
           }
         },
         "title": "ScheduleIn",
+        "type": "object"
+      },
+      "SearchParamsIn": {
+        "description": "The subset of search filters that can be saved (and alerted on).",
+        "properties": {
+          "category": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Category"
+          },
+          "employment_type": {
+            "anyOf": [
+              {
+                "enum": [
+                  "full_time",
+                  "part_time",
+                  "casual",
+                  "contract",
+                  "shift"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employment Type"
+          },
+          "min_hourly": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Hourly"
+          },
+          "near_lat": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": -90.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Near Lat"
+          },
+          "near_lng": {
+            "anyOf": [
+              {
+                "maximum": 180.0,
+                "minimum": -180.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Near Lng"
+          },
+          "posted_within_days": {
+            "anyOf": [
+              {
+                "maximum": 90.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Posted Within Days"
+          },
+          "q": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Q"
+          },
+          "radius_km": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 200.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Radius Km"
+          },
+          "skill": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Skill"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ACT",
+                  "NSW",
+                  "NT",
+                  "QLD",
+                  "SA",
+                  "TAS",
+                  "VIC",
+                  "WA"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "suburb": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suburb"
+          }
+        },
+        "title": "SearchParamsIn",
         "type": "object"
       },
       "SourceHealthOut": {
@@ -2103,6 +2533,22 @@
             "title": "Access Token",
             "type": "string"
           },
+          "expires_in": {
+            "default": 1800,
+            "title": "Expires In",
+            "type": "integer"
+          },
+          "refresh_token": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Refresh Token"
+          },
           "role": {
             "title": "Role",
             "type": "string"
@@ -2253,6 +2699,110 @@
         "summary": "Readyz",
         "tags": [
           "health"
+        ]
+      }
+    },
+    "/v1/account": {
+      "delete": {
+        "description": "Permanently erase a candidate account and everything attached to it.\n\nHiring records held by employers about this person (their application rows) go too; whether\nemployers have a retention obligation is a legal question tracked in the launch gates.\nThe audit trail is kept but only holds the (now orphaned) user id.",
+        "operationId": "delete_account_v1_account_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteAccountIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Account",
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/v1/account/export": {
+      "get": {
+        "description": "Everything NUA CREW holds about the caller, as JSON. Employer-authored notes are excluded:\nthey are the employer's records, not the candidate's personal data.",
+        "operationId": "export_account_v1_account_export_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Export Account",
+        "tags": [
+          "account"
+        ]
+      }
+    },
+    "/v1/account/password": {
+      "post": {
+        "operationId": "change_password_v1_account_password_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PasswordChangeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Change Password",
+        "tags": [
+          "account"
         ]
       }
     },
@@ -2935,6 +3485,60 @@
         ]
       }
     },
+    "/v1/auth/logout": {
+      "post": {
+        "description": "Sign out this device. Idempotent; never reveals whether the token existed.",
+        "operationId": "logout_v1_auth_logout_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Logout",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/logout-all": {
+      "post": {
+        "operationId": "logout_all_v1_auth_logout_all_post",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Logout All",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
     "/v1/auth/me": {
       "get": {
         "operationId": "me_v1_auth_me_get",
@@ -2956,6 +3560,48 @@
           }
         ],
         "summary": "Me",
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/v1/auth/refresh": {
+      "post": {
+        "description": "Exchange a refresh token for a new access token and a new refresh token (rotation).",
+        "operationId": "refresh_v1_auth_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Refresh",
         "tags": [
           "auth"
         ]
@@ -3216,6 +3862,52 @@
         ]
       }
     },
+    "/v1/candidate/notification-settings": {
+      "put": {
+        "operationId": "notification_settings_v1_candidate_notification_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NotificationSettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProfileOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Notification Settings",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
     "/v1/candidate/profile": {
       "get": {
         "operationId": "get_profile_v1_candidate_profile_get",
@@ -3463,6 +4155,396 @@
         "summary": "Add Resume Version",
         "tags": [
           "candidate"
+        ]
+      }
+    },
+    "/v1/candidate/saved-jobs": {
+      "get": {
+        "operationId": "list_saved_jobs_v1_candidate_saved_jobs_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedJobOut"
+                  },
+                  "title": "Response List Saved Jobs V1 Candidate Saved Jobs Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Saved Jobs",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/candidate/saved-jobs/ids": {
+      "get": {
+        "description": "Lightweight list so clients can draw the heart on search results.",
+        "operationId": "saved_job_ids_v1_candidate_saved_jobs_ids_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "format": "uuid",
+                    "type": "string"
+                  },
+                  "title": "Response Saved Job Ids V1 Candidate Saved Jobs Ids Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Saved Job Ids",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/candidate/saved-jobs/{job_id}": {
+      "delete": {
+        "operationId": "unsave_job_v1_candidate_saved_jobs__job_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Unsave Job",
+        "tags": [
+          "mobile"
+        ]
+      },
+      "put": {
+        "operationId": "save_job_v1_candidate_saved_jobs__job_id__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Save Job",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/candidate/saved-searches": {
+      "get": {
+        "operationId": "list_saved_searches_v1_candidate_saved_searches_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/SavedSearchOut"
+                  },
+                  "title": "Response List Saved Searches V1 Candidate Saved Searches Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Saved Searches",
+        "tags": [
+          "mobile"
+        ]
+      },
+      "post": {
+        "operationId": "create_saved_search_v1_candidate_saved_searches_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedSearchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Saved Search",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/candidate/saved-searches/{search_id}": {
+      "delete": {
+        "operationId": "delete_saved_search_v1_candidate_saved_searches__search_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "search_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Search Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Saved Search",
+        "tags": [
+          "mobile"
+        ]
+      },
+      "patch": {
+        "operationId": "patch_saved_search_v1_candidate_saved_searches__search_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "search_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Search Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SavedSearchPatch"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SavedSearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Patch Saved Search",
+        "tags": [
+          "mobile"
+        ]
+      }
+    },
+    "/v1/devices": {
+      "delete": {
+        "operationId": "unregister_device_v1_devices_delete",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Unregister Device",
+        "tags": [
+          "mobile"
+        ]
+      },
+      "post": {
+        "description": "Upsert a push token. If the phone changed hands, the token follows the latest sign-in.",
+        "operationId": "register_device_v1_devices_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeviceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Register Device",
+        "tags": [
+          "mobile"
         ]
       }
     },
@@ -4425,7 +5507,7 @@
     },
     "/v1/jobs": {
       "get": {
-        "description": "Public search over open jobs (Postgres full-text + structured filters).",
+        "description": "Public search over open jobs: full-text, structured filters, pay floor and \"near me\".\n\nCoordinates are used for this request only and are never stored or logged.",
         "operationId": "search_jobs_v1_jobs_get",
         "parameters": [
           {
@@ -4527,6 +5609,112 @@
                 }
               ],
               "title": "Skill"
+            }
+          },
+          {
+            "in": "query",
+            "name": "min_hourly",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 1000,
+                  "minimum": 0,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Min Hourly"
+            }
+          },
+          {
+            "in": "query",
+            "name": "near_lat",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 90,
+                  "minimum": -90,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Near Lat"
+            }
+          },
+          {
+            "in": "query",
+            "name": "near_lng",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 180,
+                  "minimum": -180,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Near Lng"
+            }
+          },
+          {
+            "in": "query",
+            "name": "radius_km",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "exclusiveMinimum": 0,
+                  "maximum": 200,
+                  "type": "number"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Radius Km"
+            }
+          },
+          {
+            "in": "query",
+            "name": "posted_within_days",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maximum": 90,
+                  "minimum": 1,
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Posted Within Days"
+            }
+          },
+          {
+            "in": "query",
+            "name": "sort",
+            "required": false,
+            "schema": {
+              "default": "relevance",
+              "enum": [
+                "relevance",
+                "newest",
+                "pay",
+                "distance"
+              ],
+              "title": "Sort",
+              "type": "string"
             }
           },
           {

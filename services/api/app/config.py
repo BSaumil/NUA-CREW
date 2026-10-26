@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     application_limit_per_hour: int = 60
     job_create_limit_per_hour: int = 60
     redis_url: str | None = None
+    push_provider: str = "none"  # "expo" enables real push delivery
     ingestion_stale_after_seconds: int = 7 * 24 * 3600
     fixtures_dir: str = "fixtures"
 

@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Employer, Job, JobSkill, JobVersion, Location, Skill
 from app.schemas import JobEmployerOut, JobIn, JobOut
+from app.services.geo import centroid, haversine_km
 
 _NON_SLUG = re.compile(r"[^a-z0-9]+")
 
@@ -82,6 +83,11 @@ async def set_job_skills(session: AsyncSession, job: Job, names: Iterable[str]) 
     return [s.name for s in skills]
 
 
+def _coords(suburb: str | None, state: str | None) -> tuple[float | None, float | None]:
+    c = centroid(suburb, state)
+    return (c[0], c[1]) if c else (None, None)
+
+
 def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.title = data.title
     job.description = data.description
@@ -91,6 +97,7 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.suburb = location.suburb if location else None
     job.state = location.state if location else None
     job.postcode = location.postcode if location else None
+    job.lat, job.lng = _coords(job.suburb, job.state)
     job.pay_min = data.pay_min
     job.pay_max = data.pay_max
     job.pay_period = data.pay_period if (data.pay_min or data.pay_max) else None
@@ -107,7 +114,17 @@ def is_open(job: Job, now: datetime | None = None) -> bool:
     return job.status == "published" and (job.expires_at is None or job.expires_at > now)
 
 
-async def to_out(session: AsyncSession, jobs: Sequence[Job]) -> list[JobOut]:
+def _distance(origin: tuple[float | None, float | None] | None, j: Job) -> float | None:
+    if not origin or origin[0] is None or origin[1] is None or j.lat is None or j.lng is None:
+        return None
+    return round(haversine_km(origin[0], origin[1], float(j.lat), float(j.lng)), 1)
+
+
+async def to_out(
+    session: AsyncSession,
+    jobs: Sequence[Job],
+    origin: tuple[float | None, float | None] | None = None,
+) -> list[JobOut]:
     if not jobs:
         return []
     ids = [j.id for j in jobs]
@@ -153,6 +170,7 @@ async def to_out(session: AsyncSession, jobs: Sequence[Job]) -> list[JobOut]:
                 last_verified_at=j.last_verified_at,
                 skills=skills.get(j.id, []),
                 location_id=j.location_id,
+                distance_km=_distance(origin, j),
                 employer=JobEmployerOut(
                     id=emp.id if emp else None,
                     name=emp.name if emp else j.source_employer_name,

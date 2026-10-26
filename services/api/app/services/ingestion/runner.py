@@ -18,7 +18,7 @@ from app.models import (
     SourcePermission,
 )
 from app.services.ingestion.connector import OPTIONAL_FIELDS, Connector, ParsedJob, build_connector
-from app.services.jobs import record_version, set_job_skills
+from app.services.jobs import _coords, record_version, set_job_skills
 
 
 async def active_permission(
@@ -70,6 +70,7 @@ def _apply(job: Job, data: dict[str, Any], attribution: str | None) -> None:
     job.suburb = data.get("suburb") and str(data["suburb"]) or None
     job.state = data.get("state") and str(data["state"]) or None
     job.postcode = data.get("postcode") and str(data["postcode"]) or None
+    job.lat, job.lng = _coords(job.suburb, job.state)
     job.pay_min, job.pay_max = pay_min, pay_max
     job.pay_period = str(period) if period else None
     job.pay_basis = "disclosed" if pay_min is not None or pay_max is not None else "not_disclosed"
