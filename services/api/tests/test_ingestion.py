@@ -125,9 +125,9 @@ async def test_changed_listing_updates_and_versions(client, feed):
     assert titles == {"Senior Barista", "Kitchen Hand"}
     from sqlalchemy import text
 
-    from app.db import get_sessionmaker
+    from tests.conftest import db_as
 
-    async with get_sessionmaker()() as s:
+    async with db_as() as s:
         n = (await s.execute(text("select count(*) from job_versions"))).scalar()
     assert n == 3  # 2 created + 1 update
 

@@ -76,7 +76,7 @@ async def talent_discovery_consent(
     """Opt-in only. Default is off; every change is recorded in the consent history."""
     profile.discoverable = body.granted
     session.add(Consent(user_id=user.id, kind="talent_discovery", granted=body.granted))
-    audit(session, user.id, "consent.talent_discovery", "user", user.id, granted=body.granted)
+    await audit(session, user.id, "consent.talent_discovery", "user", user.id, granted=body.granted)
     await session.flush()
     return await _profile_out(session, profile)
 

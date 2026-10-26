@@ -4,9 +4,10 @@ from typing import Any
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Notification
+from app.rls import system_scope
 
 
-def notify(
+async def notify(
     session: AsyncSession,
     user_id: uuid.UUID,
     kind: str,
@@ -14,4 +15,6 @@ def notify(
     body: str | None = None,
     **data: Any,
 ) -> None:
-    session.add(Notification(user_id=user_id, kind=kind, title=title, body=body, data=data))
+    """Notifications cross users (employer action -> candidate inbox), so insert in system scope."""
+    async with system_scope(session):
+        session.add(Notification(user_id=user_id, kind=kind, title=title, body=body, data=data))

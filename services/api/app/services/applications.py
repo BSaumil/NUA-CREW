@@ -12,6 +12,7 @@ from app.models import (
     Job,
     User,
 )
+from app.rls import system_scope
 from app.services.notify import notify
 
 # Employer-driven pipeline. Terminal states cannot move; a human always decides.
@@ -65,7 +66,7 @@ async def change_status(
             visible_to_candidate=True,
         )
     )
-    audit(
+    await audit(
         session,
         actor.id,
         "application.status_changed",
@@ -79,7 +80,7 @@ async def change_status(
 
     cand = await session.get(CandidateProfile, app.candidate_id)
     if cand is not None:
-        notify(
+        await notify(
             session,
             cand.user_id,
             "application.status_changed",
@@ -96,14 +97,18 @@ async def notify_employer_team(
 ) -> None:
     if job.employer_id is None:
         return
-    members = await session.scalars(
-        select(EmployerMembership).where(
-            EmployerMembership.employer_id == job.employer_id,
-            EmployerMembership.role.in_(("owner", "recruiter")),
+    # The applicant cannot see the employer's team; resolving recipients is a system action.
+    async with system_scope(session):
+        members = list(
+            await session.scalars(
+                select(EmployerMembership).where(
+                    EmployerMembership.employer_id == job.employer_id,
+                    EmployerMembership.role.in_(("owner", "recruiter")),
+                )
+            )
         )
-    )
     for m in members:
-        notify(
+        await notify(
             session,
             m.user_id,
             "application.received",

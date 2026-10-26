@@ -14,6 +14,7 @@ from app.models import (
     Location,
     User,
 )
+from app.rls import system_scope
 from app.schemas import (
     CandidateRegister,
     EmployerRegister,
@@ -57,28 +58,32 @@ def _token(user: User) -> TokenOut:
 async def register_candidate(
     body: CandidateRegister, session: Session, request: Request
 ) -> TokenOut:
-    _throttle(request, "register", body.email)
-    user = await _create_user(session, body.email, body.password, "candidate")
-    session.add(CandidateProfile(user_id=user.id, full_name=body.full_name))
-    audit(session, user.id, "user.registered", "user", user.id, role="candidate")
-    return _token(user)
+    async with system_scope(session):
+        _throttle(request, "register", body.email)
+        user = await _create_user(session, body.email, body.password, "candidate")
+        session.add(CandidateProfile(user_id=user.id, full_name=body.full_name))
+        await audit(session, user.id, "user.registered", "user", user.id, role="candidate")
+        return _token(user)
 
 
 @router.post("/register/employer", response_model=TokenOut, status_code=201)
 async def register_employer(body: EmployerRegister, session: Session, request: Request) -> TokenOut:
-    _throttle(request, "register", body.email)
-    if body.abn and await session.scalar(select(Employer.id).where(Employer.abn == body.abn)):
-        raise conflict("abn_taken", "This ABN is already registered with NUA CREW")
-    user = await _create_user(session, body.email, body.password, "employer")
-    # Starts unverified: ABN checksum alone is not verification. Publishing requires admin review.
-    employer = Employer(name=body.organisation_name, abn=body.abn, verification_status="unverified")
-    session.add(employer)
-    await session.flush()
-    session.add(EmployerMembership(employer_id=employer.id, user_id=user.id, role="owner"))
-    if body.location:
-        session.add(Location(employer_id=employer.id, **body.location.model_dump()))
-    audit(session, user.id, "employer.registered", "employer", employer.id)
-    return _token(user)
+    async with system_scope(session):
+        _throttle(request, "register", body.email)
+        if body.abn and await session.scalar(select(Employer.id).where(Employer.abn == body.abn)):
+            raise conflict("abn_taken", "This ABN is already registered with NUA CREW")
+        user = await _create_user(session, body.email, body.password, "employer")
+        # Starts unverified: an ABN checksum is not verification; publishing needs admin review.
+        employer = Employer(
+            name=body.organisation_name, abn=body.abn, verification_status="unverified"
+        )
+        session.add(employer)
+        await session.flush()
+        session.add(EmployerMembership(employer_id=employer.id, user_id=user.id, role="owner"))
+        if body.location:
+            session.add(Location(employer_id=employer.id, **body.location.model_dump()))
+        await audit(session, user.id, "employer.registered", "employer", employer.id)
+        return _token(user)
 
 
 @router.post("/login", response_model=TokenOut)

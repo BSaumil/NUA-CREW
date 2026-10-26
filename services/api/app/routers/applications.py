@@ -138,7 +138,9 @@ async def apply(
     await notify_employer_team(
         session, job, f"New application for {job.title} from {candidate.full_name}", app.id
     )
-    audit(session, user.id, "application.submitted", "application", app.id, job_id=str(job.id))
+    await audit(
+        session, user.id, "application.submitted", "application", app.id, job_id=str(job.id)
+    )
     await session.flush()
     return await _view(session, app, True)
 
@@ -195,7 +197,7 @@ async def withdraw(
             actor_role="candidate",
         )
     )
-    audit(session, user.id, "application.withdrawn", "application", app.id)
+    await audit(session, user.id, "application.withdrawn", "application", app.id)
     await session.flush()
     return await _view(session, app, True)
 

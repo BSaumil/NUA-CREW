@@ -23,6 +23,7 @@ from app.models import (
     ResumeVersion,
     User,
 )
+from app.rls import set_context
 from app.schemas import JobIn
 from app.security import hash_password
 from app.services.jobs import apply_job_input, record_version, set_job_skills, upsert_skills
@@ -45,6 +46,7 @@ async def seed() -> None:
     if get_settings().env != "development":
         raise SystemExit("devseed refuses to run outside NUA_ENV=development")
     async with get_sessionmaker()() as session:
+        await set_context(session, role="system")
         await _user(session, "admin@nua-crew.example.com", "admin")
 
         employers = {}

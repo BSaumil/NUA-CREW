@@ -5,12 +5,13 @@ import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
-from app.db import get_sessionmaker
+from app.rls import set_context
 from tests.conftest import (
     JOB,
     PASSWORD,
     admin_headers,
     auth,
+    db_as,
     published_job,
     register_candidate,
     register_employer,
@@ -298,16 +299,26 @@ async def test_history_is_append_only_at_db_level(client):
     job = await published_job(client, emp, eid)
     cand = await register_candidate(client, "c@x.example.com")
     await client.post(f"/v1/jobs/{job['id']}/applications", json={}, headers=cand)
-    async with get_sessionmaker()() as s:
+    async with db_as() as s:
         for stmt in (
             "UPDATE application_events SET note='tampered'",
             "DELETE FROM application_events",
             "UPDATE audit_events SET action='x'",
             "DELETE FROM audit_events",
         ):
-            with pytest.raises(DBAPIError):
-                await s.execute(text(stmt))
-            await s.rollback()
+            # Two independent layers: RLS has no UPDATE policy on events (0 rows touched) and a
+            # trigger rejects any mutation that does reach a row. Either way nothing changes.
+            try:
+                result = await s.execute(text(stmt))
+                assert result.rowcount == 0, stmt
+            except DBAPIError:
+                await s.rollback()
+                await set_context(s, role="system")  # settings are transaction-local
+        events = (await s.execute(text("select count(*) from application_events"))).scalar()
+        audits = (
+            await s.execute(text("select count(*) from audit_events where action='x'"))
+        ).scalar()
+        assert events == 1 and audits == 0
 
 
 async def test_search_only_returns_open_jobs_and_filters(client):
@@ -419,7 +430,7 @@ async def test_admin_endpoints_require_admin(client):
         headers=admin,
     )
     assert r.status_code == 200 and r.json()["verification_status"] == "verified"
-    async with get_sessionmaker()() as s:
+    async with db_as() as s:
         n = (
             await s.execute(
                 text("select count(*) from audit_events where action='employer.verification'")

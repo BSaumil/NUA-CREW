@@ -104,7 +104,7 @@ async def add_member(
     if target is None or already:
         raise ApiError(422, "cannot_add_member", "That person could not be added")
     session.add(EmployerMembership(employer_id=employer_id, user_id=target.id, role=body.role))
-    audit(session, user.id, "employer.member_added", "employer", employer_id, role=body.role)
+    await audit(session, user.id, "employer.member_added", "employer", employer_id, role=body.role)
     await session.flush()
     return MemberOut(user_id=target.id, email=target.email, role=body.role)
 
@@ -155,7 +155,7 @@ async def create_job(
     await session.flush()
     names = await set_job_skills(session, job, body.skills)
     await record_version(session, job, names, user.id)
-    audit(session, user.id, "job.created", "job", job.id, employer_id=str(employer_id))
+    await audit(session, user.id, "job.created", "job", job.id, employer_id=str(employer_id))
     return (await to_out(session, [job]))[0]
 
 
@@ -180,7 +180,7 @@ async def update_job(
     await session.flush()
     names = await set_job_skills(session, job, body.skills)
     await record_version(session, job, names, user.id)
-    audit(session, user.id, "job.updated", "job", job.id)
+    await audit(session, user.id, "job.updated", "job", job.id)
     return (await to_out(session, [job]))[0]
 
 
@@ -202,7 +202,7 @@ async def publish_job(
     await session.flush()
     names = [n for n in (await to_out(session, [job]))[0].skills]
     await record_version(session, job, names, user.id)
-    audit(session, user.id, "job.published", "job", job.id)
+    await audit(session, user.id, "job.published", "job", job.id)
     return (await to_out(session, [job]))[0]
 
 
@@ -213,7 +213,7 @@ async def close_job(
     job = await _own_job(session, employer_id, job_id)
     job.status = "closed"
     await session.flush()
-    audit(session, user.id, "job.closed", "job", job.id)
+    await audit(session, user.id, "job.closed", "job", job.id)
     return (await to_out(session, [job]))[0]
 
 

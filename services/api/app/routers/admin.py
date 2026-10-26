@@ -44,7 +44,9 @@ async def verify_employer(
     employer.verification_evidence = body.evidence
     employer.verified_by = admin.id if body.status == "verified" else None
     employer.verified_at = datetime.now(UTC) if body.status == "verified" else None
-    audit(session, admin.id, "employer.verification", "employer", employer.id, status=body.status)
+    await audit(
+        session, admin.id, "employer.verification", "employer", employer.id, status=body.status
+    )
     await session.flush()
     return employer
 
@@ -56,7 +58,7 @@ async def create_source(body: SourceIn, admin: AdminUser, session: Session) -> I
     source = IngestionSource(**body.model_dump())
     session.add(source)
     await session.flush()
-    audit(session, admin.id, "ingestion.source_created", "ingestion_source", source.id)
+    await audit(session, admin.id, "ingestion.source_created", "ingestion_source", source.id)
     return source
 
 
@@ -77,7 +79,7 @@ async def grant_permission(
     perm = SourcePermission(source_id=source.id, granted_by=admin.id, **body.model_dump())
     session.add(perm)
     await session.flush()
-    audit(session, admin.id, "ingestion.permission_granted", "ingestion_source", source.id)
+    await audit(session, admin.id, "ingestion.permission_granted", "ingestion_source", source.id)
     return {"id": str(perm.id)}
 
 

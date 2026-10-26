@@ -10,17 +10,20 @@ os.environ["NUA_ENV"] = "development"
 
 import uuid  # noqa: E402
 from collections.abc import AsyncIterator  # noqa: E402
+from contextlib import asynccontextmanager  # noqa: E402
 
 import httpx  # noqa: E402
 import pytest  # noqa: E402
 import pytest_asyncio  # noqa: E402
 from alembic.config import Config  # noqa: E402
 from sqlalchemy import text  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
 from alembic import command  # noqa: E402
 from app.db import dispose_engine, get_engine, get_sessionmaker  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import User  # noqa: E402
+from app.rls import set_context  # noqa: E402
 from app.security import auth_limiter, hash_password  # noqa: E402
 
 PASSWORD = "correct-horse-battery"
@@ -55,6 +58,15 @@ async def client() -> AsyncIterator[httpx.AsyncClient]:
     transport = httpx.ASGITransport(app=app)
     async with httpx.AsyncClient(transport=transport, base_url="http://test") as c:
         yield c
+
+
+@asynccontextmanager
+async def db_as(role: str = "system", **ctx) -> AsyncIterator[AsyncSession]:
+    """A raw DB session with an explicit RLS identity (no identity = anonymous)."""
+    async with get_sessionmaker()() as s:
+        await set_context(s, role=role, **ctx)
+        yield s
+        await s.rollback()
 
 
 def auth(token: str) -> dict[str, str]:

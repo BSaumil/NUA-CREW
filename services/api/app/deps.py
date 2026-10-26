@@ -9,6 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db import get_session
 from app.errors import ApiError, forbidden, not_found
 from app.models import CandidateProfile, EmployerMembership, User
+from app.rls import set_context
 from app.security import decode_access_token
 
 _bearer = HTTPBearer(auto_error=False)
@@ -26,7 +27,32 @@ async def current_user(
     user = await session.get(User, uuid.UUID(str(claims["sub"])))
     if user is None or not user.is_active:
         raise ApiError(401, "unauthenticated", "Authentication required")
+    await _bind_rls_context(session, user)
     return user
+
+
+async def _bind_rls_context(session: AsyncSession, user: User) -> None:
+    """Tell Postgres who is asking so row-level security can enforce isolation (ADR-003)."""
+    await set_context(session, user_id=user.id, role=user.role)
+    employer_ids: list[uuid.UUID] = []
+    candidate_id: uuid.UUID | None = None
+    if user.role == "employer":
+        employer_ids = list(
+            await session.scalars(
+                select(EmployerMembership.employer_id).where(EmployerMembership.user_id == user.id)
+            )
+        )
+    elif user.role == "candidate":
+        candidate_id = await session.scalar(
+            select(CandidateProfile.id).where(CandidateProfile.user_id == user.id)
+        )
+    await set_context(
+        session,
+        user_id=user.id,
+        role=user.role,
+        candidate_id=candidate_id,
+        employer_ids=employer_ids,
+    )
 
 
 CurrentUser = Annotated[User, Depends(current_user)]

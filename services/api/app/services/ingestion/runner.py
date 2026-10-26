@@ -92,7 +92,7 @@ async def run_source(
     if perm is None:
         run.status, run.error = "rejected", "no_active_permission"
         run.finished_at = datetime.now(UTC)
-        audit(session, actor_id, "ingestion.rejected", "ingestion_source", source.id)
+        await audit(session, actor_id, "ingestion.rejected", "ingestion_source", source.id)
         await session.flush()
         return run
 
@@ -180,7 +180,7 @@ async def run_source(
                     stats["expired"] += 1
 
     run.status, run.stats, run.finished_at = "succeeded", dict(stats), datetime.now(UTC)
-    audit(session, actor_id, "ingestion.run", "ingestion_source", source.id, **stats)
+    await audit(session, actor_id, "ingestion.run", "ingestion_source", source.id, **stats)
     await session.flush()
     return run
 
@@ -206,6 +206,8 @@ async def takedown_source(
         if taken is not None and taken.status == "published":
             taken.status = "unpublished"
             count += 1
-    audit(session, actor_id, "ingestion.takedown", "ingestion_source", source.id, unpublished=count)
+    await audit(
+        session, actor_id, "ingestion.takedown", "ingestion_source", source.id, unpublished=count
+    )
     await session.flush()
     return count
