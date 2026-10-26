@@ -6,9 +6,11 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 from app.audit import audit
+from app.config import get_settings
 from app.deps import Candidate, CurrentUser, Session
 from app.errors import ApiError, conflict, not_found
 from app.models import Application, ApplicationEvent, Employer, Job, Resume, ResumeVersion
+from app.ratelimit import get_limiter
 from app.schemas import (
     ApplicationJobOut,
     ApplyIn,
@@ -76,6 +78,7 @@ async def apply(
     session: Session,
     idempotency_key: Annotated[str | None, Header(max_length=100)] = None,
 ) -> CandidateApplicationOut:
+    await get_limiter().check(f"apply:{user.id}", get_settings().application_limit_per_hour, 3600)
     job = await session.get(Job, job_id)
     if job is None or not is_open(job):
         raise not_found("job")

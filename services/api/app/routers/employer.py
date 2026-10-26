@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from sqlalchemy import func, select
 
 from app.audit import audit
+from app.config import get_settings
 from app.deps import CurrentUser, Owner, Recruiter, Session, Viewer
 from app.errors import ApiError, conflict, forbidden, not_found
 from app.models import (
@@ -20,6 +21,7 @@ from app.models import (
     Skill,
     User,
 )
+from app.ratelimit import get_limiter
 from app.schemas import (
     ApplicantOut,
     EmployerApplicationOut,
@@ -148,6 +150,9 @@ async def list_jobs(employer_id: uuid.UUID, _: Viewer, session: Session) -> list
 async def create_job(
     employer_id: uuid.UUID, body: JobIn, m: Recruiter, user: CurrentUser, session: Session
 ) -> JobOut:
+    await get_limiter().check(
+        f"job-create:{employer_id}", get_settings().job_create_limit_per_hour, 3600
+    )
     loc = await _location(session, employer_id, body.location_id)
     job = Job(employer_id=employer_id, origin="direct", status="draft", created_by=user.id)
     apply_job_input(job, body, loc)

@@ -14,6 +14,7 @@ from app.models import (
     Location,
     User,
 )
+from app.ratelimit import get_limiter
 from app.rls import system_scope
 from app.schemas import (
     CandidateRegister,
@@ -23,16 +24,17 @@ from app.schemas import (
     MeOut,
     TokenOut,
 )
-from app.security import auth_limiter, create_access_token, hash_password, verify_password
+from app.security import create_access_token, hash_password, verify_password
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
 
-def _throttle(request: Request, scope: str, ident: str) -> None:
+async def _throttle(request: Request, scope: str, ident: str) -> None:
     ip = request.client.host if request.client else "unknown"
     limit = get_settings().auth_rate_limit_per_minute
-    auth_limiter.check(f"{scope}:ip:{ip}", limit * 3)
-    auth_limiter.check(f"{scope}:id:{ident.lower()}", limit)
+    limiter = get_limiter()
+    await limiter.check(f"{scope}:ip:{ip}", limit * 3)
+    await limiter.check(f"{scope}:id:{ident.lower()}", limit)
 
 
 async def _create_user(session: Session, email: str, password: str, role: str) -> User:
@@ -59,7 +61,7 @@ async def register_candidate(
     body: CandidateRegister, session: Session, request: Request
 ) -> TokenOut:
     async with system_scope(session):
-        _throttle(request, "register", body.email)
+        await _throttle(request, "register", body.email)
         user = await _create_user(session, body.email, body.password, "candidate")
         session.add(CandidateProfile(user_id=user.id, full_name=body.full_name))
         await audit(session, user.id, "user.registered", "user", user.id, role="candidate")
@@ -69,7 +71,7 @@ async def register_candidate(
 @router.post("/register/employer", response_model=TokenOut, status_code=201)
 async def register_employer(body: EmployerRegister, session: Session, request: Request) -> TokenOut:
     async with system_scope(session):
-        _throttle(request, "register", body.email)
+        await _throttle(request, "register", body.email)
         if body.abn and await session.scalar(select(Employer.id).where(Employer.abn == body.abn)):
             raise conflict("abn_taken", "This ABN is already registered with NUA CREW")
         user = await _create_user(session, body.email, body.password, "employer")
@@ -88,7 +90,7 @@ async def register_employer(body: EmployerRegister, session: Session, request: R
 
 @router.post("/login", response_model=TokenOut)
 async def login(body: Login, session: Session, request: Request) -> TokenOut:
-    _throttle(request, "login", body.email)
+    await _throttle(request, "login", body.email)
     user = (
         await session.scalars(select(User).where(func.lower(User.email) == body.email.lower()))
     ).one_or_none()

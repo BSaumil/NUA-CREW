@@ -1,6 +1,4 @@
-import time
 import uuid
-from collections import defaultdict, deque
 from datetime import UTC, datetime, timedelta
 
 import jwt
@@ -51,25 +49,3 @@ def decode_access_token(token: str) -> dict[str, object]:
         )
     except jwt.PyJWTError as exc:
         raise ApiError(401, "invalid_token", "Invalid or expired token") from exc
-
-
-class RateLimiter:
-    """Sliding-window limiter. In-process only: replace with Redis before multi-instance use."""
-
-    def __init__(self) -> None:
-        self._hits: dict[str, deque[float]] = defaultdict(deque)
-
-    def check(self, key: str, limit: int, window_s: int = 60) -> None:
-        now = time.monotonic()
-        q = self._hits[key]
-        while q and now - q[0] > window_s:
-            q.popleft()
-        if len(q) >= limit:
-            raise ApiError(429, "rate_limited", "Too many attempts. Try again shortly.")
-        q.append(now)
-
-    def reset(self) -> None:
-        self._hits.clear()
-
-
-auth_limiter = RateLimiter()

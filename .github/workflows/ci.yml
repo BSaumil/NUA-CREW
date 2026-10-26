@@ -14,11 +14,17 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env: { POSTGRES_USER: nua, POSTGRES_PASSWORD: nua_dev_password, POSTGRES_DB: nua_crew_test }
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U nua" --health-interval 5s --health-timeout 3s --health-retries 10
+      redis:
+        image: redis:7-alpine
+        ports: ['6379:6379']
+        options: >-
+          --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
       NUA_DATABASE_URL: postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew_test
+      NUA_TEST_REDIS_URL: redis://localhost:6379/15
     defaults: { run: { working-directory: services/api } }
     steps:
       - uses: actions/checkout@v4
@@ -58,7 +64,7 @@ jobs:
       postgres:
         image: pgvector/pgvector:pg16
         env: { POSTGRES_USER: nua, POSTGRES_PASSWORD: nua_dev_password, POSTGRES_DB: nua_crew_e2e }
-        ports: ["5432:5432"]
+        ports: ['5432:5432']
         options: >-
           --health-cmd "pg_isready -U nua" --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
@@ -71,7 +77,7 @@ jobs:
       - run: cd services/api && uv sync --frozen
       - run: pnpm --filter @nua-crew/e2e exec playwright install --with-deps chromium
       - run: pnpm e2e
-        env: { CI: "true" }
+        env: { CI: 'true' }
       - uses: actions/upload-artifact@v4
         if: failure()
         with: { name: playwright-traces, path: tests/e2e/test-results }

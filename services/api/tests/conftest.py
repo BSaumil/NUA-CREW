@@ -5,6 +5,7 @@ os.environ.setdefault(
     "NUA_DATABASE_URL", "postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew_test"
 )
 os.environ["NUA_DB_NULL_POOL"] = "true"
+os.environ.pop("NUA_REDIS_URL", None)
 os.environ["NUA_AUTH_RATE_LIMIT_PER_MINUTE"] = "1000"
 os.environ["NUA_ENV"] = "development"
 
@@ -23,8 +24,9 @@ from alembic import command  # noqa: E402
 from app.db import dispose_engine, get_engine, get_sessionmaker  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import User  # noqa: E402
+from app.ratelimit import MemoryLimiter, get_limiter, set_limiter
 from app.rls import set_context  # noqa: E402
-from app.security import auth_limiter, hash_password  # noqa: E402
+from app.security import hash_password  # noqa: E402
 
 PASSWORD = "correct-horse-battery"
 
@@ -38,7 +40,8 @@ def _migrated() -> None:
 
 @pytest_asyncio.fixture(autouse=True)
 async def _clean_db() -> AsyncIterator[None]:
-    auth_limiter.reset()
+    set_limiter(MemoryLimiter())
+    await get_limiter().reset()
     async with get_engine().begin() as conn:
         tables = (
             await conn.execute(

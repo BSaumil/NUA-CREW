@@ -8,6 +8,7 @@ from starlette.responses import Response
 from app.config import get_settings
 from app.db import dispose_engine
 from app.errors import install_error_handlers
+from app.ratelimit import RedisLimiter, get_limiter
 from app.routers import (
     admin,
     applications,
@@ -23,6 +24,9 @@ from app.routers import (
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
+    limiter = get_limiter()
+    if isinstance(limiter, RedisLimiter):
+        await limiter.close()
     await dispose_engine()
 
 

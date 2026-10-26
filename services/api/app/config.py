@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
     db_null_pool: bool = False
     auth_rate_limit_per_minute: int = 10
+    application_limit_per_hour: int = 60
+    job_create_limit_per_hour: int = 60
+    redis_url: str | None = None
     fixtures_dir: str = "fixtures"
 
     @model_validator(mode="after")
