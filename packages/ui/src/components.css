@@ -1,0 +1,308 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html {
+  -webkit-text-size-adjust: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  font-size: 1rem;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-weight: 800;
+  line-height: 1.2;
+  margin: 0 0 calc(var(--space) * 1.5);
+}
+h1 {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+}
+h2 {
+  font-size: 1.375rem;
+}
+h3 {
+  font-size: 1.125rem;
+}
+a {
+  color: var(--primary);
+  text-underline-offset: 3px;
+}
+:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.nua-skip {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  background: var(--surface);
+  color: var(--text);
+  padding: var(--space) calc(var(--space) * 2);
+  z-index: 100;
+}
+.nua-skip:focus {
+  left: var(--space);
+  top: var(--space);
+}
+.nua-container {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 calc(var(--space) * 2);
+}
+.nua-muted {
+  color: var(--muted);
+}
+.nua-stack > * + * {
+  margin-top: calc(var(--space) * 2);
+}
+.nua-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  align-items: center;
+}
+.nua-grid {
+  display: grid;
+  gap: calc(var(--space) * 2);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+}
+
+/* Brand */
+.nua-lockup {
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--space) * 1.25);
+  text-decoration: none;
+  color: var(--text);
+}
+.nua-wordmark {
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  line-height: 1;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35em;
+}
+.nua-wordmark__crew {
+  font-weight: 600;
+  font-size: 0.62em;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+}
+
+/* Button */
+.nua-button {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space);
+  min-height: 44px;
+  padding: 0 calc(var(--space) * 2.5);
+  border-radius: var(--radius-button);
+  border: 2px solid transparent;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  background: var(--primary);
+  color: var(--on-primary);
+}
+.nua-button:hover {
+  background: var(--primary-hover);
+}
+.nua-button--secondary {
+  background: transparent;
+  color: var(--primary);
+  border-color: var(--primary);
+}
+.nua-button--secondary:hover {
+  background: var(--surface-2);
+}
+.nua-button--danger {
+  background: transparent;
+  color: var(--danger);
+  border-color: var(--danger);
+}
+.nua-button[aria-disabled='true'],
+.nua-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Cards and badges */
+.nua-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: calc(var(--space) * 2.5);
+}
+.nua-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  background: var(--surface-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+.nua-badge--live {
+  background: var(--live-tint);
+  color: var(--on-live-tint);
+  border-color: transparent;
+}
+.nua-badge--warn {
+  background: var(--warn-tint);
+  color: var(--on-warn-tint);
+  border-color: transparent;
+}
+.nua-badge--ok {
+  background: var(--success-tint);
+  color: var(--on-success-tint);
+  border-color: transparent;
+}
+.nua-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-live);
+  display: inline-block;
+}
+.nua-meter {
+  height: 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.nua-meter > span {
+  display: block;
+  height: 100%;
+  background: var(--primary);
+}
+.nua-empty {
+  text-align: center;
+  padding: calc(var(--space) * 6) calc(var(--space) * 2);
+  border: 2px dashed var(--border);
+  border-radius: var(--radius-card);
+}
+
+/* Navigation */
+.nua-header {
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+.nua-header__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: calc(var(--space) * 2);
+  padding: calc(var(--space) * 1.5) 0;
+}
+.nua-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nua-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 calc(var(--space) * 1.5);
+  border-radius: var(--radius-button);
+  color: var(--text);
+  text-decoration: none;
+  font-weight: 500;
+}
+.nua-nav a[aria-current='page'] {
+  background: var(--surface-2);
+  font-weight: 700;
+  box-shadow: inset 0 -3px 0 var(--nua-gold);
+}
+.nua-sidebar .nua-nav {
+  flex-direction: column;
+}
+.nua-shell {
+  display: grid;
+  gap: calc(var(--space) * 3);
+  grid-template-columns: 220px 1fr;
+  padding: calc(var(--space) * 3) 0;
+}
+@media (max-width: 760px) {
+  .nua-shell {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Forms */
+.nua-field {
+  display: grid;
+  gap: 6px;
+}
+.nua-field label {
+  font-weight: 600;
+}
+.nua-field input,
+.nua-field select,
+.nua-field textarea {
+  font: inherit;
+  color: var(--text);
+  background: var(--surface);
+  border: 1.5px solid var(--muted);
+  border-radius: var(--radius-button);
+  padding: 10px 12px;
+  min-height: 44px;
+  width: 100%;
+}
+.nua-field textarea {
+  min-height: 120px;
+}
+.nua-hint {
+  font-size: 0.875rem;
+  color: var(--muted);
+}
+.nua-alert {
+  border-radius: var(--radius-button);
+  padding: calc(var(--space) * 1.5) calc(var(--space) * 2);
+  background: var(--warn-tint);
+  color: var(--on-warn-tint);
+  border: 1px solid transparent;
+}
+.nua-alert--error {
+  border-color: var(--danger);
+  background: var(--surface);
+  color: var(--danger);
+}
+.nua-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.nua-table th,
+.nua-table td {
+  text-align: left;
+  padding: calc(var(--space) * 1.25);
+  border-bottom: 1px solid var(--border);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nua-button,
+  .nua-meter > span {
+    transition:
+      background-color 0.15s ease,
+      width 0.3s ease;
+  }
+}

@@ -1,0 +1,3 @@
+# ADR-004: Browser sessions via server actions and httpOnly cookies
+
+**Status:** accepted. The Next.js apps call the API from the server only. The access token lives in an httpOnly, SameSite=Lax cookie (Secure in production); there are no tokens in localStorage and no API secrets in the browser bundle. Candidate and employer apps use different cookie names because cookies are shared across localhost ports. CSRF: Next.js server actions enforce same-origin; the API itself accepts only `Authorization` headers (no ambient cookies), so it is not CSRF-exposed. Open item: token refresh (30 min expiry currently logs users out).

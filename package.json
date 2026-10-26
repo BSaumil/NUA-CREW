@@ -1,0 +1,31 @@
+{
+  "name": "nua-crew",
+  "private": true,
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write \"**/*.{ts,tsx,js,mjs,json,css,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{ts,tsx,js,mjs,json,css,md}\" --ignore-path .gitignore --ignore-path .prettierignore",
+    "contracts": "node scripts/generate-contracts.mjs",
+    "dev:web": "pnpm --filter @nua-crew/web dev",
+    "dev:employer": "pnpm --filter @nua-crew/employer dev",
+    "e2e": "pnpm --filter @nua-crew/e2e e2e"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "openapi-typescript": "^7.13.0",
+    "prettier": "^3.9.10",
+    "turbo": "^2.11.10",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.72.0"
+  }
+}

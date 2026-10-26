@@ -1,0 +1,16 @@
+{
+  "name": "@nua-crew/e2e",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "e2e": "playwright test",
+    "typecheck": "tsc -p tsconfig.json",
+    "lint": "eslint ."
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.10.0",
+    "@playwright/test": "1.63.0",
+    "@types/node": "^22",
+    "typescript": "~5.9.3"
+  }
+}

@@ -1,0 +1,3 @@
+# UX flows (as built)
+
+Candidate (`apps/web`): Home → search → job detail (trust badge, pay label, match estimate, apply) → application timeline → profile (skills, resumes, discovery consent). Employer (`apps/employer`): register → verification notice → post job → publish → applicant list → applicant detail (decision, private notes) → team. Copy rules: pay is "Disclosed"/"Estimated"/"Pay not disclosed"; verification "not an endorsement"; matches "estimate, not a prediction"; external jobs say NUA CREW cannot confirm what happens after applying. States covered: empty, error banners, unauthenticated redirect, 404 for cross-tenant. Missing: skeleton/offline states, mobile app, maps.

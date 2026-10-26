@@ -1,0 +1,6 @@
+pnpm-lock.yaml
+packages/contracts/openapi.json
+packages/contracts/src/schema.d.ts
+services/
+brand/
+docs/

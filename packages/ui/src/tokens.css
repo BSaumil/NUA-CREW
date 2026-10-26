@@ -1,0 +1,75 @@
+/* NUA CREW design tokens. Source: brand/tokens/tokens.json. Working identity; clearance pending. */
+:root {
+  --nua-burgundy: #6b1738;
+  --nua-deep-wine: #3c0b21;
+  --nua-obsidian: #0b0b0c;
+  --nua-ivory: #f7f3ef;
+  --nua-gold: #c9a96e;
+  --nua-teal: #0fa3b1;
+
+  --bg: var(--nua-ivory);
+  --surface: #ffffff;
+  --surface-2: #efe9e2;
+  --text: var(--nua-obsidian);
+  --muted: #55504b; /* 7.0:1 on ivory */
+  --border: #d9d0c6;
+  --primary: var(--nua-burgundy);
+  --primary-hover: #55122d;
+  --on-primary: #ffffff;
+  --focus: #0b0b0c;
+  --accent-live: var(--nua-teal);
+  --live-tint: #d7f1f3;
+  --on-live-tint: #07424a;
+  --warn-tint: #fdeccf;
+  --on-warn-tint: #5a3a00;
+  --danger: #a4161a;
+  --success-tint: #dcefdc;
+  --on-success-tint: #14400f;
+
+  --radius-button: 12px;
+  --radius-card: 20px;
+  --space: 8px;
+  --font-display: 'Manrope Variable', Manrope, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-body: 'Inter Variable', Inter, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #14080e;
+    --surface: #1f0f17;
+    --surface-2: #2a1620;
+    --text: #f7f3ef;
+    --muted: #cbbfb6;
+    --border: #4a2c39;
+    --primary: #e8c3d2;
+    --primary-hover: #f3dbe5;
+    --on-primary: #3c0b21;
+    --focus: #f7f3ef;
+    --live-tint: #0c3f46;
+    --on-live-tint: #c9f0f3;
+    --warn-tint: #4a3410;
+    --on-warn-tint: #fdeccf;
+    --danger: #ff9a9d;
+    --success-tint: #183a15;
+    --on-success-tint: #d7f0d4;
+  }
+}
+:root[data-theme='dark'] {
+  --bg: #14080e;
+  --surface: #1f0f17;
+  --surface-2: #2a1620;
+  --text: #f7f3ef;
+  --muted: #cbbfb6;
+  --border: #4a2c39;
+  --primary: #e8c3d2;
+  --primary-hover: #f3dbe5;
+  --on-primary: #3c0b21;
+  --focus: #f7f3ef;
+  --live-tint: #0c3f46;
+  --on-live-tint: #c9f0f3;
+  --warn-tint: #4a3410;
+  --on-warn-tint: #fdeccf;
+  --danger: #ff9a9d;
+  --success-tint: #183a15;
+  --on-success-tint: #d7f0d4;
+}
