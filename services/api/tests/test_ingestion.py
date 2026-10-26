@@ -3,7 +3,6 @@ from copy import deepcopy
 
 import pytest
 
-from app.config import get_settings
 from tests.conftest import admin_headers, register_candidate
 
 pytestmark = pytest.mark.asyncio
@@ -13,17 +12,6 @@ FIELDS = [
     "title", "description", "apply_url", "employment_type", "company", "category",
     "suburb", "state", "postcode", "pay_min", "pay_max", "pay_period", "skills",
 ]  # fmt: skip
-
-
-@pytest.fixture
-def feed(tmp_path, monkeypatch):
-    monkeypatch.setattr(get_settings(), "fixtures_dir", str(tmp_path))
-
-    def write(records):
-        (tmp_path / "feed.json").write_text(json.dumps({"records": records}))
-
-    write(deepcopy(BASE_RECORDS))
-    return write
 
 
 async def _source(client, admin, grant=True, fields=None, **perm):

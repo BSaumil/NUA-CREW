@@ -152,3 +152,21 @@ async def published_job(client, headers, eid, **over):
     r = await client.post(f"/v1/employers/{eid}/jobs/{job['id']}/publish", headers=headers)
     assert r.status_code == 200, r.text
     return r.json()
+
+
+@pytest.fixture
+def feed(tmp_path, monkeypatch):
+    """Point the fixture connector at a temp dir holding feed.json; call the result to rewrite it."""
+    import json
+    from copy import deepcopy
+
+    from app.config import get_settings
+
+    base = json.loads(open("fixtures/licensed_feed.json").read())["records"]
+    monkeypatch.setattr(get_settings(), "fixtures_dir", str(tmp_path))
+
+    def write(records):
+        (tmp_path / "feed.json").write_text(json.dumps({"records": records}))
+
+    write(deepcopy(base))
+    return write

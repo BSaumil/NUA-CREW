@@ -72,7 +72,7 @@ async def test_anonymous_sees_only_public_rows(world):
         for table in (
             "applications", "application_events", "candidate_profiles", "candidate_skills", "resumes",
             "resume_versions", "notifications", "audit_events", "employer_memberships", "locations",
-            "job_versions", "consents", "ingestion_sources", "source_permissions",
+            "job_versions", "consents", "ingestion_sources", "source_permissions", "ingestion_tasks",
         ):  # fmt: skip
             assert await count(s, table) == 0, table
         assert await count(s, "employers") == 2  # name and ABN are public by design

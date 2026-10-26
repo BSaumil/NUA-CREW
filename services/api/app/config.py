@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     application_limit_per_hour: int = 60
     job_create_limit_per_hour: int = 60
     redis_url: str | None = None
+    ingestion_stale_after_seconds: int = 7 * 24 * 3600
     fixtures_dir: str = "fixtures"
 
     @model_validator(mode="after")

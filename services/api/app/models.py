@@ -323,6 +323,56 @@ class IngestionSource(TimestampMixin, Base):
     config: Mapped[dict[str, Any]] = mapped_column(
         JSONB, nullable=False, server_default=text("'{}'::jsonb")
     )
+    # Scheduling and health (managed by the ingestion worker).
+    schedule_interval_seconds: Mapped[int | None] = mapped_column(Integer)
+    next_run_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    min_interval_seconds: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("60")
+    )
+    consecutive_failures: Mapped[int] = mapped_column(
+        Integer, nullable=False, server_default=text("0")
+    )
+    circuit_open_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    last_success_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+TASK_STATUSES = ("queued", "running", "succeeded", "rejected", "dead")
+
+
+class IngestionTask(Base):
+    """Durable work item. `dead` is the dead-letter state: needs an operator to requeue."""
+
+    __tablename__ = "ingestion_tasks"
+    __table_args__ = (
+        CheckConstraint(_in("status", TASK_STATUSES), name="ck_task_status"),
+        CheckConstraint("attempts >= 0 AND max_attempts >= 1", name="ck_task_attempts"),
+        Index(
+            "uq_ingestion_tasks_idem",
+            "idempotency_key",
+            unique=True,
+            postgresql_where=text("idempotency_key IS NOT NULL"),
+        ),
+        Index("ix_ingestion_tasks_claim", "status", "run_after"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    source_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("ingestion_sources.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    status: Mapped[str] = mapped_column(String(16), nullable=False, server_default="queued")
+    attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("0"))
+    max_attempts: Mapped[int] = mapped_column(Integer, nullable=False, server_default=text("5"))
+    run_after: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    locked_by: Mapped[str | None] = mapped_column(String(200))
+    locked_until: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    idempotency_key: Mapped[str | None] = mapped_column(String(200))
+    last_error: Mapped[str | None] = mapped_column(Text)
+    result: Mapped[dict[str, Any] | None] = mapped_column(JSONB)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
 
 class SourcePermission(Base):

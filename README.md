@@ -25,13 +25,15 @@ make install
 make db-up            # or point NUA_DATABASE_URL at any Postgres 16
 make migrate seed     # seed = fictional development data only
 make api web employer # run each in its own terminal (ports 8000 / 3000 / 3001)
+make worker           # optional: ingestion scheduler/queue worker
 ```
 
 ## Checks
 
 ```bash
-make check   # ruff, ruff format, mypy, pytest (50) · tsc, eslint, vitest (41), prettier
-make e2e     # Playwright: employer→candidate→employer→candidate flow, isolation, axe (light+dark)
+make check   # ruff, ruff format, mypy, pytest (83; Redis tests skip if no Redis) · tsc, eslint, vitest (41), prettier
+make e2e     # Playwright (19): posting/apply/advance flow, edit+unpublish, isolation, axe (light+dark)
+make worker  # ingestion scheduler + queue worker (or `make worker-once`)
 ```
 
 ## Layout

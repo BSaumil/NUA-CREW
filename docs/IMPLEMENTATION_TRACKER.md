@@ -25,20 +25,20 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | Employer registration + roles (owner/recruiter/viewer) | DONE    | `test_roles_and_decision_rules`                                                             |
 | Employer verification gate before publishing       | DONE        | `test_unverified_employer_cannot_publish`; admin review endpoint audited                    |
 | ABN checksum                                       | DONE        | unit test. **Checksum ≠ verification**; no ABR lookup (needs approved source/credentials)   |
-| Job CRUD, pay fields, versions                     | DONE (API)  | Edit UI NOT_STARTED                                                                         |
+| Job CRUD, pay fields, versions, unpublish          | DONE        | API tests + e2e `employer edits a live job…`                                                |
 | Candidate profile, skills, resume versions         | DONE        | text resumes only; file upload/malware scan NOT_STARTED                                     |
 | Public search (FTS + filters)                      | DONE        | `test_search_only_returns_open_jobs_and_filters`                                            |
 | Explainable match estimate                             | DONE        | `test_units.py`; semantic/experience/trajectory reported as "not evaluated"                 |
 | One active application per candidate+job           | DONE        | partial unique index; concurrent test                                                       |
 | Append-only application/audit history              | DONE        | DB triggers; `test_history_is_append_only_at_db_level`                                      |
 | Tenant isolation (guessed IDs)                     | DONE        | `test_employer_tenant_isolation`, `test_candidate_isolation`, e2e                           |
-| Postgres RLS on employer tables                    | NOT_STARTED | App-layer scoping only (ADR-003)                                                            |
+| Postgres RLS (forced) on tenant/private tables     | DONE        | Migration `b1c2d3e4f5a6`; `tests/test_rls.py` (unfiltered SQL per identity, leak test, route guard). Prod must use a non-owner DB role |
 | Notifications                                      | IN_PROGRESS | In-app only; email/SMS/push NOT_STARTED                                                     |
 | Candidate + employer web UI against real API       | DONE        | `apps/web`, `apps/employer`; `tests/e2e`                                                    |
 | Mobile app (Expo)                                  | NOT_STARTED | `apps/mobile` does not exist yet                                                            |
-| Admin portal UI                                    | NOT_STARTED | Admin actions exist as API endpoints only                                                   |
+| Admin portal UI                                    | NOT_STARTED | Admin actions (verification, sources, queue, DLQ, stats) exist as API endpoints only        |
 | Data export / deletion                             | NOT_STARTED | `deletion_requests`, `access_requests` tables not created                                   |
-| Rate limiting                                      | IN_PROGRESS | In-process limiter on auth endpoints; Redis-backed limiter NOT_STARTED                      |
+| Rate limiting                                      | DONE        | Redis sliding window (atomic Lua) with in-process fallback; auth, application and job-create limits; `tests/test_ratelimit.py` against real Redis. Bot challenges/risk tiers NOT_STARTED |
 | Email/phone verification                           | NOT_STARTED |                                                                                             |
 
 ## P2 — ingestion and search
@@ -50,7 +50,8 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | Takedown propagation                               | DONE        | `test_revocation_takes_down_and_stops_collector`                                           |
 | Markup stripped; injected text inert               | DONE        | `test_injected_listing_stays_unverified_text`                                              |
 | SSRF guard                                         | DONE (unit) | `url_guard.py`; no network connector exists yet                                            |
-| Durable queue/scheduler/DLQ/outbox                 | NOT_STARTED | Runs are synchronous admin calls                                                           |
+| Durable queue, retries/backoff, DLQ, throttle, circuit breaker, scheduler, worker | DONE | ADR-006; `tests/test_pipeline.py` (17 tests incl. concurrent claims, lease reclaim, rollback on failure). Outbox NOT_STARTED |
+| Freshness expiry of stale ingested jobs            | DONE        | `test_stale_ingested_jobs_expire`                                                           |
 | LLM normalisation, embeddings, pgvector, hybrid RRF | NOT_STARTED | pgvector not installed locally; migration tolerates its absence                            |
 | Cross-source dedupe                                | NOT_STARTED | Identity is currently (source, external_id) only                                           |
 | Real licensed feeds / ATS webhooks                 | BLOCKED     | Needs signed licences; none exist                                                          |
@@ -76,5 +77,5 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | 6 | Employer advances; candidate sees real status       | DONE   | e2e                                                                   |
 | 7 | Cross-tenant/candidate denial with guessed IDs      | DONE   | API tests + e2e                                                       |
 | 8 | Unauthorised source blocked; fixture repeat-safe    | DONE   | `test_ingestion.py`                                                   |
-| 9 | Backend tests, FE typecheck/lint, one e2e flow      | DONE   | see README for counts                                                 |
+| 9 | Backend tests, FE typecheck/lint, one e2e flow      | DONE   | 83 API tests, 41 vitest, 19 Playwright                                 |
 | 10| No real payment/external submission/scraping        | DONE   | none implemented                                                      |

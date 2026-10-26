@@ -362,3 +362,38 @@ class FetchRunOut(Orm):
     status: str
     stats: dict[str, object]
     error: str | None
+
+
+class ScheduleIn(BaseModel):
+    interval_seconds: int | None = Field(None, ge=60, le=7 * 24 * 3600)
+    min_interval_seconds: int = Field(60, ge=0, le=24 * 3600)
+
+
+class TaskOut(Orm):
+    id: uuid.UUID
+    source_id: uuid.UUID
+    status: str
+    attempts: int
+    max_attempts: int
+    run_after: datetime
+    last_error: str | None
+    result: dict[str, object] | None
+    created_at: datetime
+    finished_at: datetime | None
+
+
+class SourceHealthOut(Orm):
+    id: uuid.UUID
+    slug: str
+    status: str
+    schedule_interval_seconds: int | None
+    min_interval_seconds: int
+    next_run_at: datetime | None
+    consecutive_failures: int
+    circuit_open_until: datetime | None
+    last_success_at: datetime | None
+
+
+class IngestionStatsOut(BaseModel):
+    tasks: dict[str, int]
+    sources: list[SourceHealthOut]

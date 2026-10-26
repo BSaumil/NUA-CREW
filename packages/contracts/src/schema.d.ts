@@ -92,6 +92,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/ingestion/sources/{source_id}/enqueue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Enqueue Run
+         * @description Queue a run for the worker (retries, throttling and circuit breaking apply).
+         */
+        post: operations["enqueue_run_v1_admin_ingestion_sources__source_id__enqueue_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/ingestion/sources/{source_id}/permissions": {
         parameters: {
             query?: never;
@@ -103,6 +123,23 @@ export interface paths {
         put?: never;
         /** Grant Permission */
         post: operations["grant_permission_v1_admin_ingestion_sources__source_id__permissions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/ingestion/sources/{source_id}/reset-circuit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Circuit */
+        post: operations["reset_circuit_v1_admin_ingestion_sources__source_id__reset_circuit_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -126,6 +163,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/ingestion/sources/{source_id}/schedule": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Set Schedule */
+        put: operations["set_schedule_v1_admin_ingestion_sources__source_id__schedule_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/ingestion/sources/{source_id}/takedown": {
         parameters: {
             query?: never;
@@ -137,6 +191,60 @@ export interface paths {
         put?: never;
         /** Takedown */
         post: operations["takedown_v1_admin_ingestion_sources__source_id__takedown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/ingestion/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Ingestion Stats */
+        get: operations["ingestion_stats_v1_admin_ingestion_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/ingestion/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Tasks */
+        get: operations["list_tasks_v1_admin_ingestion_tasks_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/ingestion/tasks/{task_id}/requeue": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Requeue Task
+         * @description Dead-letter handling: an operator reviews the error, then sends the task round again.
+         */
+        post: operations["requeue_task_v1_admin_ingestion_tasks__task_id__requeue_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -887,6 +995,15 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** IngestionStatsOut */
+        IngestionStatsOut: {
+            /** Sources */
+            sources: components["schemas"]["SourceHealthOut"][];
+            /** Tasks */
+            tasks: {
+                [key: string]: number;
+            };
+        };
         /** JobEmployerOut */
         JobEmployerOut: {
             /** Id */
@@ -1270,6 +1387,40 @@ export interface components {
             /** Version */
             version: number;
         };
+        /** ScheduleIn */
+        ScheduleIn: {
+            /** Interval Seconds */
+            interval_seconds?: number | null;
+            /**
+             * Min Interval Seconds
+             * @default 60
+             */
+            min_interval_seconds: number;
+        };
+        /** SourceHealthOut */
+        SourceHealthOut: {
+            /** Circuit Open Until */
+            circuit_open_until: string | null;
+            /** Consecutive Failures */
+            consecutive_failures: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Success At */
+            last_success_at: string | null;
+            /** Min Interval Seconds */
+            min_interval_seconds: number;
+            /** Next Run At */
+            next_run_at: string | null;
+            /** Schedule Interval Seconds */
+            schedule_interval_seconds: number | null;
+            /** Slug */
+            slug: string;
+            /** Status */
+            status: string;
+        };
         /** SourceIn */
         SourceIn: {
             /**
@@ -1314,6 +1465,43 @@ export interface components {
              * @enum {string}
              */
             to_status: "under_review" | "shortlisted" | "interview" | "offer" | "hired" | "rejected";
+        };
+        /** TaskOut */
+        TaskOut: {
+            /** Attempts */
+            attempts: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Finished At */
+            finished_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Last Error */
+            last_error: string | null;
+            /** Max Attempts */
+            max_attempts: number;
+            /** Result */
+            result: {
+                [key: string]: unknown;
+            } | null;
+            /**
+             * Run After
+             * Format: date-time
+             */
+            run_after: string;
+            /**
+             * Source Id
+             * Format: uuid
+             */
+            source_id: string;
+            /** Status */
+            status: string;
         };
         /** TokenOut */
         TokenOut: {
@@ -1508,6 +1696,37 @@ export interface operations {
             };
         };
     };
+    enqueue_run_v1_admin_ingestion_sources__source_id__enqueue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     grant_permission_v1_admin_ingestion_sources__source_id__permissions_post: {
         parameters: {
             query?: never;
@@ -1532,6 +1751,37 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_circuit_v1_admin_ingestion_sources__source_id__reset_circuit_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthOut"];
                 };
             };
             /** @description Validation Error */
@@ -1576,6 +1826,41 @@ export interface operations {
             };
         };
     };
+    set_schedule_v1_admin_ingestion_sources__source_id__schedule_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                source_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ScheduleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SourceHealthOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     takedown_v1_admin_ingestion_sources__source_id__takedown_post: {
         parameters: {
             query?: never;
@@ -1596,6 +1881,90 @@ export interface operations {
                     "application/json": {
                         [key: string]: number;
                     };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    ingestion_stats_v1_admin_ingestion_stats_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IngestionStatsOut"];
+                };
+            };
+        };
+    };
+    list_tasks_v1_admin_ingestion_tasks_get: {
+        parameters: {
+            query?: {
+                status?: string | null;
+                source_id?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    requeue_task_v1_admin_ingestion_tasks__task_id__requeue_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
                 };
             };
             /** @description Validation Error */

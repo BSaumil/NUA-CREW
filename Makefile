@@ -1,4 +1,4 @@
-.PHONY: install db-up db-down migrate seed api web employer test check e2e contracts
+.PHONY: install db-up db-down migrate seed api worker worker-once web employer test check e2e contracts
 
 install:
 	pnpm install
@@ -18,6 +18,12 @@ seed:  ## development-only fictional fixture data
 
 api:
 	cd services/api && uv run uvicorn app.main:app --reload --port 8000
+
+worker:  ## ingestion scheduler + queue worker (loops until SIGTERM)
+	cd services/api && uv run python -m app.worker
+
+worker-once:  ## drain due ingestion work and exit
+	cd services/api && uv run python -m app.worker --once
 
 web:
 	pnpm --filter @nua-crew/web dev

@@ -8,8 +8,8 @@ The live OpenAPI document is generated from code: `pnpm contracts` writes `packa
 | Candidate | `GET/PUT /v1/candidate/profile`, `PUT /v1/candidate/consents/talent-discovery`, resumes CRUD + versions, applications list/get/withdraw |
 | Public    | `GET /v1/jobs` (q, suburb, state, employment_type, category, skill, page), `GET /v1/jobs/{id}`                                  |
 | Candidate + job | `GET /v1/jobs/{id}/match`, `POST /v1/jobs/{id}/applications` (optional `Idempotency-Key`)                                |
-| Employer  | `/v1/employers/{eid}` locations, members, jobs (CRUD, publish, close), job applicants, application detail, status, private notes |
-| Admin     | employer verification; ingestion source create / grant permission / run / takedown                                              |
+| Employer  | `/v1/employers/{eid}` locations, members, jobs (CRUD, publish, unpublish, close), job applicants, application detail, status, private notes |
+| Admin     | employer verification; ingestion source create / grant permission / run / takedown / schedule / enqueue / reset-circuit; tasks list + requeue; stats |
 | Misc      | `GET /v1/notifications`, `POST /v1/notifications/{id}/read`, `/healthz`, `/readyz`                                              |
 
 Authorisation rules: employer routes require membership (404 otherwise); write routes require `recruiter`+; member management and locations require `owner`; admin routes require `role=admin`.
