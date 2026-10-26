@@ -21,3 +21,5 @@ dist-native/
 .expo/
 apps/mobile/dist/
 expo-env.d.ts
+apps/mobile/android/
+apps/mobile/ios/

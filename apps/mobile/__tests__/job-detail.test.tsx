@@ -97,7 +97,7 @@ describe('Job detail', () => {
   it('explains the match as an estimate with evidence on its own tab', async () => {
     serve();
     await renderApp(<JobDetail />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'My match' }));
+    await fireEvent.press(await screen.findByRole('tab', { name: 'My match' }));
     expect(await screen.findByText('63% estimate')).toBeOnTheScreen();
     expect(screen.getByText(/not a prediction of being hired/)).toBeOnTheScreen();
     expect(screen.getByText('1 of 2 listed skills are on your profile.')).toBeOnTheScreen();
@@ -106,7 +106,7 @@ describe('Job detail', () => {
   it('says what "verified" means on the company tab', async () => {
     serve();
     await renderApp(<JobDetail />);
-    await fireEvent.press(await screen.findByRole('button', { name: 'Company' }));
+    await fireEvent.press(await screen.findByRole('tab', { name: 'Company' }));
     expect(screen.getByText(/it is not an endorsement/)).toBeOnTheScreen();
   });
 

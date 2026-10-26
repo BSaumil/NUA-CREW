@@ -127,6 +127,7 @@ export default function Profile() {
         </Row>
         <View
           accessibilityRole="progressbar"
+          accessibilityLabel="Profile strength"
           accessibilityValue={{ min: 0, max: 100, now: strength.percent }}
           style={{
             height: 8,

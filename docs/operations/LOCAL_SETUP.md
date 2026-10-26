@@ -14,4 +14,6 @@ make employer                    # :3001
 
 Dev logins (password `nua-dev-password-1`): `owner-a@nua-crew.example.com` (verified employer), `viewer-a@…`, `recruiter-a@…`, `candidate-a@…`, `owner-b@…`, `candidate-b@…`, `admin@…` (all `@nua-crew.example.com`).
 
+Mobile app: see `docs/mobile/README.md` (`cd apps/mobile && pnpm start`).
+
 Without Docker: create role `nua` and databases `nua_crew`, `nua_crew_test`, `nua_crew_e2e`, then `make test` and `make e2e`.

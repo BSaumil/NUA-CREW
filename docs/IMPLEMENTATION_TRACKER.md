@@ -35,9 +35,12 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | Postgres RLS (forced) on tenant/private tables     | DONE        | Migration `b1c2d3e4f5a6`; `tests/test_rls.py` (unfiltered SQL per identity, leak test, route guard). Prod must use a non-owner DB role |
 | Notifications                                      | IN_PROGRESS | In-app only; email/SMS/push NOT_STARTED                                                     |
 | Candidate + employer web UI against real API       | DONE        | `apps/web`, `apps/employer`; `tests/e2e`                                                    |
-| Mobile app (Expo)                                  | NOT_STARTED | `apps/mobile` does not exist yet                                                            |
+| Mobile candidate app (Expo, iOS + Android)         | IN_PROGRESS | `apps/mobile`, `docs/mobile/README.md`: 79 Jest tests, 8 browser tests vs real API, Android+iOS bundles compile, prebuild audited. **Not run on a real device/emulator**; store builds need owner accounts |
 | Admin portal UI                                    | NOT_STARTED | Admin actions (verification, sources, queue, DLQ, stats) exist as API endpoints only        |
-| Data export / deletion                             | NOT_STARTED | `deletion_requests`, `access_requests` tables not created                                   |
+| Data export / in-app account deletion (candidates) | DONE        | `GET /v1/account/export`, `DELETE /v1/account`; `test_account_deletion_*`, mobile settings tests, browser test. Employer-account deletion via support (NOT_STARTED); retention rules need counsel |
+| Refresh tokens (rotation, reuse detection, revoke) | DONE        | ADR-007; `test_refresh_*`, `test_logout_*`                                                  |
+| Saved jobs, saved searches + alerts, push registry/delivery adapter | DONE | `tests/test_mobile_api.py`. Push provider disabled by default; **no real push sent in any test** |
+| Near-me search, pay floor, sort                    | DONE        | `test_near_me_pay_floor_and_sorting`. Coordinates come from an approximate suburb table, not a licensed gazetteer |
 | Rate limiting                                      | DONE        | Redis sliding window (atomic Lua) with in-process fallback; auth, application and job-create limits; `tests/test_ratelimit.py` against real Redis. Bot challenges/risk tiers NOT_STARTED |
 | Email/phone verification                           | NOT_STARTED |                                                                                             |
 
@@ -77,5 +80,5 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | 6 | Employer advances; candidate sees real status       | DONE   | e2e                                                                   |
 | 7 | Cross-tenant/candidate denial with guessed IDs      | DONE   | API tests + e2e                                                       |
 | 8 | Unauthorised source blocked; fixture repeat-safe    | DONE   | `test_ingestion.py`                                                   |
-| 9 | Backend tests, FE typecheck/lint, one e2e flow      | DONE   | 83 API tests, 41 vitest, 19 Playwright                                 |
+| 9 | Backend tests, FE typecheck/lint, one e2e flow      | DONE   | see README for current counts                                         |
 | 10| No real payment/external submission/scraping        | DONE   | none implemented                                                      |

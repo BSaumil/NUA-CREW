@@ -158,7 +158,7 @@ export default function JobDetail() {
               ['company', 'Company'],
             ] as [Tab, string][]
           ).map(([k, label]) => (
-            <Chip key={k} label={label} selected={tab === k} onPress={() => setTab(k)} />
+            <Chip key={k} role="tab" label={label} selected={tab === k} onPress={() => setTab(k)} />
           ))}
         </View>
 

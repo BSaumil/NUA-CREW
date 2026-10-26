@@ -10,6 +10,9 @@ const icon =
     <Ionicons name={f ? focused : name} size={size} color={color as string} />
   );
 
+// Tabs open on Discover, not on whichever file sorts first alphabetically.
+export const unstable_settings = { initialRouteName: 'discover' };
+
 export default function AppTabs() {
   const { colors } = useTheme();
   const { data } = useNotifications();

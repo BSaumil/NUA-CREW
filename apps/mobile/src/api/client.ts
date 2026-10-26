@@ -41,8 +41,16 @@ export function unwrap<T>(r: { data?: T; error?: unknown; response: Response }):
   throw new ApiFailure(errorMessage(r.error), r.response.status, code);
 }
 
+/** An error whose message is written for the person using the app and may be shown as-is. */
+export class UserMessage extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UserMessage';
+  }
+}
+
 export function messageOf(e: unknown): string {
-  if (e instanceof ApiFailure) return e.message;
+  if (e instanceof ApiFailure || e instanceof UserMessage) return e.message;
   if (e instanceof Error && e.name === 'AbortError')
     return 'The request timed out. Check your connection.';
   return 'We could not reach NUA CREW. Check your connection and try again.';

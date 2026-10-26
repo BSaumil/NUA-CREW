@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     jwt_secret: str = DEV_JWT_SECRET
     jwt_issuer: str = "nua-crew-api"
     access_token_minutes: int = 30
-    cors_origins: list[str] = ["http://localhost:3000", "http://localhost:3001"]
+    cors_origins: list[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:8081",  # Expo web build used for browser tests
+    ]
     db_null_pool: bool = False
     auth_rate_limit_per_minute: int = 10
     application_limit_per_hour: int = 60

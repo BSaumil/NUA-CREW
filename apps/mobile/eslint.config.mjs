@@ -11,6 +11,8 @@ export default [
         require: 'readonly',
         __dirname: 'readonly',
         console: 'readonly',
+        URL: 'readonly',
+        process: 'readonly',
       },
     },
     rules: { '@typescript-eslint/no-require-imports': 'off' },

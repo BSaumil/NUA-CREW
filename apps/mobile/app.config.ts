@@ -36,7 +36,14 @@ const config: ExpoConfig = {
       'USE_BIOMETRIC',
       'USE_FINGERPRINT',
     ],
-    blockedPermissions: ['ACCESS_FINE_LOCATION', 'RECORD_AUDIO', 'CAMERA'],
+    blockedPermissions: [
+      'ACCESS_FINE_LOCATION',
+      'RECORD_AUDIO',
+      'CAMERA',
+      'READ_EXTERNAL_STORAGE',
+      'WRITE_EXTERNAL_STORAGE',
+      'SYSTEM_ALERT_WINDOW',
+    ],
   },
   web: { bundler: 'metro', output: 'single', favicon: './assets/favicon.png' },
   plugins: [
@@ -55,7 +62,17 @@ const config: ExpoConfig = {
     ['expo-local-authentication', { faceIDPermission: 'Unlock NUA CREW with Face ID.' }],
     [
       'expo-location',
-      { locationWhenInUsePermission: 'Show jobs near you. Your location is not stored.' },
+      {
+        locationWhenInUsePermission: 'Show jobs near you. Your location is not stored.',
+        // Only "while using the app" location is ever requested: drop every other permission.
+        locationAlwaysAndWhenInUsePermission: false,
+        locationAlwaysPermission: false,
+        motionUsagePermission: false,
+        locationFullAccuracyPermission: false,
+        isIosReducedAccuracyByDefault: true, // approximate location is all "near me" needs
+        isAndroidBackgroundLocationEnabled: false,
+        isAndroidForegroundServiceEnabled: false,
+      },
     ],
     ['expo-build-properties', { android: { minSdkVersion: 26 } }],
   ],

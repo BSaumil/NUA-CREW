@@ -31,9 +31,21 @@ import { LockScreen } from '@/features/LockScreen';
 void SplashScreen.preventAutoHideAsync();
 configureForegroundNotifications();
 
-onlineManager.setEventListener((setOnline) =>
-  NetInfo.addEventListener((s) => setOnline(s.isConnected !== false)),
-);
+onlineManager.setEventListener((setOnline) => {
+  if (Platform.OS === 'web') {
+    // NetInfo cannot see browser offline mode reliably; the window events can.
+    const on = () => setOnline(true);
+    const off = () => setOnline(false);
+    window.addEventListener('online', on);
+    window.addEventListener('offline', off);
+    setOnline(navigator.onLine);
+    return () => {
+      window.removeEventListener('online', on);
+      window.removeEventListener('offline', off);
+    };
+  }
+  return NetInfo.addEventListener((s) => setOnline(s.isConnected !== false));
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {

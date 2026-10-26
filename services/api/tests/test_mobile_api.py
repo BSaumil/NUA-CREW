@@ -644,3 +644,20 @@ async def test_worker_pass_reports_alerts_and_pushes(client):
 
     stats = await run_once()
     assert "alerts" in stats and "pushed" in stats
+
+
+async def test_cors_allows_the_methods_web_clients_use(client):
+    """The mobile web build calls PATCH (saved-search edits) cross-origin; preflight must allow it."""
+    r = await client.options(
+        "/v1/candidate/saved-searches/00000000-0000-0000-0000-000000000000",
+        headers={"Origin": "http://localhost:8081", "Access-Control-Request-Method": "PATCH",
+                 "Access-Control-Request-Headers": "authorization,content-type"},
+    )  # fmt: skip
+    assert r.status_code == 200
+    assert "PATCH" in r.headers["access-control-allow-methods"]
+    assert r.headers["access-control-allow-origin"] == "http://localhost:8081"
+    evil = await client.options(
+        "/v1/candidate/saved-searches/x",
+        headers={"Origin": "https://evil.example.com", "Access-Control-Request-Method": "PATCH"},
+    )
+    assert "access-control-allow-origin" not in evil.headers

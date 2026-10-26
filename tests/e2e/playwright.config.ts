@@ -21,6 +21,16 @@ export default defineConfig({
   use: { trace: 'retain-on-failure', ...devices['Desktop Chrome'] },
   webServer: [
     {
+      // The mobile app's web build (react-native-web) talking to the real API.
+      command:
+        'pnpm --filter @nua-crew/mobile export:web && node apps/mobile/scripts/serve-web.mjs',
+      cwd: resolve(__dirname, '../..'),
+      env: { EXPO_PUBLIC_API_URL: 'http://localhost:8000', EXPO_NO_TELEMETRY: '1', CI: '1' },
+      url: 'http://localhost:8081/',
+      reuseExistingServer: !process.env.CI,
+      timeout: 240_000,
+    },
+    {
       command: 'uv run uvicorn app.main:app --port 8000',
       cwd: api,
       env: apiEnv,

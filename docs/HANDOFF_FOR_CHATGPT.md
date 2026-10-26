@@ -28,7 +28,7 @@ An AI-first Australian jobs marketplace and recruitment ecosystem, starting with
 
 ## 3. What is DONE (all with passing tests)
 
-**Verified on 2026-10-26 (updated after the RLS / rate-limit / job-edit / pipeline round):** 83 API tests (Postgres + real Redis), 41 vitest tests, 19 Playwright tests. `ruff`, strict `mypy`, `tsc`, `eslint`, `prettier` and both Next production builds are clean. `pnpm audit` and `pip-audit` report nothing.
+**Verified on 2026-10-26 (after the mobile round):** 102 API tests (Postgres + real Redis), 41 vitest tests (design system + client), 79 Jest tests (mobile), 27 Playwright tests (19 web + 8 mobile screens against the real API). `ruff`, strict `mypy`, `tsc`, `eslint`, `prettier`, both Next builds and the Android/iOS Hermes bundles are clean.
 
 | Area             | Delivered                                                                                                                                                             |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -43,33 +43,35 @@ An AI-first Australian jobs marketplace and recruitment ecosystem, starting with
 | Ingestion pipeline | Durable Postgres queue (SKIP LOCKED claims, lease reclaim after worker crash), exponential-backoff retries, dead-letter list with audited operator requeue, per-source throttle and single-flight advisory lock, circuit breaker, slot-keyed scheduler, atomic runs that roll back on failure, `python -m app.worker` (loop or `--once`), admin endpoints for schedule / enqueue / tasks / requeue / reset-circuit / stats (ADR-006) |
 | Design system    | Burgundy/ivory/gold/teal tokens, light and dark, 12 components, axe plus WCAG AA contrast tests (light and dark)                                                      |
 | Web apps         | Real pages against the API with httpOnly-cookie sessions through server actions                                                                                       |
+| Mobile app (`apps/mobile`, Expo/React Native, iOS + Android) | Candidate app: onboarding, sign-in/up, **rotating refresh tokens in Keychain/Keystore**, biometric app lock, Discover (search, filters, pay floor, **near-me with coarse rounded location never stored**, infinite scroll, offline read of public jobs), job detail with Overview / My match / Company, apply with resume + note, external-job disclosure, saved jobs, **saved searches with hourly-capped alerts**, applications timeline + withdraw, alerts inbox, push (opt-in, adapter off by default), profile strength + resumes, theme override, data export, **in-app account deletion**. Backend additions: refresh-token rotation with reuse detection, saved jobs/searches, device tokens, alerts + push worker steps, export/deletion, password change, CORS PATCH. Docs: `docs/mobile/README.md`, ADR-007, store privacy draft |
 | Tooling and docs | Makefile, GitHub Actions workflow, Docker Compose, ADRs 001–005, tracker, architecture, threat model, Australian legal-gate questions                                  |
 
 ## 4. What is NOT done or not verified
 
-- Not started: mobile app (Expo), admin UI, Career AI, pgvector and embeddings, resume file upload and malware scan, Local shifts, billing and entitlements, email/SMS/push, data export and deletion, transactional outbox, bot challenges / risk-tiered limits, any real feed connector.
+- Not started: admin UI, employer mobile app, Career AI, pgvector and embeddings, resume file upload and malware scan, Local shifts, billing and entitlements, email/SMS/push, data export and deletion, transactional outbox, bot challenges / risk-tiered limits, any real feed connector.
 - **RLS caveat:** in development the app connects as the table owner (policies use FORCE). Production must connect as a non-owner, non-superuser role.
 - **Placeholder auth:** local password JWT for development only (ADR-002). No MFA, no refresh tokens, no email or phone verification. Do not use with real users.
+- **Mobile not run on a real device or emulator** (this environment has no Android SDK and cannot build iOS): verified by typecheck, Jest, Metro bundles for both platforms, prebuild config audit and a browser run of the same screens against the real API. Keychain/Keystore, biometrics, push delivery, location prompt and share sheet are untested on hardware. Store builds need Apple/Google accounts and a cleared brand/bundle id.
 - **Never run:** `docker-compose.yml` (no Docker daemon in the build environment) and the GitHub Actions workflow.
 - **Brand assets:** SVGs in `brand/svg` are recreations of the supplied icon PNG, not official artwork. `docs/UI_COPY_AND_SCREENS.md` was never supplied.
 - ABN: checksum only, no ABR lookup.
 
-## 5. Ten next enhancements (priority order, revised)
+## 5. Ten next enhancements (priority order, revised after the mobile round)
 
-Already completed since the first handoff: Postgres RLS, Redis rate limiting, job edit/unpublish UI, durable ingestion queue/worker.
+Already completed: Postgres RLS, Redis rate limiting, job edit/unpublish UI, durable ingestion queue/worker, candidate mobile app (iOS + Android) with its backend.
 
-1. **Managed OIDC/PKCE auth with MFA for operators.** Replace the dev adapter in `app/security.py` and `app/deps.py` (the RLS identity binding stays), add refresh and revocation, email/phone verification. Needs an identity provider choice.
-2. **First CI run and Docker verification.** Create the base branch and open a PR, fix whatever GitHub Actions and Compose reveal (the workflow now includes Postgres, Redis and a worker smoke test), add SBOM and secret scanning. Also run the API as a non-owner DB role to prove RLS in a production-like setup.
-3. **Admin portal UI** (`apps/admin`): employer verification queue, source and permission management, task/DLQ dashboard with requeue and circuit reset, audit viewer, takedown. All backing endpoints already exist.
-4. **Employer workflow completion.** Interview scheduling, messaging, custom screening questions, applicant filters and saved views, team invitations by email (replaces the add-existing-account stopgap).
-5. **Resume upload pipeline.** Private S3-compatible storage, signed short-expiry URLs, size/type validation and malware scan before parsing, then parse-and-review so the candidate confirms extracted data.
-6. **Embeddings and hybrid search.** Install pgvector, add a per-model embedding table (model, version, dimension, source hash), a transactional outbox from the ingestion pipeline to an embedding queue, reciprocal-rank-fusion of full-text and vector search, and an offline relevance set with Recall@K and NDCG. Hard eligibility gates stay ahead of similarity.
-7. **First real connector.** Only once a signed licence exists: a network fetcher with timeouts, size and decompression limits and `assert_safe_url`, per-source rate limits, cross-source dedupe that never merges on text similarity alone, and OpenTelemetry/Prometheus metrics for the worker.
-8. **Career AI (P3).** LLM provider adapter with prompt versioning, structured-output validation, PII-redacted usage ledger with cost caps. Features: resume tailoring with diffs and user approval (no fabricated claims), gap analysis, interview practice, prompt-injection red-team tests.
-9. **NUA CREW Local (P4).** Shift tables, availability, offer/accept flow, concurrency-safe last-slot assignment with tests, qualification expiry (RSA, food safety). Award-aware pay guidance and any labour-hire questions need counsel first.
-10. **Billing and entitlements (P5) plus trust signals.** Plans, entitlements, Stripe sandbox with webhook replay and signature tests; ghost-job risk indicators based on evidence; salary-transparency score; data export and deletion workflow with retention schedule.
+1. **Real-device validation and store pipeline.** Run the app on physical iPhone and Android devices (biometrics, Keychain/Keystore, push, location, share sheet), create the EAS project, build internal-test binaries (TestFlight / Play internal), register real bundle ids once the brand is cleared, and have counsel review `docs/mobile/STORE_PRIVACY_DRAFT.md`. Needs owner accounts.
+2. **Managed OIDC/PKCE auth with MFA for operators.** Replace the dev adapter (`app/security.py`, `app/deps.py`; RLS identity binding stays), add email/phone verification. Needs an identity provider choice.
+3. **First CI run and production-like DB role.** Create the base branch and open a PR, fix whatever GitHub Actions and Compose reveal (workflow now includes Postgres, Redis, worker smoke and mobile bundle check), run the API as a non-owner DB role to prove RLS, add SBOM and secret scanning.
+4. **Admin portal UI** (`apps/admin`): employer verification queue, source/permission management, task and dead-letter dashboard, audit viewer, takedown. All endpoints exist.
+5. **Messaging and interview scheduling** across employer web and the mobile app (threads, push, calendar invites), plus employer team invitations by email and custom screening questions.
+6. **Resume upload pipeline.** Document picker/camera scan, private S3-compatible storage with signed URLs, malware scan before parsing, parse-and-review so the candidate confirms extracted data.
+7. **Embeddings and hybrid search.** pgvector, per-model embedding table, transactional outbox from ingestion, reciprocal-rank fusion with full-text, offline relevance set (Recall@K, NDCG); replace the approximate suburb centroid table with a licensed gazetteer.
+8. **First real connector.** Only with a signed licence: hardened network fetcher (timeouts, size limits, `assert_safe_url`), per-source rate limits, cross-source dedupe that never merges on text similarity alone, OpenTelemetry/Prometheus metrics.
+9. **Career AI (P3).** LLM adapter with prompt versioning, structured-output validation, PII-redacted usage ledger and cost caps; resume tailoring with diffs and approval, gap analysis, interview practice, prompt-injection red-team tests.
+10. **NUA CREW Local (shifts) and billing.** Shift tables, availability, offer/accept, concurrency-safe last-slot assignment with tests, Stripe sandbox plans/entitlements, ghost-job risk indicators, award-aware pay guidance (counsel first).
 
-Also queued: Expo mobile app (P6), notification channels (email/SMS/push), Storybook, observability (OpenTelemetry, Sentry with PII redaction), bot challenges and risk-tiered limits.
+Also queued: employer mobile app, native FCM/APNs push adapter (to avoid a third-party processor), Storybook, observability (OpenTelemetry, Sentry with PII redaction), device-farm UI tests, localisation beyond en-AU, https universal/app links (needs a cleared domain).
 
 ## 6. Blockers that need the owner
 
@@ -82,6 +84,7 @@ make install
 make db-up              # Docker path is unverified; any Postgres 16 + Redis works
 make migrate seed       # seed = fictional dev data, NUA_ENV=development only
 make api web employer   # ports 8000 / 3000 / 3001
+cd apps/mobile && pnpm start   # Expo (see docs/mobile/README.md)
 make worker             # ingestion scheduler + queue worker
 make check              # ruff, mypy, pytest, tsc, eslint, vitest, prettier
 make e2e                # Playwright
@@ -91,4 +94,4 @@ Dev logins (password `nua-dev-password-1`, all `@nua-crew.example.com`): `owner-
 
 ## 8. Where to look
 
-`docs/IMPLEMENTATION_TRACKER.md` (authoritative status) · `docs/MASTER_BRIEF.md` (owner's brief) · `docs/ADR/` · `docs/architecture/` · `CLAUDE.md` (invariants, each backed by a test).
+`docs/mobile/README.md` (mobile app) · `docs/IMPLEMENTATION_TRACKER.md` (authoritative status) · `docs/MASTER_BRIEF.md` (owner's brief) · `docs/ADR/` · `docs/architecture/` · `CLAUDE.md` (invariants, each backed by a test).

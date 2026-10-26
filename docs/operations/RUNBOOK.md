@@ -6,6 +6,12 @@
 - Roll back schema: `alembic downgrade -1` (round-trip is tested).
 Production runbooks are not written; no production environment exists.
 
+## Mobile alerts and push
+
+- `make worker` also runs saved-search alerts (≤1 per search per hour) and push delivery. Push is off unless `NUA_PUSH_PROVIDER=expo`.
+- A user reports a lost phone: they can "Sign out of all devices"; operators can set `users.is_active=false`.
+- Dead push tokens are removed automatically when the provider answers `DeviceNotRegistered`.
+
 ## Ingestion queue
 
 - Worker: `make worker` (loop) or `make worker-once`. Stop with SIGTERM; the task in hand finishes first.

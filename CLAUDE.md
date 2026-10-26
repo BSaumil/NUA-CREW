@@ -21,6 +21,8 @@ Read `docs/MASTER_BRIEF.md` (owner's execution brief) and `docs/BRAND_IDENTITY.m
 - Employers can only create `disclosed` pay; `estimated` is reserved for NUA CREW inference.
 - Dev auth (ADR-002) is a placeholder for OIDC. `devseed` only runs with `NUA_ENV=development`.
 
+- Mobile (`apps/mobile`): access tokens stay in memory, refresh tokens only in secure storage; never persist personal data in AsyncStorage (only public `jobs`/`job` queries are cached); location is rounded before sending and never stored; every interactive element needs an accessible role/label; run `pnpm --filter @nua-crew/mobile test` and keep `__tests__/tokens.test.ts` green (native colours must match `packages/ui` tokens). Edits to files Prettier has reformatted can silently miss when scripted — re-grep after editing.
+
 ## Commands
 
 `make check` (everything but browser e2e) · `make e2e` · `make worker` · `pnpm contracts` after any API schema change (commit the regenerated `packages/contracts`) · `cd services/api && uv run alembic revision --autogenerate -m "..."` then hand-review the migration and test `downgrade`/`upgrade`.

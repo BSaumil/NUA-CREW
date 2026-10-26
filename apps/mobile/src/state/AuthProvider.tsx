@@ -13,7 +13,7 @@ import {
   type ReactNode,
 } from 'react';
 import { AppState, Platform } from 'react-native';
-import { api, unwrap } from '@/api/client';
+import { api, unwrap, UserMessage } from '@/api/client';
 import { session, type TokenResponse } from '@/api/session';
 import { disablePush } from '@/features/push';
 
@@ -98,7 +98,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           await api
             .POST('/v1/auth/logout', { body: { refresh_token: t.refresh_token } })
             .catch(() => undefined);
-        throw new Error('This app is for job seekers. Employers use NUA CREW Hire on the web.');
+        throw new UserMessage(
+          'This app is for job seekers. Employers use NUA CREW Hire on the web.',
+        );
       }
       qc.clear();
       await begin(t);

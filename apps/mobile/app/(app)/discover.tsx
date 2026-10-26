@@ -50,7 +50,12 @@ export default function Discover() {
   const { colors } = useTheme();
   const { filters, setFilters, reset } = useFilters();
   const [text, setText] = useState(filters.q);
-  const [saveOpen, setSaveOpen] = useState(false);
+  // Snapshot of the search being saved, taken when the sheet opens so later filter changes
+  // (e.g. the typing debounce firing) cannot overwrite what the person is editing.
+  const [saving, setSaving] = useState<{
+    name: string;
+    params: Record<string, string | number>;
+  } | null>(null);
 
   // Debounce typing so we do not hit the API on every keystroke.
   useEffect(() => {
@@ -161,7 +166,7 @@ export default function Discover() {
         <Button
           title="Save this search & get alerts"
           variant="ghost"
-          onPress={() => setSaveOpen(true)}
+          onPress={() => setSaving({ name: describe(filters), params: toSavedParams(filters) })}
         />
       ) : null}
     </View>
@@ -221,45 +226,40 @@ export default function Discover() {
           />
         }
       />
-      <SaveSearchModal
-        visible={saveOpen}
-        onClose={() => setSaveOpen(false)}
-        defaultName={describe(filters)}
-        params={toSavedParams(filters)}
-      />
+      <SaveSearchModal snapshot={saving} onClose={() => setSaving(null)} />
     </SafeAreaView>
   );
 }
 
 function SaveSearchModal({
-  visible,
+  snapshot,
   onClose,
-  defaultName,
-  params,
 }: {
-  visible: boolean;
+  snapshot: { name: string; params: Record<string, string | number> } | null;
   onClose: () => void;
-  defaultName: string;
-  params: Record<string, string | number>;
 }) {
   const { colors } = useTheme();
   const create = useCreateSavedSearch();
-  const [name, setName] = useState(defaultName.slice(0, 100));
+  const [name, setName] = useState('');
   const [alerts, setAlerts] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const opened = snapshot !== null;
   useEffect(() => {
-    if (visible) {
-      setName(defaultName.slice(0, 100));
+    if (snapshot) {
+      setName(snapshot.name.slice(0, 100));
+      setAlerts(true);
       setError(null);
     }
-  }, [visible, defaultName]);
+    // Reset only when the sheet opens, never while it is being edited.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [opened]);
 
   const save = async () => {
     setError(null);
     try {
       await create.mutateAsync({
         name: name.trim() || 'My search',
-        params: params as never,
+        params: (snapshot?.params ?? {}) as never,
         alerts_enabled: alerts,
       });
       onClose();
@@ -273,7 +273,7 @@ function SaveSearchModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
+    <Modal visible={opened} animationType="slide" transparent onRequestClose={onClose}>
       <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
         <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
           <Text variant="title" accessibilityRole="header">
