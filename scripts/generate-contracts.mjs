@@ -29,6 +29,9 @@ execFileSync(
     'packages/contracts/openapi.json',
     '-o',
     'packages/contracts/src/schema.d.ts',
+    // Fields with server defaults are optional in requests, so clients may omit them.
+    '--default-non-nullable',
+    'false',
   ],
   { cwd: root, stdio: 'inherit' },
 );

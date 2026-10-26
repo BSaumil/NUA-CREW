@@ -1106,7 +1106,7 @@ export interface components {
              * Events
              * @default []
              */
-            events: components["schemas"]["EventOut"][];
+            events?: components["schemas"]["EventOut"][];
             /**
              * Id
              * Format: uuid
@@ -1133,7 +1133,7 @@ export interface components {
              * @default web
              * @enum {string}
              */
-            client: "web" | "mobile";
+            client?: "web" | "mobile";
             /** Device Label */
             device_label?: string | null;
             /**
@@ -1311,7 +1311,7 @@ export interface components {
              * Skills
              * @default []
              */
-            skills: string[];
+            skills?: string[];
             /** Super Included */
             super_included?: boolean | null;
             /** Title */
@@ -1420,7 +1420,7 @@ export interface components {
              * @default web
              * @enum {string}
              */
-            client: "web" | "mobile";
+            client?: "web" | "mobile";
             /** Device Label */
             device_label?: string | null;
             /**
@@ -1468,7 +1468,7 @@ export interface components {
              * Label
              * @default Estimated match — not a prediction of being hired
              */
-            label: string;
+            label?: string;
             /** Missing Skills */
             missing_skills: string[];
         };
@@ -1485,7 +1485,7 @@ export interface components {
              * Memberships
              * @default []
              */
-            memberships: components["schemas"]["MembershipOut"][];
+            memberships?: components["schemas"]["MembershipOut"][];
             /** Role */
             role: string;
         };
@@ -1595,12 +1595,12 @@ export interface components {
              * Preferred Employment Types
              * @default []
              */
-            preferred_employment_types: ("full_time" | "part_time" | "casual" | "contract" | "shift")[];
+            preferred_employment_types?: ("full_time" | "part_time" | "casual" | "contract" | "shift")[];
             /**
              * Skills
              * @default []
              */
-            skills: string[];
+            skills?: string[];
             /** State */
             state?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
             /** Suburb */
@@ -1633,12 +1633,12 @@ export interface components {
              * Push Enabled
              * @default true
              */
-            push_enabled: boolean;
+            push_enabled?: boolean;
             /**
              * Skills
              * @default []
              */
-            skills: string[];
+            skills?: string[];
             /** State */
             state: string | null;
             /** Suburb */
@@ -1709,7 +1709,7 @@ export interface components {
              * Alerts Enabled
              * @default true
              */
-            alerts_enabled: boolean;
+            alerts_enabled?: boolean;
             /** Name */
             name: string;
             params: components["schemas"]["SearchParamsIn"];
@@ -1752,7 +1752,7 @@ export interface components {
              * Min Interval Seconds
              * @default 60
              */
-            min_interval_seconds: number;
+            min_interval_seconds?: number;
         };
         /**
          * SearchParamsIn
@@ -1812,7 +1812,7 @@ export interface components {
              * Config
              * @default {}
              */
-            config: {
+            config?: {
                 [key: string]: unknown;
             };
             /**
@@ -1896,7 +1896,7 @@ export interface components {
              * Expires In
              * @default 1800
              */
-            expires_in: number;
+            expires_in?: number;
             /** Refresh Token */
             refresh_token?: string | null;
             /** Role */
@@ -1906,7 +1906,7 @@ export interface components {
              * @default bearer
              * @constant
              */
-            token_type: "bearer";
+            token_type?: "bearer";
             /**
              * User Id
              * Format: uuid
