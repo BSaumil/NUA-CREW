@@ -22,6 +22,23 @@ export default function globalSetup() {
   };
   const run = (...args: string[]) =>
     execFileSync('uv', ['run', ...args], { cwd: api, env, stdio: 'inherit' });
+  // Rows left by a previous run (e.g. audit events of deleted accounts) would make a downgrade that
+  // re-adds a foreign key fail, so start from empty tables.
+  run(
+    'python',
+    '-c',
+    [
+      'import asyncio',
+      'from sqlalchemy import text',
+      'from app.db import get_engine, dispose_engine',
+      'async def go():',
+      '    async with get_engine().begin() as c:',
+      "        t = (await c.execute(text(\"select tablename from pg_tables where schemaname='public' and tablename<>'alembic_version'\"))).scalars().all()",
+      "        if t: await c.execute(text('TRUNCATE ' + ', '.join(t) + ' RESTART IDENTITY CASCADE'))",
+      '    await dispose_engine()',
+      'asyncio.run(go())',
+    ].join('\n'),
+  );
   run('alembic', 'downgrade', 'base');
   run('alembic', 'upgrade', 'head');
   run('python', '-m', 'app.devseed');

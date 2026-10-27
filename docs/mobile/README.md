@@ -36,10 +36,10 @@ Sign in with `candidate-a@nua-crew.example.com` / `nua-dev-password-1` (seed dat
 | Check | Result |
 | --- | --- |
 | `tsc` strict, `eslint` | clean |
-| Jest (79): session/refresh logic, auth provider, API wiring, Discover, job detail/apply, applications, settings/deletion, components, token ↔ web parity, WCAG AA contrast | pass |
-| `expo export` for **android** and **ios** (Hermes bytecode) | compiles (≈3.7 MB each) |
+| Jest (139): session/refresh logic, auth provider, API wiring, Discover, job detail/apply, applications, settings/deletion, components, token ↔ web parity, WCAG AA contrast | pass |
+| `expo export` for **android** and **ios** (Hermes bytecode) | compiles (≈3.4 MB each) |
 | `expo prebuild` for both platforms | succeeds; generated manifests audited (below) |
-| Browser run of the real screens against the real API + DB (Playwright, `tests/e2e/specs/mobile-web.spec.ts`, 8 tests incl. axe in light/dark) | pass |
+| Browser run of the real screens against the real API + DB (Playwright, `tests/e2e/specs/mobile-web.spec.ts`, incl. the availability slice and axe in light/dark) | pass |
 | **Not verified here:** running on a physical iPhone/Android device or emulator, Keychain/Keystore, biometrics, push delivery, share sheet/file export, location prompt, store builds | needs real devices/accounts |
 
 Generated native config (from `app.config.ts`): iOS asks only for **Face ID** and **location while in use**; Android requests only `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS`, `USE_BIOMETRIC`/`USE_FINGERPRINT` (+ `INTERNET`, `VIBRATE`); fine location, camera, microphone, storage and overlay permissions are explicitly removed.
