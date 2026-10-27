@@ -57,8 +57,7 @@ export default async function Billing({
             : 'Payment configuration is unavailable. Nothing can be purchased here.'}
         </p>
         <p className="nua-hint">
-          Live charging is disabled. Orders are confirmed from verified Stripe events, never from a
-          browser return link.
+          Test payments only. Your advertisement goes live once payment is confirmed.
         </p>
       </div>
       <section aria-label="Advertising prices" className="nua-grid">
@@ -90,9 +89,10 @@ export default async function Billing({
       <section className="nua-card nua-stack" aria-labelledby="checkout-heading">
         <h2 id="checkout-heading">Choose the role. Review the purchase.</h2>
         <p>
-          Promotion is reserved before checkout. If all five local-category placements are booked,
-          no checkout opens. A repeat promotion queues after existing coverage; the advertisement
-          must cover all five days. Other search filters and user-selected sorts still apply.
+          Promotion is reserved before checkout. If all five placements in your area and category
+          are booked, no checkout opens. A repeat promotion queues after existing coverage; the
+          advertisement must cover all five days. Other search filters and user-selected sorts still
+          apply.
         </p>
         {!owner ? (
           <p>Only a business owner can start checkout or request a refund.</p>
@@ -141,9 +141,9 @@ export default async function Billing({
       <section aria-labelledby="orders-heading" className="nua-stack">
         <h2 id="orders-heading">Orders and payment status</h2>
         <p className="nua-hint">
-          Returning from Checkout does not prove payment. Pending orders update after Stripe
-          verification. Quotes hold inventory for 35 minutes. Unfulfilled payments are queued for a
-          full refund; partial refunds require review.
+          Payment can take a moment to confirm. Refresh for the latest status. Quotes reserve a
+          placement for 35 minutes. If we cannot deliver your purchase, we arrange a full refund.
+          Partial refunds are reviewed by support.
         </p>
         {ordersError ? (
           <p role="alert">We could not load your orders. Refresh to try again.</p>

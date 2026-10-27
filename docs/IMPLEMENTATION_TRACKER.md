@@ -1,5 +1,9 @@
 # Implementation tracker
 
+## Stripe sandbox implementation — 28 October 2026
+
+Stripe SDK checkout, signed webhook fulfilment, refunds, forced-RLS financial records, five-slot promotion inventory, paid publication/expiry and employer billing screens are implemented on draft PR #2. Configuration is disabled by default; no Stripe account has been connected. See `STRIPE_SETUP.md` for exact setup and remaining account-backed acceptance. Local checks: 211 mobile tests, 29 isolated Python tests, TypeScript/lint pass. Real PostgreSQL/browser rerun is in progress; do not report a fully green release. Production identity, employer ownership/deletion, physical-device QA, native purchase policy, signed store builds and the node-forge security audit remain release gates. Older sections below are historical snapshots.
+
 ## Current hiring and shift validation — 28 October 2026
 
 Draft PR #2 adds full hiring-journey validation and the shift-offer, booking, cancellation and timesheet workflows on Android/iOS screen code. PostgreSQL CI: 203 tests pass; mobile: 206 tests and shared: 41 tests pass at the recorded source revision. See `reports/HIRING_SHIFTS_VALIDATION_2026-10-28.md` for exact evidence, later checks and remaining work. Physical devices, production identity and actual billing/inventory remain incomplete. The local environment disconnected; use the remote PR branch as the saved source.

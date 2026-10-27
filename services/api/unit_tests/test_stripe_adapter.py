@@ -106,3 +106,19 @@ async def test_checkout_uses_server_amount_stable_key_and_fixed_return_urls(
     assert params["metadata"]["order_id"] == str(row.id)
     assert params["success_url"].startswith("http://localhost:3001/billing?order=")
     assert create.call_args.kwargs["options"]["idempotency_key"] == f"nua-checkout:{row.id}"
+
+
+@pytest.mark.asyncio
+async def test_failed_refund_is_flagged_for_review(monkeypatch):
+    create = AsyncMock(return_value=SimpleNamespace(id="re_failed_fixture", status="failed"))
+    sdk = SimpleNamespace(v1=SimpleNamespace(refunds=SimpleNamespace(create_async=create)))
+
+    @asynccontextmanager
+    async def provider():
+        yield sdk
+
+    monkeypatch.setattr(payments, "client", provider)
+    row = BillingOrder(id=uuid.uuid4(), payment_intent_id="pi_fixture", review_required=False)
+    await payments.request_refund(row)
+    assert row.refund_id == "re_failed_fixture" and row.review_required
+    assert create.call_args.kwargs["options"]["idempotency_key"] == f"nua-full-refund:{row.id}"

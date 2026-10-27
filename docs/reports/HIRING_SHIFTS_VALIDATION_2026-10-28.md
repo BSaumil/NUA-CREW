@@ -1,3 +1,5 @@
+> Updated Stripe status: the interrupted billing work was restored and implemented in PR #2. See `../STRIPE_SETUP.md` and the newest implementation-tracker entry. Statements below about unpublished billing describe the earlier checkpoint, not the current source. No account-backed Stripe transaction or production activation has occurred.
+
 # NUA CREW — hiring validation and shift delivery
 
 Date: 28 October 2026 (Australia/Melbourne).

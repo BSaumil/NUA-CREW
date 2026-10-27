@@ -285,3 +285,32 @@ async def test_checkout_signed_fulfilment_and_cross_tenant_permissions(client, s
     async with db_as("system") as s:
         assert await s.scalar(select(func.count()).select_from(AdEntitlement)) == 1
         assert await s.scalar(select(func.count()).select_from(BillingLedger)) == 1
+    # A signed partial refund.updated event is recorded for review, not rejected as a full-price mismatch.
+    partial = json.dumps(
+        {
+            "id": "evt_partial_refund_fixture",
+            "type": "refund.updated",
+            "livemode": False,
+            "data": {
+                "object": {
+                    "id": "re_fixture",
+                    "payment_intent": "pi_fixture",
+                    "status": "succeeded",
+                    "amount": 1000,
+                    "currency": "aud",
+                }
+            },
+        }
+    ).encode()
+    stamp = int(time.time())
+    digest = hmac.new(
+        b"whsec_fixture", str(stamp).encode() + b"." + partial, hashlib.sha256
+    ).hexdigest()
+    result = await client.post(
+        "/v1/billing/stripe/webhook",
+        content=partial,
+        headers={"stripe-signature": f"t={stamp},v1={digest}"},
+    )
+    assert result.status_code == 200, result.text
+    orders = (await client.get(f"/v1/employers/{eid}/billing/orders", headers=emp)).json()
+    assert orders[0]["review_required"] and orders[0]["status"] == "settled"
