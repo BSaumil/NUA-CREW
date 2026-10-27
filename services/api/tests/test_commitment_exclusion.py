@@ -4,8 +4,8 @@ import asyncio
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from sqlalchemy import select
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy import func, select
+from sqlalchemy.exc import DBAPIError, IntegrityError
 
 from app.models import CandidateProfile, Commitment
 from tests.conftest import db_as, register_candidate
@@ -44,8 +44,18 @@ async def test_two_connections_cannot_both_confirm_overlapping_work(client):
         try:
             await insert(cid, start, start + timedelta(hours=2))
             return "confirmed"
-        except IntegrityError as exc:
-            assert getattr(exc.orig, "sqlstate", None) == "23P01"
+        except DBAPIError as exc:
+            # Two direct, unsynchronised GiST insertions may form a deadlock; PostgreSQL
+            # aborts one transaction with 40P01 instead of 23P01. Both protect the invariant.
+            # API writes separately serialise on the candidate row before inserting.
+            assert getattr(exc.orig, "sqlstate", None) in {"23P01", "40P01"}
             return "conflict"
 
     assert sorted(await asyncio.gather(attempt(), attempt())) == ["confirmed", "conflict"]
+    async with db_as("system") as session:
+        assert (
+            await session.scalar(
+                select(func.count()).select_from(Commitment).where(Commitment.candidate_id == cid)
+            )
+            == 1
+        )
