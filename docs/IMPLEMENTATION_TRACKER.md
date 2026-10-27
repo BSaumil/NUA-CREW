@@ -59,6 +59,24 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `DONE` · `BLOCKED`. "DONE" means im
 | Cross-source dedupe                                | NOT_STARTED | Identity is currently (source, external_id) only                                           |
 | Real licensed feeds / ATS webhooks                 | BLOCKED     | Needs signed licences; none exist                                                          |
 
+## M0 — reconcile and stabilise (2026-10-27, local branch `feat/m0-m1-availability-20261027`)
+
+The Codex commits `bfe7fb4` / `97d4f71` were not available; their behaviour was re-implemented and covered by new tests.
+
+| Item                                                                 | Status | Evidence                                                                                                  |
+| -------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| Session generation binding (late refresh, old responses, no replay)  | DONE   | `session-generations.test.ts`, `client.test.ts` (account-change case)                                     |
+| Serialised credential writes/deletes; deletion failure reported      | DONE   | `session-generations.test.ts`, `auth-provider.test.tsx` (`credentialsRemoved: false`)                     |
+| Private caches cleared on every signed-out event                     | DONE   | `auth-provider.test.tsx` (rejected-refresh case)                                                          |
+| Biometric lock armed before restore publishes signed-in              | DONE (code) | Ordering in `AuthProvider`; no device test. Real Face ID / fingerprint behaviour UNVERIFIED            |
+| Stable idempotency key on ambiguous retry; double-tap blocked        | DONE   | `apply.test.ts`, `job-detail.test.tsx`                                                                    |
+| Keyboard-aware scrollable sheets; usable share links                 | PARTIAL | `Sheet`, `share.test.ts`. Keyboard behaviour on real devices UNVERIFIED                                |
+| Fonts/icons: only those used                                         | DONE   | Export 15M → 8.2M, assets 70 → 39, Android hbc 3.71 MB → 3.38 MB                                          |
+| RLS tests as a non-superuser, non-BYPASSRLS role; CI bootstrap; guard | DONE  | ADR-008, `db/roles/bootstrap.sql`, `test_rls.py`; 106 API tests under the split roles. CI never run remotely |
+| Production runtime role model                                        | PARTIAL | Roles defined; production secrets/rotation/managed Postgres not done                                      |
+| Dependency audit                                                     | OPEN   | `pnpm audit --prod` = 2 high, both under `expo > @expo/cli` (tooling, not bundled): `node-forge` (no patched version) and `zod` 3.x (fix only in 4.x). NOT suppressed; the CI gate stays and will fail until Expo ships a fix |
+| Redis snapshot / credentials out of git                              | DONE   | `*.rdb`, `appendonly*` ignored; `services/api/dump.rdb` untracked                                         |
+
 ## P3–P6
 
 | Phase                                          | Status                                                                         |

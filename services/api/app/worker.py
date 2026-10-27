@@ -13,7 +13,7 @@ import socket
 from collections import Counter
 
 from app.config import get_settings
-from app.db import dispose_engine, get_sessionmaker
+from app.db import assert_rls_safe_role, dispose_engine, get_sessionmaker
 from app.rls import set_context
 from app.services.alerts import run_alerts
 from app.services.ingestion.queue import expire_stale, process_one, schedule_due
@@ -64,6 +64,7 @@ async def serve(poll_seconds: float, stop: asyncio.Event) -> None:
 
 
 async def _main(once: bool, poll: float) -> None:
+    await assert_rls_safe_role()
     if once:
         print(dict(await run_once()))  # noqa: T201
     else:

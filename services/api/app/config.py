@@ -10,7 +10,11 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="NUA_", extra="ignore")
 
     env: str = "development"
-    database_url: str = "postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew"
+    database_url: str = "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew"
+    # Alembic connects with this schema-owning role when set; the API never does (ADR-008).
+    migration_database_url: str | None = None
+    # None = enforce outside development, warn in development.
+    require_rls_safe_role: bool | None = None
     jwt_secret: str = DEV_JWT_SECRET
     jwt_issuer: str = "nua-crew-api"
     access_token_minutes: int = 30

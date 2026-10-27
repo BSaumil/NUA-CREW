@@ -11,6 +11,7 @@ from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 
 from app.deps import admin_user, member_owner, member_recruiter, member_viewer
+from app.rls import set_context
 from app.routers import admin, applications, auth, candidate, employer, jobs_public, notifications
 from tests.conftest import (
     JOB,
@@ -171,3 +172,65 @@ async def test_every_employer_route_requires_membership():
             assert guards & set(deps(route.dependant)), f"{route.methods} {route.path} is unguarded"
             checked += 1
     assert checked >= 15
+
+
+# ---------------------------------------------------------------- database role guards (ADR-008)
+async def test_runtime_role_cannot_bypass_rls():
+    from app.db import current_role
+
+    info = await current_role()
+    assert not info.superuser and not info.bypass_rls, info
+
+
+async def test_startup_guard_refuses_privileged_roles_outside_development(monkeypatch):
+    from app import db
+    from app.config import get_settings
+
+    async def privileged(*_a, **_k):
+        return db.RoleInfo("postgres", True, True)
+
+    monkeypatch.setattr(db, "current_role", privileged)
+    settings = get_settings()
+    monkeypatch.setattr(settings, "env", "production")
+    monkeypatch.setattr(settings, "jwt_secret", "x" * 40)
+    with pytest.raises(RuntimeError, match="NOT enforced"):
+        await db.assert_rls_safe_role()
+    monkeypatch.setattr(settings, "env", "development")  # development only warns
+    assert (await db.assert_rls_safe_role()).unsafe
+    monkeypatch.setattr(settings, "require_rls_safe_role", True)  # ...unless told to enforce
+    with pytest.raises(RuntimeError):
+        await db.assert_rls_safe_role()
+
+
+@pytest.mark.skipif(
+    not __import__("os").environ.get("NUA_MIGRATION_DATABASE_URL"),
+    reason="split migrator/runtime roles not configured",
+)
+async def test_runtime_role_is_not_the_owner_and_cannot_change_the_schema():
+    """With split roles the API cannot disable RLS, drop policies or alter tables."""
+    async with db_as(role="system") as s:
+        owner = (
+            await s.execute(text("select tableowner from pg_tables where tablename='applications'"))
+        ).scalar_one()
+        me = (await s.execute(text("select current_user"))).scalar_one()
+        assert owner != me
+        for stmt in (
+            "ALTER TABLE applications DISABLE ROW LEVEL SECURITY",
+            "DROP POLICY applications_select ON applications",
+            "DROP TABLE users CASCADE",
+            "CREATE TABLE evil (id int)",
+            "ALTER TABLE applications NO FORCE ROW LEVEL SECURITY",
+        ):
+            with pytest.raises(DBAPIError):
+                await s.execute(text(stmt))
+            await s.rollback()
+            await set_context(s, role="system")
+
+
+def test_docker_initdb_copy_of_bootstrap_sql_is_identical():
+    import pathlib
+
+    root = pathlib.Path(__file__).resolve().parents[3]
+    assert (root / "db/roles/bootstrap.sql").read_text() == (
+        root / "infra/docker/initdb/bootstrap.sql"
+    ).read_text()

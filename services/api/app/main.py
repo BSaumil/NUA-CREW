@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.responses import Response
 
 from app.config import get_settings
-from app.db import dispose_engine
+from app.db import assert_rls_safe_role, dispose_engine
 from app.errors import install_error_handlers
 from app.ratelimit import RedisLimiter, get_limiter
 from app.routers import (
@@ -25,6 +25,7 @@ from app.routers import (
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    await assert_rls_safe_role()
     yield
     limiter = get_limiter()
     if isinstance(limiter, RedisLimiter):

@@ -1,8 +1,14 @@
 import os
 
 # Must be set before any app import so Settings picks them up.
+# Runtime role (subject to RLS) for the app; schema owner for Alembic. See ADR-008.
 os.environ.setdefault(
-    "NUA_DATABASE_URL", "postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew_test"
+    "NUA_DATABASE_URL",
+    "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew_test",
+)
+os.environ.setdefault(
+    "NUA_MIGRATION_DATABASE_URL",
+    "postgresql+asyncpg://nua_migrator:nua_migrator_dev@localhost:5432/nua_crew_test",
 )
 os.environ["NUA_DB_NULL_POOL"] = "true"
 os.environ.pop("NUA_REDIS_URL", None)
@@ -32,7 +38,30 @@ PASSWORD = "correct-horse-battery"
 
 
 @pytest.fixture(scope="session", autouse=True)
-def _migrated() -> None:
+def _rls_safe_role() -> None:
+    """Fail fast: against a superuser/BYPASSRLS role every isolation test would pass for the
+    wrong reason (or fail confusingly). See db/roles/bootstrap.sql."""
+    import asyncio
+
+    from app.db import current_role, dispose_engine
+
+    async def check():
+        try:
+            return await current_role()
+        finally:
+            await dispose_engine()
+
+    info = asyncio.run(check())
+    if info.unsafe:
+        pytest.exit(
+            f"Database role {info.name!r} bypasses row-level security (superuser={info.superuser}, "
+            f"bypassrls={info.bypass_rls}). Run db/roles/bootstrap.sql and connect as nua_runtime.",
+            returncode=3,
+        )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _migrated(_rls_safe_role: None) -> None:
     cfg = Config("alembic.ini")
     command.downgrade(cfg, "base")
     command.upgrade(cfg, "head")
