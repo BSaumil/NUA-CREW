@@ -771,6 +771,72 @@ class Commitment(TimestampMixin, Base):
     venue_time_zone: Mapped[str | None] = mapped_column(String(64))
 
 
+class Shift(TimestampMixin, Base):
+    __tablename__ = "shifts"
+    __table_args__ = (
+        CheckConstraint("ends_at > starts_at", name="ck_shift_window"),
+        CheckConstraint("capacity BETWEEN 1 AND 50", name="ck_shift_capacity"),
+        CheckConstraint("hourly_rate_minor > 0", name="ck_shift_rate"),
+        CheckConstraint("status IN ('open', 'cancelled')", name="ck_shift_status"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    title: Mapped[str] = mapped_column(String(200))
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    time_zone: Mapped[str] = mapped_column(String(64))
+    capacity: Mapped[int] = mapped_column(Integer)
+    hourly_rate_minor: Mapped[int] = mapped_column(Integer)
+    super_included: Mapped[bool] = mapped_column(Boolean)
+    status: Mapped[str] = mapped_column(String(12), server_default="open")
+
+
+class ShiftBooking(TimestampMixin, Base):
+    __tablename__ = "shift_bookings"
+    __table_args__ = (
+        UniqueConstraint("shift_id", "candidate_id", name="uq_shift_candidate"),
+        CheckConstraint(
+            "status IN ('offered', 'confirmed', 'declined', 'cancelled')", name="ck_booking_status"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    shift_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("shifts.id", ondelete="CASCADE"))
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE")
+    )
+    candidate_label: Mapped[str] = mapped_column(String(200))
+    status: Mapped[str] = mapped_column(String(12), server_default="offered")
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    commitment_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("commitments.id", ondelete="RESTRICT"), unique=True
+    )
+    reason: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ShiftTimesheet(TimestampMixin, Base):
+    __tablename__ = "shift_timesheets"
+    __table_args__ = (
+        CheckConstraint("ends_at > starts_at AND break_minutes >= 0", name="ck_timesheet_window"),
+        CheckConstraint(
+            "status IN ('submitted', 'approved', 'disputed')", name="ck_timesheet_status"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    booking_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shift_bookings.id", ondelete="CASCADE"), unique=True
+    )
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    break_minutes: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(12), server_default="submitted")
+    version: Mapped[int] = mapped_column(Integer, server_default="1")
+    note: Mapped[str | None] = mapped_column(String(1000))
+    review_note: Mapped[str | None] = mapped_column(String(1000))
+
+
 class EmployerPreference(Base):
     """A candidate's private stance on one employer.
 

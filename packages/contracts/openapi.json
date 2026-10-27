@@ -410,6 +410,93 @@
         "title": "AvailabilityRulesIn",
         "type": "object"
       },
+      "BookingActionIn": {
+        "properties": {
+          "action": {
+            "enum": [
+              "accept",
+              "decline",
+              "cancel"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          }
+        },
+        "required": [
+          "action"
+        ],
+        "title": "BookingActionIn",
+        "type": "object"
+      },
+      "BookingOut": {
+        "properties": {
+          "candidate_label": {
+            "title": "Candidate Label",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "shift": {
+            "$ref": "#/components/schemas/ShiftOut"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "timesheet": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimesheetOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "shift",
+          "candidate_label",
+          "status",
+          "expires_at",
+          "reason",
+          "timesheet"
+        ],
+        "title": "BookingOut",
+        "type": "object"
+      },
       "CandidateApplicationOut": {
         "properties": {
           "cover_note": {
@@ -3428,6 +3515,22 @@
         "title": "ProfileOut",
         "type": "object"
       },
+      "ReasonIn": {
+        "properties": {
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "pattern": "\\S",
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ReasonIn",
+        "type": "object"
+      },
       "RefreshIn": {
         "properties": {
           "refresh_token": {
@@ -3922,6 +4025,134 @@
           }
         },
         "title": "SearchParamsIn",
+        "type": "object"
+      },
+      "ShiftIn": {
+        "properties": {
+          "capacity": {
+            "maximum": 50.0,
+            "minimum": 1.0,
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "hourly_rate_minor": {
+            "maximum": 10000000.0,
+            "minimum": 1.0,
+            "title": "Hourly Rate Minor",
+            "type": "integer"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "local_end": {
+            "format": "time",
+            "title": "Local End",
+            "type": "string"
+          },
+          "local_start": {
+            "format": "time",
+            "title": "Local Start",
+            "type": "string"
+          },
+          "time_zone": {
+            "maxLength": 64,
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "local_date",
+          "local_start",
+          "local_end",
+          "time_zone",
+          "capacity",
+          "hourly_rate_minor"
+        ],
+        "title": "ShiftIn",
+        "type": "object"
+      },
+      "ShiftOfferIn": {
+        "properties": {
+          "conversation_id": {
+            "format": "uuid",
+            "title": "Conversation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "conversation_id"
+        ],
+        "title": "ShiftOfferIn",
+        "type": "object"
+      },
+      "ShiftOut": {
+        "properties": {
+          "capacity": {
+            "title": "Capacity",
+            "type": "integer"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "hourly_rate_minor": {
+            "title": "Hourly Rate Minor",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "super_included": {
+            "title": "Super Included",
+            "type": "boolean"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "title",
+          "starts_at",
+          "ends_at",
+          "time_zone",
+          "capacity",
+          "hourly_rate_minor",
+          "super_included",
+          "status"
+        ],
+        "title": "ShiftOut",
         "type": "object"
       },
       "SourceHealthOut": {
@@ -4581,6 +4812,146 @@
           "finished_at"
         ],
         "title": "TaskOut",
+        "type": "object"
+      },
+      "TimesheetIn": {
+        "properties": {
+          "break_minutes": {
+            "maximum": 1439.0,
+            "minimum": 0.0,
+            "title": "Break Minutes",
+            "type": "integer"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "starts_at",
+          "ends_at",
+          "break_minutes"
+        ],
+        "title": "TimesheetIn",
+        "type": "object"
+      },
+      "TimesheetOut": {
+        "properties": {
+          "break_minutes": {
+            "title": "Break Minutes",
+            "type": "integer"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "worked_minutes": {
+            "title": "Worked Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "starts_at",
+          "ends_at",
+          "break_minutes",
+          "status",
+          "version",
+          "note",
+          "review_note",
+          "worked_minutes"
+        ],
+        "title": "TimesheetOut",
+        "type": "object"
+      },
+      "TimesheetReviewIn": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "approved",
+              "disputed"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "expected_version": {
+            "minimum": 1.0,
+            "title": "Expected Version",
+            "type": "integer"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "pattern": "\\S",
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "decision",
+          "expected_version"
+        ],
+        "title": "TimesheetReviewIn",
         "type": "object"
       },
       "TokenOut": {
@@ -8168,6 +8539,152 @@
         ]
       }
     },
+    "/v1/candidate/shift-bookings": {
+      "get": {
+        "operationId": "candidate_bookings_v1_candidate_shift_bookings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BookingOut"
+                  },
+                  "title": "Response Candidate Bookings V1 Candidate Shift Bookings Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Bookings",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/candidate/shift-bookings/{booking_id}/respond": {
+      "post": {
+        "operationId": "respond_v1_candidate_shift_bookings__booking_id__respond_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BookingActionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Respond",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/candidate/shift-bookings/{booking_id}/timesheet": {
+      "put": {
+        "operationId": "submit_timesheet_v1_candidate_shift_bookings__booking_id__timesheet_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimesheetIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Submit Timesheet",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
     "/v1/candidate/work-preferences": {
       "get": {
         "operationId": "get_work_preferences_v1_candidate_work_preferences_get",
@@ -9887,6 +10404,370 @@
         "summary": "Add Member",
         "tags": [
           "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings": {
+      "get": {
+        "operationId": "employer_bookings_v1_employers__employer_id__shift_bookings_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/BookingOut"
+                  },
+                  "title": "Response Employer Bookings V1 Employers  Employer Id  Shift Bookings Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Bookings",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-review": {
+      "post": {
+        "operationId": "review_timesheet_v1_employers__employer_id__shift_bookings__booking_id__timesheet_review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TimesheetReviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Timesheet",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shifts": {
+      "get": {
+        "operationId": "list_shifts_v1_employers__employer_id__shifts_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ShiftOut"
+                  },
+                  "title": "Response List Shifts V1 Employers  Employer Id  Shifts Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Shifts",
+        "tags": [
+          "shifts"
+        ]
+      },
+      "post": {
+        "operationId": "create_shift_v1_employers__employer_id__shifts_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShiftIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Shift",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shifts/{shift_id}/cancel": {
+      "post": {
+        "operationId": "cancel_shift_v1_employers__employer_id__shifts__shift_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "shift_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Shift Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ShiftOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Shift",
+        "tags": [
+          "shifts"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shifts/{shift_id}/offers": {
+      "post": {
+        "operationId": "offer_v1_employers__employer_id__shifts__shift_id__offers_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "shift_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Shift Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ShiftOfferIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Offer",
+        "tags": [
+          "shifts"
         ]
       }
     },

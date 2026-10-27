@@ -25,6 +25,7 @@ from app.routers import (
     notifications,
     pricing,
     saved,
+    shifts,
     talent,
 )
 
@@ -75,6 +76,7 @@ def create_app() -> FastAPI:
         saved.router,
         account.router,
         moderation.router,
+        shifts.router,
     ):
         app.include_router(r)
     return app

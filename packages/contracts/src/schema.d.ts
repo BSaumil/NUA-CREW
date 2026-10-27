@@ -1142,6 +1142,57 @@ export interface paths {
         patch: operations["patch_saved_search_v1_candidate_saved_searches__search_id__patch"];
         trace?: never;
     };
+    "/v1/candidate/shift-bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Candidate Bookings */
+        get: operations["candidate_bookings_v1_candidate_shift_bookings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/shift-bookings/{booking_id}/respond": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Respond */
+        post: operations["respond_v1_candidate_shift_bookings__booking_id__respond_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/shift-bookings/{booking_id}/timesheet": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /** Submit Timesheet */
+        put: operations["submit_timesheet_v1_candidate_shift_bookings__booking_id__timesheet_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/work-preferences": {
         parameters: {
             query?: never;
@@ -1550,6 +1601,92 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/shift-bookings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employer Bookings */
+        get: operations["employer_bookings_v1_employers__employer_id__shift_bookings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Timesheet */
+        post: operations["review_timesheet_v1_employers__employer_id__shift_bookings__booking_id__timesheet_review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shifts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Shifts */
+        get: operations["list_shifts_v1_employers__employer_id__shifts_get"];
+        put?: never;
+        /** Create Shift */
+        post: operations["create_shift_v1_employers__employer_id__shifts_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shifts/{shift_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel Shift */
+        post: operations["cancel_shift_v1_employers__employer_id__shifts__shift_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shifts/{shift_id}/offers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Offer */
+        post: operations["offer_v1_employers__employer_id__shifts__shift_id__offers_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/talent/search": {
         parameters: {
             query?: never;
@@ -1892,6 +2029,37 @@ export interface components {
             rules: components["schemas"]["AvailabilityRuleIn"][];
             /** Time Zone */
             time_zone: string;
+        };
+        /** BookingActionIn */
+        BookingActionIn: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "accept" | "decline" | "cancel";
+            /** Reason */
+            reason?: string | null;
+        };
+        /** BookingOut */
+        BookingOut: {
+            /** Candidate Label */
+            candidate_label: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reason */
+            reason: string | null;
+            shift: components["schemas"]["ShiftOut"];
+            /** Status */
+            status: string;
+            timesheet: components["schemas"]["TimesheetOut"] | null;
         };
         /** CandidateApplicationOut */
         CandidateApplicationOut: {
@@ -2996,6 +3164,11 @@ export interface components {
             /** Summary */
             summary: string | null;
         };
+        /** ReasonIn */
+        ReasonIn: {
+            /** Reason */
+            reason: string;
+        };
         /** RefreshIn */
         RefreshIn: {
             /** Refresh Token */
@@ -3161,6 +3334,78 @@ export interface components {
             state?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
             /** Suburb */
             suburb?: string | null;
+        };
+        /** ShiftIn */
+        ShiftIn: {
+            /** Capacity */
+            capacity: number;
+            /** Hourly Rate Minor */
+            hourly_rate_minor: number;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Local Date
+             * Format: date
+             */
+            local_date: string;
+            /**
+             * Local End
+             * Format: time
+             */
+            local_end: string;
+            /**
+             * Local Start
+             * Format: time
+             */
+            local_start: string;
+            /** Time Zone */
+            time_zone: string;
+        };
+        /** ShiftOfferIn */
+        ShiftOfferIn: {
+            /**
+             * Conversation Id
+             * Format: uuid
+             */
+            conversation_id: string;
+        };
+        /** ShiftOut */
+        ShiftOut: {
+            /** Capacity */
+            capacity: number;
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /** Hourly Rate Minor */
+            hourly_rate_minor: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /** Status */
+            status: string;
+            /** Super Included */
+            super_included: boolean;
+            /** Time Zone */
+            time_zone: string;
+            /** Title */
+            title: string;
         };
         /** SourceHealthOut */
         SourceHealthOut: {
@@ -3376,6 +3621,65 @@ export interface components {
             source_id: string;
             /** Status */
             status: string;
+        };
+        /** TimesheetIn */
+        TimesheetIn: {
+            /** Break Minutes */
+            break_minutes: number;
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /** Note */
+            note?: string | null;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+        };
+        /** TimesheetOut */
+        TimesheetOut: {
+            /** Break Minutes */
+            break_minutes: number;
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Note */
+            note: string | null;
+            /** Review Note */
+            review_note: string | null;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+            /** Worked Minutes */
+            worked_minutes: number;
+        };
+        /** TimesheetReviewIn */
+        TimesheetReviewIn: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approved" | "disputed";
+            /** Expected Version */
+            expected_version: number;
+            /** Reason */
+            reason: string;
         };
         /** TokenOut */
         TokenOut: {
@@ -5584,6 +5888,96 @@ export interface operations {
             };
         };
     };
+    candidate_bookings_v1_candidate_shift_bookings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"][];
+                };
+            };
+        };
+    };
+    respond_v1_candidate_shift_bookings__booking_id__respond_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BookingActionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_timesheet_v1_candidate_shift_bookings__booking_id__timesheet_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimesheetIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_work_preferences_v1_candidate_work_preferences_get: {
         parameters: {
             query?: never;
@@ -6540,6 +6934,211 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MemberOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_bookings_v1_employers__employer_id__shift_bookings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_timesheet_v1_employers__employer_id__shift_bookings__booking_id__timesheet_review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TimesheetReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_shifts_v1_employers__employer_id__shifts_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    create_shift_v1_employers__employer_id__shifts_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShiftIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_shift_v1_employers__employer_id__shifts__shift_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                shift_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShiftOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    offer_v1_employers__employer_id__shifts__shift_id__offers_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                shift_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShiftOfferIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
                 };
             };
             /** @description Validation Error */

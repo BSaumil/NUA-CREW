@@ -329,6 +329,8 @@ async def confirm_commitment(
     ).one_or_none()
     if c is None:
         raise not_found("commitment")
+    if c.source != "manual":
+        raise conflict("managed_commitment", "Manage this confirmed work through its shift booking")
     if await _confirmed_clash(session, profile.id, c.starts_at, c.ends_at, c.id):
         raise conflict("commitment_conflict", "That overlaps work you have already confirmed")
     c.status = "confirmed"
@@ -338,6 +340,15 @@ async def confirm_commitment(
 
 @router.delete("/availability/commitments/{commitment_id}", status_code=204)
 async def delete_commitment(commitment_id: uuid.UUID, profile: Candidate, session: Session) -> None:
+    row = await session.scalar(
+        select(Commitment).where(
+            Commitment.id == commitment_id, Commitment.candidate_id == profile.id
+        )
+    )
+    if row and row.source != "manual":
+        raise conflict(
+            "managed_commitment", "Cancel the shift booking instead of removing its calendar entry"
+        )
     res = await session.execute(
         delete(Commitment)
         .where(Commitment.id == commitment_id, Commitment.candidate_id == profile.id)
