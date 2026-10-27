@@ -77,6 +77,25 @@ The Codex commits `bfe7fb4` / `97d4f71` were not available; their behaviour was 
 | Dependency audit                                                     | OPEN   | `pnpm audit --prod` = 2 high, both under `expo > @expo/cli` (tooling, not bundled): `node-forge` (no patched version) and `zod` 3.x (fix only in 4.x). NOT suppressed; the CI gate stays and will fail until Expo ships a fix |
 | Redis snapshot / credentials out of git                              | DONE   | `*.rdb`, `appendonly*` ignored; `services/api/dump.rdb` untracked                                         |
 
+## M1 — availability vertical slice (2026-10-27, local branch `feat/m0-m1-availability-20261027`)
+
+Design and privacy decisions: ADR-009. Migration `409867d9e7c2` (up/down/up and backfill tested). Contracts regenerated.
+
+| # | Acceptance item                                                                                   | Status | Evidence                                                                                                  |
+| - | ------------------------------------------------------------------------------------------------- | ------ | --------------------------------------------------------------------------------------------------------- |
+| 1 | "Both" overwrites neither set; turning one off keeps its fields and does not touch the other        | DONE   | `test_both_keeps_each_preference_set...`, `test_turning_a_kind_off_withdraws...`; Jest `work-preferences`   |
+| 2 | Multiple windows per day, breaks, date exceptions, overnight windows                                | DONE   | `tests/test_availability.py` (pure), `test_weekly_windows_exceptions_and_unknown`; Jest; e2e                |
+| 3 | Permanent start date / notice period distinct from being free for a shift tonight                   | DONE   | `test_permanent_start_date_is_separate...`                                                                 |
+| 4 | Unavailable exception beats recurring; unknown is labelled unknown, never available                | DONE   | `test_explicit_unavailable_exception...`, `test_no_availability_data_is_unknown...`, talent unknown test     |
+| 5 | Confirmed commitments block conflicting bookings; applications alone do not reserve                 | DONE   | `test_confirmed_commitments_conflict_but_applications_do_not_reserve` (service-level lock; no DB exclusion constraint, see ADR-009) |
+| 6 | Pay floor, calendar and blocked-employer settings unreadable by employers or other candidates      | DONE   | `test_private_data_is_not_readable...`, `test_results_are_a_privacy_whitelist`, e2e API negatives          |
+| 7 | Discovery needs consent, a verified employer and role/tenant checks; completeness opts nobody in    | DONE   | `test_discovery_needs_consent_and_a_verified_member`, route-guard test includes talent routes, e2e         |
+| 8 | Prefer / hide / mute behave as documented; no promise of perfect anonymity                          | DONE (hide is best effort by design) | `test_hide_follow_and_mute`; copy in the app                                      |
+| 9 | Native forms keep input after validation errors, accessible labels, small screens with keyboard      | PARTIAL | Jest (errors keep values, roles/labels), axe in browser, `Screen`/`Sheet` keyboard avoidance. Real keyboard + TalkBack/VoiceOver UNVERIFIED |
+| 10 | APIs, migrations, contracts and native screens agree; downgrade/upgrade and cross-tenant negatives on a real DB | DONE | `test_migrations.py`, `tsc` on all packages, e2e cross-tenant calls |
+| - | Employer invitations (needs a real messaging path)                                                  | NOT_STARTED | Page and API say so; no Send button exists                                                       |
+| - | `offered` availability state, booking/shifts, DB exclusion constraint for commitments               | NOT_STARTED | Next slices                                                                                              |
+
 ## P3–P6
 
 | Phase                                          | Status                                                                         |

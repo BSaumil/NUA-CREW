@@ -277,11 +277,26 @@ async def add_commitment(body: CommitmentIn, profile: Candidate, session: Sessio
     """Records time the person is not free. A confirmed commitment cannot overlap another confirmed
     one. Applying for a job never creates one: applications do not reserve the worker."""
     await _lock(session, profile)
+    if body.starts_at is not None and body.ends_at is not None:
+        starts, ends = body.starts_at, body.ends_at
+    else:
+        assert body.local_date and body.local_start and body.local_end  # noqa: S101
+        starts, ends = av.local_interval(
+            profile.time_zone, body.local_date, body.local_start, body.local_end
+        )
     if body.status == "confirmed" and await _confirmed_clash(
-        session, profile.id, body.starts_at, body.ends_at, None
+        session, profile.id, starts, ends, None
     ):
         raise conflict("commitment_conflict", "That overlaps work you have already confirmed")
-    c = Commitment(candidate_id=profile.id, source="manual", **body.model_dump())
+    c = Commitment(
+        candidate_id=profile.id,
+        source="manual",
+        starts_at=starts,
+        ends_at=ends,
+        status=body.status,
+        label=body.label,
+        venue_time_zone=body.venue_time_zone,
+    )
     session.add(c)
     await session.flush()
     return c

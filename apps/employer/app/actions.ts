@@ -90,6 +90,13 @@ function jobBody(form: FormData) {
     pay_period: (num('pay_period') ?? undefined) as never,
     super_included:
       ({ included: true, plus: false } as Record<string, boolean>)[str(form, 'super')] ?? null,
+    engagement_basis: (str(form, 'engagement_basis') || 'unspecified') as never,
+    duration_type: (str(form, 'duration_type') || 'unspecified') as never,
+    hours_pattern: (str(form, 'hours_pattern') || 'unspecified') as never,
+    min_weekly_hours: num('min_weekly_hours'),
+    max_weekly_hours: num('max_weekly_hours'),
+    start_date: num('start_date'),
+    end_date: num('end_date'),
     skills,
   };
 }

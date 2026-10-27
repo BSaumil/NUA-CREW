@@ -2,7 +2,7 @@
 search. Real Postgres with RLS enforced for the runtime role."""
 
 import json
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import text
 
@@ -571,3 +571,43 @@ async def test_export_includes_and_deletion_removes_the_new_private_data(client)
             "select count(*) from employer_preferences",
         ):
             assert (await s.execute(text(sql))).scalar_one() == 0, sql
+
+
+async def test_commitment_in_local_time_resolves_in_the_candidates_zone(client):
+    h = await register_candidate(client, "loc@nua-crew.example.com")
+    r = await client.post(
+        "/v1/candidate/availability/commitments",
+        json={"local_date": "2026-10-03", "local_start": "22:00", "local_end": "06:00"},
+        headers=h,
+    )  # Saturday night into Sunday, across the Melbourne DST change
+    assert r.status_code == 201, r.text
+    c = r.json()
+    start = datetime.fromisoformat(c["starts_at"])
+    end = datetime.fromisoformat(c["ends_at"])
+    assert (end - start) == timedelta(hours=7)  # real elapsed time that night
+    assert start.astimezone(UTC).isoformat().startswith("2026-10-03T12:00")  # 22:00 AEST
+    for bad in (
+        {"local_date": "2026-10-03", "local_start": "22:00"},
+        {"local_date": "2026-10-03", "local_start": "09:00", "local_end": "09:00"},
+        {"starts_at": "2026-10-03T22:00:00+10:00", "local_date": "2026-10-03"},
+        {},
+    ):
+        r = await client.post("/v1/candidate/availability/commitments", json=bad, headers=h)
+        assert r.status_code == 422, bad
+
+
+async def test_search_window_can_be_given_in_the_venues_local_time(client):
+    eh, eid = await verified_employer(client, "lw@nua-crew.example.com", "Local Cafe")
+    h = await discoverable_candidate(client, "lwc@nua-crew.example.com", "Lia Wu")
+    await set_weekly(client, h, [window(5, "22:00", "06:00")])  # Saturday night into Sunday
+    body = {"window_date": "2026-10-03", "window_start": "22:00", "window_end": "06:00"}
+    got = await search(client, eh, eid, **body)  # the Melbourne DST-start night
+    assert got.status_code == 200, got.text
+    assert got.json()["items"][0]["availability"]["state"] == "available"
+    for bad in (
+        {"window_date": "2026-10-03"},
+        {**body, "starts_at": "2026-10-03T22:00:00+10:00", "ends_at": "2026-10-04T06:00:00+11:00"},
+        {**body, "window_time_zone": "Mars/Olympus"},
+        {**body, "window_end": "22:00"},
+    ):
+        assert (await search(client, eh, eid, **bad)).status_code == 422, bad

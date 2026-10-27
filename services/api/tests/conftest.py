@@ -62,6 +62,29 @@ def _rls_safe_role() -> None:
 
 @pytest.fixture(scope="session", autouse=True)
 def _migrated(_rls_safe_role: None) -> None:
+    import asyncio
+
+    async def wipe() -> None:
+        # A previous run's rows (e.g. audit events of deleted users) would make a downgrade that
+        # re-adds a foreign key fail, so start from empty tables.
+        async with get_engine().begin() as conn:
+            tables = (
+                (
+                    await conn.execute(
+                        text(
+                            "SELECT tablename FROM pg_tables WHERE schemaname='public' "
+                            "AND tablename <> 'alembic_version'"
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            if tables:
+                await conn.execute(text(f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE"))
+        await dispose_engine()
+
+    asyncio.run(wipe())
     cfg = Config("alembic.ini")
     command.downgrade(cfg, "base")
     command.upgrade(cfg, "head")

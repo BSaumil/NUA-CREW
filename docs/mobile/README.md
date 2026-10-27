@@ -16,6 +16,10 @@ Candidate app built with Expo (React Native), Expo Router and TypeScript in `app
 | Privacy & store requirements | Talent-discovery consent (off by default), **export my data** (share sheet), **in-app account deletion** (required by both stores) |
 | Quality | Dark mode + theme override, dynamic type (capped), 44 pt touch targets, screen-reader roles/labels, reduced-motion aware skeletons, brand tokens tested against the web design system |
 
+## Work, availability and discovery (M1)
+
+Profile → *Work preferences* (Permanent / Temporary / Both, each with its own answers and an explicit per-kind "let verified employers find me" choice), *Availability* (weekly times with several windows a day and overnight windows, one-off changes, booked work) and *Employers I prefer or avoid* (prefer / hide me / mute jobs). Everything is private to the candidate and saved on the server (never in the offline cache). Employers can only learn whether you are free for a time they ask about. See ADR-009.
+
 ## Run it
 
 ```bash

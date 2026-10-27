@@ -123,6 +123,30 @@ export default function Profile() {
       </Row>
 
       <Card>
+        <Text variant="heading" accessibilityRole="header">
+          Work and availability
+        </Text>
+        <Text variant="caption" muted>
+          Permanent or temporary, when you can work, and who can find you. Private until you choose.
+        </Text>
+        <Button
+          title="Work preferences"
+          variant="secondary"
+          onPress={() => router.push('/work-preferences')}
+        />
+        <Button
+          title="Availability"
+          variant="secondary"
+          onPress={() => router.push('/availability')}
+        />
+        <Button
+          title="Employers I prefer or avoid"
+          variant="secondary"
+          onPress={() => router.push('/employer-preferences')}
+        />
+      </Card>
+
+      <Card>
         <Row style={{ justifyContent: 'space-between' }}>
           <Text variant="heading">Profile strength</Text>
           <Badge tone="live" label={`${strength.percent}%`} />

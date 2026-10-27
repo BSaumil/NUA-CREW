@@ -28,6 +28,10 @@ export const keys = {
   profile: ['profile'] as const,
   resumes: ['resumes'] as const,
   me: ['me'] as const,
+  // Private to the signed-in candidate; never in the offline cache (see PERSISTED in the layout).
+  workPrefs: ['work-prefs'] as const,
+  availability: ['availability'] as const,
+  employerPrefs: ['employer-prefs'] as const,
 };
 
 const PAGE = 15;
@@ -303,4 +307,166 @@ export function usePushSetting() {
 /** Remove everything cached for the signed-in person (sign-out, account deletion). */
 export function wipeCache(qc: QueryClient) {
   qc.clear();
+}
+
+// ---- work preferences, availability, employer preferences (private) ----
+export type WorkPrefs = Schemas['WorkPreferencesOut'];
+export type WorkPrefIn = Schemas['WorkPreferenceIn'];
+export type Availability = Schemas['AvailabilityOut'];
+export type EmployerPref = Schemas['EmployerPreferenceOut'];
+
+export const useWorkPrefs = () =>
+  useQuery({
+    queryKey: keys.workPrefs,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/work-preferences')),
+  });
+
+export function useSaveWorkPref() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ kind, body }: { kind: 'permanent' | 'temporary'; body: WorkPrefIn }) =>
+      unwrap(
+        await api.PUT('/v1/candidate/work-preferences/{kind}', {
+          params: { path: { kind } },
+          body,
+        }),
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.workPrefs }),
+  });
+}
+
+export function useKindConsent() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      kind,
+      granted,
+      alsoMaster,
+    }: {
+      kind: 'permanent' | 'temporary';
+      granted: boolean;
+      /** Granting needs the master talent-discovery switch on as well. */
+      alsoMaster: boolean;
+    }) => {
+      if (granted && alsoMaster) {
+        unwrap(
+          await api.PUT('/v1/candidate/consents/talent-discovery', { body: { granted: true } }),
+        );
+      }
+      return unwrap(
+        await api.PUT('/v1/candidate/consents/discovery/{kind}', {
+          params: { path: { kind } },
+          body: { granted },
+        }),
+      );
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.workPrefs });
+      void qc.invalidateQueries({ queryKey: keys.profile });
+    },
+  });
+}
+
+export const useAvailability = () =>
+  useQuery({
+    queryKey: keys.availability,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/availability')),
+  });
+
+export function useSaveRules() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: Schemas['AvailabilityRulesIn']) =>
+      unwrap(await api.PUT('/v1/candidate/availability/rules', { body })),
+    onSuccess: (data) => qc.setQueryData(keys.availability, data),
+  });
+}
+
+export function useAddException() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: Schemas['AvailabilityExceptionIn']) =>
+      unwrap(await api.POST('/v1/candidate/availability/exceptions', { body })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.availability }),
+  });
+}
+
+export function useDeleteException() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrapVoid(
+        await api.DELETE('/v1/candidate/availability/exceptions/{exception_id}', {
+          params: { path: { exception_id: id } },
+        }),
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.availability }),
+  });
+}
+
+export function useAddCommitment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: Schemas['CommitmentIn']) =>
+      unwrap(await api.POST('/v1/candidate/availability/commitments', { body })),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.availability }),
+  });
+}
+
+export function useDeleteCommitment() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrapVoid(
+        await api.DELETE('/v1/candidate/availability/commitments/{commitment_id}', {
+          params: { path: { commitment_id: id } },
+        }),
+      ),
+    onSuccess: () => qc.invalidateQueries({ queryKey: keys.availability }),
+  });
+}
+
+export const useEmployerPrefs = () =>
+  useQuery({
+    queryKey: keys.employerPrefs,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/employer-preferences')),
+  });
+
+export const useEmployerDirectory = (q: string) =>
+  useQuery({
+    queryKey: ['employer-directory', q] as const,
+    enabled: q.trim().length >= 2,
+    queryFn: async () =>
+      unwrap(
+        await api.GET('/v1/candidate/employer-directory', { params: { query: { q: q.trim() } } }),
+      ),
+  });
+
+export function useAddEmployerPref() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (body: Schemas['EmployerPreferenceIn']) =>
+      unwrap(await api.POST('/v1/candidate/employer-preferences', { body })),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.employerPrefs });
+      // a mute changes which jobs are listed
+      void qc.invalidateQueries({ queryKey: ['jobs'] });
+    },
+  });
+}
+
+export function useDeleteEmployerPref() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrapVoid(
+        await api.DELETE('/v1/candidate/employer-preferences/{pref_id}', {
+          params: { path: { pref_id: id } },
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.employerPrefs });
+      void qc.invalidateQueries({ queryKey: ['jobs'] });
+    },
+  });
 }

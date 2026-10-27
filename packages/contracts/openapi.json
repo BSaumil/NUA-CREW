@@ -521,11 +521,19 @@
         "type": "object"
       },
       "CommitmentIn": {
+        "description": "Either absolute instants (starts_at/ends_at with a UTC offset) or the person's own local\ndate and times (local_date/local_start/local_end, read in their time zone; an end at or before\nthe start runs overnight). Phones send the local form so they never do time-zone arithmetic.",
         "properties": {
           "ends_at": {
-            "format": "date-time",
-            "title": "Ends At",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
           },
           "label": {
             "anyOf": [
@@ -539,10 +547,53 @@
             ],
             "title": "Label"
           },
+          "local_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Date"
+          },
+          "local_end": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local End"
+          },
+          "local_start": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Local Start"
+          },
           "starts_at": {
-            "format": "date-time",
-            "title": "Starts At",
-            "type": "string"
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
           },
           "status": {
             "default": "confirmed",
@@ -566,10 +617,6 @@
             "title": "Venue Time Zone"
           }
         },
-        "required": [
-          "starts_at",
-          "ends_at"
-        ],
         "title": "CommitmentIn",
         "type": "object"
       },
@@ -3334,6 +3381,48 @@
               }
             ],
             "title": "Suburb"
+          },
+          "window_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Date"
+          },
+          "window_end": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window End"
+          },
+          "window_start": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Window Start"
+          },
+          "window_time_zone": {
+            "default": "Australia/Melbourne",
+            "maxLength": 64,
+            "title": "Window Time Zone",
+            "type": "string"
           }
         },
         "required": [

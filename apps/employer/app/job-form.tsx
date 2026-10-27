@@ -8,6 +8,31 @@ type Location = Schemas['LocationOut'];
 const superValue = (v: boolean | null | undefined) =>
   v === true ? 'included' : v === false ? 'plus' : '';
 
+function Select({
+  name,
+  label,
+  value,
+  options,
+}: {
+  name: string;
+  label: string;
+  value: string | undefined;
+  options: [string, string][];
+}) {
+  return (
+    <div className="nua-field">
+      <label htmlFor={name}>{label}</label>
+      <select id={name} name={name} defaultValue={value ?? 'unspecified'}>
+        {options.map(([v, l]) => (
+          <option key={v} value={v}>
+            {l}
+          </option>
+        ))}
+      </select>
+    </div>
+  );
+}
+
 /** Shared by "Post a job" and "Edit job"; `job` pre-fills the edit case. */
 export function JobForm({
   action,
@@ -66,6 +91,70 @@ export function JobForm({
           </select>
         </div>
       </div>
+      <fieldset className="nua-stack" style={{ border: 0, padding: 0 }}>
+        <legend style={{ fontWeight: 700 }}>The arrangement</legend>
+        <p className="nua-hint">
+          These are separate facts. &ldquo;Not specified&rdquo; is a fine answer when you
+          don&rsquo;t know yet. NUA CREW doesn&rsquo;t decide whether a role is employment or
+          contracting; that depends on the real working relationship.
+        </p>
+        <div className="nua-grid">
+          <Select
+            name="engagement_basis"
+            label="Engagement"
+            value={job?.engagement_basis}
+            options={[
+              ['unspecified', 'Not specified'],
+              ['employee', 'Employee'],
+              ['contractor', 'Contractor'],
+            ]}
+          />
+          <Select
+            name="duration_type"
+            label="Duration"
+            value={job?.duration_type}
+            options={[
+              ['unspecified', 'Not specified'],
+              ['ongoing', 'Ongoing'],
+              ['fixed_term', 'Fixed term'],
+              ['one_off', 'One-off'],
+            ]}
+          />
+          <Select
+            name="hours_pattern"
+            label="Hours"
+            value={job?.hours_pattern}
+            options={[
+              ['unspecified', 'Not specified'],
+              ['full_time', 'Full time'],
+              ['part_time', 'Part time'],
+              ['casual', 'Casual'],
+            ]}
+          />
+        </div>
+        <div className="nua-grid">
+          <Field
+            name="min_weekly_hours"
+            label="Fewest hours a week"
+            type="number"
+            step="0.5"
+            min={0}
+            max={168}
+            defaultValue={job?.min_weekly_hours}
+          />
+          <Field
+            name="max_weekly_hours"
+            label="Most hours a week"
+            type="number"
+            step="0.5"
+            min={0}
+            max={168}
+            defaultValue={job?.max_weekly_hours}
+          />
+          <Field name="start_date" label="Start date" type="date" defaultValue={job?.start_date} />
+          <Field name="end_date" label="End date" type="date" defaultValue={job?.end_date} />
+        </div>
+      </fieldset>
       <fieldset className="nua-stack" style={{ border: 0, padding: 0 }}>
         <legend style={{ fontWeight: 700 }}>Pay (AUD)</legend>
         <p className="nua-hint">

@@ -45,6 +45,7 @@ export function BrandWordmark({
   return (
     <span className="nua-wordmark" style={{ fontSize: size }}>
       <span>NUA</span>
+      {/* A real space keeps the visible text "NUA CREW" matching the link's accessible name. */}{' '}
       <span className="nua-wordmark__crew">{product}</span>
     </span>
   );

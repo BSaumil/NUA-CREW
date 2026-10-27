@@ -6,7 +6,7 @@ from typing import Annotated, Literal
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, model_validator
 
 from app.abn import is_valid_abn_checksum, normalise_abn
-from app.services.availability import zone
+from app.services.availability import local_interval, zone
 
 EmploymentType = Literal["full_time", "part_time", "casual", "contract", "shift"]
 PayPeriod = Literal["hour", "day", "week", "month", "year"]
@@ -637,18 +637,43 @@ class AvailabilityExceptionOut(Orm):
 
 
 class CommitmentIn(BaseModel):
-    starts_at: datetime
-    ends_at: datetime
+    """Either absolute instants (starts_at/ends_at with a UTC offset) or the person's own local
+    date and times (local_date/local_start/local_end, read in their time zone; an end at or before
+    the start runs overnight). Phones send the local form so they never do time-zone arithmetic."""
+
+    starts_at: datetime | None = None
+    ends_at: datetime | None = None
+    local_date: date | None = None
+    local_start: time | None = None
+    local_end: time | None = None
     status: Literal["held", "confirmed"] = "confirmed"
     label: str | None = Field(None, max_length=100)
     venue_time_zone: str | None = Field(None, max_length=64)
 
     @model_validator(mode="after")
     def _ok(self) -> "CommitmentIn":
-        if self.starts_at.tzinfo is None or self.ends_at.tzinfo is None:
-            raise ValueError("starts_at and ends_at must include a UTC offset")
-        if self.ends_at <= self.starts_at:
-            raise ValueError("ends_at must be after starts_at")
+        instants = self.starts_at is not None or self.ends_at is not None
+        local = (
+            self.local_date is not None
+            or self.local_start is not None
+            or self.local_end is not None
+        )
+        if instants == local:
+            raise ValueError("provide starts_at and ends_at, or local_date with local_start/end")
+        if instants:
+            if self.starts_at is None or self.ends_at is None:
+                raise ValueError("provide both starts_at and ends_at")
+            if self.starts_at.tzinfo is None or self.ends_at.tzinfo is None:
+                raise ValueError("starts_at and ends_at must include a UTC offset")
+            if self.ends_at <= self.starts_at:
+                raise ValueError("ends_at must be after starts_at")
+        else:
+            if self.local_date is None or self.local_start is None or self.local_end is None:
+                raise ValueError("provide local_date, local_start and local_end")
+            self.local_start = _minute_precision(self.local_start)
+            self.local_end = _minute_precision(self.local_end)
+            if self.local_start == self.local_end:
+                raise ValueError("local_start and local_end must differ")
         if self.venue_time_zone:
             zone(self.venue_time_zone)
         return self
@@ -713,6 +738,12 @@ class TalentSearchIn(BaseModel):
     )
     starts_at: datetime | None = None
     ends_at: datetime | None = None
+    # Or the venue's own local date and times (an end at or before the start runs overnight), so
+    # a web form never does time-zone arithmetic. Resolved into starts_at/ends_at below.
+    window_date: date | None = None
+    window_start: time | None = None
+    window_end: time | None = None
+    window_time_zone: str = Field("Australia/Melbourne", max_length=64)
     min_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
     availability: Literal["available_or_unknown", "any"] = "available_or_unknown"
     after: str | None = Field(None, max_length=64)
@@ -720,6 +751,18 @@ class TalentSearchIn(BaseModel):
 
     @model_validator(mode="after")
     def _ok(self) -> "TalentSearchIn":
+        local = (self.window_date, self.window_start, self.window_end)
+        if any(v is not None for v in local):
+            if self.starts_at is not None or self.ends_at is not None:
+                raise ValueError("use either starts_at/ends_at or window_date/start/end")
+            if any(v is None for v in local):
+                raise ValueError("provide window_date, window_start and window_end together")
+            assert self.window_date and self.window_start and self.window_end  # noqa: S101
+            if self.window_start == self.window_end:
+                raise ValueError("window_start and window_end must differ")
+            self.starts_at, self.ends_at = local_interval(
+                self.window_time_zone, self.window_date, self.window_start, self.window_end
+            )
         if (self.starts_at is None) != (self.ends_at is None):
             raise ValueError("provide both starts_at and ends_at, or neither")
         if self.starts_at and self.ends_at:

@@ -46,6 +46,7 @@ export function CandidateNav({
 
 export const EMPLOYER_NAV: NavItem[] = [
   { key: 'jobs', href: '/', label: 'Jobs' },
+  { key: 'talent', href: '/talent', label: 'Find talent' },
   { key: 'team', href: '/team', label: 'Team' },
 ];
 

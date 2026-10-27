@@ -1558,20 +1558,25 @@ export interface components {
             /** Password */
             password: string;
         };
-        /** CommitmentIn */
+        /**
+         * CommitmentIn
+         * @description Either absolute instants (starts_at/ends_at with a UTC offset) or the person's own local
+         *     date and times (local_date/local_start/local_end, read in their time zone; an end at or before
+         *     the start runs overnight). Phones send the local form so they never do time-zone arithmetic.
+         */
         CommitmentIn: {
-            /**
-             * Ends At
-             * Format: date-time
-             */
-            ends_at: string;
+            /** Ends At */
+            ends_at?: string | null;
             /** Label */
             label?: string | null;
-            /**
-             * Starts At
-             * Format: date-time
-             */
-            starts_at: string;
+            /** Local Date */
+            local_date?: string | null;
+            /** Local End */
+            local_end?: string | null;
+            /** Local Start */
+            local_start?: string | null;
+            /** Starts At */
+            starts_at?: string | null;
             /**
              * Status
              * @default confirmed
@@ -2487,6 +2492,17 @@ export interface components {
             state?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
             /** Suburb */
             suburb?: string | null;
+            /** Window Date */
+            window_date?: string | null;
+            /** Window End */
+            window_end?: string | null;
+            /** Window Start */
+            window_start?: string | null;
+            /**
+             * Window Time Zone
+             * @default Australia/Melbourne
+             */
+            window_time_zone: string;
         };
         /** TalentSearchOut */
         TalentSearchOut: {

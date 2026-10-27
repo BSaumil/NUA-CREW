@@ -174,6 +174,36 @@ function Gate() {
               headerTitleStyle: { color: colors.text },
             }}
           />
+          <Stack.Screen
+            name="work-preferences"
+            options={{
+              headerShown: true,
+              title: 'Work preferences',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="availability"
+            options={{
+              headerShown: true,
+              title: 'Availability',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="employer-preferences"
+            options={{
+              headerShown: true,
+              title: 'Employers',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={status === 'signedOut'}>
           <Stack.Screen name="(auth)" />

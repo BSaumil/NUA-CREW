@@ -77,6 +77,11 @@ def _window(tz: ZoneInfo, d: date, start: time, end: time) -> Interval:
     return _at(tz, d, start), _at(tz, end_day, end)
 
 
+def local_interval(time_zone: str, d: date, start: time, end: time) -> Interval:
+    """A local date and wall-clock times in the given zone as UTC instants (overnight allowed)."""
+    return _window(zone(time_zone), d, start, end)
+
+
 def _days(lo: datetime, hi: datetime, tz: ZoneInfo) -> Iterable[date]:
     d = lo.astimezone(tz).date() - timedelta(days=1)  # an overnight window may start yesterday
     last = hi.astimezone(tz).date()
