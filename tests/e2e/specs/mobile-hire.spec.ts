@@ -35,7 +35,7 @@ test('employer saves a reviewed draft using the native three-step flow', async (
   await page.getByRole('button', { name: 'Review advertisement' }).click();
   await expect(page.getByText('AUD 30–35 per hour · plus super')).toBeVisible();
   await page.getByRole('button', { name: 'Save draft', exact: true }).click();
-  await expect(page.getByText('Draft', { exact: true })).toBeVisible();
+  await expect(page.getByText('Draft', { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Publish job', exact: true })).toBeVisible();
   // The draft is persisted, and no charge or automatic publication occurred.
   const token = await request.post('http://localhost:8000/v1/auth/login', {
