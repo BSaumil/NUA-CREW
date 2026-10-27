@@ -211,7 +211,8 @@ async def receive(session: AsyncSession, event: dict[str, Any]) -> None:
             )
             if (
                 not isinstance(refunded, int)
-                or obj.get("amount") != row.amount_minor
+                or not 0 < refunded <= row.amount_minor
+                or (kind == "charge.refunded" and obj.get("amount") != row.amount_minor)
                 or obj.get("currency") != "aud"
             ):
                 raise conflict("refund_mismatch", "Refund does not match the order")
@@ -270,6 +271,8 @@ async def request_refund(order: BillingOrder) -> str:
             options={"idempotency_key": f"nua-full-refund:{order.id}"},
         )
     order.refund_id = refund.id
+    if refund.status in {"failed", "canceled"}:
+        order.review_required = True
     return refund.id
 
 

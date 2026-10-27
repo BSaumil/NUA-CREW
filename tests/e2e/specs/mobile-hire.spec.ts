@@ -21,19 +21,22 @@ async function login(page: Page, employer: boolean) {
 test('employer saves a reviewed draft using the native three-step flow', async ({
   page,
   request,
-}) => {
+}, info) => {
   await login(page, true);
   await page.getByRole('button', { name: /^Post a job\./ }).click();
   await field(page, 'Job title').fill(`Native draft ${Date.now()}`);
   const locations = page.getByRole('button', { name: / · Fitzroy/ });
   await locations.first().click();
   await field(page, 'About the role').fill('Welcome guests and prepare coffee in the morning.');
+  await page.screenshot({ path: info.outputPath('employer-create-role.png') });
   await page.getByRole('button', { name: 'Continue to pay' }).click();
   await field(page, 'Minimum pay (AUD)').fill('30');
   await field(page, 'Maximum pay (AUD)').fill('35');
   await page.getByRole('button', { name: 'Plus super', exact: true }).click();
+  await page.screenshot({ path: info.outputPath('employer-disclose-pay.png') });
   await page.getByRole('button', { name: 'Review advertisement' }).click();
   await expect(page.getByText('AUD 30–35 per hour · plus super')).toBeVisible();
+  await page.screenshot({ path: info.outputPath('employer-review-advertisement.png') });
   await page.getByRole('button', { name: 'Save draft', exact: true }).click();
   await expect(page.getByText('Draft', { exact: true }).filter({ visible: true })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Publish job', exact: true })).toBeVisible();

@@ -40,6 +40,9 @@ export default async function ManageJob({
       />
       {canWrite(role) ? (
         <div className="nua-row">
+          <ButtonLink href="/billing" variant="secondary">
+            Advertising and promotion
+          </ButtonLink>
           {job.status !== 'closed' && job.status !== 'expired' ? (
             <ButtonLink href={`/jobs/${job.id}/edit`} variant="secondary">
               Edit

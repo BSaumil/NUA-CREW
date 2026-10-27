@@ -14,7 +14,6 @@ import pytest
 import stripe
 from pydantic import SecretStr
 from sqlalchemy import func, select, text
-from sqlalchemy.exc import DBAPIError
 
 from app.config import get_settings
 from app.errors import ApiError
@@ -116,9 +115,10 @@ async def test_prices_idempotent_receipts_refunds_and_immutable_ledger(client):
         assert not (await s.scalars(select(AdEntitlement))).one().active
         assert not (await s.scalars(select(PublishedPromotion))).one().active
     for sql in ("UPDATE billing_ledger SET amount_minor=1", "DELETE FROM billing_ledger"):
-        with pytest.raises(DBAPIError):
-            async with db_as("system") as s:
-                await s.execute(text(sql))
+        async with db_as("system") as s:
+            result = await s.execute(text(sql))
+            assert result.rowcount == 0  # RLS denies mutation before a row trigger is reached.
+            assert await s.scalar(select(func.count()).select_from(BillingLedger)) == 3
 
 
 async def test_renewal_repeat_promotion_and_search_scope(client, monkeypatch):

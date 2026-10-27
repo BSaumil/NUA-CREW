@@ -108,6 +108,8 @@ async def prepare_order(
         )
         if job is None:
             raise not_found("job")
+        if job.origin != "direct":
+            raise conflict("job_not_direct", "Only your own direct advertisements can be purchased")
         if job.status == "closed":
             raise conflict("job_closed", "Create a new advertisement for a closed role")
         if not job.suburb or job.pay_basis != "disclosed" or job.super_included is None:
