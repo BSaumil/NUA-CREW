@@ -16,6 +16,14 @@ Candidate app built with Expo (React Native), Expo Router and TypeScript in `app
 | Privacy & store requirements | Talent-discovery consent (off by default), **export my data** (share sheet), **in-app account deletion** (required by both stores) |
 | Quality | Dark mode + theme override, dynamic type (capped), 44 pt touch targets, screen-reader roles/labels, reduced-motion aware skeletons, brand tokens tested against the web design system |
 
+## Work, availability and discovery (M1)
+
+Profile → *Work preferences* (Permanent / Temporary / Both, each with its own answers and an explicit per-kind "let verified employers find me" choice), *Availability* (weekly times with several windows a day and overnight windows, one-off changes, booked work) and *Employers I prefer or avoid* (prefer / hide me / mute jobs). Everything is private to the candidate and saved on the server (never in the offline cache). Employers can only learn whether you are free for a time they ask about. See ADR-009.
+
+## Inbox (invitations and messages)
+
+The *Inbox* tab shows employer invitations (accept / decline with no reason needed, block, see exactly what changed since the invitation was sent) and conversations that open only after you accept. Accepting is not an application or a job offer and reserves nothing. Push text is generic. See ADR-010 and `DEVICE_TEST_CHECKLIST.md` (untested on devices).
+
 ## Run it
 
 ```bash
@@ -32,10 +40,10 @@ Sign in with `candidate-a@nua-crew.example.com` / `nua-dev-password-1` (seed dat
 | Check | Result |
 | --- | --- |
 | `tsc` strict, `eslint` | clean |
-| Jest (79): session/refresh logic, auth provider, API wiring, Discover, job detail/apply, applications, settings/deletion, components, token ↔ web parity, WCAG AA contrast | pass |
-| `expo export` for **android** and **ios** (Hermes bytecode) | compiles (≈3.7 MB each) |
+| Jest (139): session/refresh logic, auth provider, API wiring, Discover, job detail/apply, applications, settings/deletion, components, token ↔ web parity, WCAG AA contrast | pass |
+| `expo export` for **android** and **ios** (Hermes bytecode) | compiles (≈3.4 MB each) |
 | `expo prebuild` for both platforms | succeeds; generated manifests audited (below) |
-| Browser run of the real screens against the real API + DB (Playwright, `tests/e2e/specs/mobile-web.spec.ts`, 8 tests incl. axe in light/dark) | pass |
+| Browser run of the real screens against the real API + DB (Playwright, `tests/e2e/specs/mobile-web.spec.ts`, incl. the availability slice and axe in light/dark) | pass |
 | **Not verified here:** running on a physical iPhone/Android device or emulator, Keychain/Keystore, biometrics, push delivery, share sheet/file export, location prompt, store builds | needs real devices/accounts |
 
 Generated native config (from `app.config.ts`): iOS asks only for **Face ID** and **location while in use**; Android requests only `ACCESS_COARSE_LOCATION`, `POST_NOTIFICATIONS`, `USE_BIOMETRIC`/`USE_FINGERPRINT` (+ `INTERNET`, `VIBRATE`); fine location, camera, microphone, storage and overlay permissions are explicitly removed.

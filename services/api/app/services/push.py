@@ -133,4 +133,13 @@ async def deliver_pending(
 
 
 # Keys safe to put in a push payload (identifiers used for deep links).
-_SAFE_DATA = {"application_id", "job_id", "job_ids", "saved_search_id", "status", "count"}
+_SAFE_DATA = {
+    "application_id",
+    "job_id",
+    "job_ids",
+    "saved_search_id",
+    "status",
+    "count",
+    "invitation_id",
+    "conversation_id",
+}

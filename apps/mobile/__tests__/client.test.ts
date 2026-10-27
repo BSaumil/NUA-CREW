@@ -1,4 +1,4 @@
-import { authFetch } from '../src/api/client';
+import { authFetch, unwrap } from '../src/api/client';
 import { session } from '../src/api/session';
 
 const urlOf = (input: RequestInfo | URL) =>
@@ -72,4 +72,54 @@ describe('authFetch', () => {
     session.fetchImpl = (async () => res(404)) as typeof fetch;
     expect((await authFetch(new Request('http://api.test/x'))).status).toBe(404);
   });
+});
+
+it.each([200, 401])(
+  'discards an old account response (%s) without replaying under the new account',
+  async (status) => {
+    await session.start({
+      access_token: 'old',
+      refresh_token: 'r1',
+      expires_in: 1800,
+      role: 'candidate',
+      user_id: 'old-user',
+    });
+    let release!: (r: Response) => void;
+    const send = jest.fn().mockReturnValue(
+      new Promise<Response>((r) => {
+        release = r;
+      }),
+    );
+    session.fetchImpl = send as typeof fetch;
+    const pending = authFetch(new Request('http://api.test/v1/candidate/profile'));
+    // Observe rejection immediately so Jest does not classify it as unhandled.
+    const checked = expect(pending).rejects.toThrow('Your session changed');
+    await new Promise((r) => setTimeout(r, 0));
+    await session.start({
+      access_token: 'new',
+      refresh_token: 'r2',
+      expires_in: 1800,
+      role: 'candidate',
+      user_id: 'new-user',
+    });
+    release(res(status, { full_name: 'Private old account data' }));
+    await checked;
+    expect(send).toHaveBeenCalledTimes(1);
+    expect(await session.getAccessToken()).toBe('new');
+  },
+);
+
+it('rejects data decoded after an account changed, even if headers arrived before logout', async () => {
+  await session.start({
+    access_token: 'old',
+    refresh_token: 'r1',
+    expires_in: 1800,
+    role: 'candidate',
+    user_id: 'old-user',
+  });
+  session.fetchImpl = (async () => res(200, { full_name: 'Private account data' })) as typeof fetch;
+  const response = await authFetch(new Request('http://api.test/v1/candidate/profile'));
+  await session.clear();
+  const data = await response.json();
+  expect(() => unwrap({ data, response })).toThrow('Your session changed');
 });

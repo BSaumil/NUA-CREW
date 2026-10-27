@@ -1,5 +1,6 @@
 """Public job search shared by the API route and saved-search alerts."""
 
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal
@@ -14,6 +15,7 @@ Sort = Literal["relevance", "newest", "pay", "distance"]
 SAVED_SEARCH_KEYS = {
     "q", "suburb", "state", "employment_type", "category", "skill", "min_hourly",
     "near_lat", "near_lng", "radius_km", "posted_within_days",
+    "engagement_basis", "duration_type", "hours_pattern",
 }  # fmt: skip
 
 
@@ -31,6 +33,10 @@ class SearchParams:
     radius_km: float | None = None
     posted_within_days: int | None = None
     published_after: datetime | None = None  # used by alerts
+    engagement_basis: str | None = None
+    duration_type: str | None = None
+    hours_pattern: str | None = None
+    exclude_employer_ids: tuple[uuid.UUID, ...] = ()  # a candidate's muted employers
     sort: Sort = "relevance"
 
     @classmethod
@@ -71,6 +77,14 @@ def build(p: SearchParams) -> tuple[Select[Any], Select[Any]]:
         where.append(Job.employment_type == p.employment_type)
     if p.category:
         where.append(func.lower(Job.category) == p.category.lower())
+    if p.engagement_basis:
+        where.append(Job.engagement_basis == p.engagement_basis)
+    if p.duration_type:
+        where.append(Job.duration_type == p.duration_type)
+    if p.hours_pattern:
+        where.append(Job.hours_pattern == p.hours_pattern)
+    if p.exclude_employer_ids:
+        where.append(or_(Job.employer_id.is_(None), Job.employer_id.not_in(p.exclude_employer_ids)))
     if p.skill:
         where.append(
             Job.id.in_(

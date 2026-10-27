@@ -1,4 +1,5 @@
 import { View } from 'react-native';
+import { reportSignOut } from './signout';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
@@ -37,7 +38,11 @@ export function LockScreen() {
         </Text>
       ) : null}
       <Button title="Unlock" onPress={async () => setFailed(!(await unlock()))} />
-      <Button title="Sign out instead" variant="ghost" onPress={() => void signOut()} />
+      <Button
+        title="Sign out instead"
+        variant="ghost"
+        onPress={() => void signOut().then(reportSignOut)}
+      />
     </View>
   );
 }

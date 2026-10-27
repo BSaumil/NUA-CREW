@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
 import '@nua-crew/ui/styles.css';
-import { AiDisclosure, Button, ButtonLink, EmployerHeader, EmployerSidebar } from '@nua-crew/ui';
+import { Button, ButtonLink, EmployerHeader, EmployerSidebar } from '@nua-crew/ui';
 import { getViewer } from '@/lib/api';
 import { logout } from './actions';
 
@@ -23,7 +23,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
         </a>
         <EmployerHeader
           right={
-            isEmployer ? (
+            viewer ? (
               <form action={logout}>
                 <Button type="submit" variant="secondary">
                   Log out
@@ -51,10 +51,7 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
             </main>
           )}
           <footer className="nua-hint" style={{ padding: '0 0 48px' }}>
-            <AiDisclosure>
-              AI-supported views are suggestions only. Every hiring decision is made by a person at
-              your organisation.
-            </AiDisclosure>
+            Every hiring decision is made by a person. Employee access is free across Australia.
           </footer>
         </div>
       </body>

@@ -1,6 +1,7 @@
-import { Ionicons } from '@expo/vector-icons';
+// Single icon set, imported directly: the package index bundles every icon font family.
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import { useNotifications } from '@/api/queries';
+import { useInboxSummary } from '@/api/queries';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -15,8 +16,8 @@ export const unstable_settings = { initialRouteName: 'discover' };
 
 export default function AppTabs() {
   const { colors } = useTheme();
-  const { data } = useNotifications();
-  const unread = data?.filter((n) => !n.read_at).length ?? 0;
+  const inbox = useInboxSummary().data;
+  const inboxUnread = (inbox?.unread_invitations ?? 0) + (inbox?.unread_conversations ?? 0);
   return (
     <Tabs
       screenOptions={{
@@ -27,6 +28,7 @@ export default function AppTabs() {
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 12 },
       }}
     >
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
         name="discover"
         options={{ title: 'Discover', tabBarIcon: icon('search-outline', 'search') }}
@@ -43,15 +45,16 @@ export default function AppTabs() {
         }}
       />
       <Tabs.Screen
-        name="alerts"
+        name="inbox"
         options={{
-          title: 'Alerts',
-          tabBarIcon: icon('notifications-outline', 'notifications'),
-          tabBarBadge: unread > 0 ? unread : undefined,
+          title: 'Inbox',
+          tabBarIcon: icon('mail-outline', 'mail'),
+          tabBarBadge: inboxUnread > 0 ? inboxUnread : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
-          tabBarAccessibilityLabel: unread ? `Alerts, ${unread} unread` : 'Alerts',
+          tabBarAccessibilityLabel: inboxUnread ? `Inbox, ${inboxUnread} unread` : 'Inbox',
         }}
       />
+      <Tabs.Screen name="alerts" options={{ href: null }} />
       <Tabs.Screen
         name="profile"
         options={{ title: 'Profile', tabBarIcon: icon('person-outline', 'person') }}

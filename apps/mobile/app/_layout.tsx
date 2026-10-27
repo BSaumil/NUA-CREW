@@ -1,14 +1,11 @@
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  useFonts as useInter,
-} from '@expo-google-fonts/inter';
-import {
-  Manrope_700Bold,
-  Manrope_800ExtraBold,
-  useFonts as useManrope,
-} from '@expo-google-fonts/manrope';
+// Import only the weights the UI uses. The package's index pulls in every weight and italic
+// (dozens of font files) and would ship them all in the app.
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Manrope_700Bold } from '@expo-google-fonts/manrope/700Bold';
+import { Manrope_800ExtraBold } from '@expo-google-fonts/manrope/800ExtraBold';
+import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
@@ -26,6 +23,7 @@ import { routeFor } from '@/features/links';
 import { AuthProvider, useAuth } from '@/state/AuthProvider';
 import { FiltersProvider } from '@/state/FiltersProvider';
 import { ThemeProvider, useTheme } from '@/theme/ThemeProvider';
+import { HireWorkspaceProvider } from '@/state/HireWorkspace';
 import { LockScreen } from '@/features/LockScreen';
 
 void SplashScreen.preventAutoHideAsync();
@@ -69,9 +67,14 @@ const persister = createAsyncStoragePersister({
 const PERSISTED = new Set(['jobs', 'job']);
 
 export default function RootLayout() {
-  const [manrope] = useManrope({ Manrope_700Bold, Manrope_800ExtraBold });
-  const [inter] = useInter({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
-  const fontsReady = (manrope && inter) || Platform.OS === 'web';
+  const [fontsLoaded] = useFonts({
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+  });
+  const fontsReady = fontsLoaded || Platform.OS === 'web';
 
   return (
     <SafeAreaProvider>
@@ -88,7 +91,9 @@ export default function RootLayout() {
       >
         <ThemeProvider>
           <AuthProvider>
-            <FiltersProvider>{fontsReady ? <Gate /> : null}</FiltersProvider>
+            <HireWorkspaceProvider>
+              <FiltersProvider>{fontsReady ? <Gate /> : null}</FiltersProvider>
+            </HireWorkspaceProvider>
           </AuthProvider>
         </ThemeProvider>
       </PersistQueryClientProvider>
@@ -97,7 +102,7 @@ export default function RootLayout() {
 }
 
 function Gate() {
-  const { status, locked } = useAuth();
+  const { status, locked, role } = useAuth();
   const { colors, scheme } = useTheme();
   const router = useRouter();
 
@@ -107,7 +112,7 @@ function Gate() {
 
   // Tapping a push notification opens the right screen, including from a cold start.
   useEffect(() => {
-    if (status !== 'signedIn' || Platform.OS === 'web') return;
+    if (status !== 'signedIn' || role !== 'candidate' || Platform.OS === 'web') return;
     const open = (r: Notifications.NotificationResponse | null) => {
       const c = r?.notification.request.content;
       if (c)
@@ -121,15 +126,23 @@ function Gate() {
     void Notifications.getLastNotificationResponseAsync().then(open);
     const sub = Notifications.addNotificationResponseReceivedListener(open);
     return () => sub.remove();
-  }, [status, router]);
+  }, [status, role, router]);
 
   if (status === 'loading') return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.bg }}>
       <StatusBar style={scheme === 'dark' ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bg } }}>
-        <Stack.Protected guard={status === 'signedIn'}>
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: colors.bg },
+          headerTintColor: colors.primary,
+          headerStyle: { backgroundColor: colors.surface },
+          headerTitleStyle: { color: colors.text },
+        }}
+      >
+        <Stack.Protected guard={status === 'signedIn' && role === 'candidate'}>
           <Stack.Screen name="(app)" />
           <Stack.Screen
             name="job/[id]"
@@ -171,6 +184,72 @@ function Gate() {
               headerStyle: { backgroundColor: colors.surface },
               headerTitleStyle: { color: colors.text },
             }}
+          />
+          <Stack.Screen
+            name="work-preferences"
+            options={{
+              headerShown: true,
+              title: 'Work preferences',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="availability"
+            options={{
+              headerShown: true,
+              title: 'Availability',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="employer-preferences"
+            options={{
+              headerShown: true,
+              title: 'Employers',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="invitation/[id]"
+            options={{
+              headerShown: true,
+              title: 'Invitation',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="conversation/[id]"
+            options={{
+              headerShown: true,
+              title: 'Conversation',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+        </Stack.Protected>
+        <Stack.Protected guard={status === 'signedIn' && role === 'employer'}>
+          <Stack.Screen name="hire" />
+          <Stack.Screen
+            name="hire-post"
+            options={{ headerShown: true, title: 'Your job advertisement' }}
+          />
+          <Stack.Screen name="hire-job/[id]" options={{ headerShown: true, title: 'Manage job' }} />
+          <Stack.Screen
+            name="hire-applicant/[id]"
+            options={{ headerShown: true, title: 'Applicant' }}
+          />
+          <Stack.Screen
+            name="hire-thread/[id]"
+            options={{ headerShown: true, title: 'Conversation' }}
           />
         </Stack.Protected>
         <Stack.Protected guard={status === 'signedOut'}>

@@ -100,7 +100,7 @@ async def register_employer(body: EmployerRegister, session: Session, request: R
         if body.location:
             session.add(Location(employer_id=employer.id, **body.location.model_dump()))
         await audit(session, user.id, "employer.registered", "employer", employer.id)
-        return await _token(session, user)
+        return await _token(session, user, body.client, body.device_label)
 
 
 @router.post("/login", response_model=TokenOut)

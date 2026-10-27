@@ -23,6 +23,29 @@ from tests.conftest import (
 pytestmark = pytest.mark.asyncio
 
 
+async def test_native_employer_registration_issues_a_rotating_session(client):
+    response = await client.post(
+        "/v1/auth/register/employer",
+        json={
+            "email": "native-owner@nua-crew.example.com",
+            "password": PASSWORD,
+            "full_name": "Native Owner",
+            "organisation_name": "Native Test Cafe",
+            "accept_terms": True,
+            "client": "mobile",
+            "device_label": "Test phone",
+        },
+    )
+    assert response.status_code == 201, response.text
+    token = response.json()
+    assert token["role"] == "employer" and token["refresh_token"]
+    me = (await client.get("/v1/auth/me", headers=auth(token["access_token"]))).json()
+    assert len(me["memberships"]) == 1 and me["memberships"][0]["role"] == "owner"
+    rotated = await client.post("/v1/auth/refresh", json={"refresh_token": token["refresh_token"]})
+    assert rotated.status_code == 200 and rotated.json()["role"] == "employer"
+    assert rotated.json()["refresh_token"] != token["refresh_token"]
+
+
 async def mobile_login(client, email, password=PASSWORD, label="Pixel 9"):
     r = await client.post(
         "/v1/auth/login",

@@ -122,8 +122,12 @@ describe('Job detail', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Submit application' }));
     await waitFor(() =>
       expect(POST).toHaveBeenCalledWith('/v1/jobs/{job_id}/applications', {
-        params: { path: { job_id: 'job-1' } },
+        params: {
+          path: { job_id: 'job-1' },
+          header: { 'idempotency-key': expect.stringMatching(/^[0-9a-f-]{36}$/) },
+        },
         body: { resume_id: 'r1', cover_note: 'Happy to start next week' },
+        headers: { 'Idempotency-Key': expect.any(String) },
       }),
     );
     await waitFor(() =>
@@ -201,4 +205,20 @@ describe('Job detail', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Back to search' }));
     expect(mockReplace).toHaveBeenCalledWith('/(app)/discover');
   });
+});
+
+it('retries an ambiguous submission with the same idempotency key', async () => {
+  serve();
+  POST.mockRejectedValueOnce(new Error('Network response lost')).mockResolvedValueOnce(
+    ok({ id: 'app-9' }),
+  );
+  await renderApp(<JobDetail />);
+  await fireEvent.press(await screen.findByRole('button', { name: 'Apply' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Submit application' }));
+  await screen.findByRole('alert');
+  await fireEvent.press(screen.getByRole('button', { name: 'Submit application' }));
+  await waitFor(() => expect(POST).toHaveBeenCalledTimes(2));
+  expect(POST.mock.calls[0][1].headers['Idempotency-Key']).toBe(
+    POST.mock.calls[1][1].headers['Idempotency-Key'],
+  );
 });

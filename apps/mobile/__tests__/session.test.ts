@@ -95,3 +95,102 @@ describe('Session', () => {
     expect(await s.getAccessToken()).toBeNull();
   });
 });
+
+it('does not restore a session when a refresh succeeds after sign-out', async () => {
+  let release!: (r: Response) => void;
+  const f = jest.fn().mockImplementation((url: string) =>
+    url.endsWith('/refresh')
+      ? new Promise<Response>((r) => {
+          release = r;
+        })
+      : Promise.resolve(res(204)),
+  );
+  const s = make(f);
+  await s.start(tokens(1));
+  const pending = s.refreshNow();
+  await new Promise((r) => setTimeout(r, 0));
+  await s.signOut();
+  release(res(200, tokens(2)));
+  expect(await pending).toBeNull();
+  expect(store.has('nua.refresh')).toBe(false);
+  expect(await s.getAccessToken()).toBeNull();
+});
+
+it('does not let an old refresh failure clear a newer signed-in account', async () => {
+  let release!: (r: Response) => void;
+  const s = make(
+    jest.fn().mockReturnValue(
+      new Promise<Response>((r) => {
+        release = r;
+      }),
+    ),
+  );
+  await s.start(tokens(1));
+  const pending = s.refreshNow();
+  await new Promise((r) => setTimeout(r, 0));
+  await s.start({ ...tokens(9), user_id: 'another-user' });
+  release(res(401));
+  expect(await pending).toBeNull();
+  expect(await s.getAccessToken()).toBe('access-9');
+  expect(store.get('nua.refresh')).toBe('refresh-9');
+});
+
+it('rejects a login result that was issued before local sign-out', async () => {
+  const s = make(jest.fn());
+  const revision = s.generation();
+  await s.clear();
+  expect(await s.start(tokens(1), revision)).toBe(false);
+  expect(store.size).toBe(0);
+});
+
+it('does not publish a signed-in session when the Keychain write fails', async () => {
+  const write = jest
+    .spyOn(SecureStore, 'setItemAsync')
+    .mockRejectedValueOnce(new Error('unavailable'));
+  const s = make(jest.fn());
+  const listener = jest.fn();
+  s.subscribe(listener);
+  await expect(s.start(tokens(1))).rejects.toThrow('could not save secure sign-in storage');
+  expect(listener).not.toHaveBeenCalledWith(true);
+  expect(await s.getAccessToken()).toBeNull();
+  write.mockRestore();
+});
+
+it('serialises a delayed secure-store write before the later deletion', async () => {
+  let release!: () => void;
+  const write = jest
+    .spyOn(SecureStore, 'setItemAsync')
+    .mockImplementationOnce(async (key, value) => {
+      await new Promise<void>((r) => {
+        release = r;
+      });
+      store.set(key, value);
+    });
+  const s = make(jest.fn());
+  const starting = s.start(tokens(1));
+  await new Promise((r) => setTimeout(r, 0));
+  const clearing = s.clear();
+  release();
+  expect(await starting).toBe(false);
+  await clearing;
+  expect(store.size).toBe(0);
+  expect(await s.getAccessToken()).toBeNull();
+  write.mockRestore();
+});
+
+it('reports a failed secure-store deletion while clearing memory immediately', async () => {
+  const s = make(jest.fn());
+  await s.start(tokens(1));
+  const seen: boolean[] = [];
+  s.subscribe((value) => seen.push(value));
+  const deletion = jest
+    .spyOn(SecureStore, 'deleteItemAsync')
+    .mockRejectedValueOnce(new Error('Keychain unavailable'));
+  const revision = s.generation();
+  await expect(s.clear()).rejects.toThrow('could not clear secure sign-in storage');
+  expect(s.generation()).toBeGreaterThan(revision);
+  expect(seen).toEqual([false]);
+  deletion.mockRestore();
+  await s.clear();
+  expect(store.size).toBe(0);
+});
