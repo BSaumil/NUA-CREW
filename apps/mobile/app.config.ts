@@ -17,16 +17,16 @@ if (DISTRIBUTABLE_PROFILES.has(process.env.EAS_BUILD_PROFILE ?? '')) {
   }
   if (
     endpoint.protocol !== 'https:' ||
-    /(^|\\.)(localhost|invalid)$/.test(endpoint.hostname) ||
-    /^(127\\.|10\\.|192\\.168\\.|0\\.)/.test(endpoint.hostname)
+    /(^|\.)(localhost|invalid)$/.test(endpoint.hostname) ||
+    /^(127\.|10\.|192\.168\.|0\.)/.test(endpoint.hostname)
   ) {
     throw new Error('Distributable builds require an approved public HTTPS API endpoint.');
   }
   if (
     IOS_BUNDLE_ID.startsWith('com.example.') ||
     ANDROID_PACKAGE.startsWith('com.example.') ||
-    !/^[A-Za-z0-9-]+(?:\\.[A-Za-z0-9-]+)+$/.test(IOS_BUNDLE_ID) ||
-    !/^[A-Za-z][A-Za-z0-9_]*(?:\\.[A-Za-z][A-Za-z0-9_]*)+$/.test(ANDROID_PACKAGE)
+    !/^[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+$/.test(IOS_BUNDLE_ID) ||
+    !/^[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z][A-Za-z0-9_]*)+$/.test(ANDROID_PACKAGE)
   ) {
     throw new Error('Set the owner-approved NUA_IOS_BUNDLE_ID and NUA_ANDROID_PACKAGE.');
   }
@@ -38,7 +38,6 @@ if (DISTRIBUTABLE_PROFILES.has(process.env.EAS_BUILD_PROFILE ?? '')) {
     throw new Error('Set NUA_EAS_PROJECT_ID to the owner-approved EAS project identifier.');
   }
 }
-
 
 const config: ExpoConfig = {
   name: 'NUA CREW',
