@@ -54,7 +54,9 @@ export default function AppTabs() {
           tabBarAccessibilityLabel: inboxUnread ? `Inbox, ${inboxUnread} unread` : 'Inbox',
         }}
       />
-      <Tabs.Screen name="alerts" options={{ href: null }} />
+      {/* Reached from the bell on Discover and from notification taps. `href: null` would remove the
+          route itself, so hide only the tab button. */}
+      <Tabs.Screen name="alerts" options={{ title: 'Notifications', tabBarButton: () => null }} />
       <Tabs.Screen
         name="profile"
         options={{ title: 'Profile', tabBarIcon: icon('person-outline', 'person') }}

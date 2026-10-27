@@ -123,7 +123,8 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   await page.goto(appUrl);
   await expect(page.getByText('The employer updated your status')).toBeVisible();
   await page.goto(APP);
-  await page.getByRole('button', { name: 'Notifications' }).click();
+  // Alerts moved behind the bell on Discover when navigation was simplified.
+  await page.getByRole('button', { name: 'Notifications', exact: true }).click();
   await expect(page.getByText(`Your application for ${title} is under review`)).toBeVisible();
   await page
     .getByRole('button', { name: /Unread\. Your application for/ })
@@ -139,12 +140,14 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   ).toBeVisible();
 });
 
-test('employers enter hiring mode, and signed-out deep links go to sign-in', async ({ page }) => {
+test('signed-out deep links go to sign-in, and an employer account lands in the hiring workspace', async ({
+  page,
+}) => {
   await page.goto(`${APP}/job/00000000-0000-0000-0000-000000000000`);
   await expect(page.getByRole('button', { name: 'Skip' }).or(field(page, 'Email'))).toBeVisible();
   await signIn(page, 'owner-a@nua-crew.example.com');
-  await expect(page.getByText('Build your next team.')).toBeVisible();
-  await expect(tab(page, 'Jobs')).toBeVisible();
+  // Employers use the native hiring workspace; they never get the job-seeker tabs or data.
+  await expect(page.getByRole('heading', { name: 'Build your next team.' })).toBeVisible();
   await expect(tab(page, 'Discover')).toHaveCount(0);
 });
 
