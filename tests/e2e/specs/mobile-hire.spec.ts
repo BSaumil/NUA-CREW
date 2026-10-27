@@ -22,6 +22,7 @@ test('employer saves a reviewed draft using the native three-step flow', async (
   page,
   request,
 }, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
   await login(page, true);
   await page.getByRole('button', { name: /^Post a job\./ }).click();
   await field(page, 'Job title').fill(`Native draft ${Date.now()}`);
@@ -57,6 +58,14 @@ for (const employer of [false, true]) {
       await login(page, employer);
       for (const width of [320, 390, 430]) {
         await page.setViewportSize({ width, height: 720 });
+        const label = await page
+          .getByText(employer ? 'Business' : 'Profile', { exact: true })
+          .boundingBox();
+        expect(label).not.toBeNull();
+        expect(
+          label!.y + label!.height,
+          'bottom navigation label fits the viewport',
+        ).toBeLessThanOrEqual(720);
         const overflow = await page.evaluate(
           () => document.documentElement.scrollWidth > window.innerWidth,
         );

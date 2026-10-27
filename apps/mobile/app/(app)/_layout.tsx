@@ -3,6 +3,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { useInboxSummary } from '@/api/queries';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useTabBarStyle } from '@/ui/tab-bar';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 const icon =
@@ -16,6 +17,7 @@ export const unstable_settings = { initialRouteName: 'discover' };
 
 export default function AppTabs() {
   const { colors } = useTheme();
+  const tabBarStyle = useTabBarStyle();
   const inbox = useInboxSummary().data;
   const inboxUnread = (inbox?.unread_invitations ?? 0) + (inbox?.unread_conversations ?? 0);
   return (
@@ -24,7 +26,7 @@ export default function AppTabs() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarStyle,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 12 },
       }}
     >
