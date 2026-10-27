@@ -210,7 +210,7 @@ async def test_timesheet_revision_review_and_approved_immutability(client):
     assert (await client.put(url, headers=cand, json=payload)).status_code == 409
 
 
-async def test_expired_advertisement_cannot_create_offer_or_confirm_shift_work(client):
+async def test_expired_advertisement_cannot_create_or_confirm_shift_work(client):
     emp, eid, job, cand, sid, bid = await setup(client, "shift-expired-ad")
     async with db_as("system") as session:
         row = await session.get(Job, uuid.UUID(job["id"]))
@@ -235,4 +235,6 @@ async def test_expired_advertisement_cannot_create_offer_or_confirm_shift_work(c
     )
     assert created.status_code == 409
     assert created.json()["error"]["code"] == "shift_job_unavailable"
-    assert (await client.get("/v1/candidate/availability", headers=cand)).json()["commitments"] == []
+    assert (await client.get("/v1/candidate/availability", headers=cand)).json()[
+        "commitments"
+    ] == []
