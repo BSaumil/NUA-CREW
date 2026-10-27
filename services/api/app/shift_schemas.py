@@ -50,14 +50,19 @@ class BookingActionIn(BaseModel):
 
 
 class TimesheetIn(BaseModel):
-    starts_at: datetime
-    ends_at: datetime
+    local_date: date
+    local_start: time
+    local_end: time
+    time_zone: str = Field(max_length=64)
     break_minutes: int = Field(ge=0, le=1439)
     note: str | None = Field(None, max_length=1000)
 
     @model_validator(mode="after")
     def valid(self) -> "TimesheetIn":
-        worked_minutes(self.starts_at, self.ends_at, self.break_minutes)
+        starts, ends = resolve_window(
+            self.local_date, self.local_start, self.local_end, self.time_zone
+        )
+        worked_minutes(starts, ends, self.break_minutes)
         return self
 
 

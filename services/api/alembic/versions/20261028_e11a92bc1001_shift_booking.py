@@ -145,6 +145,7 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    op.execute("DROP POLICY shifts_read ON shifts")
     op.drop_table("shift_timesheets")
     op.drop_table("shift_bookings")
     op.drop_table("shifts")

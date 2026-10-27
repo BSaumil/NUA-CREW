@@ -123,7 +123,7 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   await page.goto(appUrl);
   await expect(page.getByText('The employer updated your status')).toBeVisible();
   await page.goto(APP);
-  await tab(page, 'Alerts').click();
+  await page.getByRole('button', { name: 'Notifications' }).click();
   await expect(page.getByText(`Your application for ${title} is under review`)).toBeVisible();
   await page
     .getByRole('button', { name: /Unread\. Your application for/ })
@@ -139,13 +139,12 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   ).toBeVisible();
 });
 
-test('signing in as an employer is refused, and signed-out deep links go to sign-in', async ({
-  page,
-}) => {
+test('employers enter hiring mode, and signed-out deep links go to sign-in', async ({ page }) => {
   await page.goto(`${APP}/job/00000000-0000-0000-0000-000000000000`);
   await expect(page.getByRole('button', { name: 'Skip' }).or(field(page, 'Email'))).toBeVisible();
   await signIn(page, 'owner-a@nua-crew.example.com');
-  await expect(page.getByText(/This app is for job seekers/)).toBeVisible();
+  await expect(page.getByText('Build your next team.')).toBeVisible();
+  await expect(tab(page, 'Jobs')).toBeVisible();
   await expect(tab(page, 'Discover')).toHaveCount(0);
 });
 

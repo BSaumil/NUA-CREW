@@ -4822,9 +4822,19 @@
             "title": "Break Minutes",
             "type": "integer"
           },
-          "ends_at": {
-            "format": "date-time",
-            "title": "Ends At",
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "local_end": {
+            "format": "time",
+            "title": "Local End",
+            "type": "string"
+          },
+          "local_start": {
+            "format": "time",
+            "title": "Local Start",
             "type": "string"
           },
           "note": {
@@ -4839,15 +4849,17 @@
             ],
             "title": "Note"
           },
-          "starts_at": {
-            "format": "date-time",
-            "title": "Starts At",
+          "time_zone": {
+            "maxLength": 64,
+            "title": "Time Zone",
             "type": "string"
           }
         },
         "required": [
-          "starts_at",
-          "ends_at",
+          "local_date",
+          "local_start",
+          "local_end",
+          "time_zone",
           "break_minutes"
         ],
         "title": "TimesheetIn",

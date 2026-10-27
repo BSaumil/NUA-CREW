@@ -174,7 +174,13 @@ async def test_timesheet_revision_review_and_approved_immutability(client):
         commitment = (await session.scalars(select(Commitment))).one()
         commitment.starts_at, commitment.ends_at = start, end
         await session.commit()
-    payload = {"starts_at": start.isoformat(), "ends_at": end.isoformat(), "break_minutes": 30}
+    payload = {
+        "local_date": start.date().isoformat(),
+        "local_start": start.time().isoformat(),
+        "local_end": end.time().isoformat(),
+        "time_zone": "UTC",
+        "break_minutes": 30,
+    }
     url = f"/v1/candidate/shift-bookings/{bid}/timesheet"
     submitted = await client.put(url, headers=cand, json=payload)
     assert submitted.status_code == 200, submitted.text

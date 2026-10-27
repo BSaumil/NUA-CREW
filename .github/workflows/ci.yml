@@ -115,5 +115,5 @@ jobs:
           NUA_E2E_DATABASE_URL: postgresql+asyncpg://nua_runtime:nua_runtime_ci@localhost:5432/nua_crew_e2e
           NUA_E2E_MIGRATION_DATABASE_URL: postgresql+asyncpg://nua_migrator:nua_migrator_ci@localhost:5432/nua_crew_e2e
       - uses: actions/upload-artifact@v4
-        if: failure()
-        with: { name: playwright-traces, path: tests/e2e/test-results }
+        if: always()
+        with: { name: playwright-traces-and-ui, path: tests/e2e/test-results, retention-days: 7 }

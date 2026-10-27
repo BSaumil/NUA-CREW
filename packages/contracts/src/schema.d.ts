@@ -3627,17 +3627,24 @@ export interface components {
             /** Break Minutes */
             break_minutes: number;
             /**
-             * Ends At
-             * Format: date-time
+             * Local Date
+             * Format: date
              */
-            ends_at: string;
+            local_date: string;
+            /**
+             * Local End
+             * Format: time
+             */
+            local_end: string;
+            /**
+             * Local Start
+             * Format: time
+             */
+            local_start: string;
             /** Note */
             note?: string | null;
-            /**
-             * Starts At
-             * Format: date-time
-             */
-            starts_at: string;
+            /** Time Zone */
+            time_zone: string;
         };
         /** TimesheetOut */
         TimesheetOut: {

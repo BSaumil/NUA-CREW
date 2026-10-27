@@ -381,21 +381,22 @@ async def submit_timesheet(
     session: Session,
 ) -> BookingOut:
     row = await _booking(session, booking_id, cid=profile.id)
+    starts, ends = resolve_window(body.local_date, body.local_start, body.local_end, body.time_zone)
     async with system_scope(session):
         await session.refresh(row, with_for_update=True)
         shift = await _shift(session, row.shift_id)
         if (
             row.status != "confirmed"
             or shift.ends_at > datetime.now(UTC)
-            or body.ends_at > datetime.now(UTC)
+            or ends > datetime.now(UTC)
         ):
             raise conflict(
                 "timesheet_unavailable",
                 "Submit actual hours after the confirmed shift has finished",
             )
-        if body.starts_at < shift.starts_at - timedelta(
+        if starts < shift.starts_at - timedelta(hours=12) or ends > shift.ends_at + timedelta(
             hours=12
-        ) or body.ends_at > shift.ends_at + timedelta(hours=12):
+        ):
             raise conflict("timesheet_window", "Hours far outside this shift need support review")
         sheet = await session.scalar(
             select(ShiftTimesheet).where(ShiftTimesheet.booking_id == row.id)
@@ -405,7 +406,7 @@ async def submit_timesheet(
         if sheet is None:
             sheet = ShiftTimesheet(booking_id=row.id, version=0)
             session.add(sheet)
-        sheet.starts_at, sheet.ends_at = body.starts_at, body.ends_at
+        sheet.starts_at, sheet.ends_at = starts, ends
         sheet.break_minutes, sheet.note = body.break_minutes, body.note
         sheet.status, sheet.review_note, sheet.version = "submitted", None, sheet.version + 1
     await audit(session, user.id, "timesheet.submitted", "booking", row.id, version=sheet.version)

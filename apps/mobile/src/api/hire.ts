@@ -5,7 +5,7 @@ import { api, unwrap, unwrapVoid, UserMessage } from './client';
 
 export const canRecruit = (role: string | null) => role === 'owner' || role === 'recruiter';
 
-function useHireQuery<T>(key: string[], task: (id: string) => Promise<T>) {
+export function useHireQuery<T>(key: string[], task: (id: string) => Promise<T>) {
   const { employerId } = useHireWorkspace();
   return useQuery({
     queryKey: ['hire', employerId, ...key],
@@ -13,7 +13,7 @@ function useHireQuery<T>(key: string[], task: (id: string) => Promise<T>) {
     queryFn: () => task(employerId!),
   });
 }
-function useHireMutation<T, R>(task: (id: string, input: T) => Promise<R>) {
+export function useHireMutation<T, R>(task: (id: string, input: T) => Promise<R>) {
   const { employerId } = useHireWorkspace();
   const qc = useQueryClient();
   return useMutation({
