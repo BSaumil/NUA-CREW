@@ -96,6 +96,34 @@ Design and privacy decisions: ADR-009. Migration `409867d9e7c2` (up/down/up and 
 | - | Employer invitations (needs a real messaging path)                                                  | NOT_STARTED | Page and API say so; no Send button exists                                                       |
 | - | `offered` availability state, booking/shifts, DB exclusion constraint for commitments               | NOT_STARTED | Next slices                                                                                              |
 
+## M2 — invitations and consent-based messaging (2026-10-27, local branch `feat/invitations-messaging-20261027`)
+
+Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACCOUNT_BILLING_PLAN.md` (billing NOT enabled). Device checklist: `docs/mobile/DEVICE_TEST_CHECKLIST.md`.
+
+| # | Acceptance case | Status | Evidence |
+| - | --- | --- | --- |
+| 1 | Verified authorised employer invites a consenting candidate to its own open job | DONE | `test_verified_employer_invites_consenting_candidate_who_accepts_and_chats`, e2e `invitations.spec.ts` |
+| 2 | Unverified / suspended-equivalent / unauthorised / cross-tenant fail without leaking | DONE | `test_unverified_unauthorised_and_cross_tenant_requests_fail_without_leaking` (there is no separate "suspended" state: verification revocation is the control) |
+| 3 | Consent withdrawn after search blocks the send | DONE | `test_consent_hidden_blocked_paused_and_inactive_all_refuse_with_one_generic_error` |
+| 4 | Hidden/blocked preferences block invitations; blocked people are not even found | DONE | same test; `test_removed_member...block` |
+| 5 | Opaque references are employer-scoped, expire, and never resolve to account ids | DONE | `test_references_are_employer_scoped_expire_and_cannot_be_guessed` |
+| 6 | Duplicate taps, retries and concurrent sends create one pending invitation | DONE | `test_retries_duplicate_taps_and_concurrent_sends_create_one_pending_invitation` |
+| 7 | Accept/withdraw/expiry races end in one terminal state | DONE | `test_accept_and_withdraw_race...`, `test_expiry_is_enforced...`, `test_worker_sweep...` |
+| 8 | Duplicate accept creates one conversation | DONE | `test_repeat_accept_returns_the_same_conversation` |
+| 9 | Pending/declined/expired invitations permit no messaging | DONE | no conversation exists in those states (asserted in the happy-path, decline and expiry tests) |
+| 10 | Closed jobs and material changes handled truthfully | DONE | `test_closed_job_and_material_changes_are_handled_truthfully`; Jest `inbox.test.tsx` |
+| 11 | Removed members lose the thread immediately | DONE | `test_removed_member_loses_thread_access_immediately_and_block_stops_everything` |
+| 12 | Candidate block stops messages and notifications | DONE | same test |
+| 13 | Teammates share quotas; several API instances cannot bypass them | PARTIAL | Quotas are counted in Postgres under advisory locks and tested with concurrent requests from two teammates. A true multi-process/multi-instance run was NOT performed |
+| 14 | Retried outbox processing does not duplicate effects | PARTIAL | `test_notifications_are_generic_durable_and_pushed_once` (provider failure does not undo or duplicate; at-most-once). A real provider and its retry semantics were not tested; no push credentials |
+| 15 | Deep links cannot show a previous account's data | DONE (unit) | Jest: caches cleared on sign-out, other account's id is a 404 screen. Not exercised with a real notification on a device |
+| 16 | Export/deletion include the new data without leaking others | DONE | `test_export_and_deletion_cover_invitations_and_threads` |
+| 17 | Migration up/down/up and RLS under non-bypass roles | DONE | `test_migrations.py`, `test_rls_isolates_invitations_conversations_and_messages`, route-guard test |
+| 18 | Employee access free nationally, no employee SKU | DONE | `tests/test_pricing.py` |
+| 19 | Employer estimates A$19 / A$30 / A$49 | DONE | `tests/test_pricing.py` (add-on interpretation unconfirmed) |
+| 20 | Native screens: large text, labels, keyboard avoidance, errors | PARTIAL | Jest label/error tests, axe in browser, `Screen`/`Sheet` keyboard avoidance. Real keyboard, large text and screen readers UNVERIFIED (checklist) |
+| - | Native employer app, email/SMS, attachments, moderation UI, real push | NOT_STARTED | Named blockers: no device, no push credentials, deferred by directive |
+
 ## P3–P6
 
 | Phase                                          | Status                                                                         |

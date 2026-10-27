@@ -13,6 +13,7 @@ Based on what the code does today. Re-check before every submission. The app con
 | Work preferences (permanent/temporary, hours, travel, notice period, pay floor) | Yes (user-entered) | Yes | Matching, optional talent discovery | Pay floor is private and never shown to employers |
 | Weekly availability, one-off changes, booked work | Yes (user-entered) | Yes | Answering "free for this time?" for employers who the person allowed to find them | Employers never see the calendar, only free / not free / unknown for a time they ask about |
 | Employer preferences (prefer / hide / mute) | Yes (user-entered) | Yes | Discovery and job filtering | Never shown to employers |
+| Employer invitations and messages | Yes | Yes | Replying to employers who were allowed to find you | Text only; deleted with the account (a minimal abuse-report copy may be kept, needs counsel sign-off) |
 | Talent-discovery consent (per kind) | Yes | Yes | Consent record | History kept; off by default |
 | Device label (e.g. "Pixel 9") | Yes | Yes | Shows/revokes signed-in devices; refresh-token family | |
 | Diagnostics / crash data | No | — | — | None collected yet |

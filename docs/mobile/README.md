@@ -20,6 +20,10 @@ Candidate app built with Expo (React Native), Expo Router and TypeScript in `app
 
 Profile → *Work preferences* (Permanent / Temporary / Both, each with its own answers and an explicit per-kind "let verified employers find me" choice), *Availability* (weekly times with several windows a day and overnight windows, one-off changes, booked work) and *Employers I prefer or avoid* (prefer / hide me / mute jobs). Everything is private to the candidate and saved on the server (never in the offline cache). Employers can only learn whether you are free for a time they ask about. See ADR-009.
 
+## Inbox (invitations and messages)
+
+The *Inbox* tab shows employer invitations (accept / decline with no reason needed, block, see exactly what changed since the invitation was sent) and conversations that open only after you accept. Accepting is not an application or a job offer and reserves nothing. Push text is generic. See ADR-010 and `DEVICE_TEST_CHECKLIST.md` (untested on devices).
+
 ## Run it
 
 ```bash

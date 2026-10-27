@@ -1,3 +1,7 @@
+# UPDATE (M2, same day): invitations and messaging are now built
+
+Branch `feat/invitations-messaging-20261027` (local only, not published). **Read `docs/reports/M2_INVITATIONS_REPORT.md` first**: it has the commit list, the sources that could not be inspected (the four Codex commits are unavailable here), exact test results (164 API, 169 Jest, 29 Playwright), the one remaining audit finding (`node-forge`, unpatched, not suppressed) and everything unverified on devices. Sections 4–5 below are partly superseded: invitations/messaging are DONE (ADR-010); still NOT done: real-device validation, real push, native employer app, moderation UI, DB-enforced commitment overlap, billing (foundation only, disabled).
+
 # NUA CREW — Handoff for ChatGPT (2026-10-27)
 
 **Repo:** github.com/BSaumil/NUA-CREW · **Work branch (LOCAL, not pushed):** `feat/m0-m1-availability-20261027`, baseline `90c3bab`, head `4d70648`. Remote `claude/new-session-kszaxl` is still at `90c3bab`; there is no `main`, so no PR. No push, merge, deploy, purchase or scraping was done: the owner's plan did not grant them.
