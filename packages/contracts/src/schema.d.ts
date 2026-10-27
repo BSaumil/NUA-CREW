@@ -1981,6 +1981,11 @@ export interface components {
             /** Counterpart */
             counterpart: string;
             /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
+            /**
              * Id
              * Format: uuid
              */
@@ -2283,6 +2288,11 @@ export interface components {
             current_terms: components["schemas"]["InvitationTerms"] | null;
             /** Current Terms Hash */
             current_terms_hash: string | null;
+            /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
             /**
              * Expires At
              * Format: date-time

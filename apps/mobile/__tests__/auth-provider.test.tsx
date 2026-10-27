@@ -86,6 +86,8 @@ describe('cache hygiene and lock', () => {
     await act(async () => result.current.signIn('a@b.co', 'pw-long-enough-1'));
     await waitFor(() => expect(result.current.status).toBe('signedIn'));
     qc.setQueryData(['applications'], [{ id: 'private' }]);
+    qc.setQueryData(['invitation', 'inv-1'], { terms: { business: 'Previous Account Cafe' } });
+    qc.setQueryData(['messages', 'conv-1'], { pages: [{ items: [{ body: 'private words' }] }] });
     // Not the sign-out button: the server revoked us and the next refresh is rejected.
     session.fetchImpl = (async () => ({ ok: false, status: 401 })) as unknown as typeof fetch;
     await act(async () => {
@@ -93,6 +95,9 @@ describe('cache hygiene and lock', () => {
     });
     await waitFor(() => expect(result.current.status).toBe('signedOut'));
     expect(qc.getQueryData(['applications'])).toBeUndefined();
+    // a notification deep link opened after switching accounts must not show the previous account
+    expect(qc.getQueryData(['invitation', 'inv-1'])).toBeUndefined();
+    expect(qc.getQueryData(['messages', 'conv-1'])).toBeUndefined();
   });
 
   it('reports a failed Keychain/Keystore deletion but still signs the person out', async () => {

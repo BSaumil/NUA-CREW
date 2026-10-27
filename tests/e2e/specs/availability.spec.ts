@@ -116,9 +116,9 @@ test('candidate sets work preferences, availability and consent; employer finds 
   await expect(results.getByText('Alex C.')).toHaveCount(0); // never consented
   await expect(results.getByText(/Notice period: 28 days/)).toBeVisible();
   await expect(results.getByText(/Can start from 2027-02-01/)).toBeVisible();
-  // truthful: no way to contact anyone yet, and no fake button
-  await expect(results.getByText(/Invitations are not available yet/)).toBeVisible();
-  await expect(emp.page.getByRole('button', { name: /invite|send|message/i })).toHaveCount(0);
+  // the only contact path is a real invitation (covered in invitations.spec.ts); nothing else
+  await expect(results.getByText(/Invite Bao C\. to a job|Publish a job to invite/)).toBeVisible();
+  await expect(emp.page.getByRole('button', { name: /message|contact|email/i })).toHaveCount(0);
   // private data never reaches the page
   const html = await emp.page.content();
   expect(html).not.toContain('30.00');

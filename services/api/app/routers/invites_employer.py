@@ -164,6 +164,7 @@ async def employer_conversations(
     return [
         ConversationOut(
             id=c.id,
+            employer_id=c.employer_id,
             invitation_id=c.invitation_id,
             job_id=c.job_id,
             job_title=title,

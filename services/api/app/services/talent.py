@@ -59,10 +59,6 @@ NOTES = [
     "Availability is what the person shared, answered only for the time you asked about.",
     "Hiring decisions are yours. NUA CREW does not screen, score or reject people.",
 ]
-INVITE_REASON = (
-    "Invitations are not available yet. There is no consent-based messaging path, so nobody "
-    "can be contacted from this page."
-)
 
 
 def candidate_ref(employer_id: uuid.UUID, candidate_id: uuid.UUID) -> str:
@@ -169,8 +165,8 @@ async def search(
         TalentSearchOut(
             items=shown,
             next_after=f"o{offset}" if more else None,
-            invite_available=False,
-            invite_unavailable_reason=INVITE_REASON,
+            invite_available=True,
+            invite_unavailable_reason=None,
             notes=NOTES,
         ),
         shown_ids,

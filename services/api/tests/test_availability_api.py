@@ -374,7 +374,7 @@ async def test_results_are_a_privacy_whitelist(client):
     assert item["display_name"] == "Casey F."
     assert item["area"] == "Fitzroy, VIC"
     assert item["availability"]["state"] == "available"
-    assert r.json()["invite_available"] is False and r.json()["invite_unavailable_reason"]
+    assert r.json()["invite_available"] is True and r.json()["invite_unavailable_reason"] is None
     for secret in ("40.00", "30.00", "min_hourly_pay", "Secret second job", "commitment",
                    "wlc@nua-crew", "postcode", "3065", "max_travel_km"):  # fmt: skip
         assert secret not in raw, secret

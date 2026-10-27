@@ -710,6 +710,11 @@
             "title": "Counterpart",
             "type": "string"
           },
+          "employer_id": {
+            "format": "uuid",
+            "title": "Employer Id",
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -756,6 +761,7 @@
         },
         "required": [
           "id",
+          "employer_id",
           "invitation_id",
           "job_id",
           "job_title",
@@ -1455,6 +1461,11 @@
             ],
             "title": "Current Terms Hash"
           },
+          "employer_id": {
+            "format": "uuid",
+            "title": "Employer Id",
+            "type": "string"
+          },
           "expires_at": {
             "format": "date-time",
             "title": "Expires At",
@@ -1518,6 +1529,7 @@
         },
         "required": [
           "id",
+          "employer_id",
           "status",
           "kind",
           "note",

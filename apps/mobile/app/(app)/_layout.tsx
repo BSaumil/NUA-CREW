@@ -1,7 +1,7 @@
 // Single icon set, imported directly: the package index bundles every icon font family.
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import { useNotifications } from '@/api/queries';
+import { useInboxSummary, useNotifications } from '@/api/queries';
 import { useTheme } from '@/theme/ThemeProvider';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
@@ -18,6 +18,8 @@ export default function AppTabs() {
   const { colors } = useTheme();
   const { data } = useNotifications();
   const unread = data?.filter((n) => !n.read_at).length ?? 0;
+  const inbox = useInboxSummary().data;
+  const inboxUnread = (inbox?.unread_invitations ?? 0) + (inbox?.unread_conversations ?? 0);
   return (
     <Tabs
       screenOptions={{
@@ -41,6 +43,16 @@ export default function AppTabs() {
         options={{
           title: 'Applications',
           tabBarIcon: icon('document-text-outline', 'document-text'),
+        }}
+      />
+      <Tabs.Screen
+        name="inbox"
+        options={{
+          title: 'Inbox',
+          tabBarIcon: icon('mail-outline', 'mail'),
+          tabBarBadge: inboxUnread > 0 ? inboxUnread : undefined,
+          tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
+          tabBarAccessibilityLabel: inboxUnread ? `Inbox, ${inboxUnread} unread` : 'Inbox',
         }}
       />
       <Tabs.Screen

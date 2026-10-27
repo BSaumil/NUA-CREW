@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { Button } from '@nua-crew/ui';
 import { api, errorMessage, requireEmployer } from '@/lib/api';
-import { Field, Flash } from '../components';
+import { randomUUID } from 'node:crypto';
+import { sendInvitation } from '../actions';
+import { Field, Flash, flashFrom } from '../components';
 
 export const metadata: Metadata = { title: 'Find talent' };
 
@@ -30,14 +32,17 @@ const PAY_LABEL = {
 } as const;
 
 export default async function Talent({ searchParams }: { searchParams: Promise<Params> }) {
-  const { employerId } = await requireEmployer();
-  const p = await searchParams;
+  const { employerId, role } = await requireEmployer();
+  const flash = await flashFrom(searchParams);
+  const p = flash.p;
+  const returnTo = `/talent?${new URLSearchParams(Object.entries(p).flatMap(([k, v]) => (typeof v === 'string' && k !== 'error' && k !== 'notice' ? [[k, v]] : []))).toString()}`;
   const searched = one(p, 'kind') !== '';
   const client = await api();
 
   const { data: jobs } = await client.GET('/v1/employers/{employer_id}/jobs', {
     params: { path: { employer_id: employerId } },
   });
+  const openJobs = (jobs ?? []).filter((j) => j.status === 'published');
 
   let result: Awaited<ReturnType<typeof run>> | null = null;
   async function run() {
@@ -78,7 +83,7 @@ export default async function Talent({ searchParams }: { searchParams: Promise<P
         You only see people who chose to be found for this kind of work. Results are not ranked and
         are not a prediction of who will accept or be a good hire. Every hiring decision is yours.
       </p>
-      <Flash error={error} />
+      <Flash error={error ?? flash.error} notice={flash.notice} />
       <form method="get" className="nua-card nua-stack">
         <div className="nua-grid">
           <div className="nua-field">
@@ -177,11 +182,61 @@ export default async function Talent({ searchParams }: { searchParams: Promise<P
               {c.unknowns.length ? (
                 <p className="nua-hint">Not known: {c.unknowns.join('; ')}.</p>
               ) : null}
+              {role === 'viewer' ? (
+                <p className="nua-hint">Only owners and recruiters can send invitations.</p>
+              ) : openJobs.length === 0 ? (
+                <p className="nua-hint">Publish a job to invite someone to it.</p>
+              ) : (
+                <details>
+                  <summary>Invite {c.display_name} to a job</summary>
+                  <form action={sendInvitation} className="nua-stack">
+                    <input type="hidden" name="ref" value={c.ref} />
+                    <input type="hidden" name="kind" value={one(p, 'kind') || 'temporary'} />
+                    <input type="hidden" name="idempotency_key" value={randomUUID()} />
+                    <input type="hidden" name="return_to" value={returnTo} />
+                    <div className="nua-field">
+                      <label htmlFor={`job-${c.ref}`}>Job</label>
+                      <select id={`job-${c.ref}`} name="job_id" required>
+                        {openJobs.map((j) => (
+                          <option key={j.id} value={j.id}>
+                            {j.title}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="nua-field">
+                      <label htmlFor={`note-${c.ref}`}>Short note (optional)</label>
+                      <textarea id={`note-${c.ref}`} name="note" maxLength={500} />
+                    </div>
+                    <div className="nua-field">
+                      <label htmlFor={`exp-${c.ref}`}>Open for (days)</label>
+                      <input
+                        id={`exp-${c.ref}`}
+                        name="expires_in_days"
+                        type="number"
+                        min={1}
+                        max={14}
+                        defaultValue={7}
+                      />
+                    </div>
+                    <p className="nua-hint">
+                      This is an expression of interest, not a job offer or a shift booking. The
+                      candidate sees the business, role, location, pay and your note, and can accept
+                      or decline. Nothing is reserved.
+                    </p>
+                    <div>
+                      <Button type="submit">Send invitation</Button>
+                    </div>
+                  </form>
+                </details>
+              )}
             </article>
           ))}
-          <p className="nua-hint" role="note">
-            {out.invite_unavailable_reason}
-          </p>
+          {out.invite_unavailable_reason ? (
+            <p className="nua-hint" role="note">
+              {out.invite_unavailable_reason}
+            </p>
+          ) : null}
           {out.next_after ? (
             <p>
               <a

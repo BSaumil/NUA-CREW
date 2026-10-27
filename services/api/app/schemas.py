@@ -844,6 +844,7 @@ class InvitationOut(BaseModel):
     """Candidate's view. Interest only: not an application, an employment offer or a shift hold."""
 
     id: uuid.UUID
+    employer_id: uuid.UUID  # public business id; lets the candidate block or mute that business
     status: InvitationStatus
     kind: WorkKind
     note: str
@@ -918,6 +919,7 @@ class MessagePage(BaseModel):
 
 class ConversationOut(BaseModel):
     id: uuid.UUID
+    employer_id: uuid.UUID
     invitation_id: uuid.UUID
     job_id: uuid.UUID
     job_title: str

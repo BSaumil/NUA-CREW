@@ -51,7 +51,8 @@ async def _out(
             select(Conversation.id).where(Conversation.invitation_id == inv.id)
         )
     return InvitationOut(
-        id=inv.id, status=status, kind=inv.kind, note=inv.note, created_at=inv.created_at,
+        id=inv.id, employer_id=inv.employer_id, status=status, kind=inv.kind, note=inv.note,
+        created_at=inv.created_at,
         expires_at=inv.expires_at, responded_at=inv.responded_at, unread=inv.read_at is None,
         terms=InvitationTerms.model_validate(inv.snapshot),
         current_terms=InvitationTerms.model_validate(terms) if terms else None,
@@ -161,6 +162,7 @@ async def list_conversations(profile: Candidate, session: Session) -> list[Conve
     return [
         ConversationOut(
             id=c.id,
+            employer_id=c.employer_id,
             invitation_id=c.invitation_id,
             job_id=c.job_id,
             job_title=title,
@@ -253,7 +255,8 @@ async def candidate_close(
     job = await session.get(Job, conv.job_id)
     emp = await session.get(Employer, conv.employer_id)
     return ConversationOut(
-        id=conv.id, invitation_id=conv.invitation_id, job_id=conv.job_id,
+        id=conv.id, employer_id=conv.employer_id, invitation_id=conv.invitation_id,
+        job_id=conv.job_id,
         job_title=job.title if job else "", counterpart=emp.name if emp else "",
         status=conv.status, closed_reason=conv.closed_reason,
         last_message_at=conv.last_message_at, unread=False,

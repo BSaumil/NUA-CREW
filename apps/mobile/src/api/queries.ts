@@ -32,6 +32,11 @@ export const keys = {
   workPrefs: ['work-prefs'] as const,
   availability: ['availability'] as const,
   employerPrefs: ['employer-prefs'] as const,
+  inbox: ['inbox'] as const,
+  invitations: ['invitations'] as const,
+  invitation: (id: string) => ['invitation', id] as const,
+  conversations: ['conversations'] as const,
+  messages: (id: string) => ['messages', id] as const,
 };
 
 const PAGE = 15;
@@ -468,5 +473,176 @@ export function useDeleteEmployerPref() {
       void qc.invalidateQueries({ queryKey: keys.employerPrefs });
       void qc.invalidateQueries({ queryKey: ['jobs'] });
     },
+  });
+}
+
+// ---- invitations and messaging (private; never in the offline cache) ----
+export type Invitation = Schemas['InvitationOut'];
+export type Conversation = Schemas['ConversationOut'];
+export type Message = Schemas['MessageOut'];
+
+export const useInboxSummary = () =>
+  useQuery({
+    queryKey: keys.inbox,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/inbox/summary')),
+    refetchInterval: 60_000,
+  });
+
+export const useInvitations = () =>
+  useQuery({
+    queryKey: keys.invitations,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/invitations')),
+  });
+
+export const useInvitation = (id: string) =>
+  useQuery({
+    queryKey: keys.invitation(id),
+    queryFn: async () =>
+      unwrap(
+        await api.GET('/v1/candidate/invitations/{invitation_id}', {
+          params: { path: { invitation_id: id } },
+        }),
+      ),
+    retry: false, // a 404 (not yours, or gone) is final
+  });
+
+function refreshInbox(qc: QueryClient, id?: string) {
+  void qc.invalidateQueries({ queryKey: keys.inbox });
+  void qc.invalidateQueries({ queryKey: keys.invitations });
+  void qc.invalidateQueries({ queryKey: keys.conversations });
+  if (id) void qc.invalidateQueries({ queryKey: keys.invitation(id) });
+}
+
+export function useAcceptInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, termsHash }: { id: string; termsHash: string }) =>
+      unwrap(
+        await api.POST('/v1/candidate/invitations/{invitation_id}/accept', {
+          params: { path: { invitation_id: id } },
+          body: { terms_hash: termsHash },
+        }),
+      ),
+    onSettled: (_d, _e, v) => refreshInbox(qc, v.id),
+  });
+}
+
+export function useDeclineInvitation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrap(
+        await api.POST('/v1/candidate/invitations/{invitation_id}/decline', {
+          params: { path: { invitation_id: id } },
+        }),
+      ),
+    onSettled: (_d, _e, id) => refreshInbox(qc, id),
+  });
+}
+
+export const useConversations = () =>
+  useQuery({
+    queryKey: keys.conversations,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/conversations')),
+  });
+
+export function useMessages(id: string) {
+  return useInfiniteQuery({
+    queryKey: keys.messages(id),
+    initialPageParam: undefined as string | undefined,
+    queryFn: async ({ pageParam }) =>
+      unwrap(
+        await api.GET('/v1/candidate/conversations/{conversation_id}/messages', {
+          params: {
+            path: { conversation_id: id },
+            query: { before: pageParam ?? null, limit: 30 },
+          },
+        }),
+      ),
+    getNextPageParam: (last) => last.next_before ?? undefined,
+    retry: false,
+  });
+}
+
+export function useSendMessage(id: string) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ body, clientKey }: { body: string; clientKey: string }) =>
+      unwrap(
+        await api.POST('/v1/candidate/conversations/{conversation_id}/messages', {
+          params: { path: { conversation_id: id } },
+          body: { body, client_key: clientKey },
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.messages(id) });
+      void qc.invalidateQueries({ queryKey: keys.conversations });
+    },
+  });
+}
+
+export function useMarkConversationRead() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrapVoid(
+        await api.POST('/v1/candidate/conversations/{conversation_id}/read', {
+          params: { path: { conversation_id: id } },
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.inbox });
+      void qc.invalidateQueries({ queryKey: keys.conversations });
+    },
+  });
+}
+
+export function useCloseConversation() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (id: string) =>
+      unwrap(
+        await api.POST('/v1/candidate/conversations/{conversation_id}/close', {
+          params: { path: { conversation_id: id } },
+        }),
+      ),
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: keys.conversations });
+      void qc.invalidateQueries({ queryKey: keys.inbox });
+    },
+  });
+}
+
+export const useReportConversation = () =>
+  useMutation({
+    mutationFn: async ({
+      id,
+      reason,
+      messageId,
+    }: {
+      id: string;
+      reason: string;
+      messageId?: string | null;
+    }) =>
+      unwrap(
+        await api.POST('/v1/candidate/conversations/{conversation_id}/report', {
+          params: { path: { conversation_id: id } },
+          body: { reason, message_id: messageId ?? null },
+        }),
+      ),
+  });
+
+export const useInvitationSettings = () =>
+  useQuery({
+    queryKey: ['invitation-settings'] as const,
+    queryFn: async () => unwrap(await api.GET('/v1/candidate/invitation-settings')),
+  });
+
+export function useSetInvitationsEnabled() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async (enabled: boolean) =>
+      unwrap(await api.PUT('/v1/candidate/invitation-settings', { body: { enabled } })),
+    onSuccess: (data) => qc.setQueryData(['invitation-settings'], data),
   });
 }

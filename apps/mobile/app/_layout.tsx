@@ -204,6 +204,26 @@ function Gate() {
               headerTitleStyle: { color: colors.text },
             }}
           />
+          <Stack.Screen
+            name="invitation/[id]"
+            options={{
+              headerShown: true,
+              title: 'Invitation',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
+            name="conversation/[id]"
+            options={{
+              headerShown: true,
+              title: 'Conversation',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
         </Stack.Protected>
         <Stack.Protected guard={status === 'signedOut'}>
           <Stack.Screen name="(auth)" />
