@@ -60,7 +60,11 @@ export default async function Billing({
           Test payments only. Your advertisement goes live once payment is confirmed.
         </p>
       </div>
-      <section aria-label="Advertising prices" className="nua-grid">
+      <section
+        aria-label="Advertising prices"
+        className="nua-grid"
+        style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))' }}
+      >
         {[
           [
             'A$19',
@@ -104,27 +108,39 @@ export default async function Billing({
         ) : (
           <form action={startCheckout} className="nua-stack">
             <input type="hidden" name="client_key" value={randomUUID()} />
-            <label htmlFor="billing-job">Job advertisement</label>
-            <select id="billing-job" name="job_id" required disabled={!ready}>
-              {jobs
-                ?.filter((j) => j.status !== 'closed')
-                .map((j) => (
-                  <option key={j.id} value={j.id}>
-                    {j.title} · {j.suburb ?? 'Location needed'} · {j.status}
-                  </option>
-                ))}
-            </select>
-            <label htmlFor="billing-action">Advertising option</label>
-            <select id="billing-action" name="action" required disabled={!ready}>
-              <option value="new_ad">14-day advertisement — A$19</option>
-              <option value="readvertise">Renew this advertisement for 14 days — A$19</option>
-              <option value="new_promoted_ad">Advertisement + five-day promotion — A$49</option>
-              <option value="promote_existing">Five-day promotion add-on — A$30</option>
-            </select>
-            <label className="nua-row">
-              <input type="checkbox" name="confirm" required disabled={!ready} />I reviewed the
-              role, pay, advertising terms and price. After verified payment, publish or renew this
-              advertisement and activate any reserved promotion.
+            <div className="nua-field">
+              <label htmlFor="billing-job">Job advertisement</label>
+              <select id="billing-job" name="job_id" required disabled={!ready}>
+                {jobs
+                  ?.filter((j) => j.status !== 'closed')
+                  .map((j) => (
+                    <option key={j.id} value={j.id}>
+                      {j.title} · {j.suburb ?? 'Location needed'} · {j.status}
+                    </option>
+                  ))}
+              </select>
+            </div>
+            <div className="nua-field">
+              <label htmlFor="billing-action">Advertising option</label>
+              <select id="billing-action" name="action" required disabled={!ready}>
+                <option value="new_ad">14-day advertisement — A$19</option>
+                <option value="readvertise">Renew this advertisement for 14 days — A$19</option>
+                <option value="new_promoted_ad">Advertisement + five-day promotion — A$49</option>
+                <option value="promote_existing">Five-day promotion add-on — A$30</option>
+              </select>
+            </div>
+            <label className="nua-row" style={{ flexWrap: 'nowrap', alignItems: 'flex-start' }}>
+              <input
+                type="checkbox"
+                name="confirm"
+                required
+                disabled={!ready}
+                style={{ flexShrink: 0, marginTop: 6 }}
+              />
+              <span>
+                I reviewed the role, pay, advertising terms and price. After verified payment,
+                publish or renew this advertisement and activate any reserved promotion.
+              </span>
             </label>
             <Button type="submit" disabled={!ready || business?.verification_status !== 'verified'}>
               Continue to Stripe test checkout
