@@ -93,6 +93,10 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   await tab(page, 'Saved').click();
   await expect(page.getByRole('button', { name: new RegExp(`^${title},`) })).toBeVisible();
   await tab(page, 'Discover').click();
+  await expect(tab(page, 'Discover')).toHaveAttribute('aria-selected', 'true');
+  // Both tabs stay mounted. Wait until Saved leaves the accessibility tree before
+  // resolving a card shared by both screens, so the click targets Discover.
+  await expect(page.getByRole('heading', { name: 'Saved', exact: true })).toHaveCount(0);
 
   // Detail: match is an estimate with evidence, not a promise.
   await page.getByRole('button', { name: new RegExp(`^${title},`) }).click();
