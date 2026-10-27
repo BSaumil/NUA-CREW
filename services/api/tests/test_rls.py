@@ -12,7 +12,16 @@ from sqlalchemy.exc import DBAPIError
 
 from app.deps import admin_user, member_owner, member_recruiter, member_viewer
 from app.rls import set_context
-from app.routers import admin, applications, auth, candidate, employer, jobs_public, notifications
+from app.routers import (
+    admin,
+    applications,
+    auth,
+    candidate,
+    employer,
+    jobs_public,
+    notifications,
+    talent,
+)
 from tests.conftest import (
     JOB,
     db_as,
@@ -166,7 +175,7 @@ async def test_every_employer_route_requires_membership():
             yield from deps(d)
 
     checked = 0
-    routers = (admin, applications, auth, candidate, employer, jobs_public, notifications)
+    routers = (admin, applications, auth, candidate, employer, jobs_public, notifications, talent)
     for route in (r for m in routers for r in m.router.routes):
         if isinstance(route, APIRoute) and "{employer_id}" in route.path:
             assert guards & set(deps(route.dependant)), f"{route.methods} {route.path} is unguarded"
@@ -227,10 +236,16 @@ async def test_runtime_role_is_not_the_owner_and_cannot_change_the_schema():
             await set_context(s, role="system")
 
 
-def test_docker_initdb_copy_of_bootstrap_sql_is_identical():
+async def test_docker_initdb_copy_of_bootstrap_sql_is_identical():
+    import asyncio
     import pathlib
 
-    root = pathlib.Path(__file__).resolve().parents[3]
-    assert (root / "db/roles/bootstrap.sql").read_text() == (
-        root / "infra/docker/initdb/bootstrap.sql"
-    ).read_text()
+    def read() -> tuple[str, str]:
+        root = pathlib.Path(__file__).resolve().parents[3]
+        return (
+            (root / "db/roles/bootstrap.sql").read_text(),
+            (root / "infra/docker/initdb/bootstrap.sql").read_text(),
+        )
+
+    a, b = await asyncio.to_thread(read)
+    assert a == b

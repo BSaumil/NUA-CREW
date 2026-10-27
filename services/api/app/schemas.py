@@ -1,14 +1,18 @@
 import uuid
-from datetime import datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, model_validator
 
 from app.abn import is_valid_abn_checksum, normalise_abn
+from app.services.availability import zone
 
 EmploymentType = Literal["full_time", "part_time", "casual", "contract", "shift"]
 PayPeriod = Literal["hour", "day", "week", "month", "year"]
+EngagementBasis = Literal["employee", "contractor", "unspecified"]
+DurationType = Literal["ongoing", "fixed_term", "one_off", "unspecified"]
+HoursPatternJob = Literal["full_time", "part_time", "casual", "unspecified"]
 Password = Annotated[str, StringConstraints(min_length=12, max_length=128)]
 Name = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1, max_length=200)]
 State = Literal["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"]
@@ -185,9 +189,30 @@ class JobIn(BaseModel):
     pay_period: PayPeriod | None = None
     super_included: bool | None = None
     expires_at: datetime | None = None
+    # Employment basis, duration and schedule are separate facts; employment_type stays for
+    # compatibility. "unspecified" is a valid, honest answer.
+    engagement_basis: EngagementBasis = "unspecified"
+    duration_type: DurationType = "unspecified"
+    hours_pattern: HoursPatternJob = "unspecified"
+    min_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
+    max_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
+    start_date: date | None = None
+    end_date: date | None = None
     skills: list[Annotated[str, StringConstraints(min_length=1, max_length=100)]] = Field(
         default=[], max_length=30
     )
+
+    @model_validator(mode="after")
+    def _facets(self) -> "JobIn":
+        if (
+            self.min_weekly_hours is not None
+            and self.max_weekly_hours is not None
+            and self.min_weekly_hours > self.max_weekly_hours
+        ):
+            raise ValueError("min_weekly_hours must not exceed max_weekly_hours")
+        if self.start_date and self.end_date and self.start_date > self.end_date:
+            raise ValueError("start_date must not be after end_date")
+        return self
 
     @model_validator(mode="after")
     def _pay(self) -> "JobIn":
@@ -218,6 +243,13 @@ class JobOut(BaseModel):
     description: str
     status: str
     employment_type: str
+    engagement_basis: str = "unspecified"
+    duration_type: str = "unspecified"
+    hours_pattern: str = "unspecified"
+    min_weekly_hours: Decimal | None = None
+    max_weekly_hours: Decimal | None = None
+    start_date: date | None = None
+    end_date: date | None = None
     category: str | None
     suburb: str | None
     state: str | None
@@ -479,3 +511,251 @@ class PasswordChangeIn(BaseModel):
 
 class DeleteAccountIn(BaseModel):
     password: str = Field(max_length=128)
+
+
+# ---- work preferences, availability, employer preferences (candidate-private) ----
+WorkKind = Literal["permanent", "temporary"]
+EngagementPref = Literal["employee", "contractor"]
+HoursPref = Literal["full_time", "part_time", "casual"]
+
+
+class WorkPreferenceIn(BaseModel):
+    """Preferences about an arrangement. Not proof of status: ticking contractor is not an ABN
+    check, and it does not make anyone a contractor in law."""
+
+    enabled: bool
+    engagement_bases: list[EngagementPref] = Field(default=[], max_length=2)
+    hours_patterns: list[HoursPref] = Field(default=[], max_length=3)
+    min_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
+    max_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
+    min_hourly_pay: Decimal | None = Field(None, ge=0, le=1000)
+    max_travel_km: int | None = Field(None, gt=0, le=500)
+    notice_period_days: int | None = Field(None, ge=0, le=365)
+    available_from: date | None = None
+
+    @model_validator(mode="after")
+    def _ok(self) -> "WorkPreferenceIn":
+        if (
+            self.min_weekly_hours is not None
+            and self.max_weekly_hours is not None
+            and self.min_weekly_hours > self.max_weekly_hours
+        ):
+            raise ValueError("min_weekly_hours must not exceed max_weekly_hours")
+        self.engagement_bases = sorted(set(self.engagement_bases))
+        self.hours_patterns = sorted(set(self.hours_patterns))
+        return self
+
+
+class WorkPreferenceOut(Orm):
+    kind: str
+    enabled: bool
+    discoverable: bool
+    engagement_bases: list[str]
+    hours_patterns: list[str]
+    min_weekly_hours: Decimal | None
+    max_weekly_hours: Decimal | None
+    min_hourly_pay: Decimal | None
+    max_travel_km: int | None
+    notice_period_days: int | None
+    available_from: date | None
+
+
+class WorkPreferencesOut(BaseModel):
+    """None means the person has never set that kind (distinct from set-but-off)."""
+
+    permanent: WorkPreferenceOut | None
+    temporary: WorkPreferenceOut | None
+
+
+def _minute_precision(t: time) -> time:
+    if t.second or t.microsecond:
+        raise ValueError("times must be whole minutes")
+    return t.replace(tzinfo=None)
+
+
+class AvailabilityRuleIn(BaseModel):
+    weekday: int = Field(ge=0, le=6, description="Monday = 0")
+    start_time: time
+    end_time: time = Field(description="At or before start_time means the window ends next day")
+
+    @model_validator(mode="after")
+    def _ok(self) -> "AvailabilityRuleIn":
+        self.start_time = _minute_precision(self.start_time)
+        self.end_time = _minute_precision(self.end_time)
+        if self.start_time == self.end_time:
+            raise ValueError("start_time and end_time must differ")
+        return self
+
+
+class AvailabilityRuleOut(Orm):
+    id: uuid.UUID
+    weekday: int
+    start_time: time
+    end_time: time
+
+
+class AvailabilityRulesIn(BaseModel):
+    time_zone: str = Field(max_length=64)
+    rules: list[AvailabilityRuleIn] = Field(max_length=70)
+
+    @model_validator(mode="after")
+    def _ok(self) -> "AvailabilityRulesIn":
+        zone(self.time_zone)  # raises ValueError for an unknown IANA zone
+        return self
+
+
+class AvailabilityExceptionIn(BaseModel):
+    state: Literal["available", "unavailable"]
+    start_date: date
+    end_date: date
+    start_time: time | None = None
+    end_time: time | None = None
+
+    @model_validator(mode="after")
+    def _ok(self) -> "AvailabilityExceptionIn":
+        if self.start_date > self.end_date:
+            raise ValueError("start_date must not be after end_date")
+        if (self.start_time is None) != (self.end_time is None):
+            raise ValueError("provide both start_time and end_time, or neither for all day")
+        if self.start_time is not None and self.end_time is not None:
+            self.start_time = _minute_precision(self.start_time)
+            self.end_time = _minute_precision(self.end_time)
+            if self.start_time == self.end_time:
+                raise ValueError("start_time and end_time must differ")
+        if (self.end_date - self.start_date).days > 366:
+            raise ValueError("an exception can cover at most a year")
+        return self
+
+
+class AvailabilityExceptionOut(Orm):
+    id: uuid.UUID
+    state: str
+    start_date: date
+    end_date: date
+    start_time: time | None
+    end_time: time | None
+
+
+class CommitmentIn(BaseModel):
+    starts_at: datetime
+    ends_at: datetime
+    status: Literal["held", "confirmed"] = "confirmed"
+    label: str | None = Field(None, max_length=100)
+    venue_time_zone: str | None = Field(None, max_length=64)
+
+    @model_validator(mode="after")
+    def _ok(self) -> "CommitmentIn":
+        if self.starts_at.tzinfo is None or self.ends_at.tzinfo is None:
+            raise ValueError("starts_at and ends_at must include a UTC offset")
+        if self.ends_at <= self.starts_at:
+            raise ValueError("ends_at must be after starts_at")
+        if self.venue_time_zone:
+            zone(self.venue_time_zone)
+        return self
+
+
+class CommitmentOut(Orm):
+    id: uuid.UUID
+    starts_at: datetime
+    ends_at: datetime
+    status: str
+    source: str
+    label: str | None
+    venue_time_zone: str | None
+
+
+class AvailabilityOut(BaseModel):
+    time_zone: str
+    rules: list[AvailabilityRuleOut]
+    exceptions: list[AvailabilityExceptionOut]
+    commitments: list[CommitmentOut]
+    weekly_hours: float | None = Field(description="Nominal hours per week; null when no rules")
+
+
+class AvailabilityCheckOut(BaseModel):
+    state: Literal["available", "unavailable", "unknown", "offered", "held", "confirmed"]
+    reason: str
+
+
+EmployerPrefKind = Literal["follow", "hide_from", "mute"]
+
+
+class EmployerPreferenceIn(BaseModel):
+    employer_id: uuid.UUID
+    kind: EmployerPrefKind
+
+
+class EmployerPreferenceOut(BaseModel):
+    id: uuid.UUID
+    employer_id: uuid.UUID
+    employer_name: str
+    kind: str
+
+
+class EmployerDirectoryItem(Orm):
+    id: uuid.UUID
+    name: str
+    verification_status: str
+
+
+# ---- employer talent search (consent-based) ----
+HoursCompat = Literal["compatible", "incompatible", "unknown", "not_requested"]
+PayCompat = Literal["compatible", "not_confirmed", "not_requested"]
+
+
+class TalentSearchIn(BaseModel):
+    kind: WorkKind
+    job_id: uuid.UUID | None = None
+    suburb: str | None = Field(None, max_length=100)
+    state: State | None = None
+    skills: list[Annotated[str, StringConstraints(min_length=1, max_length=100)]] = Field(
+        default=[], max_length=10
+    )
+    starts_at: datetime | None = None
+    ends_at: datetime | None = None
+    min_weekly_hours: Decimal | None = Field(None, ge=0, le=168)
+    availability: Literal["available_or_unknown", "any"] = "available_or_unknown"
+    after: str | None = Field(None, max_length=64)
+    limit: int = Field(25, ge=1, le=25)
+
+    @model_validator(mode="after")
+    def _ok(self) -> "TalentSearchIn":
+        if (self.starts_at is None) != (self.ends_at is None):
+            raise ValueError("provide both starts_at and ends_at, or neither")
+        if self.starts_at and self.ends_at:
+            if self.starts_at.tzinfo is None or self.ends_at.tzinfo is None:
+                raise ValueError("starts_at and ends_at must include a UTC offset")
+            if self.ends_at <= self.starts_at:
+                raise ValueError("ends_at must be after starts_at")
+            if (self.ends_at - self.starts_at).days > 14:
+                raise ValueError("search window can be at most 14 days")
+        return self
+
+
+class TalentAvailability(BaseModel):
+    state: Literal["available", "unavailable", "unknown", "not_requested"]
+    reason: str
+
+
+class TalentCandidateOut(BaseModel):
+    ref: str = Field(description="Opaque per-employer reference; not the candidate's account id")
+    display_name: str
+    headline: str | None
+    area: str | None
+    skills: list[str]
+    kinds_offered: list[WorkKind]
+    availability: TalentAvailability
+    hours_compat: HoursCompat
+    pay_compat: PayCompat
+    notice_period_days: int | None
+    available_from: date | None
+    prefers_your_business: bool
+    unknowns: list[str]
+
+
+class TalentSearchOut(BaseModel):
+    items: list[TalentCandidateOut]
+    next_after: str | None
+    invite_available: bool
+    invite_unavailable_reason: str | None
+    notes: list[str]

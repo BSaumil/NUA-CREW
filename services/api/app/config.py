@@ -27,6 +27,7 @@ class Settings(BaseSettings):
     auth_rate_limit_per_minute: int = 10
     application_limit_per_hour: int = 60
     job_create_limit_per_hour: int = 60
+    talent_search_limit_per_hour: int = 60
     redis_url: str | None = None
     push_provider: str = "none"  # "expo" enables real push delivery
     ingestion_stale_after_seconds: int = 7 * 24 * 3600

@@ -141,6 +141,275 @@
         "title": "ApplyIn",
         "type": "object"
       },
+      "AvailabilityCheckOut": {
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "available",
+              "unavailable",
+              "unknown",
+              "offered",
+              "held",
+              "confirmed"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "reason"
+        ],
+        "title": "AvailabilityCheckOut",
+        "type": "object"
+      },
+      "AvailabilityExceptionIn": {
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "state": {
+            "enum": [
+              "available",
+              "unavailable"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "start_date",
+          "end_date"
+        ],
+        "title": "AvailabilityExceptionIn",
+        "type": "object"
+      },
+      "AvailabilityExceptionOut": {
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "end_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Time"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          },
+          "start_time": {
+            "anyOf": [
+              {
+                "format": "time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Time"
+          },
+          "state": {
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "state",
+          "start_date",
+          "end_date",
+          "start_time",
+          "end_time"
+        ],
+        "title": "AvailabilityExceptionOut",
+        "type": "object"
+      },
+      "AvailabilityOut": {
+        "properties": {
+          "commitments": {
+            "items": {
+              "$ref": "#/components/schemas/CommitmentOut"
+            },
+            "title": "Commitments",
+            "type": "array"
+          },
+          "exceptions": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityExceptionOut"
+            },
+            "title": "Exceptions",
+            "type": "array"
+          },
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityRuleOut"
+            },
+            "title": "Rules",
+            "type": "array"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          },
+          "weekly_hours": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Nominal hours per week; null when no rules",
+            "title": "Weekly Hours"
+          }
+        },
+        "required": [
+          "time_zone",
+          "rules",
+          "exceptions",
+          "commitments",
+          "weekly_hours"
+        ],
+        "title": "AvailabilityOut",
+        "type": "object"
+      },
+      "AvailabilityRuleIn": {
+        "properties": {
+          "end_time": {
+            "description": "At or before start_time means the window ends next day",
+            "format": "time",
+            "title": "End Time",
+            "type": "string"
+          },
+          "start_time": {
+            "format": "time",
+            "title": "Start Time",
+            "type": "string"
+          },
+          "weekday": {
+            "description": "Monday = 0",
+            "maximum": 6.0,
+            "minimum": 0.0,
+            "title": "Weekday",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "weekday",
+          "start_time",
+          "end_time"
+        ],
+        "title": "AvailabilityRuleIn",
+        "type": "object"
+      },
+      "AvailabilityRuleOut": {
+        "properties": {
+          "end_time": {
+            "format": "time",
+            "title": "End Time",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "start_time": {
+            "format": "time",
+            "title": "Start Time",
+            "type": "string"
+          },
+          "weekday": {
+            "title": "Weekday",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "weekday",
+          "start_time",
+          "end_time"
+        ],
+        "title": "AvailabilityRuleOut",
+        "type": "object"
+      },
+      "AvailabilityRulesIn": {
+        "properties": {
+          "rules": {
+            "items": {
+              "$ref": "#/components/schemas/AvailabilityRuleIn"
+            },
+            "maxItems": 70,
+            "title": "Rules",
+            "type": "array"
+          },
+          "time_zone": {
+            "maxLength": 64,
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "time_zone",
+          "rules"
+        ],
+        "title": "AvailabilityRulesIn",
+        "type": "object"
+      },
       "CandidateApplicationOut": {
         "properties": {
           "cover_note": {
@@ -249,6 +518,119 @@
           "accept_terms"
         ],
         "title": "CandidateRegister",
+        "type": "object"
+      },
+      "CommitmentIn": {
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "default": "confirmed",
+            "enum": [
+              "held",
+              "confirmed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "venue_time_zone": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Time Zone"
+          }
+        },
+        "required": [
+          "starts_at",
+          "ends_at"
+        ],
+        "title": "CommitmentIn",
+        "type": "object"
+      },
+      "CommitmentOut": {
+        "properties": {
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Label"
+          },
+          "source": {
+            "title": "Source",
+            "type": "string"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "venue_time_zone": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Time Zone"
+          }
+        },
+        "required": [
+          "id",
+          "starts_at",
+          "ends_at",
+          "status",
+          "source",
+          "label",
+          "venue_time_zone"
+        ],
+        "title": "CommitmentOut",
         "type": "object"
       },
       "ConsentIn": {
@@ -419,6 +801,30 @@
         "title": "EmployerApplicationOut",
         "type": "object"
       },
+      "EmployerDirectoryItem": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "verification_status": {
+            "title": "Verification Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "verification_status"
+        ],
+        "title": "EmployerDirectoryItem",
+        "type": "object"
+      },
       "EmployerOut": {
         "properties": {
           "abn": {
@@ -453,6 +859,60 @@
           "verification_status"
         ],
         "title": "EmployerOut",
+        "type": "object"
+      },
+      "EmployerPreferenceIn": {
+        "properties": {
+          "employer_id": {
+            "format": "uuid",
+            "title": "Employer Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "follow",
+              "hide_from",
+              "mute"
+            ],
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "employer_id",
+          "kind"
+        ],
+        "title": "EmployerPreferenceIn",
+        "type": "object"
+      },
+      "EmployerPreferenceOut": {
+        "properties": {
+          "employer_id": {
+            "format": "uuid",
+            "title": "Employer Id",
+            "type": "string"
+          },
+          "employer_name": {
+            "title": "Employer Name",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "employer_id",
+          "employer_name",
+          "kind"
+        ],
+        "title": "EmployerPreferenceOut",
         "type": "object"
       },
       "EmployerRegister": {
@@ -685,6 +1145,17 @@
             "title": "Description",
             "type": "string"
           },
+          "duration_type": {
+            "default": "unspecified",
+            "enum": [
+              "ongoing",
+              "fixed_term",
+              "one_off",
+              "unspecified"
+            ],
+            "title": "Duration Type",
+            "type": "string"
+          },
           "employment_type": {
             "enum": [
               "full_time",
@@ -694,6 +1165,28 @@
               "shift"
             ],
             "title": "Employment Type",
+            "type": "string"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "engagement_basis": {
+            "default": "unspecified",
+            "enum": [
+              "employee",
+              "contractor",
+              "unspecified"
+            ],
+            "title": "Engagement Basis",
             "type": "string"
           },
           "expires_at": {
@@ -708,6 +1201,17 @@
             ],
             "title": "Expires At"
           },
+          "hours_pattern": {
+            "default": "unspecified",
+            "enum": [
+              "full_time",
+              "part_time",
+              "casual",
+              "unspecified"
+            ],
+            "title": "Hours Pattern",
+            "type": "string"
+          },
           "location_id": {
             "anyOf": [
               {
@@ -719,6 +1223,38 @@
               }
             ],
             "title": "Location Id"
+          },
+          "max_weekly_hours": {
+            "anyOf": [
+              {
+                "maximum": 168.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Weekly Hours"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "maximum": 168.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
           },
           "pay_max": {
             "anyOf": [
@@ -778,6 +1314,18 @@
             "maxItems": 30,
             "title": "Skills",
             "type": "array"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
           },
           "super_included": {
             "anyOf": [
@@ -886,11 +1434,33 @@
             ],
             "title": "Distance Km"
           },
+          "duration_type": {
+            "default": "unspecified",
+            "title": "Duration Type",
+            "type": "string"
+          },
           "employer": {
             "$ref": "#/components/schemas/JobEmployerOut"
           },
           "employment_type": {
             "title": "Employment Type",
+            "type": "string"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "engagement_basis": {
+            "default": "unspecified",
+            "title": "Engagement Basis",
             "type": "string"
           },
           "expires_at": {
@@ -904,6 +1474,11 @@
               }
             ],
             "title": "Expires At"
+          },
+          "hours_pattern": {
+            "default": "unspecified",
+            "title": "Hours Pattern",
+            "type": "string"
           },
           "id": {
             "format": "uuid",
@@ -933,6 +1508,28 @@
               }
             ],
             "title": "Location Id"
+          },
+          "max_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Weekly Hours"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
           },
           "origin": {
             "title": "Origin",
@@ -1008,6 +1605,18 @@
             },
             "title": "Skills",
             "type": "array"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
           },
           "state": {
             "anyOf": [
@@ -2442,6 +3051,350 @@
         "title": "StatusChangeIn",
         "type": "object"
       },
+      "TalentAvailability": {
+        "properties": {
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "available",
+              "unavailable",
+              "unknown",
+              "not_requested"
+            ],
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "reason"
+        ],
+        "title": "TalentAvailability",
+        "type": "object"
+      },
+      "TalentCandidateOut": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Area"
+          },
+          "availability": {
+            "$ref": "#/components/schemas/TalentAvailability"
+          },
+          "available_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available From"
+          },
+          "display_name": {
+            "title": "Display Name",
+            "type": "string"
+          },
+          "headline": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Headline"
+          },
+          "hours_compat": {
+            "enum": [
+              "compatible",
+              "incompatible",
+              "unknown",
+              "not_requested"
+            ],
+            "title": "Hours Compat",
+            "type": "string"
+          },
+          "kinds_offered": {
+            "items": {
+              "enum": [
+                "permanent",
+                "temporary"
+              ],
+              "type": "string"
+            },
+            "title": "Kinds Offered",
+            "type": "array"
+          },
+          "notice_period_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice Period Days"
+          },
+          "pay_compat": {
+            "enum": [
+              "compatible",
+              "not_confirmed",
+              "not_requested"
+            ],
+            "title": "Pay Compat",
+            "type": "string"
+          },
+          "prefers_your_business": {
+            "title": "Prefers Your Business",
+            "type": "boolean"
+          },
+          "ref": {
+            "description": "Opaque per-employer reference; not the candidate's account id",
+            "title": "Ref",
+            "type": "string"
+          },
+          "skills": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Skills",
+            "type": "array"
+          },
+          "unknowns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Unknowns",
+            "type": "array"
+          }
+        },
+        "required": [
+          "ref",
+          "display_name",
+          "headline",
+          "area",
+          "skills",
+          "kinds_offered",
+          "availability",
+          "hours_compat",
+          "pay_compat",
+          "notice_period_days",
+          "available_from",
+          "prefers_your_business",
+          "unknowns"
+        ],
+        "title": "TalentCandidateOut",
+        "type": "object"
+      },
+      "TalentSearchIn": {
+        "properties": {
+          "after": {
+            "anyOf": [
+              {
+                "maxLength": 64,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "After"
+          },
+          "availability": {
+            "default": "available_or_unknown",
+            "enum": [
+              "available_or_unknown",
+              "any"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ends At"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "kind": {
+            "enum": [
+              "permanent",
+              "temporary"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "limit": {
+            "default": 25,
+            "maximum": 25.0,
+            "minimum": 1.0,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "maximum": 168.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
+          },
+          "skills": {
+            "default": [],
+            "items": {
+              "maxLength": 100,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Skills",
+            "type": "array"
+          },
+          "starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Starts At"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ACT",
+                  "NSW",
+                  "NT",
+                  "QLD",
+                  "SA",
+                  "TAS",
+                  "VIC",
+                  "WA"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "suburb": {
+            "anyOf": [
+              {
+                "maxLength": 100,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suburb"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "TalentSearchIn",
+        "type": "object"
+      },
+      "TalentSearchOut": {
+        "properties": {
+          "invite_available": {
+            "title": "Invite Available",
+            "type": "boolean"
+          },
+          "invite_unavailable_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Invite Unavailable Reason"
+          },
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/TalentCandidateOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_after": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next After"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items",
+          "next_after",
+          "invite_available",
+          "invite_unavailable_reason",
+          "notes"
+        ],
+        "title": "TalentSearchOut",
+        "type": "object"
+      },
       "TaskOut": {
         "properties": {
           "attempts": {
@@ -2636,6 +3589,276 @@
           "evidence"
         ],
         "title": "VerifyEmployerIn",
+        "type": "object"
+      },
+      "WorkPreferenceIn": {
+        "description": "Preferences about an arrangement. Not proof of status: ticking contractor is not an ABN\ncheck, and it does not make anyone a contractor in law.",
+        "properties": {
+          "available_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available From"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "engagement_bases": {
+            "default": [],
+            "items": {
+              "enum": [
+                "employee",
+                "contractor"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "title": "Engagement Bases",
+            "type": "array"
+          },
+          "hours_patterns": {
+            "default": [],
+            "items": {
+              "enum": [
+                "full_time",
+                "part_time",
+                "casual"
+              ],
+              "type": "string"
+            },
+            "maxItems": 3,
+            "title": "Hours Patterns",
+            "type": "array"
+          },
+          "max_travel_km": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 500.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Travel Km"
+          },
+          "max_weekly_hours": {
+            "anyOf": [
+              {
+                "maximum": 168.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Weekly Hours"
+          },
+          "min_hourly_pay": {
+            "anyOf": [
+              {
+                "maximum": 1000.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Hourly Pay"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "maximum": 168.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
+          },
+          "notice_period_days": {
+            "anyOf": [
+              {
+                "maximum": 365.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice Period Days"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "WorkPreferenceIn",
+        "type": "object"
+      },
+      "WorkPreferenceOut": {
+        "properties": {
+          "available_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Available From"
+          },
+          "discoverable": {
+            "title": "Discoverable",
+            "type": "boolean"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "engagement_bases": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Engagement Bases",
+            "type": "array"
+          },
+          "hours_patterns": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Hours Patterns",
+            "type": "array"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "max_travel_km": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Travel Km"
+          },
+          "max_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Weekly Hours"
+          },
+          "min_hourly_pay": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Hourly Pay"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
+          },
+          "notice_period_days": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Notice Period Days"
+          }
+        },
+        "required": [
+          "kind",
+          "enabled",
+          "discoverable",
+          "engagement_bases",
+          "hours_patterns",
+          "min_weekly_hours",
+          "max_weekly_hours",
+          "min_hourly_pay",
+          "max_travel_km",
+          "notice_period_days",
+          "available_from"
+        ],
+        "title": "WorkPreferenceOut",
+        "type": "object"
+      },
+      "WorkPreferencesOut": {
+        "description": "None means the person has never set that kind (distinct from set-but-off).",
+        "properties": {
+          "permanent": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkPreferenceOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "temporary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/WorkPreferenceOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "permanent",
+          "temporary"
+        ],
+        "title": "WorkPreferencesOut",
         "type": "object"
       }
     },
@@ -3815,6 +5038,435 @@
         ]
       }
     },
+    "/v1/candidate/availability": {
+      "get": {
+        "operationId": "get_availability_v1_candidate_availability_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Availability",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/check": {
+      "get": {
+        "description": "The person's own view of how their calendar answers a question (also used by tests).",
+        "operationId": "check_v1_candidate_availability_check_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "starts_at",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Starts At",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "ends_at",
+            "required": true,
+            "schema": {
+              "format": "date-time",
+              "title": "Ends At",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "buffer_minutes",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 240,
+              "minimum": 0,
+              "title": "Buffer Minutes",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityCheckOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/commitments": {
+      "post": {
+        "description": "Records time the person is not free. A confirmed commitment cannot overlap another confirmed\none. Applying for a job never creates one: applications do not reserve the worker.",
+        "operationId": "add_commitment_v1_candidate_availability_commitments_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommitmentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Commitment",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/commitments/{commitment_id}": {
+      "delete": {
+        "operationId": "delete_commitment_v1_candidate_availability_commitments__commitment_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Commitment",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/commitments/{commitment_id}/confirm": {
+      "post": {
+        "operationId": "confirm_commitment_v1_candidate_availability_commitments__commitment_id__confirm_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "commitment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Commitment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommitmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Confirm Commitment",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/exceptions": {
+      "post": {
+        "operationId": "add_exception_v1_candidate_availability_exceptions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityExceptionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityExceptionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Exception",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/exceptions/{exception_id}": {
+      "delete": {
+        "operationId": "delete_exception_v1_candidate_availability_exceptions__exception_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "exception_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Exception Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Exception",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/availability/rules": {
+      "put": {
+        "description": "Replaces the whole weekly pattern. Several windows per day are fine; overlaps are not.",
+        "operationId": "put_rules_v1_candidate_availability_rules_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AvailabilityRulesIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AvailabilityOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Rules",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/consents/discovery/{kind}": {
+      "put": {
+        "description": "Explicit, per-kind opt-in for employers to find this person. Default off; history kept.\nDiscovery additionally needs the master talent-discovery switch to be on.",
+        "operationId": "discovery_consent_v1_candidate_consents_discovery__kind__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "permanent",
+                "temporary"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreferenceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Discovery Consent",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
     "/v1/candidate/consents/talent-discovery": {
       "put": {
         "description": "Opt-in only. Default is off; every change is recorded in the consent history.",
@@ -3859,6 +5511,175 @@
         "summary": "Talent Discovery Consent",
         "tags": [
           "candidate"
+        ]
+      }
+    },
+    "/v1/candidate/employer-directory": {
+      "get": {
+        "description": "Find an employer by name to follow, hide from or mute. Names are already public.",
+        "operationId": "employer_directory_v1_candidate_employer_directory_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": true,
+            "schema": {
+              "maxLength": 100,
+              "minLength": 2,
+              "title": "Q",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EmployerDirectoryItem"
+                  },
+                  "title": "Response Employer Directory V1 Candidate Employer Directory Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Directory",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/employer-preferences": {
+      "get": {
+        "operationId": "list_employer_preferences_v1_candidate_employer_preferences_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EmployerPreferenceOut"
+                  },
+                  "title": "Response List Employer Preferences V1 Candidate Employer Preferences Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Employer Preferences",
+        "tags": [
+          "availability"
+        ]
+      },
+      "post": {
+        "operationId": "add_employer_preference_v1_candidate_employer_preferences_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmployerPreferenceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployerPreferenceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Employer Preference",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/employer-preferences/{pref_id}": {
+      "delete": {
+        "operationId": "delete_employer_preference_v1_candidate_employer_preferences__pref_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "pref_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Pref Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete Employer Preference",
+        "tags": [
+          "availability"
         ]
       }
     },
@@ -4468,6 +6289,94 @@
         "summary": "Patch Saved Search",
         "tags": [
           "mobile"
+        ]
+      }
+    },
+    "/v1/candidate/work-preferences": {
+      "get": {
+        "operationId": "get_work_preferences_v1_candidate_work_preferences_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreferencesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Work Preferences",
+        "tags": [
+          "availability"
+        ]
+      }
+    },
+    "/v1/candidate/work-preferences/{kind}": {
+      "put": {
+        "description": "Updates ONE kind. The other kind is never touched, so choosing \"Both\" keeps each side's\nown answers, and switching one off keeps its fields (it just stops being used).",
+        "operationId": "put_work_preference_v1_candidate_work_preferences__kind__put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "permanent",
+                "temporary"
+              ],
+              "title": "Kind",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WorkPreferenceIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/WorkPreferenceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Work Preference",
+        "tags": [
+          "availability"
         ]
       }
     },
@@ -5505,6 +7414,64 @@
         ]
       }
     },
+    "/v1/employers/{employer_id}/talent/search": {
+      "post": {
+        "operationId": "search_talent_v1_employers__employer_id__talent_search_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TalentSearchIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TalentSearchOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Search Talent",
+        "tags": [
+          "talent"
+        ]
+      }
+    },
     "/v1/jobs": {
       "get": {
         "description": "Public search over open jobs: full-text, structured filters, pay floor and \"near me\".\n\nCoordinates are used for this request only and are never stored or logged.",
@@ -5575,6 +7542,57 @@
                 }
               ],
               "title": "Employment Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "engagement_basis",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 16,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Engagement Basis"
+            }
+          },
+          {
+            "in": "query",
+            "name": "duration_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 16,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Duration Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "hours_pattern",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 16,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Hours Pattern"
             }
           },
           {
@@ -5764,6 +7782,11 @@
             "description": "Validation Error"
           }
         },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "summary": "Search Jobs",
         "tags": [
           "jobs"

@@ -14,12 +14,14 @@ from app.routers import (
     admin,
     applications,
     auth,
+    availability,
     candidate,
     employer,
     health,
     jobs_public,
     notifications,
     saved,
+    talent,
 )
 
 
@@ -56,6 +58,8 @@ def create_app() -> FastAPI:
         health.router,
         auth.router,
         candidate.router,
+        availability.router,
+        talent.router,
         jobs_public.router,
         applications.router,
         employer.router,

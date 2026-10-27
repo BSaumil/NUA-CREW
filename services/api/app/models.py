@@ -5,7 +5,7 @@ applications are personal information; audit_events and application_events are a
 """
 
 import uuid
-from datetime import datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from typing import Any
 
@@ -14,13 +14,16 @@ from sqlalchemy import (
     Boolean,
     CheckConstraint,
     Computed,
+    Date,
     DateTime,
     ForeignKey,
     Index,
     Integer,
     Numeric,
+    SmallInteger,
     String,
     Text,
+    Time,
     UniqueConstraint,
     func,
     text,
@@ -46,6 +49,24 @@ APPLICATION_STATUSES = (
     "withdrawn",
 )
 SOURCE_STATUSES = ("active", "suspended", "revoked")
+# Employment basis, duration and schedule are separate facts. employment_type stays for
+# compatibility; "shift" is a way of scheduling work, not a legal employment category.
+ENGAGEMENT_BASES = ("employee", "contractor", "unspecified")
+DURATION_TYPES = ("ongoing", "fixed_term", "one_off", "unspecified")
+HOURS_PATTERNS = ("full_time", "part_time", "casual", "unspecified")
+WORK_KINDS = ("permanent", "temporary")
+AVAILABILITY_STATES = ("available", "unavailable", "unknown", "offered", "held", "confirmed")
+COMMITMENT_STATUSES = ("held", "confirmed")
+EXCEPTION_STATES = ("available", "unavailable")
+EMPLOYER_PREFERENCE_KINDS = ("follow", "hide_from", "mute")
+CONSENT_KINDS = (
+    "terms",
+    "privacy",
+    "talent_discovery",
+    "talent_discovery_permanent",
+    "talent_discovery_temporary",
+    "marketing",
+)
 
 
 def _in(column: str, values: tuple[str, ...]) -> str:
@@ -89,17 +110,12 @@ class Consent(Base):
     """Append-only consent history; latest row per (user, kind) is the current state."""
 
     __tablename__ = "consents"
-    __table_args__ = (
-        CheckConstraint(
-            _in("kind", ("terms", "privacy", "talent_discovery", "marketing")),
-            name="ck_consent_kind",
-        ),
-    )
+    __table_args__ = (CheckConstraint(_in("kind", CONSENT_KINDS), name="ck_consent_kind"),)
     id: Mapped[uuid.UUID] = _uuid_pk()
     user_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    kind: Mapped[str] = mapped_column(String(32), nullable=False)
+    kind: Mapped[str] = mapped_column(String(40), nullable=False)
     granted: Mapped[bool] = mapped_column(Boolean, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
@@ -128,6 +144,10 @@ class CandidateProfile(TimestampMixin, Base):
         Boolean, nullable=False, server_default=text("false")
     )
     push_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+    # IANA zone for recurring availability rules ("every Tuesday 17:00-23:00" means local time).
+    time_zone: Mapped[str] = mapped_column(
+        String(64), nullable=False, server_default="Australia/Melbourne"
+    )
 
 
 class Skill(Base):
@@ -236,6 +256,18 @@ class Job(TimestampMixin, Base):
         CheckConstraint(_in("employment_type", EMPLOYMENT_TYPES), name="ck_jobs_emp_type"),
         CheckConstraint(_in("origin", ("direct", "ingested")), name="ck_jobs_origin"),
         CheckConstraint(_in("pay_basis", PAY_BASES), name="ck_jobs_pay_basis"),
+        CheckConstraint(_in("engagement_basis", ENGAGEMENT_BASES), name="ck_jobs_engagement"),
+        CheckConstraint(_in("duration_type", DURATION_TYPES), name="ck_jobs_duration"),
+        CheckConstraint(_in("hours_pattern", HOURS_PATTERNS), name="ck_jobs_hours_pattern"),
+        CheckConstraint(
+            "min_weekly_hours IS NULL OR max_weekly_hours IS NULL "
+            "OR min_weekly_hours <= max_weekly_hours",
+            name="ck_jobs_weekly_hours_range",
+        ),
+        CheckConstraint(
+            "start_date IS NULL OR end_date IS NULL OR start_date <= end_date",
+            name="ck_jobs_date_range",
+        ),
         CheckConstraint(
             "pay_period IS NULL OR " + _in("pay_period", PAY_PERIODS), name="ck_jobs_pay_period"
         ),
@@ -290,6 +322,19 @@ class Job(TimestampMixin, Base):
     expires_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     last_verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     created_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    engagement_basis: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="unspecified"
+    )
+    duration_type: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="unspecified"
+    )
+    hours_pattern: Mapped[str] = mapped_column(
+        String(16), nullable=False, server_default="unspecified"
+    )
+    min_weekly_hours: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    max_weekly_hours: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    start_date: Mapped[date | None] = mapped_column(Date)
+    end_date: Mapped[date | None] = mapped_column(Date)
     search_vector: Mapped[Any] = mapped_column(
         TSVECTOR,
         Computed(
@@ -599,5 +644,139 @@ class DeviceToken(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     last_seen_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+def _candidate_fk() -> Mapped[uuid.UUID]:
+    return mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+
+
+class WorkPreference(TimestampMixin, Base):
+    """One row per kind of work a candidate may want. Turning a kind off keeps its fields, so
+    "Both" never overwrites either side and switching one off does not silently erase it."""
+
+    __tablename__ = "work_preferences"
+    __table_args__ = (
+        UniqueConstraint("candidate_id", "kind", name="uq_work_pref_kind"),
+        CheckConstraint(_in("kind", WORK_KINDS), name="ck_work_pref_kind"),
+        CheckConstraint(
+            "min_weekly_hours IS NULL OR max_weekly_hours IS NULL "
+            "OR min_weekly_hours <= max_weekly_hours",
+            name="ck_work_pref_hours_range",
+        ),
+        CheckConstraint("max_travel_km IS NULL OR max_travel_km > 0", name="ck_work_pref_travel"),
+        CheckConstraint(
+            "notice_period_days IS NULL OR notice_period_days BETWEEN 0 AND 365",
+            name="ck_work_pref_notice",
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    kind: Mapped[str] = mapped_column(String(12), nullable=False)
+    enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("false"))
+    # Explicit consent for employers to find this person for this kind of work (default off).
+    discoverable: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("false")
+    )
+    # Preferences about the arrangement, never proof of status (an ABN box is not proof of
+    # contractor status).
+    engagement_bases: Mapped[list[str]] = mapped_column(
+        ARRAY(String), nullable=False, server_default=text("'{}'")
+    )
+    hours_patterns: Mapped[list[str]] = mapped_column(
+        ARRAY(String), nullable=False, server_default=text("'{}'")
+    )
+    min_weekly_hours: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    max_weekly_hours: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    # Private asking floor. Never returned to employers.
+    min_hourly_pay: Mapped[Decimal | None] = mapped_column(Numeric(8, 2))
+    max_travel_km: Mapped[int | None] = mapped_column(Integer)
+    notice_period_days: Mapped[int | None] = mapped_column(Integer)
+    available_from: Mapped[date | None] = mapped_column(Date)
+
+
+class AvailabilityRule(Base):
+    """A recurring weekly window in the candidate's local time zone. end_time <= start_time means
+    the window runs overnight into the next day. Several windows per weekday are allowed."""
+
+    __tablename__ = "availability_rules"
+    __table_args__ = (
+        CheckConstraint("weekday BETWEEN 0 AND 6", name="ck_avail_rule_weekday"),
+        CheckConstraint("start_time <> end_time", name="ck_avail_rule_nonempty"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    weekday: Mapped[int] = mapped_column(SmallInteger, nullable=False)  # Monday = 0
+    start_time: Mapped[time] = mapped_column(Time, nullable=False)
+    end_time: Mapped[time] = mapped_column(Time, nullable=False)
+
+
+class AvailabilityException(Base):
+    """A dated override in local time. 'unavailable' always wins over recurring availability."""
+
+    __tablename__ = "availability_exceptions"
+    __table_args__ = (
+        CheckConstraint(_in("state", EXCEPTION_STATES), name="ck_avail_exc_state"),
+        CheckConstraint("start_date <= end_date", name="ck_avail_exc_dates"),
+        CheckConstraint(
+            "(start_time IS NULL) = (end_time IS NULL)", name="ck_avail_exc_times_together"
+        ),
+        CheckConstraint(
+            "start_time IS NULL OR start_time <> end_time", name="ck_avail_exc_nonempty"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    state: Mapped[str] = mapped_column(String(12), nullable=False)
+    start_date: Mapped[date] = mapped_column(Date, nullable=False)
+    end_date: Mapped[date] = mapped_column(Date, nullable=False)
+    start_time: Mapped[time | None] = mapped_column(Time)  # null = all day
+    end_time: Mapped[time | None] = mapped_column(Time)
+
+
+class Commitment(TimestampMixin, Base):
+    """Time the worker is not free: a held or confirmed commitment, stored as UTC instants.
+    Applications alone never create one."""
+
+    __tablename__ = "commitments"
+    __table_args__ = (
+        CheckConstraint(_in("status", COMMITMENT_STATUSES), name="ck_commitment_status"),
+        CheckConstraint("ends_at > starts_at", name="ck_commitment_range"),
+        Index("ix_commitments_candidate_time", "candidate_id", "starts_at", "ends_at"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False)
+    source: Mapped[str] = mapped_column(String(16), nullable=False, server_default="manual")
+    label: Mapped[str | None] = mapped_column(String(100))
+    # Venue zone context for display; the instants above are the source of truth.
+    venue_time_zone: Mapped[str | None] = mapped_column(String(64))
+
+
+class EmployerPreference(Base):
+    """A candidate's private stance on one employer.
+
+    follow: the employer may be told this person prefers working with them (label only, no boost).
+    hide_from: do not show this person in that employer's talent search (best effort).
+    mute: do not show that employer's jobs to this person.
+    """
+
+    __tablename__ = "employer_preferences"
+    __table_args__ = (
+        UniqueConstraint("candidate_id", "employer_id", "kind", name="uq_employer_pref"),
+        CheckConstraint(_in("kind", EMPLOYER_PREFERENCE_KINDS), name="ck_employer_pref_kind"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = _candidate_fk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    kind: Mapped[str] = mapped_column(String(12), nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
