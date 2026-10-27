@@ -20,6 +20,7 @@ from app.routers import (
     health,
     jobs_public,
     notifications,
+    pricing,
     saved,
     talent,
 )
@@ -60,6 +61,7 @@ def create_app() -> FastAPI:
         candidate.router,
         availability.router,
         talent.router,
+        pricing.router,
         jobs_public.router,
         applications.router,
         employer.router,

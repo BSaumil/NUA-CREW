@@ -6,3 +6,5 @@ onlyBuiltDependencies:
   - esbuild
   - sharp
   - unrs-resolver
+overrides:
+  '@expo/cli>zod': 4.6.6
