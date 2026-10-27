@@ -67,3 +67,49 @@ it('refuses employer accounts, shows why, and revokes the token it was just issu
   expect(POST).toHaveBeenCalledWith('/v1/auth/logout', { body: { refresh_token: 'r' } });
   expect(result.current.status).toBe('signedOut');
 });
+
+describe('cache hygiene and lock', () => {
+  const clientWrapper = (qc: QueryClient) =>
+    function W({ children }: { children: ReactNode }) {
+      return (
+        <QueryClientProvider client={qc}>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryClientProvider>
+      );
+    };
+
+  it('clears private query caches on every signed-out event, even a rejected refresh', async () => {
+    const qc = new QueryClient();
+    POST.mockResolvedValue(ok(tokens('candidate')));
+    const { result } = await renderHook(() => useAuth(), { wrapper: clientWrapper(qc) });
+    await waitFor(() => expect(result.current.status).toBe('signedOut'));
+    await act(async () => result.current.signIn('a@b.co', 'pw-long-enough-1'));
+    await waitFor(() => expect(result.current.status).toBe('signedIn'));
+    qc.setQueryData(['applications'], [{ id: 'private' }]);
+    // Not the sign-out button: the server revoked us and the next refresh is rejected.
+    session.fetchImpl = (async () => ({ ok: false, status: 401 })) as unknown as typeof fetch;
+    await act(async () => {
+      await session.refreshNow();
+    });
+    await waitFor(() => expect(result.current.status).toBe('signedOut'));
+    expect(qc.getQueryData(['applications'])).toBeUndefined();
+  });
+
+  it('reports a failed Keychain/Keystore deletion but still signs the person out', async () => {
+    const qc = new QueryClient();
+    POST.mockResolvedValue(ok(tokens('candidate')));
+    const { result } = await renderHook(() => useAuth(), { wrapper: clientWrapper(qc) });
+    await waitFor(() => expect(result.current.status).toBe('signedOut'));
+    await act(async () => result.current.signIn('a@b.co', 'pw-long-enough-1'));
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    (require('expo-secure-store').deleteItemAsync as jest.Mock).mockRejectedValueOnce(
+      new Error('keystore'),
+    );
+    let out: { credentialsRemoved: boolean } | undefined;
+    await act(async () => {
+      out = await result.current.signOut();
+    });
+    expect(out).toEqual({ credentialsRemoved: false });
+    expect(result.current.status).toBe('signedOut');
+  });
+});

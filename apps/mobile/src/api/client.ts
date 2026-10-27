@@ -1,12 +1,36 @@
 import { createApi, errorMessage } from '@nua-crew/api-client';
 import { API_URL, REQUEST_TIMEOUT_MS } from '@/lib/config';
-import { session } from './session';
+import { session, SessionChangedError } from './session';
 
-/** fetch that adds the bearer token, times out, and retries once after a 401 via token refresh. */
+const NULL_BODY = new Set([101, 204, 205, 304]);
+
+/**
+ * Read the whole body NOW, then confirm the signed-in account has not changed, then hand back a
+ * response that is already fully decoded. Without this, a slow body for an old account could finish
+ * decoding after sign-out and be shown to (or cached for) whoever signs in next.
+ */
+async function sealed(res: Response, gen: number): Promise<Response> {
+  const body = await res.arrayBuffer();
+  if (session.gen !== gen) throw new SessionChangedError();
+  const hasBody = body.byteLength > 0 && !NULL_BODY.has(res.status);
+  return new Response(hasBody ? body : null, {
+    status: res.status,
+    statusText: res.statusText,
+    headers: res.headers,
+  });
+}
+
+/**
+ * fetch that adds the bearer token, times out, and — after a 401 — refreshes the SAME sign-in and
+ * retries once. Everything is bound to the sign-in generation that started the request: if the
+ * account changes mid-flight the result is discarded and the request is never replayed with the
+ * new account's credentials.
+ */
 export async function authFetch(input: Request): Promise<Response> {
   const retry = input.clone();
-  const attempt = async (req: Request, token: string | null) => {
-    if (token) req.headers.set('Authorization', `Bearer ${token}`);
+  const { token, gen } = await session.snapshot();
+  const send = async (req: Request, bearer: string | null) => {
+    if (bearer) req.headers.set('Authorization', `Bearer ${bearer}`);
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
     try {
@@ -15,11 +39,21 @@ export async function authFetch(input: Request): Promise<Response> {
       clearTimeout(timer);
     }
   };
-  const res = await attempt(input, await session.getAccessToken());
-  if (res.status !== 401) return res;
+
+  const res = await send(input, token);
+  if (session.gen !== gen) throw new SessionChangedError();
+  if (res.status !== 401 || !token) return sealed(res, gen);
+
   const fresh = await session.refreshNow();
-  if (!fresh) return res; // session is gone; the auth gate will route to sign-in
-  return attempt(retry, fresh);
+  if (!fresh || session.gen !== gen) {
+    // A different person is now signed in: discard. Otherwise the server rejected our refresh (or
+    // the person signed out meanwhile): answer with a bare 401 and never the old body.
+    if (session.gen !== gen && session.signedIn) throw new SessionChangedError();
+    return new Response(null, { status: 401 }); // the auth gate will route to sign-in
+  }
+  const again = await send(retry, fresh);
+  if (session.gen !== gen) throw new SessionChangedError();
+  return sealed(again, gen);
 }
 
 export const api = createApi({ baseUrl: API_URL, fetch: authFetch });
@@ -51,6 +85,7 @@ export class UserMessage extends Error {
 
 export function messageOf(e: unknown): string {
   if (e instanceof ApiFailure || e instanceof UserMessage) return e.message;
+  if (e instanceof SessionChangedError) return 'Your session changed. Please try again.';
   if (e instanceof Error && e.name === 'AbortError')
     return 'The request timed out. Check your connection.';
   return 'We could not reach NUA CREW. Check your connection and try again.';

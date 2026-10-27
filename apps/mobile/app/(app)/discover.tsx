@@ -1,14 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  RefreshControl,
-  Switch,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Switch, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { messageOf } from '@/api/client';
 import { useCreateSavedSearch, useJobs, useSavedIds, useToggleSave } from '@/api/queries';
@@ -26,7 +18,6 @@ import { space } from '@/theme/tokens';
 import {
   BrandLockup,
   Button,
-  Card,
   Chip,
   EmptyState,
   ErrorState,
@@ -36,6 +27,7 @@ import {
   OfflineBanner,
   Row,
   Text,
+  Sheet,
 } from '@/ui';
 
 const QUICK_TYPES: EmploymentType[] = ['casual', 'part_time', 'full_time'];
@@ -273,38 +265,34 @@ function SaveSearchModal({
   };
 
   return (
-    <Modal visible={opened} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            Save this search
+    <Sheet visible={opened} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        Save this search
+      </Text>
+      <Field label="Name" value={name} onChangeText={setName} maxLength={100} />
+      <Row style={{ justifyContent: 'space-between' }}>
+        <View style={{ flex: 1 }}>
+          <Text variant="label">Alert me about new jobs</Text>
+          <Text variant="caption" muted>
+            At most one alert an hour. Turn off any time.
           </Text>
-          <Field label="Name" value={name} onChangeText={setName} maxLength={100} />
-          <Row style={{ justifyContent: 'space-between' }}>
-            <View style={{ flex: 1 }}>
-              <Text variant="label">Alert me about new jobs</Text>
-              <Text variant="caption" muted>
-                At most one alert an hour. Turn off any time.
-              </Text>
-            </View>
-            <Switch
-              value={alerts}
-              onValueChange={setAlerts}
-              accessibilityLabel="Alert me about new jobs"
-              trackColor={{ true: colors.primary, false: colors.border }}
-            />
-          </Row>
-          {error ? (
-            <Text color={colors.danger} accessibilityLiveRegion="polite">
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button title="Save" loading={create.isPending} onPress={() => void save()} />
-            <Button title="Cancel" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+        </View>
+        <Switch
+          value={alerts}
+          onValueChange={setAlerts}
+          accessibilityLabel="Alert me about new jobs"
+          trackColor={{ true: colors.primary, false: colors.border }}
+        />
+      </Row>
+      {error ? (
+        <Text color={colors.danger} accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button title="Save" loading={create.isPending} onPress={() => void save()} />
+        <Button title="Cancel" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }

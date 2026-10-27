@@ -1,14 +1,11 @@
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  useFonts as useInter,
-} from '@expo-google-fonts/inter';
-import {
-  Manrope_700Bold,
-  Manrope_800ExtraBold,
-  useFonts as useManrope,
-} from '@expo-google-fonts/manrope';
+// Import only the weights the UI uses. The package's index pulls in every weight and italic
+// (dozens of font files) and would ship them all in the app.
+import { Inter_400Regular } from '@expo-google-fonts/inter/400Regular';
+import { Inter_500Medium } from '@expo-google-fonts/inter/500Medium';
+import { Inter_600SemiBold } from '@expo-google-fonts/inter/600SemiBold';
+import { Manrope_700Bold } from '@expo-google-fonts/manrope/700Bold';
+import { Manrope_800ExtraBold } from '@expo-google-fonts/manrope/800ExtraBold';
+import { useFonts } from 'expo-font';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import NetInfo from '@react-native-community/netinfo';
 import { createAsyncStoragePersister } from '@tanstack/query-async-storage-persister';
@@ -69,9 +66,14 @@ const persister = createAsyncStoragePersister({
 const PERSISTED = new Set(['jobs', 'job']);
 
 export default function RootLayout() {
-  const [manrope] = useManrope({ Manrope_700Bold, Manrope_800ExtraBold });
-  const [inter] = useInter({ Inter_400Regular, Inter_500Medium, Inter_600SemiBold });
-  const fontsReady = (manrope && inter) || Platform.OS === 'web';
+  const [fontsLoaded] = useFonts({
+    Manrope_700Bold,
+    Manrope_800ExtraBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+  });
+  const fontsReady = fontsLoaded || Platform.OS === 'web';
 
   return (
     <SafeAreaProvider>

@@ -122,7 +122,10 @@ describe('Job detail', () => {
     await fireEvent.press(screen.getByRole('button', { name: 'Submit application' }));
     await waitFor(() =>
       expect(POST).toHaveBeenCalledWith('/v1/jobs/{job_id}/applications', {
-        params: { path: { job_id: 'job-1' } },
+        params: {
+          path: { job_id: 'job-1' },
+          header: { 'idempotency-key': expect.stringMatching(/^[0-9a-f-]{36}$/) },
+        },
         body: { resume_id: 'r1', cover_note: 'Happy to start next week' },
       }),
     );

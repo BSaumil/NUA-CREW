@@ -73,3 +73,36 @@ describe('authFetch', () => {
     expect((await authFetch(new Request('http://api.test/x'))).status).toBe(404);
   });
 });
+
+describe('authFetch across account changes', () => {
+  it('discards a response that finishes after sign-out and never replays it for a new account', async () => {
+    await session.start({
+      access_token: 'old',
+      refresh_token: 'r1',
+      expires_in: 1800,
+      role: 'candidate',
+      user_id: 'a',
+    });
+    let release!: () => void;
+    const gate = new Promise<void>((r) => (release = r));
+    const seen: string[] = [];
+    session.fetchImpl = (async (input: RequestInfo | URL) => {
+      seen.push((input as Request).headers.get('Authorization') ?? '');
+      await gate;
+      return res(401, { error: { code: 'invalid_token', message: 'x' } });
+    }) as typeof fetch;
+    const pending = authFetch(new Request('http://api.test/v1/me'));
+    await new Promise((r) => setTimeout(r, 0));
+    await session.clear();
+    await session.start({
+      access_token: 'new',
+      refresh_token: 'r9',
+      expires_in: 1800,
+      role: 'candidate',
+      user_id: 'b',
+    });
+    release();
+    await expect(pending).rejects.toMatchObject({ name: 'SessionChangedError' });
+    expect(seen).toEqual(['Bearer old']); // the old request was never re-sent with 'new'
+  });
+});

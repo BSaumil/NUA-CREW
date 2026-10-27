@@ -1,4 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
+// Single icon set, imported directly: the package index bundles every icon font family.
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { useNotifications } from '@/api/queries';
 import { useTheme } from '@/theme/ThemeProvider';

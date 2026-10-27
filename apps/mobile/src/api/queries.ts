@@ -174,14 +174,16 @@ export function useApply() {
       jobId,
       resumeId,
       note,
+      idempotencyKey,
     }: {
       jobId: string;
       resumeId: string | null;
       note: string;
+      idempotencyKey: string;
     }) =>
       unwrap(
         await api.POST('/v1/jobs/{job_id}/applications', {
-          params: { path: { job_id: jobId } },
+          params: { path: { job_id: jobId }, header: { 'idempotency-key': idempotencyKey } },
           body: { resume_id: resumeId, cover_note: note || null },
         }),
       ),

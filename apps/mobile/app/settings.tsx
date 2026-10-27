@@ -2,14 +2,15 @@ import * as Application from 'expo-application';
 import { File, Paths } from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import { useState } from 'react';
-import { Alert, Linking, Modal, Platform, Switch, View } from 'react-native';
+import { Alert, Linking, Platform, Switch, View } from 'react-native';
 import { api, messageOf, unwrap, unwrapVoid } from '@/api/client';
 import { useDiscoveryConsent, useProfile, usePushSetting } from '@/api/queries';
 import { enablePush } from '@/features/push';
+import { reportSignOut } from '@/features/signout';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme, type ThemeMode } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
-import { AI_DISCLOSURE, Button, Card, Chip, Field, Row, Screen, Text } from '@/ui';
+import { AI_DISCLOSURE, Button, Card, Chip, Field, Row, Screen, Sheet, Text } from '@/ui';
 
 function SwitchRow({
   title,
@@ -109,7 +110,7 @@ export default function Settings() {
             } catch (e) {
               return Alert.alert('Could not sign out everywhere', messageOf(e));
             }
-            await signOut();
+            reportSignOut(await signOut());
           },
         },
       ],
@@ -222,7 +223,7 @@ export default function Settings() {
       <DeleteModal
         visible={delOpen}
         onClose={() => setDelOpen(false)}
-        onDeleted={() => void clearLocal()}
+        onDeleted={() => void clearLocal().then(reportSignOut)}
       />
     </Screen>
   );
@@ -263,39 +264,35 @@ function PasswordModal({
     }
   };
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            Change password
-          </Text>
-          <Field
-            label="Current password"
-            value={cur}
-            onChangeText={setCur}
-            secureTextEntry
-            autoComplete="current-password"
-          />
-          <Field
-            label="New password"
-            value={next}
-            onChangeText={setNext}
-            secureTextEntry
-            autoComplete="new-password"
-            hint="At least 12 characters."
-          />
-          {error ? (
-            <Text accessibilityLiveRegion="polite" color={colors.danger}>
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button title="Change password" loading={busy} onPress={() => void submit()} />
-            <Button title="Cancel" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+    <Sheet visible={visible} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        Change password
+      </Text>
+      <Field
+        label="Current password"
+        value={cur}
+        onChangeText={setCur}
+        secureTextEntry
+        autoComplete="current-password"
+      />
+      <Field
+        label="New password"
+        value={next}
+        onChangeText={setNext}
+        secureTextEntry
+        autoComplete="new-password"
+        hint="At least 12 characters."
+      />
+      {error ? (
+        <Text accessibilityLiveRegion="polite" color={colors.danger}>
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button title="Change password" loading={busy} onPress={() => void submit()} />
+        <Button title="Cancel" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }
 
@@ -327,43 +324,39 @@ function DeleteModal({
     }
   };
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            Delete your account?
-          </Text>
-          <Text>
-            This permanently erases your profile, resumes, applications, saved jobs and alerts.
-            Employers will no longer see your applications. This cannot be undone.
-          </Text>
-          <Text variant="caption" muted>
-            Tip: use “Export my data” first if you want a copy.
-          </Text>
-          <Field
-            label="Confirm with your password"
-            value={pw}
-            onChangeText={setPw}
-            secureTextEntry
-            autoComplete="current-password"
-          />
-          {error ? (
-            <Text accessibilityLiveRegion="polite" color={colors.danger}>
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button
-              title="Delete everything"
-              variant="danger"
-              loading={busy}
-              disabled={!pw}
-              onPress={() => void submit()}
-            />
-            <Button title="Keep my account" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+    <Sheet visible={visible} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        Delete your account?
+      </Text>
+      <Text>
+        This permanently erases your profile, resumes, applications, saved jobs and alerts.
+        Employers will no longer see your applications. This cannot be undone.
+      </Text>
+      <Text variant="caption" muted>
+        Tip: use “Export my data” first if you want a copy.
+      </Text>
+      <Field
+        label="Confirm with your password"
+        value={pw}
+        onChangeText={setPw}
+        secureTextEntry
+        autoComplete="current-password"
+      />
+      {error ? (
+        <Text accessibilityLiveRegion="polite" color={colors.danger}>
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button
+          title="Delete everything"
+          variant="danger"
+          loading={busy}
+          disabled={!pw}
+          onPress={() => void submit()}
+        />
+        <Button title="Keep my account" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }
