@@ -1,4 +1,4 @@
-.PHONY: install db-up db-down migrate seed api worker worker-once web employer test check e2e contracts
+.PHONY: site install db-up db-down migrate seed api worker worker-once web employer test check e2e contracts
 
 install:
 	pnpm install
@@ -27,6 +27,9 @@ worker-once:  ## drain due ingestion work and exit
 
 web:
 	pnpm --filter @nua-crew/web dev
+
+site:  ## public marketing site on :3002 (placeholder domain until NUA_SITE_URL is set)
+	pnpm --filter @nua-crew/site dev
 
 employer:
 	pnpm --filter @nua-crew/employer dev

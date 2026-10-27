@@ -46,6 +46,12 @@ export default defineConfig({
       timeout: 120_000,
     },
     {
+      command: 'pnpm --filter @nua-crew/site dev',
+      url: 'http://localhost:3002/',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
       command: 'pnpm --filter @nua-crew/employer dev',
       env: { API_BASE_URL: 'http://localhost:8000' },
       url: 'http://localhost:3001/login',
