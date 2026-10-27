@@ -837,6 +837,101 @@ class ShiftTimesheet(TimestampMixin, Base):
     review_note: Mapped[str | None] = mapped_column(String(1000))
 
 
+class BillingOrder(TimestampMixin, Base):
+    __tablename__ = "billing_orders"
+    __table_args__ = (
+        UniqueConstraint("employer_id", "client_key", name="uq_billing_order_retry"),
+        CheckConstraint("amount_minor IN (1900, 3000, 4900)", name="ck_order_amount"),
+        CheckConstraint(
+            "status IN ('pending', 'settled', 'expired', 'refund_required', 'refunded')",
+            name="ck_order_status",
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    action: Mapped[str] = mapped_column(String(30))
+    amount_minor: Mapped[int] = mapped_column(Integer)
+    client_key: Mapped[str] = mapped_column(String(80))
+    terms_hash: Mapped[str] = mapped_column(String(64))
+    checkout_session_id: Mapped[str | None] = mapped_column(String(200), unique=True)
+    payment_intent_id: Mapped[str | None] = mapped_column(String(200), unique=True)
+    refund_id: Mapped[str | None] = mapped_column(String(200), unique=True)
+    review_required: Mapped[bool] = mapped_column(Boolean, server_default="false")
+    status: Mapped[str] = mapped_column(String(20), server_default="pending")
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class PromotionReservation(TimestampMixin, Base):
+    __tablename__ = "promotion_reservations"
+    __table_args__ = (
+        CheckConstraint("slot BETWEEN 1 AND 5 AND ends_at > starts_at", name="ck_promotion_slot"),
+        CheckConstraint("status IN ('held', 'active', 'released')", name="ck_promotion_status"),
+        ExcludeConstraint(
+            ("market", "="),
+            ("slot", "="),
+            (text("tstzrange(starts_at, ends_at, '[)')"), "&&"),
+            using="gist",
+            where=text("status IN ('held', 'active')"),
+            name="ex_promotion_capacity",
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    order_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("billing_orders.id", ondelete="CASCADE"), unique=True
+    )
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    market: Mapped[str] = mapped_column(String(300))
+    slot: Mapped[int] = mapped_column(Integer)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    hold_expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    status: Mapped[str] = mapped_column(String(10), server_default="held")
+
+
+class PublishedPromotion(Base):
+    """Public placement projection: no order, receipt, amount or account information."""
+
+    __tablename__ = "published_promotions"
+    id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("promotion_reservations.id", ondelete="CASCADE"), primary_key=True
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
+    market: Mapped[str] = mapped_column(String(300))
+    slot: Mapped[int] = mapped_column(Integer)
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    active: Mapped[bool] = mapped_column(Boolean, server_default="true")
+
+
+class AdEntitlement(Base):
+    __tablename__ = "ad_entitlements"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    order_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("billing_orders.id", ondelete="CASCADE"), unique=True
+    )
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    active: Mapped[bool] = mapped_column(Boolean, server_default="true")
+
+
+class BillingLedger(Base):
+    __tablename__ = "billing_ledger"
+    __table_args__ = (UniqueConstraint("provider", "event_key", name="uq_billing_provider_event"),)
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    order_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("billing_orders.id", ondelete="CASCADE"))
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    provider: Mapped[str] = mapped_column(String(40))
+    event_key: Mapped[str] = mapped_column(String(200))
+    fingerprint: Mapped[str] = mapped_column(String(64))
+    event_kind: Mapped[str] = mapped_column(String(20))
+    amount_minor: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class EmployerPreference(Base):
     """A candidate's private stance on one employer.
 

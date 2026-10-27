@@ -708,6 +708,62 @@
         "title": "CatalogOut",
         "type": "object"
       },
+      "CheckoutIn": {
+        "properties": {
+          "action": {
+            "$ref": "#/components/schemas/EstimateAction"
+          },
+          "client_key": {
+            "maxLength": 80,
+            "minLength": 8,
+            "title": "Client Key",
+            "type": "string"
+          },
+          "confirm_publish_and_terms": {
+            "const": true,
+            "title": "Confirm Publish And Terms",
+            "type": "boolean"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "action",
+          "client_key",
+          "confirm_publish_and_terms"
+        ],
+        "title": "CheckoutIn",
+        "type": "object"
+      },
+      "CheckoutOut": {
+        "properties": {
+          "checkout_url": {
+            "title": "Checkout Url",
+            "type": "string"
+          },
+          "mode": {
+            "const": "test",
+            "default": "test",
+            "title": "Mode",
+            "type": "string"
+          },
+          "order_id": {
+            "format": "uuid",
+            "title": "Order Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "order_id",
+          "checkout_url"
+        ],
+        "title": "CheckoutOut",
+        "type": "object"
+      },
       "CommitmentIn": {
         "description": "Either absolute instants (starts_at/ends_at with a UTC offset) or the person's own local\ndate and times (local_date/local_start/local_end, read in their time zone; an end at or before\nthe start runs overnight). Phones send the local form so they never do time-zone arithmetic.",
         "properties": {
@@ -1413,6 +1469,16 @@
         ],
         "title": "EmployerRegister",
         "type": "object"
+      },
+      "EstimateAction": {
+        "enum": [
+          "new_ad",
+          "readvertise",
+          "new_promoted_ad",
+          "promote_existing"
+        ],
+        "title": "EstimateAction",
+        "type": "string"
       },
       "EventOut": {
         "properties": {
@@ -2450,6 +2516,11 @@
             ],
             "title": "Postcode"
           },
+          "promoted": {
+            "default": false,
+            "title": "Promoted",
+            "type": "boolean"
+          },
           "published_at": {
             "anyOf": [
               {
@@ -3119,6 +3190,106 @@
         "title": "NotificationSettingsIn",
         "type": "object"
       },
+      "OrderOut": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "amount_minor": {
+            "title": "Amount Minor",
+            "type": "integer"
+          },
+          "currency": {
+            "const": "AUD",
+            "default": "AUD",
+            "title": "Currency",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "job_title": {
+            "title": "Job Title",
+            "type": "string"
+          },
+          "promotion_ends_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Ends At"
+          },
+          "promotion_slot": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Slot"
+          },
+          "promotion_starts_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Promotion Starts At"
+          },
+          "refund_requested": {
+            "title": "Refund Requested",
+            "type": "boolean"
+          },
+          "review_required": {
+            "title": "Review Required",
+            "type": "boolean"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "job_id",
+          "job_title",
+          "action",
+          "amount_minor",
+          "status",
+          "expires_at",
+          "refund_requested",
+          "review_required",
+          "promotion_slot",
+          "promotion_starts_at",
+          "promotion_ends_at"
+        ],
+        "title": "OrderOut",
+        "type": "object"
+      },
       "PasswordChangeIn": {
         "properties": {
           "current_password": {
@@ -3544,6 +3715,20 @@
           "refresh_token"
         ],
         "title": "RefreshIn",
+        "type": "object"
+      },
+      "RefundIn": {
+        "properties": {
+          "confirm": {
+            "const": true,
+            "title": "Confirm",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "confirm"
+        ],
+        "title": "RefundIn",
         "type": "object"
       },
       "ReportIn": {
@@ -6535,6 +6720,54 @@
         ]
       }
     },
+    "/v1/billing/status": {
+      "get": {
+        "operationId": "billing_status_v1_billing_status_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Billing Status V1 Billing Status Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Billing Status",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/billing/stripe/webhook": {
+      "post": {
+        "operationId": "webhook_v1_billing_stripe_webhook_post",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "boolean"
+                  },
+                  "title": "Response Webhook V1 Billing Stripe Webhook Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Webhook",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
     "/v1/candidate/applications": {
       "get": {
         "operationId": "my_applications_v1_candidate_applications_get",
@@ -9131,6 +9364,318 @@
         "summary": "Set Status",
         "tags": [
           "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/checkout": {
+      "post": {
+        "operationId": "checkout_v1_employers__employer_id__billing_checkout_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CheckoutIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Checkout",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/orders": {
+      "get": {
+        "operationId": "orders_v1_employers__employer_id__billing_orders_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/OrderOut"
+                  },
+                  "title": "Response Orders V1 Employers  Employer Id  Billing Orders Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Orders",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/orders/{order_id}/cancel": {
+      "post": {
+        "operationId": "cancel_quote_v1_employers__employer_id__billing_orders__order_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Cancel Quote V1 Employers  Employer Id  Billing Orders  Order Id  Cancel Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Cancel Quote",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/orders/{order_id}/refund": {
+      "post": {
+        "operationId": "refund_v1_employers__employer_id__billing_orders__order_id__refund_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Refund V1 Employers  Employer Id  Billing Orders  Order Id  Refund Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Refund",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/orders/{order_id}/resume": {
+      "post": {
+        "operationId": "resume_v1_employers__employer_id__billing_orders__order_id__resume_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "order_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Order Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CheckoutOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Resume",
+        "tags": [
+          "billing"
         ]
       }
     },

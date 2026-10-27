@@ -8,7 +8,8 @@ from typing import Any
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Employer, Job, JobSkill, JobVersion, Location, Skill
+from app.config import get_settings
+from app.models import Employer, Job, JobSkill, JobVersion, Location, PublishedPromotion, Skill
 from app.schemas import JobEmployerOut, JobIn, JobOut
 from app.services.geo import centroid, haversine_km
 
@@ -136,6 +137,20 @@ async def to_out(
     if not jobs:
         return []
     ids = [j.id for j in jobs]
+    promoted_ids = (
+        set(
+            await session.scalars(
+                select(PublishedPromotion.job_id).where(
+                    PublishedPromotion.job_id.in_(ids),
+                    PublishedPromotion.active,
+                    PublishedPromotion.starts_at <= func.now(),
+                    PublishedPromotion.ends_at > func.now(),
+                )
+            )
+        )
+        if get_settings().paid_advertising_enabled
+        else set()
+    )
     skill_rows = await session.execute(
         select(JobSkill.job_id, Skill.name)
         .join(Skill, Skill.id == JobSkill.skill_id)
@@ -155,6 +170,8 @@ async def to_out(
         emp = employers.get(j.employer_id) if j.employer_id else None
         out.append(
             JobOut(
+                promoted=j.id in promoted_ids
+                and bool(emp and emp.verification_status == "verified"),
                 id=j.id,
                 origin=j.origin,
                 title=j.title,

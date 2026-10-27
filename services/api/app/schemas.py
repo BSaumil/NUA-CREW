@@ -239,6 +239,7 @@ class JobEmployerOut(BaseModel):
 
 
 class JobOut(BaseModel):
+    promoted: bool = False
     id: uuid.UUID
     origin: str
     title: str
