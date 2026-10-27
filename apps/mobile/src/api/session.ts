@@ -2,7 +2,7 @@ import { API_URL, REQUEST_TIMEOUT_MS } from '@/lib/config';
 import { secureDelete, secureGet, secureSet } from '@/lib/storage';
 
 const REFRESH_KEY = 'nua.refresh';
-const EARLY_MS = 60_000; // refresh a minute before expiry
+const EARLY_MS = 60_000;
 
 export type TokenResponse = {
   access_token: string;
@@ -11,22 +11,44 @@ export type TokenResponse = {
   role: string;
   user_id: string;
 };
-
 type Listener = (signedIn: boolean) => void;
 
-/**
- * Holds the short-lived access token in memory and the rotating refresh token in secure storage.
- * Concurrent callers share one refresh request (refresh tokens are single-use, so a second
- * parallel refresh would look like theft and sign the user out).
+export class SessionChangedError extends Error {
+  constructor() {
+    super('Your session changed. Please try again.');
+    this.name = 'SessionChangedError';
+  }
+}
+
+/** Session generations bind every request to one sign-in. Rotation keeps the generation;
+ * signing out or starting another account invalidates all older async work immediately.
+ * Secure-store operations are serialised so a delayed write cannot undo a later sign-out.
  */
 export class Session {
   private access: string | null = null;
+  private accountRole: 'candidate' | 'employer' | null = null;
   private accessExpiresAt = 0;
-  private inflight: Promise<string | null> | null = null;
+  private revision = 0;
+  private inflight: { revision: number; promise: Promise<string | null> } | null = null;
+  private storage: Promise<unknown> = Promise.resolve();
   private listeners = new Set<Listener>();
   fetchImpl: typeof fetch = (...a) => fetch(...a);
   now: () => number = () => Date.now();
 
+  get gen(): number {
+    return this.revision;
+  }
+  get signedIn(): boolean {
+    return this.access !== null;
+  }
+
+  get role(): 'candidate' | 'employer' | null {
+    return this.accountRole;
+  }
+
+  generation(): number {
+    return this.revision;
+  }
   subscribe(fn: Listener): () => void {
     this.listeners.add(fn);
     return () => this.listeners.delete(fn);
@@ -34,19 +56,46 @@ export class Session {
   private emit(signedIn: boolean) {
     this.listeners.forEach((l) => l(signedIn));
   }
+  private stored<T>(action: () => Promise<T>): Promise<T> {
+    const next = this.storage.catch(() => undefined).then(action);
+    this.storage = next;
+    return next;
+  }
 
-  /** Call once at launch. Returns true when a stored session can be resumed. */
   async restore(): Promise<boolean> {
-    const stored = await secureGet(REFRESH_KEY);
-    if (!stored) return false;
     return (await this.refreshNow()) !== null;
   }
 
-  async start(t: TokenResponse): Promise<void> {
+  /** expectedGeneration also protects a sign-in response that arrived after local logout. */
+  async start(t: TokenResponse, expectedGeneration = this.revision): Promise<boolean> {
+    if (expectedGeneration !== this.revision) return false;
+    const revision = ++this.revision;
+    this.access = null;
+    this.accountRole = null;
+    this.accessExpiresAt = 0;
+    return this.install(t, revision);
+  }
+
+  private async install(t: TokenResponse, revision: number): Promise<boolean> {
+    if (
+      !t.access_token ||
+      !t.refresh_token ||
+      (t.role !== 'candidate' && t.role !== 'employer') ||
+      !Number.isFinite(t.expires_in) ||
+      t.expires_in <= 0
+    ) {
+      throw new Error('Invalid mobile token response');
+    }
+    await this.stored(async () => {
+      if (revision === this.revision) await secureSet(REFRESH_KEY, t.refresh_token!);
+    });
+    if (revision !== this.revision) return false;
+    // Never publish a credential before durable storage has succeeded.
     this.access = t.access_token;
+    this.accountRole = t.role as 'candidate' | 'employer';
     this.accessExpiresAt = this.now() + t.expires_in * 1000;
-    if (t.refresh_token) await secureSet(REFRESH_KEY, t.refresh_token);
     this.emit(true);
+    return true;
   }
 
   async getAccessToken(): Promise<string | null> {
@@ -54,18 +103,23 @@ export class Session {
     return this.refreshNow();
   }
 
-  /** Force a refresh (used after the server answered 401). */
-  async refreshNow(): Promise<string | null> {
-    this.inflight ??= this.doRefresh().finally(() => {
-      this.inflight = null;
-    });
-    return this.inflight;
+  async refreshNow(expectedGeneration = this.revision): Promise<string | null> {
+    if (expectedGeneration !== this.revision) return null;
+    if (this.inflight?.revision === expectedGeneration) return this.inflight.promise;
+    const entry = { revision: expectedGeneration, promise: this.doRefresh(expectedGeneration) };
+    this.inflight = entry;
+    try {
+      return await entry.promise;
+    } finally {
+      if (this.inflight === entry) this.inflight = null;
+    }
   }
 
-  private async doRefresh(): Promise<string | null> {
-    const refresh = await secureGet(REFRESH_KEY);
+  private async doRefresh(revision: number): Promise<string | null> {
+    const refresh = await this.stored(() => secureGet(REFRESH_KEY));
+    if (revision !== this.revision) return null;
     if (!refresh) {
-      await this.clear();
+      if (this.access) await this.clear();
       return null;
     }
     try {
@@ -77,38 +131,68 @@ export class Session {
         body: JSON.stringify({ refresh_token: refresh }),
         signal: ctl.signal,
       }).finally(() => clearTimeout(timer));
+      if (revision !== this.revision && !res.ok) return null;
       if (res.status === 401) {
-        await this.clear(); // revoked, expired or reused: the user must sign in again
+        await this.clear();
         return null;
       }
-      if (!res.ok) return null; // server trouble: keep the session, try again later
+      if (!res.ok) return null; // transient failure: keep the stored session
       const t = (await res.json()) as TokenResponse;
-      await this.start(t);
-      return t.access_token;
+      if (revision !== this.revision) {
+        if (t.refresh_token) this.revoke(t.refresh_token);
+        return null;
+      }
+      return (await this.install(t, revision)) ? t.access_token : null;
     } catch {
-      return null; // offline: keep the stored session so the app still opens
+      return null;
     }
   }
 
-  /** Local sign-out. Tell the server first (best effort) so the token cannot be reused. */
+  private revoke(refreshToken: string): void {
+    const ctl = new AbortController();
+    const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
+    void this.fetchImpl(`${API_URL}/v1/auth/logout`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+      signal: ctl.signal,
+    })
+      .catch(() => undefined)
+      .finally(() => clearTimeout(timer));
+  }
+
   async signOut(): Promise<void> {
-    const refresh = await secureGet(REFRESH_KEY);
+    // Invalidate requests and hide private screens before any storage or network await.
+    this.resetMemory();
+    const refresh = await this.stored(async () => {
+      const old = await secureGet(REFRESH_KEY);
+      await secureDelete(REFRESH_KEY);
+      return old;
+    });
     if (refresh) {
-      this.fetchImpl(`${API_URL}/v1/auth/logout`, {
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
+      void this.fetchImpl(`${API_URL}/v1/auth/logout`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ refresh_token: refresh }),
-      }).catch(() => undefined);
+        signal: ctl.signal,
+      })
+        .catch(() => undefined)
+        .finally(() => clearTimeout(timer));
     }
-    await this.clear();
   }
 
-  async clear(): Promise<void> {
+  private resetMemory() {
+    ++this.revision;
     this.access = null;
+    this.accountRole = null;
     this.accessExpiresAt = 0;
-    await secureDelete(REFRESH_KEY);
     this.emit(false);
   }
+  async clear(): Promise<void> {
+    this.resetMemory();
+    await this.stored(() => secureDelete(REFRESH_KEY));
+  }
 }
-
 export const session = new Session();

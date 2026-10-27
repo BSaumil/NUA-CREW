@@ -1,5 +1,8 @@
+import logging
 from collections.abc import AsyncIterator
+from dataclasses import dataclass
 
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
@@ -10,6 +13,7 @@ from sqlalchemy.pool import NullPool
 
 from app.config import get_settings
 
+log = logging.getLogger(__name__)
 _engine: AsyncEngine | None = None
 _sessionmaker: async_sessionmaker[AsyncSession] | None = None
 
@@ -39,6 +43,46 @@ async def get_session() -> AsyncIterator[AsyncSession]:
         except Exception:
             await session.rollback()
             raise
+
+
+@dataclass(frozen=True)
+class RoleInfo:
+    name: str
+    superuser: bool
+    bypass_rls: bool
+
+    @property
+    def unsafe(self) -> bool:
+        return self.superuser or self.bypass_rls
+
+
+async def current_role(engine: AsyncEngine | None = None) -> RoleInfo:
+    eng = engine or get_engine()
+    sql = text("SELECT rolname, rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
+    async with eng.connect() as conn:
+        row = (await conn.execute(sql)).one()
+    return RoleInfo(row[0], row[1], row[2])
+
+
+async def assert_rls_safe_role() -> RoleInfo:
+    """A superuser or BYPASSRLS role ignores every row-level-security policy (ADR-003/ADR-008).
+
+    Outside development this refuses to start; in development it warns loudly.
+    """
+    s = get_settings()
+    info = await current_role()
+    enforce = (
+        s.require_rls_safe_role if s.require_rls_safe_role is not None else s.env != "development"
+    )
+    if info.unsafe:
+        msg = (
+            f"Database role {info.name!r} is a superuser or has BYPASSRLS: row-level security is "
+            "NOT enforced. Connect as the nua_runtime role (see db/roles/bootstrap.sql)."
+        )
+        if enforce:
+            raise RuntimeError(msg)
+        log.warning(msg)
+    return info
 
 
 async def dispose_engine() -> None:

@@ -11,7 +11,8 @@ target_metadata = Base.metadata
 
 
 def _url() -> str:
-    return str(context.config.attributes.get("url") or get_settings().database_url)
+    s = get_settings()
+    return str(context.config.attributes.get("url") or s.migration_database_url or s.database_url)
 
 
 def _run(connection) -> None:  # type: ignore[no-untyped-def]

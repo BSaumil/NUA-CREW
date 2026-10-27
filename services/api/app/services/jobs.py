@@ -1,7 +1,7 @@
 import re
 import uuid
 from collections.abc import Iterable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
@@ -39,13 +39,14 @@ def _snapshot(job: Job, skills: Sequence[str]) -> dict[str, Any]:
     def conv(v: object) -> object:
         if isinstance(v, Decimal):
             return str(v)
-        if isinstance(v, datetime | uuid.UUID):
+        if isinstance(v, datetime | date | uuid.UUID):
             return str(v)
         return v
 
     cols = (
         "title description status employment_type category suburb state postcode pay_min pay_max "
-        "pay_period pay_currency super_included pay_basis apply_url expires_at"
+        "pay_period pay_currency super_included pay_basis apply_url expires_at engagement_basis "
+        "duration_type hours_pattern min_weekly_hours max_weekly_hours start_date end_date"
     ).split()
     return {**{c: conv(getattr(job, c)) for c in cols}, "skills": sorted(skills)}
 
@@ -107,6 +108,13 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
         "disclosed" if (data.pay_min is not None or data.pay_max is not None) else "not_disclosed"
     )
     job.expires_at = data.expires_at
+    job.engagement_basis = data.engagement_basis
+    job.duration_type = data.duration_type
+    job.hours_pattern = data.hours_pattern
+    job.min_weekly_hours = data.min_weekly_hours
+    job.max_weekly_hours = data.max_weekly_hours
+    job.start_date = data.start_date
+    job.end_date = data.end_date
 
 
 def is_open(job: Job, now: datetime | None = None) -> bool:
@@ -153,6 +161,13 @@ async def to_out(
                 description=j.description,
                 status=j.status,
                 employment_type=j.employment_type,
+                engagement_basis=j.engagement_basis,
+                duration_type=j.duration_type,
+                hours_pattern=j.hours_pattern,
+                min_weekly_hours=j.min_weekly_hours,
+                max_weekly_hours=j.max_weekly_hours,
+                start_date=j.start_date,
+                end_date=j.end_date,
                 category=j.category,
                 suburb=j.suburb,
                 state=j.state,

@@ -47,6 +47,7 @@ export default function Login() {
         <Text variant="title" accessibilityRole="header">
           Welcome back
         </Text>
+        <Text muted>For job seekers and employers. Your account opens the right workspace.</Text>
         {error ? (
           <Text accessibilityRole="alert" accessibilityLiveRegion="assertive" color={colors.danger}>
             {error}

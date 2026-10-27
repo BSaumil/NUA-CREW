@@ -313,6 +313,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/message-reports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Reports */
+        get: operations["list_reports_v1_admin_message_reports_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/message-reports/{report_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Report */
+        post: operations["review_report_v1_admin_message_reports__report_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/login": {
         parameters: {
             query?: never;
@@ -489,6 +523,173 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/candidate/availability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Availability */
+        get: operations["get_availability_v1_candidate_availability_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/check": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Check
+         * @description The person's own view of how their calendar answers a question (also used by tests).
+         */
+        get: operations["check_v1_candidate_availability_check_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/commitments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Commitment
+         * @description Records time the person is not free. A confirmed commitment cannot overlap another confirmed
+         *     one. Applying for a job never creates one: applications do not reserve the worker.
+         */
+        post: operations["add_commitment_v1_candidate_availability_commitments_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/commitments/{commitment_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Commitment */
+        delete: operations["delete_commitment_v1_candidate_availability_commitments__commitment_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/commitments/{commitment_id}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Commitment */
+        post: operations["confirm_commitment_v1_candidate_availability_commitments__commitment_id__confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/exceptions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Add Exception */
+        post: operations["add_exception_v1_candidate_availability_exceptions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/exceptions/{exception_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Exception */
+        delete: operations["delete_exception_v1_candidate_availability_exceptions__exception_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/availability/rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Rules
+         * @description Replaces the whole weekly pattern. Several windows per day are fine; overlaps are not.
+         */
+        put: operations["put_rules_v1_candidate_availability_rules_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/consents/discovery/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Discovery Consent
+         * @description Explicit, per-kind opt-in for employers to find this person. Default off; history kept.
+         *     Discovery additionally needs the master talent-discovery switch to be on.
+         */
+        put: operations["discovery_consent_v1_candidate_consents_discovery__kind__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/consents/talent-discovery": {
         parameters: {
             query?: never;
@@ -503,6 +704,260 @@ export interface paths {
          */
         put: operations["talent_discovery_consent_v1_candidate_consents_talent_discovery_put"];
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Conversations */
+        get: operations["list_conversations_v1_candidate_conversations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/conversations/{conversation_id}/close": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Candidate Close
+         * @description End an accepted conversation. Separate from pausing invitations and from blocking.
+         */
+        post: operations["candidate_close_v1_candidate_conversations__conversation_id__close_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Candidate Messages */
+        get: operations["candidate_messages_v1_candidate_conversations__conversation_id__messages_get"];
+        put?: never;
+        /** Candidate Send */
+        post: operations["candidate_send_v1_candidate_conversations__conversation_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/conversations/{conversation_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Candidate Read */
+        post: operations["candidate_read_v1_candidate_conversations__conversation_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/conversations/{conversation_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Candidate Report */
+        post: operations["candidate_report_v1_candidate_conversations__conversation_id__report_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/employer-directory": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Employer Directory
+         * @description Find an employer by name to follow, hide from or mute. Names are already public.
+         */
+        get: operations["employer_directory_v1_candidate_employer_directory_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/employer-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Employer Preferences */
+        get: operations["list_employer_preferences_v1_candidate_employer_preferences_get"];
+        put?: never;
+        /** Add Employer Preference */
+        post: operations["add_employer_preference_v1_candidate_employer_preferences_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/employer-preferences/{pref_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete Employer Preference */
+        delete: operations["delete_employer_preference_v1_candidate_employer_preferences__pref_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/inbox/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Inbox Summary */
+        get: operations["inbox_summary_v1_candidate_inbox_summary_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/invitation-settings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Invitation Settings */
+        get: operations["get_invitation_settings_v1_candidate_invitation_settings_get"];
+        /**
+         * Put Invitation Settings
+         * @description Pausing stops NEW invitations. Pending invitations and open conversations are unchanged;
+         *     end a conversation or block an employer separately.
+         */
+        put: operations["put_invitation_settings_v1_candidate_invitation_settings_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Invitations */
+        get: operations["list_invitations_v1_candidate_invitations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/invitations/{invitation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Invitation */
+        get: operations["get_invitation_v1_candidate_invitations__invitation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/invitations/{invitation_id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept Invitation */
+        post: operations["accept_invitation_v1_candidate_invitations__invitation_id__accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/invitations/{invitation_id}/decline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Decline Invitation
+         * @description No reason is asked for.
+         */
+        post: operations["decline_invitation_v1_candidate_invitations__invitation_id__decline_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -687,6 +1142,44 @@ export interface paths {
         patch: operations["patch_saved_search_v1_candidate_saved_searches__search_id__patch"];
         trace?: never;
     };
+    "/v1/candidate/work-preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Work Preferences */
+        get: operations["get_work_preferences_v1_candidate_work_preferences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/work-preferences/{kind}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Put Work Preference
+         * @description Updates ONE kind. The other kind is never touched, so choosing "Both" keeps each side's
+         *     own answers, and switching one off keeps its fields (it just stops being used).
+         */
+        put: operations["put_work_preference_v1_candidate_work_preferences__kind__put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/devices": {
         parameters: {
             query?: never;
@@ -787,6 +1280,127 @@ export interface paths {
         put?: never;
         /** Set Status */
         post: operations["set_status_v1_employers__employer_id__applications__application_id__status_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/conversations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employer Conversations */
+        get: operations["employer_conversations_v1_employers__employer_id__conversations_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/messages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employer Messages */
+        get: operations["employer_messages_v1_employers__employer_id__conversations__conversation_id__messages_get"];
+        put?: never;
+        /** Employer Send */
+        post: operations["employer_send_v1_employers__employer_id__conversations__conversation_id__messages_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/read": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Employer Read */
+        post: operations["employer_read_v1_employers__employer_id__conversations__conversation_id__read_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/report": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Employer Report */
+        post: operations["employer_report_v1_employers__employer_id__conversations__conversation_id__report_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/invitations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Sent */
+        get: operations["list_sent_v1_employers__employer_id__invitations_get"];
+        put?: never;
+        /** Send Invitation */
+        post: operations["send_invitation_v1_employers__employer_id__invitations_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/invitations/{invitation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Sent */
+        get: operations["get_sent_v1_employers__employer_id__invitations__invitation_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/invitations/{invitation_id}/withdraw": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Withdraw Invitation */
+        post: operations["withdraw_invitation_v1_employers__employer_id__invitations__invitation_id__withdraw_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -936,6 +1550,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/talent/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search Talent */
+        post: operations["search_talent_v1_employers__employer_id__talent_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/jobs": {
         parameters: {
             query?: never;
@@ -1060,6 +1691,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/pricing": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catalog */
+        get: operations["catalog_v1_pricing_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/pricing/estimate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Estimate */
+        get: operations["get_estimate_v1_pricing_estimate_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -1109,6 +1774,124 @@ export interface components {
             cover_note?: string | null;
             /** Resume Id */
             resume_id?: string | null;
+        };
+        /** AvailabilityCheckOut */
+        AvailabilityCheckOut: {
+            /** Reason */
+            reason: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "available" | "unavailable" | "unknown" | "offered" | "held" | "confirmed";
+        };
+        /** AvailabilityExceptionIn */
+        AvailabilityExceptionIn: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** End Time */
+            end_time?: string | null;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Start Time */
+            start_time?: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "available" | "unavailable";
+        };
+        /** AvailabilityExceptionOut */
+        AvailabilityExceptionOut: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /** End Time */
+            end_time: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+            /** Start Time */
+            start_time: string | null;
+            /** State */
+            state: string;
+        };
+        /** AvailabilityOut */
+        AvailabilityOut: {
+            /** Commitments */
+            commitments: components["schemas"]["CommitmentOut"][];
+            /** Exceptions */
+            exceptions: components["schemas"]["AvailabilityExceptionOut"][];
+            /** Rules */
+            rules: components["schemas"]["AvailabilityRuleOut"][];
+            /** Time Zone */
+            time_zone: string;
+            /**
+             * Weekly Hours
+             * @description Nominal hours per week; null when no rules
+             */
+            weekly_hours: number | null;
+        };
+        /** AvailabilityRuleIn */
+        AvailabilityRuleIn: {
+            /**
+             * End Time
+             * Format: time
+             * @description At or before start_time means the window ends next day
+             */
+            end_time: string;
+            /**
+             * Start Time
+             * Format: time
+             */
+            start_time: string;
+            /**
+             * Weekday
+             * @description Monday = 0
+             */
+            weekday: number;
+        };
+        /** AvailabilityRuleOut */
+        AvailabilityRuleOut: {
+            /**
+             * End Time
+             * Format: time
+             */
+            end_time: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Start Time
+             * Format: time
+             */
+            start_time: string;
+            /** Weekday */
+            weekday: number;
+        };
+        /** AvailabilityRulesIn */
+        AvailabilityRulesIn: {
+            /** Rules */
+            rules: components["schemas"]["AvailabilityRuleIn"][];
+            /** Time Zone */
+            time_zone: string;
         };
         /** CandidateApplicationOut */
         CandidateApplicationOut: {
@@ -1163,10 +1946,179 @@ export interface components {
             /** Password */
             password: string;
         };
+        /** CatalogOut */
+        CatalogOut: {
+            /** Assumptions */
+            assumptions: string[];
+            /**
+             * Automatically Renews
+             * @default false
+             * @constant
+             */
+            automatically_renews: false;
+            /**
+             * Billing Enabled
+             * @default false
+             * @constant
+             */
+            billing_enabled: false;
+            /**
+             * Billing Status
+             * @default not_connected
+             * @constant
+             */
+            billing_status: "not_connected";
+            /** Catalog Version */
+            catalog_version: string;
+            /**
+             * Currency
+             * @default AUD
+             * @constant
+             */
+            currency: "AUD";
+            /** Employee */
+            employee: {
+                [key: string]: unknown;
+            };
+            /**
+             * Employee Access
+             * @default free
+             * @constant
+             */
+            employee_access: "free";
+            /**
+             * Employee Access Scope
+             * @default all_australian_states_and_territories
+             * @constant
+             */
+            employee_access_scope: "all_australian_states_and_territories";
+            /**
+             * Employee Charging Enabled
+             * @default false
+             * @constant
+             */
+            employee_charging_enabled: false;
+            /** Employer */
+            employer: {
+                [key: string]: unknown;
+            };
+            /** Products */
+            products: components["schemas"]["ProductOut"][];
+            /**
+             * Promotion Is Add On
+             * @default true
+             * @constant
+             */
+            promotion_is_add_on: true;
+            /**
+             * Status
+             * @default draft
+             * @constant
+             */
+            status: "draft";
+            /**
+             * Tax Treatment
+             * @default pending_review
+             * @constant
+             */
+            tax_treatment: "pending_review";
+        };
+        /**
+         * CommitmentIn
+         * @description Either absolute instants (starts_at/ends_at with a UTC offset) or the person's own local
+         *     date and times (local_date/local_start/local_end, read in their time zone; an end at or before
+         *     the start runs overnight). Phones send the local form so they never do time-zone arithmetic.
+         */
+        CommitmentIn: {
+            /** Ends At */
+            ends_at?: string | null;
+            /** Label */
+            label?: string | null;
+            /** Local Date */
+            local_date?: string | null;
+            /** Local End */
+            local_end?: string | null;
+            /** Local Start */
+            local_start?: string | null;
+            /** Starts At */
+            starts_at?: string | null;
+            /**
+             * Status
+             * @default confirmed
+             * @enum {string}
+             */
+            status: "held" | "confirmed";
+            /** Venue Time Zone */
+            venue_time_zone?: string | null;
+        };
+        /** CommitmentOut */
+        CommitmentOut: {
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Label */
+            label: string | null;
+            /** Source */
+            source: string;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /** Status */
+            status: string;
+            /** Venue Time Zone */
+            venue_time_zone: string | null;
+        };
         /** ConsentIn */
         ConsentIn: {
             /** Granted */
             granted: boolean;
+        };
+        /** ConversationOut */
+        ConversationOut: {
+            /** Closed Reason */
+            closed_reason: string | null;
+            /** Counterpart */
+            counterpart: string;
+            /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Invitation Id
+             * Format: uuid
+             */
+            invitation_id: string;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Job Title */
+            job_title: string;
+            /** Last Message At */
+            last_message_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "closed";
+            /** Unread */
+            unread: boolean;
         };
         /** DeleteAccountIn */
         DeleteAccountIn: {
@@ -1221,6 +2173,63 @@ export interface components {
             /** Summary */
             summary: string | null;
         };
+        /** EmployerDirectoryItem */
+        EmployerDirectoryItem: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Name */
+            name: string;
+            /** Verification Status */
+            verification_status: string;
+        };
+        /** EmployerInvitationOut */
+        EmployerInvitationOut: {
+            /** Candidate Label */
+            candidate_label: string;
+            /** Candidate Ref */
+            candidate_ref: string;
+            /** Conversation Id */
+            conversation_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /** Job Title */
+            job_title: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "permanent" | "temporary";
+            /** Note */
+            note: string;
+            /** Responded At */
+            responded_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "declined" | "withdrawn" | "expired";
+        };
         /** EmployerOut */
         EmployerOut: {
             /** Abn */
@@ -1235,6 +2244,36 @@ export interface components {
             /** Verification Status */
             verification_status: string;
         };
+        /** EmployerPreferenceIn */
+        EmployerPreferenceIn: {
+            /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "follow" | "hide_from" | "mute" | "block";
+        };
+        /** EmployerPreferenceOut */
+        EmployerPreferenceOut: {
+            /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
+            /** Employer Name */
+            employer_name: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+        };
         /** EmployerRegister */
         EmployerRegister: {
             /** Abn */
@@ -1244,6 +2283,14 @@ export interface components {
              * @constant
              */
             accept_terms: true;
+            /**
+             * Client
+             * @default web
+             * @enum {string}
+             */
+            client: "web" | "mobile";
+            /** Device Label */
+            device_label?: string | null;
             /**
              * Email
              * Format: email
@@ -1285,6 +2332,13 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /** InboxSummary */
+        InboxSummary: {
+            /** Unread Conversations */
+            unread_conversations: number;
+            /** Unread Invitations */
+            unread_invitations: number;
+        };
         /** IngestionStatsOut */
         IngestionStatsOut: {
             /** Sources */
@@ -1293,6 +2347,151 @@ export interface components {
             tasks: {
                 [key: string]: number;
             };
+        };
+        /** InvitationAcceptIn */
+        InvitationAcceptIn: {
+            /** Terms Hash */
+            terms_hash: string;
+        };
+        /** InvitationIn */
+        InvitationIn: {
+            /** Expires In Days */
+            expires_in_days?: number | null;
+            /**
+             * Job Id
+             * Format: uuid
+             */
+            job_id: string;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "permanent" | "temporary";
+            /**
+             * Note
+             * @default
+             */
+            note: string;
+            /**
+             * Ref
+             * @description Opaque reference from talent search
+             */
+            ref: string;
+        };
+        /** InvitationList */
+        InvitationList: {
+            /** Items */
+            items: components["schemas"]["InvitationOut"][];
+            /** Unread */
+            unread: number;
+        };
+        /**
+         * InvitationOut
+         * @description Candidate's view. Interest only: not an application, an employment offer or a shift hold.
+         */
+        InvitationOut: {
+            /** Acceptance Note */
+            acceptance_note: string;
+            /** Can Accept */
+            can_accept: boolean;
+            /** Conversation Id */
+            conversation_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            current_terms: components["schemas"]["InvitationTerms"] | null;
+            /** Current Terms Hash */
+            current_terms_hash: string | null;
+            /**
+             * Employer Id
+             * Format: uuid
+             */
+            employer_id: string;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Job Open */
+            job_open: boolean;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "permanent" | "temporary";
+            /** Note */
+            note: string;
+            /** Responded At */
+            responded_at: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "accepted" | "declined" | "withdrawn" | "expired";
+            terms: components["schemas"]["InvitationTerms"];
+            /** Terms Changed */
+            terms_changed: boolean;
+            /** Unread */
+            unread: boolean;
+        };
+        /** InvitationSettingsIn */
+        InvitationSettingsIn: {
+            /** Enabled */
+            enabled: boolean;
+        };
+        /** InvitationSettingsOut */
+        InvitationSettingsOut: {
+            /** Invitations Enabled */
+            invitations_enabled: boolean;
+        };
+        /**
+         * InvitationTerms
+         * @description What the candidate is invited to, as the job stood (invited) or stands (current).
+         */
+        InvitationTerms: {
+            /** Business */
+            business: string;
+            /** Duration Type */
+            duration_type: string;
+            /** Employment Type */
+            employment_type: string;
+            /** End Date */
+            end_date?: string | null;
+            /** Engagement Basis */
+            engagement_basis: string;
+            /** Hours Pattern */
+            hours_pattern: string;
+            /** Job Id */
+            job_id: string;
+            /** Max Weekly Hours */
+            max_weekly_hours?: string | null;
+            /** Min Weekly Hours */
+            min_weekly_hours?: string | null;
+            /** Pay Basis */
+            pay_basis: string;
+            /** Pay Max */
+            pay_max?: string | null;
+            /** Pay Min */
+            pay_min?: string | null;
+            /** Pay Period */
+            pay_period?: string | null;
+            /** Start Date */
+            start_date?: string | null;
+            /** State */
+            state?: string | null;
+            /** Suburb */
+            suburb?: string | null;
+            /** Super Included */
+            super_included?: boolean | null;
+            /** Title */
+            title: string;
         };
         /** JobEmployerOut */
         JobEmployerOut: {
@@ -1310,14 +2509,38 @@ export interface components {
             /** Description */
             description: string;
             /**
+             * Duration Type
+             * @default unspecified
+             * @enum {string}
+             */
+            duration_type: "ongoing" | "fixed_term" | "one_off" | "unspecified";
+            /**
              * Employment Type
              * @enum {string}
              */
             employment_type: "full_time" | "part_time" | "casual" | "contract" | "shift";
+            /** End Date */
+            end_date?: string | null;
+            /**
+             * Engagement Basis
+             * @default unspecified
+             * @enum {string}
+             */
+            engagement_basis: "employee" | "contractor" | "unspecified";
             /** Expires At */
             expires_at?: string | null;
+            /**
+             * Hours Pattern
+             * @default unspecified
+             * @enum {string}
+             */
+            hours_pattern: "full_time" | "part_time" | "casual" | "unspecified";
             /** Location Id */
             location_id?: string | null;
+            /** Max Weekly Hours */
+            max_weekly_hours?: number | string | null;
+            /** Min Weekly Hours */
+            min_weekly_hours?: number | string | null;
             /** Pay Max */
             pay_max?: number | string | null;
             /** Pay Min */
@@ -1329,6 +2552,8 @@ export interface components {
              * @default []
              */
             skills: string[];
+            /** Start Date */
+            start_date?: string | null;
             /** Super Included */
             super_included?: boolean | null;
             /** Title */
@@ -1357,11 +2582,28 @@ export interface components {
             description: string;
             /** Distance Km */
             distance_km?: number | null;
+            /**
+             * Duration Type
+             * @default unspecified
+             */
+            duration_type: string;
             employer: components["schemas"]["JobEmployerOut"];
             /** Employment Type */
             employment_type: string;
+            /** End Date */
+            end_date?: string | null;
+            /**
+             * Engagement Basis
+             * @default unspecified
+             */
+            engagement_basis: string;
             /** Expires At */
             expires_at: string | null;
+            /**
+             * Hours Pattern
+             * @default unspecified
+             */
+            hours_pattern: string;
             /**
              * Id
              * Format: uuid
@@ -1371,6 +2613,10 @@ export interface components {
             last_verified_at: string | null;
             /** Location Id */
             location_id?: string | null;
+            /** Max Weekly Hours */
+            max_weekly_hours?: string | null;
+            /** Min Weekly Hours */
+            min_weekly_hours?: string | null;
             /** Origin */
             origin: string;
             /** Pay Basis */
@@ -1389,6 +2635,8 @@ export interface components {
             published_at: string | null;
             /** Skills */
             skills: string[];
+            /** Start Date */
+            start_date?: string | null;
             /** State */
             state: string | null;
             /** Status */
@@ -1541,6 +2789,68 @@ export interface components {
             /** Role */
             role: string;
         };
+        /** MessageIn */
+        MessageIn: {
+            /** Body */
+            body: string;
+            /** Client Key */
+            client_key?: string | null;
+        };
+        /** MessageOut */
+        MessageOut: {
+            /**
+             * Body
+             * @description Plain text. Render as text, never as HTML.
+             */
+            body: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Mine */
+            mine: boolean;
+            /**
+             * Sender Role
+             * @enum {string}
+             */
+            sender_role: "candidate" | "employer";
+        };
+        /** MessagePage */
+        MessagePage: {
+            /** Items */
+            items: components["schemas"]["MessageOut"][];
+            /** Next Before */
+            next_before: string | null;
+        };
+        /** ModerationReportOut */
+        ModerationReportOut: {
+            /** Conversation Id */
+            conversation_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Excerpt */
+            excerpt: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Reason */
+            reason: string;
+            /** Reporter Role */
+            reporter_role: string;
+            /** Status */
+            status: string;
+        };
         /** NoteIn */
         NoteIn: {
             /** Note */
@@ -1595,6 +2905,29 @@ export interface components {
             permitted_fields: string[];
             /** Valid Until */
             valid_until?: string | null;
+        };
+        /**
+         * ProductCode
+         * @enum {string}
+         */
+        ProductCode: "job_ad_14_days" | "promotion_5_days";
+        /** ProductOut */
+        ProductOut: {
+            /** Amount Minor */
+            amount_minor: number;
+            code: components["schemas"]["ProductCode"];
+            /** Duration Hours */
+            duration_hours: number | null;
+            /** Name */
+            name: string;
+            /**
+             * Purchasable
+             * @default false
+             * @constant
+             */
+            purchasable: false;
+            /** Review Required */
+            review_required: boolean;
         };
         /** ProfileIn */
         ProfileIn: {
@@ -1668,6 +3001,23 @@ export interface components {
             /** Refresh Token */
             refresh_token: string;
         };
+        /** ReportIn */
+        ReportIn: {
+            /** Message Id */
+            message_id?: string | null;
+            /** Reason */
+            reason: string;
+        };
+        /** ReportOut */
+        ReportOut: {
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+        };
         /** ResumeIn */
         ResumeIn: {
             /** Content Text */
@@ -1708,6 +3058,19 @@ export interface components {
             id: string;
             /** Version */
             version: number;
+        };
+        /** ReviewReportIn */
+        ReviewReportIn: {
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "resolved" | "dismissed" | "close_conversation";
+            /**
+             * Reason Code
+             * @enum {string}
+             */
+            reason_code: "harassment" | "spam" | "scam" | "other" | "no_violation";
         };
         /** SavedJobOut */
         SavedJobOut: {
@@ -1868,6 +3231,115 @@ export interface components {
              */
             to_status: "under_review" | "shortlisted" | "interview" | "offer" | "hired" | "rejected";
         };
+        /** TalentAvailability */
+        TalentAvailability: {
+            /** Reason */
+            reason: string;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "available" | "unavailable" | "unknown" | "not_requested";
+        };
+        /** TalentCandidateOut */
+        TalentCandidateOut: {
+            /** Area */
+            area: string | null;
+            availability: components["schemas"]["TalentAvailability"];
+            /** Available From */
+            available_from: string | null;
+            /** Display Name */
+            display_name: string;
+            /** Headline */
+            headline: string | null;
+            /**
+             * Hours Compat
+             * @enum {string}
+             */
+            hours_compat: "compatible" | "incompatible" | "unknown" | "not_requested";
+            /** Kinds Offered */
+            kinds_offered: ("permanent" | "temporary")[];
+            /** Notice Period Days */
+            notice_period_days: number | null;
+            /**
+             * Pay Compat
+             * @enum {string}
+             */
+            pay_compat: "compatible" | "not_confirmed" | "not_requested";
+            /** Prefers Your Business */
+            prefers_your_business: boolean;
+            /**
+             * Ref
+             * @description Opaque per-employer reference; not the candidate's account id
+             */
+            ref: string;
+            /** Skills */
+            skills: string[];
+            /** Unknowns */
+            unknowns: string[];
+        };
+        /** TalentSearchIn */
+        TalentSearchIn: {
+            /** After */
+            after?: string | null;
+            /**
+             * Availability
+             * @default available_or_unknown
+             * @enum {string}
+             */
+            availability: "available_or_unknown" | "any";
+            /** Ends At */
+            ends_at?: string | null;
+            /** Job Id */
+            job_id?: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "permanent" | "temporary";
+            /**
+             * Limit
+             * @default 25
+             */
+            limit: number;
+            /** Min Weekly Hours */
+            min_weekly_hours?: number | string | null;
+            /**
+             * Skills
+             * @default []
+             */
+            skills: string[];
+            /** Starts At */
+            starts_at?: string | null;
+            /** State */
+            state?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
+            /** Suburb */
+            suburb?: string | null;
+            /** Window Date */
+            window_date?: string | null;
+            /** Window End */
+            window_end?: string | null;
+            /** Window Start */
+            window_start?: string | null;
+            /**
+             * Window Time Zone
+             * @default Australia/Melbourne
+             */
+            window_time_zone: string;
+        };
+        /** TalentSearchOut */
+        TalentSearchOut: {
+            /** Invite Available */
+            invite_available: boolean;
+            /** Invite Unavailable Reason */
+            invite_unavailable_reason: string | null;
+            /** Items */
+            items: components["schemas"]["TalentCandidateOut"][];
+            /** Next After */
+            next_after: string | null;
+            /** Notes */
+            notes: string[];
+        };
         /** TaskOut */
         TaskOut: {
             /** Attempts */
@@ -1952,6 +3424,70 @@ export interface components {
              * @enum {string}
              */
             status: "pending" | "verified" | "rejected";
+        };
+        /**
+         * WorkPreferenceIn
+         * @description Preferences about an arrangement. Not proof of status: ticking contractor is not an ABN
+         *     check, and it does not make anyone a contractor in law.
+         */
+        WorkPreferenceIn: {
+            /** Available From */
+            available_from?: string | null;
+            /** Enabled */
+            enabled: boolean;
+            /**
+             * Engagement Bases
+             * @default []
+             */
+            engagement_bases: ("employee" | "contractor")[];
+            /**
+             * Hours Patterns
+             * @default []
+             */
+            hours_patterns: ("full_time" | "part_time" | "casual")[];
+            /** Max Travel Km */
+            max_travel_km?: number | null;
+            /** Max Weekly Hours */
+            max_weekly_hours?: number | string | null;
+            /** Min Hourly Pay */
+            min_hourly_pay?: number | string | null;
+            /** Min Weekly Hours */
+            min_weekly_hours?: number | string | null;
+            /** Notice Period Days */
+            notice_period_days?: number | null;
+        };
+        /** WorkPreferenceOut */
+        WorkPreferenceOut: {
+            /** Available From */
+            available_from: string | null;
+            /** Discoverable */
+            discoverable: boolean;
+            /** Enabled */
+            enabled: boolean;
+            /** Engagement Bases */
+            engagement_bases: string[];
+            /** Hours Patterns */
+            hours_patterns: string[];
+            /** Kind */
+            kind: string;
+            /** Max Travel Km */
+            max_travel_km: number | null;
+            /** Max Weekly Hours */
+            max_weekly_hours: string | null;
+            /** Min Hourly Pay */
+            min_hourly_pay: string | null;
+            /** Min Weekly Hours */
+            min_weekly_hours: string | null;
+            /** Notice Period Days */
+            notice_period_days: number | null;
+        };
+        /**
+         * WorkPreferencesOut
+         * @description None means the person has never set that kind (distinct from set-but-off).
+         */
+        WorkPreferencesOut: {
+            permanent: components["schemas"]["WorkPreferenceOut"] | null;
+            temporary: components["schemas"]["WorkPreferenceOut"] | null;
         };
     };
     responses: never;
@@ -2469,6 +4005,74 @@ export interface operations {
             };
         };
     };
+    list_reports_v1_admin_message_reports_get: {
+        parameters: {
+            query?: {
+                status?: "open" | "closed";
+                limit?: number;
+                offset?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerationReportOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_report_v1_admin_message_reports__report_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                report_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReviewReportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ModerationReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     login_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -2752,6 +4356,282 @@ export interface operations {
             };
         };
     };
+    get_availability_v1_candidate_availability_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityOut"];
+                };
+            };
+        };
+    };
+    check_v1_candidate_availability_check_get: {
+        parameters: {
+            query: {
+                starts_at: string;
+                ends_at: string;
+                buffer_minutes?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityCheckOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_commitment_v1_candidate_availability_commitments_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CommitmentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitmentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_commitment_v1_candidate_availability_commitments__commitment_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    confirm_commitment_v1_candidate_availability_commitments__commitment_id__confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                commitment_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CommitmentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_exception_v1_candidate_availability_exceptions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityExceptionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityExceptionOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_exception_v1_candidate_availability_exceptions__exception_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                exception_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    put_rules_v1_candidate_availability_rules_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AvailabilityRulesIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AvailabilityOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    discovery_consent_v1_candidate_consents_discovery__kind__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: "permanent" | "temporary";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConsentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkPreferenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     talent_discovery_consent_v1_candidate_consents_talent_discovery_put: {
         parameters: {
             query?: never;
@@ -2772,6 +4652,505 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ProfileOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_conversations_v1_candidate_conversations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"][];
+                };
+            };
+        };
+    };
+    candidate_close_v1_candidate_conversations__conversation_id__close_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    candidate_messages_v1_candidate_conversations__conversation_id__messages_get: {
+        parameters: {
+            query?: {
+                before?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    candidate_send_v1_candidate_conversations__conversation_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    candidate_read_v1_candidate_conversations__conversation_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    candidate_report_v1_candidate_conversations__conversation_id__report_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_directory_v1_candidate_employer_directory_get: {
+        parameters: {
+            query: {
+                q: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerDirectoryItem"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_employer_preferences_v1_candidate_employer_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerPreferenceOut"][];
+                };
+            };
+        };
+    };
+    add_employer_preference_v1_candidate_employer_preferences_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmployerPreferenceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerPreferenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_employer_preference_v1_candidate_employer_preferences__pref_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                pref_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    inbox_summary_v1_candidate_inbox_summary_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InboxSummary"];
+                };
+            };
+        };
+    };
+    get_invitation_settings_v1_candidate_invitation_settings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationSettingsOut"];
+                };
+            };
+        };
+    };
+    put_invitation_settings_v1_candidate_invitation_settings_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationSettingsIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationSettingsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_invitations_v1_candidate_invitations_get: {
+        parameters: {
+            query?: {
+                status?: ("pending" | "accepted" | "declined" | "withdrawn" | "expired") | null;
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_invitation_v1_candidate_invitations__invitation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    accept_invitation_v1_candidate_invitations__invitation_id__accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationAcceptIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    decline_invitation_v1_candidate_invitations__invitation_id__decline_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InvitationOut"];
                 };
             };
             /** @description Validation Error */
@@ -3205,6 +5584,61 @@ export interface operations {
             };
         };
     };
+    get_work_preferences_v1_candidate_work_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkPreferencesOut"];
+                };
+            };
+        };
+    };
+    put_work_preference_v1_candidate_work_preferences__kind__put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                kind: "permanent" | "temporary";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["WorkPreferenceIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkPreferenceOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     register_device_v1_devices_post: {
         parameters: {
             query?: never;
@@ -3409,6 +5843,309 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EmployerApplicationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_conversations_v1_employers__employer_id__conversations_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ConversationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_messages_v1_employers__employer_id__conversations__conversation_id__messages_get: {
+        parameters: {
+            query?: {
+                before?: string | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                employer_id: string;
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessagePage"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_send_v1_employers__employer_id__conversations__conversation_id__messages_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MessageIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MessageOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_read_v1_employers__employer_id__conversations__conversation_id__read_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_report_v1_employers__employer_id__conversations__conversation_id__report_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                conversation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_sent_v1_employers__employer_id__invitations_get: {
+        parameters: {
+            query?: {
+                status?: ("pending" | "accepted" | "declined" | "withdrawn" | "expired") | null;
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerInvitationOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    send_invitation_v1_employers__employer_id__invitations_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                "Idempotency-Key"?: string | null;
+            };
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InvitationIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerInvitationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_sent_v1_employers__employer_id__invitations__invitation_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerInvitationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    withdraw_invitation_v1_employers__employer_id__invitations__invitation_id__withdraw_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                invitation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmployerInvitationOut"];
                 };
             };
             /** @description Validation Error */
@@ -3816,6 +6553,41 @@ export interface operations {
             };
         };
     };
+    search_talent_v1_employers__employer_id__talent_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TalentSearchIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TalentSearchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     search_jobs_v1_jobs_get: {
         parameters: {
             query?: {
@@ -3823,6 +6595,9 @@ export interface operations {
                 suburb?: string | null;
                 state?: string | null;
                 employment_type?: string | null;
+                engagement_basis?: string | null;
+                duration_type?: string | null;
+                hours_pattern?: string | null;
                 category?: string | null;
                 skill?: string | null;
                 min_hourly?: number | null;
@@ -4015,6 +6790,61 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["NotificationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    catalog_v1_pricing_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CatalogOut"];
+                };
+            };
+        };
+    };
+    get_estimate_v1_pricing_estimate_get: {
+        parameters: {
+            query?: {
+                new_ad?: boolean;
+                readvertise?: boolean;
+                promotions?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
                 };
             };
             /** @description Validation Error */

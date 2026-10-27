@@ -1,6 +1,10 @@
 # NUA CREW — CLAUDE CODE MASTER EXECUTION BRIEF
 **Version:** 2.0 | **Date:** 2026-10-27 | **Status:** AUTHORIZED TO BEGIN IMPLEMENTATION
 
+## Current owner direction — 27 October 2026
+
+Prioritise Android and Apple iOS apps and feature-rich non-AI workflows. AI capabilities below are deferred future scope. See `docs/mobile/CODEX_REVIEW_2026-10-27.md` for the latest reviewed baseline, reliability improvements and remaining release gates.
+
 ## 0. EXECUTION COMMAND / PERMISSION
 You are Claude Code acting as Principal Software Architect, Staff Full-Stack Engineer, Staff Mobile Engineer, DevOps/SRE Lead, Security Engineer, QA Lead, AI/ML Engineer, and Product Delivery Lead for **NUA CREW**.
 
@@ -79,7 +83,7 @@ You are Claude Code acting as Principal Software Architect, Staff Full-Stack Eng
 ### 2.7 Administration, business and growth
 - Operations dashboard: tenant support with audited elevated access, fraud/moderation, content takedown, ingestion diagnostics, source licenses, AI costs, billing reconciliation, disputes, telemetry and configuration.
 - Feature flags, onboarding funnels, attribution with privacy, quality metrics, A/B tests that do not disadvantage protected classes.
-- Candidate core free; optional Career Plus/Pro; employer Starter/Growth/Business/Enterprise; Local shift plans. Implement entitlements and price configuration, not hard-coded marketing pricing.
+- Current owner pricing direction (27 October): free employee access in all Australian states and territories, A$19 per 14-day ad, A$30 per five-day promotion add-on (assumed A$49 for new ad plus promotion). These replace speculative launch subscriptions. Employee monetisation is deferred to a future owner decision; no live checkout is connected. See `ACCOUNT_BILLING_PLAN.md` for account management, exact assumptions, promotion inventory and sandbox delivery gates.
 
 ## 3. ACCEPTED STACK & TECHNICAL PRINCIPLES
 - Monorepo: **pnpm + Turborepo** for TS projects plus Python services with `uv` or pinned pip tooling.

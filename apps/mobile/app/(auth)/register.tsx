@@ -42,6 +42,9 @@ export default function Register() {
 
   return (
     <Screen>
+      <Link href="/register-employer" accessibilityRole="link" style={{ color: colors.primary }}>
+        Hiring for your business? Create an employer account
+      </Link>
       <View style={{ gap: space(2.5) }}>
         <Text variant="title" accessibilityRole="header">
           Create your free account

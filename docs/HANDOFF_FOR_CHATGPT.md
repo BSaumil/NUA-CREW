@@ -1,6 +1,20 @@
 # NUA CREW — Project handoff (paste into ChatGPT as context)
 
+## Latest native hiring handoff — 27 October 2026
+
+Continue on `feat/native-hire-experience-20261027`, extending M3 commit `bc13609`. The current report is `reports/CODEX_NATIVE_HIRE_M4_2026-10-27.md`; it supersedes older statements that employer mobile and moderation UI have not been built. Employer mobile MVP and simpler employee navigation are implemented. Database, browser visual and physical-device validation remain blocked. Full shift booking, production identity and billing remain unfinished. Employees stay free nationwide; AI is deferred. No deployment, source push or paid activation was performed.
+
+## Previous integrated takeover — 27 October 2026
+
+Use `feat/integrated-m3-20261027`. Claude's complete M2 bundle (through e9b4d13) is integrated with the Codex branch in merge commit 110ee3e. See `reports/CODEX_INTEGRATION_M3_2026-10-27.md` for the current implementation, test evidence and blockers. New source includes the operator report/verification portal and confirmed-commitment exclusion migration; database validation is blocked by unavailable PostgreSQL. Employees remain free nationally, billing disabled, Android/iOS first and AI deferred. No source publication, production deployment or native installer/device approval is claimed. Earlier sections below are historical and do not supersede this report.
+
 **Repo:** https://github.com/BSaumil/NUA-CREW · **Branch:** `claude/new-session-kszaxl` (no `main` exists yet, so no PR) · **Date:** 2026-10-26
+
+## Latest review — 27 October 2026
+
+Owner added account/billing requirements: `ACCOUNT_BILLING_PLAN.md`. Draft pricing API and pure calculations are implemented locally (employees free nationally / A$19 for 14 days / A$30 promotion for five days; A$30 assumed add-on). Thirteen isolated pricing tests pass. This is not checkout or entitlement enforcement. Employee fees are removed from the current catalogue; future monetisation is a roadmap option only; all catalogue products are non-purchasable. Native account/billing UI, ledger, store/processor verification and reserved top-five inventory remain to be implemented. No live payments or deployment.
+
+Android/iOS first; AI features deferred by the owner. Claude baseline `90c3bab` was reviewed and extended on `feat/mobile-session-resilience-20261027`. See `docs/mobile/CODEX_REVIEW_2026-10-27.md` for race-condition fixes, application retry improvements, smaller asset exports, the CI role correction and test evidence. Latest checks: 90 mobile tests plus 41 shared tests, types/lint, Android/iOS bundles and both Next builds pass. API/database/browser checks need CI; node-forge's unpatched Expo-tooling advisory remains a release/audit blocker. No native installable build or device testing is claimed.
 
 ## 1. What NUA CREW is
 
@@ -48,9 +62,9 @@ An AI-first Australian jobs marketplace and recruitment ecosystem, starting with
 
 ## 4. What is NOT done or not verified
 
-- Not started: admin UI, employer mobile app, Career AI, pgvector and embeddings, resume file upload and malware scan, Local shifts, billing and entitlements, email/SMS/push, data export and deletion, transactional outbox, bot challenges / risk-tiered limits, any real feed connector.
+- Not started: admin UI, employer mobile app, Career AI, pgvector and embeddings, resume file upload and malware scan, Local shifts, billing and entitlements, email/SMS, physical push-delivery verification, transactional outbox, bot challenges / risk-tiered limits, any real feed connector.
 - **RLS caveat:** in development the app connects as the table owner (policies use FORCE). Production must connect as a non-owner, non-superuser role.
-- **Placeholder auth:** local password JWT for development only (ADR-002). No MFA, no refresh tokens, no email or phone verification. Do not use with real users.
+- **Placeholder auth:** local password JWT for development only (ADR-002). Rotating mobile refresh tokens exist; managed OIDC, MFA and email/phone verification are still missing. Do not use with real users.
 - **Mobile not run on a real device or emulator** (this environment has no Android SDK and cannot build iOS): verified by typecheck, Jest, Metro bundles for both platforms, prebuild config audit and a browser run of the same screens against the real API. Keychain/Keystore, biometrics, push delivery, location prompt and share sheet are untested on hardware. Store builds need Apple/Google accounts and a cleared brand/bundle id.
 - **Never run:** `docker-compose.yml` (no Docker daemon in the build environment) and the GitHub Actions workflow.
 - **Brand assets:** SVGs in `brand/svg` are recreations of the supplied icon PNG, not official artwork. `docs/UI_COPY_AND_SCREENS.md` was never supplied.

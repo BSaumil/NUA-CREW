@@ -13,18 +13,28 @@ from app.errors import ApiError, conflict
 from app.models import (
     Application,
     ApplicationEvent,
+    AvailabilityException,
+    AvailabilityRule,
     CandidateProfile,
     CandidateSkill,
+    Commitment,
     Consent,
+    Conversation,
     DeviceToken,
+    Employer,
     EmployerMembership,
+    EmployerPreference,
+    Invitation,
     Job,
+    Message,
+    MessageReport,
     Notification,
     Resume,
     SavedJob,
     SavedSearch,
     Skill,
     User,
+    WorkPreference,
 )
 from app.rls import system_scope
 from app.schemas import DeleteAccountIn, PasswordChangeIn
@@ -127,6 +137,91 @@ async def export_account(user: CurrentUser, session: Session) -> Response:
             for r in await session.scalars(select(Resume).where(Resume.candidate_id == p.id))
         ]
         data["applications"] = apps
+        data["work_preferences"] = [
+            _row(
+                w,
+                "kind",
+                "enabled",
+                "discoverable",
+                "engagement_bases",
+                "hours_patterns",
+                "min_weekly_hours",
+                "max_weekly_hours",
+                "min_hourly_pay",
+                "max_travel_km",
+                "notice_period_days",
+                "available_from",
+            )  # fmt: skip
+            for w in await session.scalars(
+                select(WorkPreference).where(WorkPreference.candidate_id == p.id)
+            )
+        ]
+        data["availability"] = {
+            "time_zone": p.time_zone,
+            "rules": [
+                _row(r, "weekday", "start_time", "end_time")
+                for r in await session.scalars(
+                    select(AvailabilityRule).where(AvailabilityRule.candidate_id == p.id)
+                )
+            ],
+            "exceptions": [
+                _row(x, "state", "start_date", "end_date", "start_time", "end_time")
+                for x in await session.scalars(
+                    select(AvailabilityException).where(AvailabilityException.candidate_id == p.id)
+                )
+            ],
+            "commitments": [
+                _row(c, "starts_at", "ends_at", "status", "label", "venue_time_zone")
+                for c in await session.scalars(
+                    select(Commitment).where(Commitment.candidate_id == p.id)
+                )
+            ],
+        }
+        data["invitations"] = [
+            {
+                **_row(i, "kind", "status", "note", "created_at", "expires_at", "responded_at"),
+                "business": i.snapshot.get("business"),
+                "role": i.snapshot.get("title"),
+            }
+            for i in await session.scalars(
+                select(Invitation).where(Invitation.candidate_id == p.id)
+            )
+        ]
+        # Threads the person took part in, including what the employer side wrote to them.
+        data["conversations"] = [
+            {
+                "business": (await session.get(Employer, c.employer_id) or Employer(name="")).name,
+                "status": c.status,
+                "created_at": c.created_at,
+                "messages": [
+                    {"from": m.sender_role, "body": m.body, "sent_at": m.created_at}
+                    for m in await session.scalars(
+                        select(Message)
+                        .where(Message.conversation_id == c.id)
+                        .order_by(Message.created_at, Message.id)
+                    )
+                ],
+            }
+            for c in await session.scalars(
+                select(Conversation).where(Conversation.candidate_id == p.id)
+            )
+        ]
+        data["message_reports"] = [
+            _row(r, "reason", "status", "created_at")
+            for r in await session.scalars(
+                select(MessageReport).where(MessageReport.reporter_user_id == user.id)
+            )
+        ]
+        data["employer_preferences"] = [
+            {"employer": name, "kind": pref.kind}
+            for pref, name in (
+                await session.execute(
+                    select(EmployerPreference, Employer.name)
+                    .join(Employer, Employer.id == EmployerPreference.employer_id)
+                    .where(EmployerPreference.candidate_id == p.id)
+                )
+            ).all()
+        ]
         data["saved_jobs"] = [
             str(j)
             for j in await session.scalars(
