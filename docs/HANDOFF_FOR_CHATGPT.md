@@ -1,6 +1,10 @@
 # NUA CREW — Project handoff (paste into ChatGPT as context)
 
-## Latest native hiring handoff — 27 October 2026
+## Latest hiring and shift handoff — 28 October 2026
+
+Continue from draft PR #2 on `feat/hiring-acceptance-shifts-20261028`. Read `reports/HIRING_SHIFTS_VALIDATION_2026-10-28.md`. Real PostgreSQL hiring/isolation and shift tests now pass; mobile shift offers, cancellation and timesheets are implemented. Complete latest browser checks and native hardware testing, then real billing inventory/ledger and production identity. The execution workspace disconnected with an unpublished billing draft; remote PR source is authoritative. Employees remain free nationally, AI deferred, billing disabled. No new main merge or deployment was performed.
+
+## Previous native hiring handoff — 27 October 2026
 
 Continue on `feat/native-hire-experience-20261027`, extending M3 commit `bc13609`. The current report is `reports/CODEX_NATIVE_HIRE_M4_2026-10-27.md`; it supersedes older statements that employer mobile and moderation UI have not been built. Employer mobile MVP and simpler employee navigation are implemented. Database, browser visual and physical-device validation remain blocked. Full shift booking, production identity and billing remain unfinished. Employees stay free nationwide; AI is deferred. No deployment, source push or paid activation was performed.
 

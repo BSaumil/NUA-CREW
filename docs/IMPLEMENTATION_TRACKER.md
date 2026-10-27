@@ -1,5 +1,9 @@
 # Implementation tracker
 
+## Current hiring and shift validation — 28 October 2026
+
+Draft PR #2 adds full hiring-journey validation and the shift-offer, booking, cancellation and timesheet workflows on Android/iOS screen code. PostgreSQL CI: 203 tests pass; mobile: 206 tests and shared: 41 tests pass at the recorded source revision. See `reports/HIRING_SHIFTS_VALIDATION_2026-10-28.md` for exact evidence, later checks and remaining work. Physical devices, production identity and actual billing/inventory remain incomplete. The local environment disconnected; use the remote PR branch as the saved source.
+
 ## Current native hiring implementation — 27 October 2026
 
 Branch `feat/native-hire-experience-20261027` extends integrated M3. See `reports/CODEX_NATIVE_HIRE_M4_2026-10-27.md` for implemented mobile employer workflows, UI decisions, evidence and release blockers. Native employer registration, business-scoped job posting and ATS, talent invitations, inbox, venues and membership controls are implemented; integration/device verification remains IN_PROGRESS. Employees remain free nationwide. Billing stays disabled.

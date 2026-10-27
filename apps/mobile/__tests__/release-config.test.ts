@@ -11,7 +11,7 @@ function config(overrides: Record<string, string | undefined>) {
     delete process.env[key];
   }
   Object.assign(process.env, overrides);
-  jest.isolateModules(() => require('../app.config'));
+  jest.isolateModules(() => jest.requireActual('../app.config'));
 }
 afterEach(() => {
   process.env = { ...original };
