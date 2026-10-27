@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select, text
 
-from app.models import Commitment, Shift
+from app.models import Commitment, Job, Shift
 from tests.conftest import db_as, register_candidate, register_employer
 from tests.test_availability_api import discoverable_candidate, search
 from tests.test_invitations import accept, body, send, setup_pair
@@ -208,3 +208,31 @@ async def test_timesheet_revision_review_and_approved_immutability(client):
     )
     assert approved.json()["timesheet"]["status"] == "approved"
     assert (await client.put(url, headers=cand, json=payload)).status_code == 409
+
+
+async def test_expired_advertisement_cannot_create_offer_or_confirm_shift_work(client):
+    emp, eid, job, cand, sid, bid = await setup(client, "shift-expired-ad")
+    async with db_as("system") as session:
+        row = await session.get(Job, uuid.UUID(job["id"]))
+        row.expires_at = datetime.now(UTC) - timedelta(minutes=1)
+        await session.commit()
+    rejected = await respond(client, cand, bid)
+    assert rejected.status_code == 409
+    assert rejected.json()["error"]["code"] == "offer_unavailable"
+    day = (datetime.now(UTC) + timedelta(days=10)).date().isoformat()
+    created = await client.post(
+        f"/v1/employers/{eid}/shifts",
+        headers=emp,
+        json={
+            "job_id": job["id"],
+            "local_date": day,
+            "local_start": "09:00",
+            "local_end": "13:00",
+            "time_zone": "Australia/Melbourne",
+            "capacity": 1,
+            "hourly_rate_minor": 3000,
+        },
+    )
+    assert created.status_code == 409
+    assert created.json()["error"]["code"] == "shift_job_unavailable"
+    assert (await client.get("/v1/candidate/availability", headers=cand)).json()["commitments"] == []

@@ -23,6 +23,7 @@ from app.models import (
 )
 from app.rls import system_scope
 from app.routers.availability import _flush_commitment
+from app.services.jobs import is_open
 from app.services.scheduling import resolve_window, worked_minutes
 from app.shift_schemas import (
     BookingActionIn,
@@ -117,7 +118,7 @@ async def create_shift(
         raise not_found("job")
     if employer.verification_status != "verified":
         raise forbidden("Business verification is required")
-    if job.status != "published" or job.pay_period != "hour" or job.super_included is None:
+    if not is_open(job) or job.pay_period != "hour" or job.super_included is None:
         raise conflict(
             "shift_job_unavailable", "Use an open job with hourly pay and explicit super disclosure"
         )
@@ -196,7 +197,7 @@ async def offer(
         employer is None
         or employer.verification_status != "verified"
         or job is None
-        or job.status != "published"
+        or not is_open(job)
     ):
         raise forbidden("The business and job must remain available")
     if shift.status != "open" or shift.starts_at <= datetime.now(UTC):
@@ -304,7 +305,7 @@ async def respond(
                 or conversation.status != "open"
                 or not conversation.employer_access
                 or job is None
-                or job.status != "published"
+                or not is_open(job)
             ):
                 raise conflict(
                     "offer_unavailable", "The business, conversation or job is no longer available"
