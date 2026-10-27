@@ -58,7 +58,9 @@ WORK_KINDS = ("permanent", "temporary")
 AVAILABILITY_STATES = ("available", "unavailable", "unknown", "offered", "held", "confirmed")
 COMMITMENT_STATUSES = ("held", "confirmed")
 EXCEPTION_STATES = ("available", "unavailable")
-EMPLOYER_PREFERENCE_KINDS = ("follow", "hide_from", "mute")
+EMPLOYER_PREFERENCE_KINDS = ("follow", "hide_from", "mute", "block")
+INVITATION_STATUSES = ("pending", "accepted", "declined", "withdrawn", "expired")
+CONVERSATION_STATUSES = ("open", "closed")
 CONSENT_KINDS = (
     "terms",
     "privacy",
@@ -144,6 +146,10 @@ class CandidateProfile(TimestampMixin, Base):
         Boolean, nullable=False, server_default=text("false")
     )
     push_enabled: Mapped[bool] = mapped_column(Boolean, nullable=False, server_default=text("true"))
+    # Pause or allow employer invitations. Separate from discoverability and from ending a thread.
+    invitations_enabled: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
     # IANA zone for recurring availability rules ("every Tuesday 17:00-23:00" means local time).
     time_zone: Mapped[str] = mapped_column(
         String(64), nullable=False, server_default="Australia/Melbourne"
@@ -778,5 +784,148 @@ class EmployerPreference(Base):
     )
     kind: Mapped[str] = mapped_column(String(12), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class Invitation(TimestampMixin, Base):
+    """An employer's expression of hiring interest in a consenting candidate for one open job.
+    Not an application, an employment offer, a shift hold or a booking."""
+
+    __tablename__ = "invitations"
+    __table_args__ = (
+        CheckConstraint(_in("status", INVITATION_STATUSES), name="ck_invitation_status"),
+        CheckConstraint(_in("kind", WORK_KINDS), name="ck_invitation_kind"),
+        CheckConstraint("char_length(note) <= 500", name="ck_invitation_note_len"),
+        # one live invitation per employer + candidate + job, whichever teammate sent it
+        Index(
+            "uq_invitation_live",
+            "employer_id",
+            "candidate_id",
+            "job_id",
+            unique=True,
+            postgresql_where=text("status IN ('pending', 'accepted')"),
+        ),
+        UniqueConstraint("employer_id", "idempotency_key", name="uq_invitation_idem"),
+        Index("ix_invitation_candidate_status", "candidate_id", "status"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("jobs.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    sent_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    kind: Mapped[str] = mapped_column(String(12), nullable=False)
+    status: Mapped[str] = mapped_column(String(12), nullable=False, server_default="pending")
+    note: Mapped[str] = mapped_column(String(500), nullable=False, server_default="")
+    job_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    snapshot: Mapped[dict[str, Any]] = mapped_column(JSONB, nullable=False)  # terms as invited
+    accepted_snapshot: Mapped[dict[str, Any] | None] = mapped_column(JSONB)  # terms as accepted
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    responded_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    idempotency_key: Mapped[str | None] = mapped_column(String(80))
+    request_hash: Mapped[str | None] = mapped_column(String(64))
+
+
+class Conversation(Base):
+    """Exactly one per accepted invitation."""
+
+    __tablename__ = "conversations"
+    __table_args__ = (
+        CheckConstraint(_in("status", CONVERSATION_STATUSES), name="ck_conversation_status"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    invitation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("invitations.id", ondelete="CASCADE"), nullable=False, unique=True
+    )
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    status: Mapped[str] = mapped_column(String(8), nullable=False, server_default="open")
+    closed_reason: Mapped[str | None] = mapped_column(String(24))  # candidate_closed | blocked
+    # False after a candidate block: the employer side loses read access, history is kept.
+    employer_access: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, server_default=text("true")
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_message_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    candidate_read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    employer_read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class Message(Base):
+    __tablename__ = "messages"
+    __table_args__ = (
+        CheckConstraint("sender_role IN ('candidate', 'employer')", name="ck_message_role"),
+        CheckConstraint("char_length(body) BETWEEN 1 AND 2000", name="ck_message_body_len"),
+        UniqueConstraint("conversation_id", "sender_role", "client_key", name="uq_message_client"),
+        Index("ix_messages_conversation_created", "conversation_id", "created_at", "id"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    conversation_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("conversations.id", ondelete="CASCADE"), nullable=False
+    )
+    sender_role: Mapped[str] = mapped_column(String(10), nullable=False)
+    sender_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    body: Mapped[str] = mapped_column(Text, nullable=False)  # plain text only
+    client_key: Mapped[str | None] = mapped_column(String(80))
+    request_hash: Mapped[str | None] = mapped_column(String(64))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class MessageReport(Base):
+    """Minimal support record. Keeps a copy of the reported text so it survives deletion."""
+
+    __tablename__ = "message_reports"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    conversation_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("conversations.id", ondelete="SET NULL")
+    )
+    message_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("messages.id", ondelete="SET NULL")
+    )
+    reporter_user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    reporter_role: Mapped[str] = mapped_column(String(10), nullable=False)
+    reason: Mapped[str] = mapped_column(String(500), nullable=False)
+    excerpt: Mapped[str | None] = mapped_column(String(500))
+    status: Mapped[str] = mapped_column(String(10), nullable=False, server_default="open")
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
+class TalentExposure(Base):
+    """Which candidates an employer has been shown, and when. It bounds how many distinct people
+    one employer can probe per day, and is the only way an opaque reference can be resolved."""
+
+    __tablename__ = "talent_exposures"
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), primary_key=True
+    )
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), primary_key=True
+    )
+    first_shown_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_shown_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

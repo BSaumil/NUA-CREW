@@ -19,11 +19,15 @@ from app.models import (
     CandidateSkill,
     Commitment,
     Consent,
+    Conversation,
     DeviceToken,
     Employer,
     EmployerMembership,
     EmployerPreference,
+    Invitation,
     Job,
+    Message,
+    MessageReport,
     Notification,
     Resume,
     SavedJob,
@@ -173,6 +177,41 @@ async def export_account(user: CurrentUser, session: Session) -> Response:
                 )
             ],
         }
+        data["invitations"] = [
+            {
+                **_row(i, "kind", "status", "note", "created_at", "expires_at", "responded_at"),
+                "business": i.snapshot.get("business"),
+                "role": i.snapshot.get("title"),
+            }
+            for i in await session.scalars(
+                select(Invitation).where(Invitation.candidate_id == p.id)
+            )
+        ]
+        # Threads the person took part in, including what the employer side wrote to them.
+        data["conversations"] = [
+            {
+                "business": (await session.get(Employer, c.employer_id) or Employer(name="")).name,
+                "status": c.status,
+                "created_at": c.created_at,
+                "messages": [
+                    {"from": m.sender_role, "body": m.body, "sent_at": m.created_at}
+                    for m in await session.scalars(
+                        select(Message)
+                        .where(Message.conversation_id == c.id)
+                        .order_by(Message.created_at, Message.id)
+                    )
+                ],
+            }
+            for c in await session.scalars(
+                select(Conversation).where(Conversation.candidate_id == p.id)
+            )
+        ]
+        data["message_reports"] = [
+            _row(r, "reason", "status", "created_at")
+            for r in await session.scalars(
+                select(MessageReport).where(MessageReport.reporter_user_id == user.id)
+            )
+        ]
         data["employer_preferences"] = [
             {"employer": name, "kind": pref.kind}
             for pref, name in (

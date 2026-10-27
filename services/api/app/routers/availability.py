@@ -43,6 +43,7 @@ from app.schemas import (
     WorkPreferencesOut,
 )
 from app.services import availability as av
+from app.services import conversations as convs
 
 router = APIRouter(prefix="/v1/candidate", tags=["availability"])
 
@@ -394,19 +395,23 @@ async def list_employer_preferences(
 
 @router.post("/employer-preferences", response_model=EmployerPreferenceOut, status_code=201)
 async def add_employer_preference(
-    body: EmployerPreferenceIn, profile: Candidate, session: Session
+    body: EmployerPreferenceIn, profile: Candidate, user: CurrentUser, session: Session
 ) -> EmployerPreferenceOut:
     emp = await session.get(Employer, body.employer_id)
     if emp is None:
         raise not_found("employer")
-    # follow and hide_from contradict each other; mute is independent.
-    opposite = {"follow": "hide_from", "hide_from": "follow"}.get(body.kind)
+    # follow contradicts hide_from and block; mute is independent.
+    opposite = {
+        "follow": ("hide_from", "block"),
+        "hide_from": ("follow",),
+        "block": ("follow",),
+    }.get(body.kind, ())
     if opposite:
         await session.execute(
             delete(EmployerPreference).where(
                 EmployerPreference.candidate_id == profile.id,
                 EmployerPreference.employer_id == emp.id,
-                EmployerPreference.kind == opposite,
+                EmployerPreference.kind.in_(opposite),
             )
         )
     existing = (
@@ -424,6 +429,9 @@ async def add_employer_preference(
     if existing is None:
         session.add(pref)
     await session.flush()
+    if body.kind == "block":
+        # Close threads, cut the employer's access to them, end pending invitations, stop nudges.
+        await convs.apply_block(session, profile.id, emp.id, user)
     return EmployerPreferenceOut(
         id=pref.id, employer_id=emp.id, employer_name=emp.name, kind=pref.kind
     )

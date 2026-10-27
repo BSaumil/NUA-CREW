@@ -693,6 +693,81 @@
         "title": "ConsentIn",
         "type": "object"
       },
+      "ConversationOut": {
+        "properties": {
+          "closed_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Closed Reason"
+          },
+          "counterpart": {
+            "title": "Counterpart",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "invitation_id": {
+            "format": "uuid",
+            "title": "Invitation Id",
+            "type": "string"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "job_title": {
+            "title": "Job Title",
+            "type": "string"
+          },
+          "last_message_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Message At"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "closed"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "invitation_id",
+          "job_id",
+          "job_title",
+          "counterpart",
+          "status",
+          "closed_reason",
+          "last_message_at",
+          "unread"
+        ],
+        "title": "ConversationOut",
+        "type": "object"
+      },
       "DeleteAccountIn": {
         "properties": {
           "password": {
@@ -872,6 +947,105 @@
         "title": "EmployerDirectoryItem",
         "type": "object"
       },
+      "EmployerInvitationOut": {
+        "properties": {
+          "candidate_label": {
+            "title": "Candidate Label",
+            "type": "string"
+          },
+          "candidate_ref": {
+            "title": "Candidate Ref",
+            "type": "string"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "job_title": {
+            "title": "Job Title",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "permanent",
+              "temporary"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "responded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responded At"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "accepted",
+              "declined",
+              "withdrawn",
+              "expired"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "kind",
+          "job_id",
+          "job_title",
+          "note",
+          "created_at",
+          "expires_at",
+          "responded_at",
+          "candidate_label",
+          "candidate_ref",
+          "conversation_id"
+        ],
+        "title": "EmployerInvitationOut",
+        "type": "object"
+      },
       "EmployerOut": {
         "properties": {
           "abn": {
@@ -919,7 +1093,8 @@
             "enum": [
               "follow",
               "hide_from",
-              "mute"
+              "mute",
+              "block"
             ],
             "title": "Kind",
             "type": "string"
@@ -1103,6 +1278,24 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "InboxSummary": {
+        "properties": {
+          "unread_conversations": {
+            "title": "Unread Conversations",
+            "type": "integer"
+          },
+          "unread_invitations": {
+            "title": "Unread Invitations",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "unread_invitations",
+          "unread_conversations"
+        ],
+        "title": "InboxSummary",
+        "type": "object"
+      },
       "IngestionStatsOut": {
         "properties": {
           "sources": {
@@ -1125,6 +1318,408 @@
           "sources"
         ],
         "title": "IngestionStatsOut",
+        "type": "object"
+      },
+      "InvitationAcceptIn": {
+        "properties": {
+          "terms_hash": {
+            "maxLength": 64,
+            "minLength": 8,
+            "title": "Terms Hash",
+            "type": "string"
+          }
+        },
+        "required": [
+          "terms_hash"
+        ],
+        "title": "InvitationAcceptIn",
+        "type": "object"
+      },
+      "InvitationIn": {
+        "properties": {
+          "expires_in_days": {
+            "anyOf": [
+              {
+                "maximum": 14.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expires In Days"
+          },
+          "job_id": {
+            "format": "uuid",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "permanent",
+              "temporary"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "default": "",
+            "maxLength": 500,
+            "title": "Note",
+            "type": "string"
+          },
+          "ref": {
+            "description": "Opaque reference from talent search",
+            "maxLength": 64,
+            "minLength": 8,
+            "title": "Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "ref",
+          "job_id",
+          "kind"
+        ],
+        "title": "InvitationIn",
+        "type": "object"
+      },
+      "InvitationList": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/InvitationOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "items",
+          "unread"
+        ],
+        "title": "InvitationList",
+        "type": "object"
+      },
+      "InvitationOut": {
+        "description": "Candidate's view. Interest only: not an application, an employment offer or a shift hold.",
+        "properties": {
+          "acceptance_note": {
+            "title": "Acceptance Note",
+            "type": "string"
+          },
+          "can_accept": {
+            "title": "Can Accept",
+            "type": "boolean"
+          },
+          "conversation_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversation Id"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "current_terms": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InvitationTerms"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "current_terms_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Terms Hash"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "job_open": {
+            "title": "Job Open",
+            "type": "boolean"
+          },
+          "kind": {
+            "enum": [
+              "permanent",
+              "temporary"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "responded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Responded At"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "accepted",
+              "declined",
+              "withdrawn",
+              "expired"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "terms": {
+            "$ref": "#/components/schemas/InvitationTerms"
+          },
+          "terms_changed": {
+            "title": "Terms Changed",
+            "type": "boolean"
+          },
+          "unread": {
+            "title": "Unread",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "id",
+          "status",
+          "kind",
+          "note",
+          "created_at",
+          "expires_at",
+          "responded_at",
+          "unread",
+          "terms",
+          "current_terms",
+          "current_terms_hash",
+          "terms_changed",
+          "job_open",
+          "can_accept",
+          "conversation_id",
+          "acceptance_note"
+        ],
+        "title": "InvitationOut",
+        "type": "object"
+      },
+      "InvitationSettingsIn": {
+        "properties": {
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "enabled"
+        ],
+        "title": "InvitationSettingsIn",
+        "type": "object"
+      },
+      "InvitationSettingsOut": {
+        "properties": {
+          "invitations_enabled": {
+            "title": "Invitations Enabled",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "invitations_enabled"
+        ],
+        "title": "InvitationSettingsOut",
+        "type": "object"
+      },
+      "InvitationTerms": {
+        "description": "What the candidate is invited to, as the job stood (invited) or stands (current).",
+        "properties": {
+          "business": {
+            "title": "Business",
+            "type": "string"
+          },
+          "duration_type": {
+            "title": "Duration Type",
+            "type": "string"
+          },
+          "employment_type": {
+            "title": "Employment Type",
+            "type": "string"
+          },
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "engagement_basis": {
+            "title": "Engagement Basis",
+            "type": "string"
+          },
+          "hours_pattern": {
+            "title": "Hours Pattern",
+            "type": "string"
+          },
+          "job_id": {
+            "title": "Job Id",
+            "type": "string"
+          },
+          "max_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Max Weekly Hours"
+          },
+          "min_weekly_hours": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Min Weekly Hours"
+          },
+          "pay_basis": {
+            "title": "Pay Basis",
+            "type": "string"
+          },
+          "pay_max": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Max"
+          },
+          "pay_min": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Min"
+          },
+          "pay_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Period"
+          },
+          "start_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Start Date"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "State"
+          },
+          "suburb": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Suburb"
+          },
+          "super_included": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Super Included"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "business",
+          "job_id",
+          "title",
+          "employment_type",
+          "engagement_basis",
+          "duration_type",
+          "hours_pattern",
+          "pay_basis"
+        ],
+        "title": "InvitationTerms",
         "type": "object"
       },
       "JobEmployerOut": {
@@ -2058,6 +2653,102 @@
         "title": "MembershipOut",
         "type": "object"
       },
+      "MessageIn": {
+        "properties": {
+          "body": {
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Body",
+            "type": "string"
+          },
+          "client_key": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Key"
+          }
+        },
+        "required": [
+          "body"
+        ],
+        "title": "MessageIn",
+        "type": "object"
+      },
+      "MessageOut": {
+        "properties": {
+          "body": {
+            "description": "Plain text. Render as text, never as HTML.",
+            "title": "Body",
+            "type": "string"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "mine": {
+            "title": "Mine",
+            "type": "boolean"
+          },
+          "sender_role": {
+            "enum": [
+              "candidate",
+              "employer"
+            ],
+            "title": "Sender Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "sender_role",
+          "mine",
+          "body",
+          "created_at"
+        ],
+        "title": "MessageOut",
+        "type": "object"
+      },
+      "MessagePage": {
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/MessageOut"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "next_before": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Next Before"
+          }
+        },
+        "required": [
+          "items",
+          "next_before"
+        ],
+        "title": "MessagePage",
+        "type": "object"
+      },
       "NoteIn": {
         "properties": {
           "note": {
@@ -2503,6 +3194,52 @@
           "refresh_token"
         ],
         "title": "RefreshIn",
+        "type": "object"
+      },
+      "ReportIn": {
+        "properties": {
+          "message_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message Id"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 3,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "ReportIn",
+        "type": "object"
+      },
+      "ReportOut": {
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "status"
+        ],
+        "title": "ReportOut",
         "type": "object"
       },
       "ResumeIn": {
@@ -5603,6 +6340,317 @@
         ]
       }
     },
+    "/v1/candidate/conversations": {
+      "get": {
+        "operationId": "list_conversations_v1_candidate_conversations_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationOut"
+                  },
+                  "title": "Response List Conversations V1 Candidate Conversations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Conversations",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/conversations/{conversation_id}/close": {
+      "post": {
+        "description": "End an accepted conversation. Separate from pausing invitations and from blocking.",
+        "operationId": "candidate_close_v1_candidate_conversations__conversation_id__close_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConversationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Close",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/conversations/{conversation_id}/messages": {
+      "get": {
+        "operationId": "candidate_messages_v1_candidate_conversations__conversation_id__messages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Messages",
+        "tags": [
+          "inbox"
+        ]
+      },
+      "post": {
+        "operationId": "candidate_send_v1_candidate_conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Send",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/conversations/{conversation_id}/read": {
+      "post": {
+        "operationId": "candidate_read_v1_candidate_conversations__conversation_id__read_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Read",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/conversations/{conversation_id}/report": {
+      "post": {
+        "operationId": "candidate_report_v1_candidate_conversations__conversation_id__report_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate Report",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
     "/v1/candidate/employer-directory": {
       "get": {
         "description": "Find an employer by name to follow, hide from or mute. Names are already public.",
@@ -5769,6 +6817,331 @@
         "summary": "Delete Employer Preference",
         "tags": [
           "availability"
+        ]
+      }
+    },
+    "/v1/candidate/inbox/summary": {
+      "get": {
+        "operationId": "inbox_summary_v1_candidate_inbox_summary_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InboxSummary"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Inbox Summary",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/invitation-settings": {
+      "get": {
+        "operationId": "get_invitation_settings_v1_candidate_invitation_settings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationSettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Invitation Settings",
+        "tags": [
+          "inbox"
+        ]
+      },
+      "put": {
+        "description": "Pausing stops NEW invitations. Pending invitations and open conversations are unchanged;\nend a conversation or block an employer separately.",
+        "operationId": "put_invitation_settings_v1_candidate_invitation_settings_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationSettingsIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationSettingsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Put Invitation Settings",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/invitations": {
+      "get": {
+        "operationId": "list_invitations_v1_candidate_invitations_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "accepted",
+                    "declined",
+                    "withdrawn",
+                    "expired"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Invitations",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/invitations/{invitation_id}": {
+      "get": {
+        "operationId": "get_invitation_v1_candidate_invitations__invitation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invitation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Invitation",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/invitations/{invitation_id}/accept": {
+      "post": {
+        "operationId": "accept_invitation_v1_candidate_invitations__invitation_id__accept_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invitation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationAcceptIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Accept Invitation",
+        "tags": [
+          "inbox"
+        ]
+      }
+    },
+    "/v1/candidate/invitations/{invitation_id}/decline": {
+      "post": {
+        "description": "No reason is asked for.",
+        "operationId": "decline_invitation_v1_candidate_invitations__invitation_id__decline_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invitation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Decline Invitation",
+        "tags": [
+          "inbox"
         ]
       }
     },
@@ -6815,6 +8188,606 @@
         "summary": "Set Status",
         "tags": [
           "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/conversations": {
+      "get": {
+        "operationId": "employer_conversations_v1_employers__employer_id__conversations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConversationOut"
+                  },
+                  "title": "Response Employer Conversations V1 Employers  Employer Id  Conversations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Conversations",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/messages": {
+      "get": {
+        "operationId": "employer_messages_v1_employers__employer_id__conversations__conversation_id__messages_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "before",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Before"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessagePage"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Messages",
+        "tags": [
+          "invitations"
+        ]
+      },
+      "post": {
+        "operationId": "employer_send_v1_employers__employer_id__conversations__conversation_id__messages_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MessageIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MessageOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Send",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/read": {
+      "post": {
+        "operationId": "employer_read_v1_employers__employer_id__conversations__conversation_id__read_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Read",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/conversations/{conversation_id}/report": {
+      "post": {
+        "operationId": "employer_report_v1_employers__employer_id__conversations__conversation_id__report_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "conversation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Conversation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReportOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer Report",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/invitations": {
+      "get": {
+        "operationId": "list_sent_v1_employers__employer_id__invitations_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "pending",
+                    "accepted",
+                    "declined",
+                    "withdrawn",
+                    "expired"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Status"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EmployerInvitationOut"
+                  },
+                  "title": "Response List Sent V1 Employers  Employer Id  Invitations Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Sent",
+        "tags": [
+          "invitations"
+        ]
+      },
+      "post": {
+        "operationId": "send_invitation_v1_employers__employer_id__invitations_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Idempotency-Key"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InvitationIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployerInvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Send Invitation",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/invitations/{invitation_id}": {
+      "get": {
+        "operationId": "get_sent_v1_employers__employer_id__invitations__invitation_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invitation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployerInvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Sent",
+        "tags": [
+          "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/invitations/{invitation_id}/withdraw": {
+      "post": {
+        "operationId": "withdraw_invitation_v1_employers__employer_id__invitations__invitation_id__withdraw_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "invitation_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Invitation Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EmployerInvitationOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Withdraw Invitation",
+        "tags": [
+          "invitations"
         ]
       }
     },
@@ -8142,6 +10115,97 @@
         "summary": "Mark Read",
         "tags": [
           "notifications"
+        ]
+      }
+    },
+    "/v1/pricing": {
+      "get": {
+        "description": "Public, informational catalogue. Billing is not enabled; nothing can be purchased.",
+        "operationId": "get_pricing_v1_pricing_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Pricing V1 Pricing Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Pricing",
+        "tags": [
+          "pricing"
+        ]
+      }
+    },
+    "/v1/pricing/estimate": {
+      "get": {
+        "operationId": "get_estimate_v1_pricing_estimate_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "new_ad",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "New Ad",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "readvertise",
+            "required": false,
+            "schema": {
+              "default": false,
+              "title": "Readvertise",
+              "type": "boolean"
+            }
+          },
+          {
+            "in": "query",
+            "name": "promotions",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 10,
+              "minimum": 0,
+              "title": "Promotions",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": true,
+                  "title": "Response Get Estimate V1 Pricing Estimate Get",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Estimate",
+        "tags": [
+          "pricing"
         ]
       }
     }

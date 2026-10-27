@@ -17,13 +17,15 @@ Privacy rules enforced here, each with a test:
 import hashlib
 import hmac
 import uuid
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
-from sqlalchemy import exists, func, select
+from sqlalchemy import exists, func, select, text
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
+from app.errors import ApiError
 from app.models import (
     AvailabilityException,
     AvailabilityRule,
@@ -33,6 +35,7 @@ from app.models import (
     EmployerPreference,
     Job,
     Skill,
+    TalentExposure,
     User,
     WorkPreference,
 )
@@ -117,7 +120,7 @@ async def search(
                 ~exists().where(
                     EmployerPreference.candidate_id == CandidateProfile.id,
                     EmployerPreference.employer_id == employer_id,
-                    EmployerPreference.kind == "hide_from",
+                    EmployerPreference.kind.in_(("hide_from", "block")),
                 ),
             )
             .order_by(CandidateProfile.id)
@@ -158,6 +161,10 @@ async def search(
         else:
             more = scanned >= MAX_SCANNED
 
+    allowed = await record_exposures(session, employer_id, shown_ids)
+    keep = [i for i, cid in enumerate(shown_ids) if cid in allowed]
+    shown = [shown[i] for i in keep]
+    shown_ids = [shown_ids[i] for i in keep]
     return (
         TalentSearchOut(
             items=shown,
@@ -168,6 +175,51 @@ async def search(
         ),
         shown_ids,
     )
+
+
+async def record_exposures(
+    session: AsyncSession, employer_id: uuid.UUID, ids: list[uuid.UUID]
+) -> set[uuid.UUID]:
+    """Enforce the per-employer daily budget of DISTINCT candidates shown, atomically (advisory
+    lock, so teammates and multiple API instances share it), and remember who was shown so an
+    invitation can later resolve the opaque reference. Residual limit: a budgeted employer can still
+    probe up to that many distinct people per day; this narrows, not removes, that risk."""
+    if not ids:
+        return set()
+    budget = get_settings().talent_daily_candidate_budget
+    now = datetime.now(UTC)
+    day = now - timedelta(hours=24)
+    async with system_scope(session):
+        await session.execute(
+            text("SELECT pg_advisory_xact_lock(hashtextextended(:k, 0))"),
+            {"k": f"talent-budget:{employer_id}"},
+        )
+        recent = set(
+            await session.scalars(
+                select(TalentExposure.candidate_id).where(
+                    TalentExposure.employer_id == employer_id, TalentExposure.last_shown_at > day
+                )
+            )
+        )
+        fresh = [i for i in ids if i not in recent]
+        room = max(0, budget - len(recent))
+        allowed = {i for i in ids if i in recent} | set(fresh[:room])
+        if fresh and not allowed:
+            raise ApiError(
+                429,
+                "discovery_budget",
+                "Your organisation has seen the maximum number of different people for today",
+            )
+        for cid in allowed:
+            stmt = pg_insert(TalentExposure).values(
+                employer_id=employer_id, candidate_id=cid, first_shown_at=now, last_shown_at=now
+            )
+            await session.execute(
+                stmt.on_conflict_do_update(
+                    index_elements=["employer_id", "candidate_id"], set_={"last_shown_at": now}
+                )
+            )
+    return allowed
 
 
 class _Ctx:

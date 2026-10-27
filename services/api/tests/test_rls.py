@@ -18,6 +18,7 @@ from app.routers import (
     auth,
     candidate,
     employer,
+    invites_employer,
     jobs_public,
     notifications,
     talent,
@@ -175,7 +176,17 @@ async def test_every_employer_route_requires_membership():
             yield from deps(d)
 
     checked = 0
-    routers = (admin, applications, auth, candidate, employer, jobs_public, notifications, talent)
+    routers = (
+        admin,
+        applications,
+        auth,
+        candidate,
+        employer,
+        jobs_public,
+        notifications,
+        talent,
+        invites_employer,
+    )
     for route in (r for m in routers for r in m.router.routes):
         if isinstance(route, APIRoute) and "{employer_id}" in route.path:
             assert guards & set(deps(route.dependant)), f"{route.methods} {route.path} is unguarded"

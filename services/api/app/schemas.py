@@ -702,7 +702,7 @@ class AvailabilityCheckOut(BaseModel):
     reason: str
 
 
-EmployerPrefKind = Literal["follow", "hide_from", "mute"]
+EmployerPrefKind = Literal["follow", "hide_from", "mute", "block"]
 
 
 class EmployerPreferenceIn(BaseModel):
@@ -802,3 +802,137 @@ class TalentSearchOut(BaseModel):
     invite_available: bool
     invite_unavailable_reason: str | None
     notes: list[str]
+
+
+# ---- invitations and messaging (ADR-010) ----
+InvitationStatus = Literal["pending", "accepted", "declined", "withdrawn", "expired"]
+
+
+class InvitationIn(BaseModel):
+    ref: str = Field(min_length=8, max_length=64, description="Opaque reference from talent search")
+    job_id: uuid.UUID
+    kind: WorkKind
+    note: Annotated[str, StringConstraints(max_length=500)] = ""
+    expires_in_days: int | None = Field(None, ge=1, le=14)
+
+
+class InvitationTerms(BaseModel):
+    """What the candidate is invited to, as the job stood (invited) or stands (current)."""
+
+    model_config = ConfigDict(extra="ignore")
+    business: str
+    job_id: str
+    title: str
+    suburb: str | None = None
+    state: str | None = None
+    employment_type: str
+    engagement_basis: str
+    duration_type: str
+    hours_pattern: str
+    min_weekly_hours: str | None = None
+    max_weekly_hours: str | None = None
+    start_date: str | None = None
+    end_date: str | None = None
+    pay_min: str | None = None
+    pay_max: str | None = None
+    pay_period: str | None = None
+    pay_basis: str
+    super_included: bool | None = None
+
+
+class InvitationOut(BaseModel):
+    """Candidate's view. Interest only: not an application, an employment offer or a shift hold."""
+
+    id: uuid.UUID
+    status: InvitationStatus
+    kind: WorkKind
+    note: str
+    created_at: datetime
+    expires_at: datetime
+    responded_at: datetime | None
+    unread: bool
+    terms: InvitationTerms
+    current_terms: InvitationTerms | None
+    current_terms_hash: str | None
+    terms_changed: bool
+    job_open: bool
+    can_accept: bool
+    conversation_id: uuid.UUID | None
+    acceptance_note: str
+
+
+class InvitationList(BaseModel):
+    items: list[InvitationOut]
+    unread: int
+
+
+class InvitationAcceptIn(BaseModel):
+    terms_hash: str = Field(min_length=8, max_length=64)
+
+
+class EmployerInvitationOut(BaseModel):
+    id: uuid.UUID
+    status: InvitationStatus
+    kind: WorkKind
+    job_id: uuid.UUID
+    job_title: str
+    note: str
+    created_at: datetime
+    expires_at: datetime
+    responded_at: datetime | None
+    candidate_label: str
+    candidate_ref: str
+    conversation_id: uuid.UUID | None
+
+
+class InvitationSettingsIn(BaseModel):
+    enabled: bool
+
+
+class InvitationSettingsOut(BaseModel):
+    invitations_enabled: bool
+
+
+class InboxSummary(BaseModel):
+    unread_invitations: int
+    unread_conversations: int
+
+
+class MessageIn(BaseModel):
+    body: Annotated[str, StringConstraints(min_length=1, max_length=2000)]
+    client_key: str | None = Field(None, max_length=80)
+
+
+class MessageOut(BaseModel):
+    id: uuid.UUID
+    sender_role: Literal["candidate", "employer"]
+    mine: bool
+    body: str = Field(description="Plain text. Render as text, never as HTML.")
+    created_at: datetime
+
+
+class MessagePage(BaseModel):
+    items: list[MessageOut]
+    next_before: uuid.UUID | None
+
+
+class ConversationOut(BaseModel):
+    id: uuid.UUID
+    invitation_id: uuid.UUID
+    job_id: uuid.UUID
+    job_title: str
+    counterpart: str
+    status: Literal["open", "closed"]
+    closed_reason: str | None
+    last_message_at: datetime | None
+    unread: bool
+
+
+class ReportIn(BaseModel):
+    reason: Annotated[str, StringConstraints(min_length=3, max_length=500)]
+    message_id: uuid.UUID | None = None
+
+
+class ReportOut(BaseModel):
+    id: uuid.UUID
+    status: str
