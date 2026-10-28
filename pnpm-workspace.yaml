@@ -11,3 +11,5 @@ minimumReleaseAgeStrict: true
 
 overrides:
   '@expo/cli>zod': 4.6.6
+  '@expo/cli>node-forge': 1.4.1
+  '@expo/code-signing-certificates>node-forge': 1.4.1
