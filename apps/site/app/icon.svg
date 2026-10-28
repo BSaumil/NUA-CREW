@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-label="NUA CREW">
+  <title>NUA CREW</title>
+  <rect width="1024" height="1024" rx="220" fill="#3C0B21"/>
+  <path d="M288 776V248L736 776V248" fill="none" stroke="#F7F3EF" stroke-width="112" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M288 776V224L736 776" fill="none" stroke="#C9A96E" stroke-width="28" stroke-linecap="round"/>
+  <circle cx="288" cy="776" r="28" fill="#0FA3B1"/>
+  <circle cx="736" cy="248" r="56" fill="#0FA3B1"/>
+</svg>
