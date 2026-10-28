@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
-import { SITE } from '@/lib/site';
+import { toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'For employers',
@@ -18,7 +18,7 @@ export default function Employers() {
         lede="Post a role, find people who agreed to be found, see who is free when you need them, and invite them. Every hiring decision stays with your team."
       >
         <div className="site-cta-row">
-          <Cta href={`${SITE.hireUrl}/register`}>Register your business</Cta>
+          <Cta href={toHire('/register')}>Register your business</Cta>
           <Cta href="/pricing" ghost>
             See pricing
           </Cta>
@@ -122,7 +122,7 @@ export default function Employers() {
           testing for posting jobs, reviewing applicants, finding people and messaging.
         </p>
         <div className="nua-row">
-          <a className="nua-button" href={`${SITE.hireUrl}/register`}>
+          <a className="nua-button" href={toHire('/register')}>
             Register your business
           </a>
           <a className="nua-button nua-button--secondary" href="/apps">

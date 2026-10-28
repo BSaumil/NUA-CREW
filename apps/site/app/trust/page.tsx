@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import { AI_DISCLOSURE } from '@nua-crew/ui';
 import { Card, Cards, PageHero, PrimaryLink, Section } from '../components';
-import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Trust & privacy',
@@ -113,9 +112,8 @@ export default function Trust() {
           <li>Humans make hiring decisions. There is no automatic rejection.</li>
         </ul>
         <p>
-          Questions or concerns? <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a> or
-          the <a href="/contact">contact page</a>. Our terms and privacy policy are on the{' '}
-          <a href="/legal">legal page</a>.
+          Questions or concerns? See the <a href="/contact">contact page</a>. Our terms and privacy
+          policy are on the <a href="/legal">legal page</a>.
         </p>
         <PrimaryLink href="/how-it-works">See how it works</PrimaryLink>
       </Section>

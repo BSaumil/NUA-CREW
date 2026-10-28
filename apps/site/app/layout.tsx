@@ -37,9 +37,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <BrandLockup />
             <MainNav />
             <div className="nua-row">
-              <ButtonLink href={`${SITE.appUrl}/login`} variant="secondary">
-                Log in
-              </ButtonLink>
+              {SITE.productLive ? (
+                <ButtonLink href={`${SITE.appUrl}/login`} variant="secondary">
+                  Log in
+                </ButtonLink>
+              ) : null}
               <ButtonLink href="/apps">Get the app</ButtonLink>
             </div>
           </div>
@@ -90,20 +92,26 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <div>
                 <h2>Open the product</h2>
                 <ul>
-                  <li>
-                    <a href={`${SITE.appUrl}/jobs`}>NUA CREW Jobs</a>
-                  </li>
-                  <li>
-                    <a href={`${SITE.hireUrl}/login`}>NUA CREW Hire</a>
-                  </li>
+                  {SITE.productLive ? (
+                    <>
+                      <li>
+                        <a href={`${SITE.appUrl}/jobs`}>NUA CREW Jobs</a>
+                      </li>
+                      <li>
+                        <a href={`${SITE.hireUrl}/login`}>NUA CREW Hire</a>
+                      </li>
+                    </>
+                  ) : (
+                    <li>
+                      <a href="/apps">Launch status</a>
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>
             <small>{AI_DISCLOSURE}</small>
             <small style={{ marginTop: 8 }}>
-              NUA CREW is a working name; trade mark, business-name and domain clearance is still
-              pending. Addresses on this site (such as {SITE.url.replace('https://', '')}) are
-              placeholders until the real domain is provided.
+              NUA CREW is a working name; trade mark and business-name clearance is still pending.
             </small>
           </div>
         </footer>

@@ -42,22 +42,32 @@ export default function Apps() {
             </ul>
           </Card>
           <Card title="Today, on the web">
-            <p>The same product works in a browser.</p>
-            <p>
-              <a href={`${SITE.appUrl}/jobs`}>NUA CREW Jobs</a>
-            </p>
-            <p>
-              <a href={`${SITE.hireUrl}/login`}>NUA CREW Hire</a>
-            </p>
+            {SITE.productLive ? (
+              <>
+                <p>The same product works in a browser.</p>
+                <p>
+                  <a href={`${SITE.appUrl}/jobs`}>NUA CREW Jobs</a>
+                </p>
+                <p>
+                  <a href={`${SITE.hireUrl}/login`}>NUA CREW Hire</a>
+                </p>
+              </>
+            ) : (
+              <p>
+                The web product is not open to the public yet. This page will link it when it is.
+              </p>
+            )}
           </Card>
         </Cards>
-        <p style={{ marginTop: 20 }}>
-          Want to be told when it launches? Email{' '}
-          <a href={`mailto:${SITE.contactEmail}?subject=Tell%20me%20when%20the%20apps%20launch`}>
-            {SITE.contactEmail}
-          </a>
-          .
-        </p>
+        {SITE.contactEmail ? (
+          <p style={{ marginTop: 20 }}>
+            Want to be told when it launches? Email{' '}
+            <a href={`mailto:${SITE.contactEmail}?subject=Tell%20me%20when%20the%20apps%20launch`}>
+              {SITE.contactEmail}
+            </a>
+            .
+          </p>
+        ) : null}
         <PrimaryLink href="/job-seekers">What the app does</PrimaryLink>
       </Section>
     </>

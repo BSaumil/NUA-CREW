@@ -1,20 +1,29 @@
 /**
- * Placeholder addresses. `.example` is reserved (RFC 2606) and can never resolve, so nothing here
- * claims a real domain, handle or trademark. When the owner provides the real domain, set these
- * environment variables (no code change): NUA_SITE_URL, NUA_APP_URL, NUA_HIRE_URL, NUA_CONTACT_EMAIL.
- * Keep NUA_SITE_INDEXABLE unset until the real domain is live, so search engines skip the placeholder.
+ * Addresses come from the environment so the same build works on a preview URL and on the real
+ * domain. Defaults are the owner's domain, iksaa.com.au, with `app.` (NUA CREW Jobs) and `hire.`
+ * (NUA CREW Hire) subdomains. Nothing here claims the name, domain or trade mark is cleared.
+ *
+ * - NUA_PRODUCT_LIVE=true   link "Log in / Find work / Register" to the app hosts. Until the
+ *                           product apps are deployed those links go to /apps instead of a dead host.
+ * - NUA_CONTACT_EMAIL       published contact address. Unset = no address is shown (we do not invent
+ *                           a mailbox that may not exist).
+ * - NUA_SITE_INDEXABLE=true allow search engines. Unset = noindex.
  */
 const env = (k: string, fallback: string) => process.env[k]?.replace(/\/$/, '') || fallback;
 
 export const SITE = {
   name: 'NUA CREW',
-  url: env('NUA_SITE_URL', 'https://nua-crew.example'),
-  appUrl: env('NUA_APP_URL', 'https://app.nua-crew.example'),
-  hireUrl: env('NUA_HIRE_URL', 'https://hire.nua-crew.example'),
-  contactEmail: env('NUA_CONTACT_EMAIL', 'hello@nua-crew.example'),
+  url: env('NUA_SITE_URL', 'https://iksaa.com.au'),
+  appUrl: env('NUA_APP_URL', 'https://app.iksaa.com.au'),
+  hireUrl: env('NUA_HIRE_URL', 'https://hire.iksaa.com.au'),
+  contactEmail: process.env.NUA_CONTACT_EMAIL || null,
+  productLive: process.env.NUA_PRODUCT_LIVE === 'true',
   indexable: process.env.NUA_SITE_INDEXABLE === 'true',
-  isPlaceholderDomain: !process.env.NUA_SITE_URL,
 } as const;
+
+/** Where a call to action goes: the real app when it is live, otherwise the honest status page. */
+export const toApp = (path: string) => (SITE.productLive ? `${SITE.appUrl}${path}` : '/apps');
+export const toHire = (path: string) => (SITE.productLive ? `${SITE.hireUrl}${path}` : '/apps');
 
 export const NAV = [
   { href: '/job-seekers', label: 'Job seekers' },

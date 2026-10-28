@@ -12,7 +12,7 @@ import {
   Steps,
   TalentScreen,
 } from './components';
-import { SITE } from '@/lib/site';
+import { toApp, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: `NUA CREW — ${TAGLINE}`,
@@ -32,8 +32,8 @@ export default function Home() {
               employers, starting with hospitality and local services in Melbourne.
             </p>
             <div className="site-cta-row">
-              <Cta href={`${SITE.appUrl}/register`}>Find work</Cta>
-              <Cta href={`${SITE.hireUrl}/register`} ghost>
+              <Cta href={toApp('/register')}>Find work</Cta>
+              <Cta href={toHire('/register')} ghost>
                 Hire with NUA CREW
               </Cta>
             </div>

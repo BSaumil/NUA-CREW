@@ -34,17 +34,24 @@ for (const scheme of ['light', 'dark'] as const) {
   });
 }
 
-test('placeholder domain is never presented as real, and crawlers are told to stay away', async ({
+test('crawlers are told to stay away until launch, and the sitemap uses the configured domain', async ({
   page,
   request,
 }) => {
   await page.goto(SITE + '/');
-  await expect(page.getByText(/placeholders until the real domain is provided/)).toBeVisible();
+  await expect(
+    page.getByText(/trade mark and business-name clearance is still pending/),
+  ).toBeVisible();
   const robots = await (await request.get(SITE + '/robots.txt')).text();
   expect(robots).toMatch(/Disallow: \//);
   await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  // a launch-status page instead of dead links while the product apps are not deployed
+  await page.goto(SITE + '/');
+  await expect(
+    page.locator('a[href*="app.iksaa.com.au"], a[href*="hire.iksaa.com.au"]'),
+  ).toHaveCount(0);
   const sitemap = await (await request.get(SITE + '/sitemap.xml')).text();
-  expect(sitemap).toContain('https://nua-crew.example');
+  expect(sitemap).toContain('https://iksaa.com.au');
 });
 
 test('claims stay truthful: apps are not in stores, billing is a preview, free for job seekers', async ({

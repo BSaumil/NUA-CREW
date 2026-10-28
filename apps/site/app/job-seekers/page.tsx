@@ -9,7 +9,7 @@ import {
   Phone,
   Section,
 } from '../components';
-import { SITE } from '@/lib/site';
+import { toApp } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'For job seekers',
@@ -27,7 +27,7 @@ export default function JobSeekers() {
         lede="Search permanent and temporary roles, see what they pay, and decide who can find you. Free in every state and territory."
       >
         <div className="site-cta-row">
-          <Cta href={`${SITE.appUrl}/register`}>Create a free account</Cta>
+          <Cta href={toApp('/register')}>Create a free account</Cta>
           <Cta href="/apps" ghost>
             Android and iOS apps
           </Cta>
@@ -142,7 +142,7 @@ export default function JobSeekers() {
         </ul>
         <div className="site-cta-row">
           <Cta href="/trust">Read about trust and privacy</Cta>
-          <Cta href={`${SITE.appUrl}/register`} ghost>
+          <Cta href={toApp('/register')} ghost>
             Create a free account
           </Cta>
         </div>

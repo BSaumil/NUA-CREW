@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section } from '../components';
-import { SITE } from '@/lib/site';
+import { toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'Pricing',
@@ -96,7 +96,7 @@ export default function Pricing() {
           ]}
         />
         <p>
-          <PrimaryLink href={`${SITE.hireUrl}/register`}>Register your business</PrimaryLink>
+          <PrimaryLink href={toHire('/register')}>Register your business</PrimaryLink>
         </p>
       </Section>
     </>

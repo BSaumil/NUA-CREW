@@ -20,13 +20,16 @@ export default function Contact() {
         <div className="site-cards">
           <article className="site-card">
             <h3>Email</h3>
-            <p>
-              <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
-            </p>
-            <p className="nua-hint">
-              This is a placeholder address until the real domain is provided, so it cannot receive
-              mail yet.
-            </p>
+            {SITE.contactEmail ? (
+              <p>
+                <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
+              </p>
+            ) : (
+              <p>
+                A contact address will be published here before launch. We would rather show none
+                than one that does not work yet.
+              </p>
+            )}
           </article>
           <article className="site-card">
             <h3>Safety concerns</h3>
