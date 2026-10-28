@@ -4,18 +4,16 @@ A static marketing site for everything NUA CREW does: job seekers (Jobs), employ
 
 Run: `make site` (http://localhost:3002) · build: `pnpm --filter @nua-crew/site build` · tests: `tests/e2e/specs/site.spec.ts` (every page, axe light/dark, 360 px, no foreign requests, truthfulness checks).
 
-## Placeholder domain
-The site uses `nua-crew.example` (reserved, never resolves; RFC 2606), `app.nua-crew.example`, `hire.nua-crew.example` and `hello@nua-crew.example`. Nothing claims a real domain or trade mark. While the address is a placeholder the site sends `noindex` and a disallow-all `robots.txt`.
+## Domain and deployment
+The site is configured for `iksaa.com.au` (with `app.` and `hire.` subdomains reserved for the product). Deployment to Vercel is described in `docs/operations/VERCEL_DEPLOY.md`; it is not deployed yet. All addresses come from environment variables, so no code change is needed to switch hosts:
 
-**When the owner provides the domain, set environment variables only (no code change):**
-
-| Variable | Purpose |
-| --- | --- |
-| `NUA_SITE_URL` | This site's canonical origin (sitemap, metadata) |
-| `NUA_APP_URL` | NUA CREW Jobs web app origin (login/register/jobs links) |
-| `NUA_HIRE_URL` | NUA CREW Hire origin |
-| `NUA_CONTACT_EMAIL` | Contact address |
-| `NUA_SITE_INDEXABLE=true` | Allow search engines (set only when live) |
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `NUA_SITE_URL` | `https://iksaa.com.au` | Canonical origin (sitemap, metadata) |
+| `NUA_APP_URL` / `NUA_HIRE_URL` | `https://app.iksaa.com.au` / `https://hire.iksaa.com.au` | Product app origins |
+| `NUA_PRODUCT_LIVE` | unset | `true` links Log in / Find work / Register to the app hosts. Unset: those buttons go to the launch-status page, so nothing links to a host that does not exist |
+| `NUA_CONTACT_EMAIL` | unset | Published contact address. Unset: none is shown (we do not invent a mailbox) |
+| `NUA_SITE_INDEXABLE` | unset | `true` allows search engines; otherwise `noindex` and a disallow-all robots.txt |
 
 ## Content rules
 Every claim maps to shipped, tested behaviour; no testimonials, statistics, logos or "best" claims. The apps page states they are not in the stores and links no store. Pricing is labelled a preview (billing is off; A$30 promotion is an add-on, unconfirmed; tax unresolved). Legal page says Terms and Privacy Policy are pending legal review. The phone illustrations use fictional sample data and are labelled so. Update copy when product behaviour changes.
