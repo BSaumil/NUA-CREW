@@ -837,6 +837,61 @@ class ShiftTimesheet(TimestampMixin, Base):
     review_note: Mapped[str | None] = mapped_column(String(1000))
 
 
+class ShiftAttendanceEvent(Base):
+    """Append-only attendance history. Corrections add events; originals are never edited."""
+
+    __tablename__ = "shift_attendance_events"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('check_in', 'check_out', 'correction_requested', 'correction_approved', "
+            "'correction_rejected', 'no_show_marked', 'no_show_reversed')",
+            name="ck_attendance_kind",
+        ),
+        CheckConstraint("actor_role IN ('candidate', 'employer')", name="ck_attendance_actor"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    booking_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shift_bookings.id", ondelete="CASCADE"), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(24))
+    actor_role: Mapped[str] = mapped_column(String(10))
+    # Server clock at the moment the event was recorded.
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+    # For corrections: the instant the person says the event really happened.
+    claimed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    claim_kind: Mapped[str | None] = mapped_column(String(10))
+    ref_event_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("shift_attendance_events.id", ondelete="RESTRICT")
+    )
+    time_zone: Mapped[str] = mapped_column(String(64))
+    note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class ShiftTimesheetVersion(Base):
+    """Append-only snapshot of every submitted or reviewed version of a timesheet."""
+
+    __tablename__ = "shift_timesheet_versions"
+    __table_args__ = (
+        UniqueConstraint("booking_id", "version", "status", name="uq_timesheet_version_status"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    booking_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("shift_bookings.id", ondelete="CASCADE"), index=True
+    )
+    version: Mapped[int] = mapped_column(Integer)
+    status: Mapped[str] = mapped_column(String(12))
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    break_minutes: Mapped[int] = mapped_column(Integer)
+    note: Mapped[str | None] = mapped_column(String(1000))
+    review_note: Mapped[str | None] = mapped_column(String(1000))
+    recorded_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=text("now()")
+    )
+
+
 class BillingOrder(TimestampMixin, Base):
     __tablename__ = "billing_orders"
     __table_args__ = (

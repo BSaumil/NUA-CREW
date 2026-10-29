@@ -20,9 +20,11 @@ from app.models import (
     Shift,
     ShiftBooking,
     ShiftTimesheet,
+    ShiftTimesheetVersion,
 )
 from app.rls import system_scope
 from app.routers.availability import _flush_commitment
+from app.services.attendance import derive, events_for
 from app.services.jobs import is_open
 from app.services.scheduling import resolve_window, worked_minutes
 from app.shift_schemas import (
@@ -99,6 +101,23 @@ async def _out(session: AsyncSession, row: ShiftBooking) -> BookingOut:
         expires_at=row.expires_at,
         reason=row.reason,
         timesheet=sheet_out,
+        attendance=derive(await events_for(session, row.id), shift.time_zone),
+    )
+
+
+def _snapshot(session: AsyncSession, sheet: ShiftTimesheet) -> None:
+    """History is append-only: every submission and decision keeps its own immutable row."""
+    session.add(
+        ShiftTimesheetVersion(
+            booking_id=sheet.booking_id,
+            version=sheet.version,
+            status=sheet.status,
+            starts_at=sheet.starts_at,
+            ends_at=sheet.ends_at,
+            break_minutes=sheet.break_minutes,
+            note=sheet.note,
+            review_note=sheet.review_note,
+        )
     )
 
 
@@ -399,6 +418,10 @@ async def submit_timesheet(
             hours=12
         ):
             raise conflict("timesheet_window", "Hours far outside this shift need support review")
+        if derive(await events_for(session, row.id), shift.time_zone).status == "no_show":
+            raise conflict(
+                "marked_no_show", "The business marked this shift as a no-show; ask them to review"
+            )
         sheet = await session.scalar(
             select(ShiftTimesheet).where(ShiftTimesheet.booking_id == row.id)
         )
@@ -410,6 +433,8 @@ async def submit_timesheet(
         sheet.starts_at, sheet.ends_at = starts, ends
         sheet.break_minutes, sheet.note = body.break_minutes, body.note
         sheet.status, sheet.review_note, sheet.version = "submitted", None, sheet.version + 1
+        await session.flush()
+        _snapshot(session, sheet)
     await audit(session, user.id, "timesheet.submitted", "booking", row.id, version=sheet.version)
     return await _out(session, row)
 
@@ -439,6 +464,7 @@ async def review_timesheet(
                 "timesheet_changed", "Reload the latest submitted hours before reviewing"
             )
         sheet.status, sheet.review_note = body.decision, body.reason.strip()
+        _snapshot(session, sheet)
     await audit(
         session, user.id, f"timesheet.{body.decision}", "booking", row.id, version=sheet.version
     )

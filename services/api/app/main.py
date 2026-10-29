@@ -13,6 +13,7 @@ from app.routers import (
     account,
     admin,
     applications,
+    attendance,
     auth,
     availability,
     billing,
@@ -79,6 +80,7 @@ def create_app() -> FastAPI:
         account.router,
         moderation.router,
         shifts.router,
+        attendance.router,
     ):
         app.include_router(r)
     return app

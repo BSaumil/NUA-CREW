@@ -141,6 +141,155 @@
         "title": "ApplyIn",
         "type": "object"
       },
+      "AttendanceEventOut": {
+        "properties": {
+          "actor_role": {
+            "title": "Actor Role",
+            "type": "string"
+          },
+          "claim_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claim Kind"
+          },
+          "claimed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Claimed At"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "ref_event_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ref Event Id"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "actor_role",
+          "recorded_at",
+          "claimed_at",
+          "claim_kind",
+          "ref_event_id",
+          "time_zone",
+          "note"
+        ],
+        "title": "AttendanceEventOut",
+        "type": "object"
+      },
+      "AttendanceOut": {
+        "description": "Derived state. `venue_time_zone` is for display; instants are the source of truth.",
+        "properties": {
+          "check_in_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check In At"
+          },
+          "check_out_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Check Out At"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/AttendanceEventOut"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "pending_corrections": {
+            "title": "Pending Corrections",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "not_started",
+              "checked_in",
+              "checked_out",
+              "no_show"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "venue_time_zone": {
+            "title": "Venue Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "check_in_at",
+          "check_out_at",
+          "venue_time_zone",
+          "pending_corrections",
+          "events"
+        ],
+        "title": "AttendanceOut",
+        "type": "object"
+      },
       "AvailabilityCheckOut": {
         "properties": {
           "reason": {
@@ -442,6 +591,16 @@
       },
       "BookingOut": {
         "properties": {
+          "attendance": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AttendanceOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "candidate_label": {
             "title": "Candidate Label",
             "type": "string"
@@ -1016,6 +1175,63 @@
           "unread"
         ],
         "title": "ConversationOut",
+        "type": "object"
+      },
+      "CorrectionIn": {
+        "description": "A person says an attendance event happened at a different instant. Needs approval.",
+        "properties": {
+          "claim_kind": {
+            "enum": [
+              "check_in",
+              "check_out"
+            ],
+            "title": "Claim Kind",
+            "type": "string"
+          },
+          "claimed_at": {
+            "format": "date-time",
+            "title": "Claimed At",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "pattern": "\\S",
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "claim_kind",
+          "claimed_at",
+          "reason"
+        ],
+        "title": "CorrectionIn",
+        "type": "object"
+      },
+      "CorrectionReviewIn": {
+        "properties": {
+          "decision": {
+            "enum": [
+              "approved",
+              "rejected"
+            ],
+            "title": "Decision",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 1000,
+            "minLength": 3,
+            "pattern": "\\S",
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason",
+          "decision"
+        ],
+        "title": "CorrectionReviewIn",
         "type": "object"
       },
       "DeleteAccountIn": {
@@ -5151,6 +5367,76 @@
         "title": "TimesheetReviewIn",
         "type": "object"
       },
+      "TimesheetVersionOut": {
+        "properties": {
+          "break_minutes": {
+            "title": "Break Minutes",
+            "type": "integer"
+          },
+          "ends_at": {
+            "format": "date-time",
+            "title": "Ends At",
+            "type": "string"
+          },
+          "note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          },
+          "recorded_at": {
+            "format": "date-time",
+            "title": "Recorded At",
+            "type": "string"
+          },
+          "review_note": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Review Note"
+          },
+          "starts_at": {
+            "format": "date-time",
+            "title": "Starts At",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "version": {
+            "title": "Version",
+            "type": "integer"
+          },
+          "worked_minutes": {
+            "title": "Worked Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "version",
+          "status",
+          "starts_at",
+          "ends_at",
+          "break_minutes",
+          "note",
+          "review_note",
+          "recorded_at",
+          "worked_minutes"
+        ],
+        "title": "TimesheetVersionOut",
+        "type": "object"
+      },
       "TokenOut": {
         "properties": {
           "access_token": {
@@ -8814,6 +9100,160 @@
         ]
       }
     },
+    "/v1/candidate/shift-bookings/{booking_id}/attendance-corrections": {
+      "post": {
+        "operationId": "request_correction_v1_candidate_shift_bookings__booking_id__attendance_corrections_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Request Correction",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/v1/candidate/shift-bookings/{booking_id}/check-in": {
+      "post": {
+        "operationId": "check_in_v1_candidate_shift_bookings__booking_id__check_in_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check In",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/v1/candidate/shift-bookings/{booking_id}/check-out": {
+      "post": {
+        "operationId": "check_out_v1_candidate_shift_bookings__booking_id__check_out_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Check Out",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
     "/v1/candidate/shift-bookings/{booking_id}/respond": {
       "post": {
         "operationId": "respond_v1_candidate_shift_bookings__booking_id__respond_post",
@@ -8927,6 +9367,58 @@
         "summary": "Submit Timesheet",
         "tags": [
           "shifts"
+        ]
+      }
+    },
+    "/v1/candidate/shift-bookings/{booking_id}/timesheet-history": {
+      "get": {
+        "operationId": "candidate_history_v1_candidate_shift_bookings__booking_id__timesheet_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimesheetVersionOut"
+                  },
+                  "title": "Response Candidate History V1 Candidate Shift Bookings  Booking Id  Timesheet History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Candidate History",
+        "tags": [
+          "attendance"
         ]
       }
     },
@@ -11013,6 +11505,282 @@
         "summary": "Employer Bookings",
         "tags": [
           "shifts"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/attendance-corrections/{event_id}/review": {
+      "post": {
+        "operationId": "review_correction_v1_employers__employer_id__shift_bookings__booking_id__attendance_corrections__event_id__review_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "event_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Event Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrectionReviewIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Review Correction",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show": {
+      "post": {
+        "operationId": "mark_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Mark No Show",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show/reverse": {
+      "post": {
+        "operationId": "reverse_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_reverse_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReasonIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BookingOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reverse No Show",
+        "tags": [
+          "attendance"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-history": {
+      "get": {
+        "operationId": "employer_history_v1_employers__employer_id__shift_bookings__booking_id__timesheet_history_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "booking_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Booking Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TimesheetVersionOut"
+                  },
+                  "title": "Response Employer History V1 Employers  Employer Id  Shift Bookings  Booking Id  Timesheet History Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Employer History",
+        "tags": [
+          "attendance"
         ]
       }
     },

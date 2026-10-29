@@ -83,6 +83,59 @@ class TimesheetOut(Orm):
     worked_minutes: int
 
 
+class CorrectionIn(BaseModel):
+    """A person says an attendance event happened at a different instant. Needs approval."""
+
+    claim_kind: Literal["check_in", "check_out"]
+    claimed_at: datetime
+    reason: str = Field(min_length=3, max_length=1000, pattern=r"\S")
+
+    @model_validator(mode="after")
+    def aware(self) -> "CorrectionIn":
+        if self.claimed_at.tzinfo is None:
+            raise ValueError("claimed_at must include a time zone offset")
+        return self
+
+
+class CorrectionReviewIn(ReasonIn):
+    decision: Literal["approved", "rejected"]
+
+
+class AttendanceEventOut(Orm):
+    id: uuid.UUID
+    kind: str
+    actor_role: str
+    recorded_at: datetime
+    claimed_at: datetime | None
+    claim_kind: str | None
+    ref_event_id: uuid.UUID | None
+    time_zone: str
+    note: str | None
+
+
+class AttendanceOut(BaseModel):
+    """Derived state. `venue_time_zone` is for display; instants are the source of truth."""
+
+    status: Literal["not_started", "checked_in", "checked_out", "no_show"]
+    check_in_at: datetime | None
+    check_out_at: datetime | None
+    venue_time_zone: str
+    pending_corrections: int
+    events: list[AttendanceEventOut]
+
+
+class TimesheetVersionOut(Orm):
+    version: int
+    status: str
+    starts_at: datetime
+    ends_at: datetime
+    break_minutes: int
+    note: str | None
+    review_note: str | None
+    recorded_at: datetime
+    worked_minutes: int
+
+
 class BookingOut(BaseModel):
     id: uuid.UUID
     shift: ShiftOut
@@ -91,3 +144,4 @@ class BookingOut(BaseModel):
     expires_at: datetime
     reason: str | None
     timesheet: TimesheetOut | None
+    attendance: AttendanceOut | None = None

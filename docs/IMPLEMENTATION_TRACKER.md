@@ -1,5 +1,22 @@
 # Implementation tracker
 
+## Claude release acceptance C1/C2 — 29 October 2026
+
+Branch `feat/claude-release-acceptance-20261029`, baseline `f208965ca1813920746a48796753a05648cdae77` (remote `feat/hiring-acceptance-shifts-20261028`; the brief's integrated commit `2067f6e` was not available). Report: `reports/CLAUDE_ACCEPTANCE_2026-10-29.md`.
+
+| Item | Status | Evidence |
+| --- | --- | --- |
+| Baseline API checks (ruff, format, mypy, pytest) on an isolated PostgreSQL with non-superuser runtime role | DONE | 215 tests pass at baseline; 224 after this change |
+| Shared JS checks (typecheck, lint, test, format) | DONE | mobile 211, ui 39, api-client 2 tests; all typecheck/lint clean |
+| Check-in/out with server timestamps and venue time zone | DONE | `tests/test_attendance.py::test_check_in_out_...`, `..._window_...` |
+| Attendance corrections: request, approve/reject, original never edited | DONE | `test_correction_*` |
+| No-show with grace period, candidate contest, reversal; no monetary penalty | DONE | `test_no_show_*` |
+| Timesheet version history (every submission and decision immutable) | DONE | `test_timesheet_history_...` |
+| Append-only + RLS for new tables | DONE | `test_history_tables_are_append_only...`, `test_attendance_tenant_and_candidate_boundaries` |
+| Native/web UI for attendance and history | NOT_STARTED | API and contracts only |
+| Employer account closure and ownership transfer; team invitations | NOT_STARTED | the two uncommitted account files were not available in this session |
+| Real-device acceptance, screenshots, Maestro/Detox | BLOCKED | no devices or native toolchain in this environment |
+
 ## Stripe sandbox implementation — 28 October 2026
 
 Stripe SDK checkout, signed webhook fulfilment, refunds, forced-RLS financial records, five-slot promotion inventory, paid publication/expiry and employer billing screens are implemented on draft PR #2. Configuration is disabled by default; no Stripe account has been connected. See `STRIPE_SETUP.md` for exact setup and remaining account-backed acceptance. Local checks: 211 mobile tests, 29 isolated Python tests, TypeScript/lint pass. Real PostgreSQL/browser rerun is in progress; do not report a fully green release. Production identity, employer ownership/deletion, physical-device QA, native purchase policy, signed store builds and the node-forge security audit remain release gates. Older sections below are historical snapshots.

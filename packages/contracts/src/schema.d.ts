@@ -1193,6 +1193,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/candidate/shift-bookings/{booking_id}/attendance-corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Correction */
+        post: operations["request_correction_v1_candidate_shift_bookings__booking_id__attendance_corrections_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/shift-bookings/{booking_id}/check-in": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check In */
+        post: operations["check_in_v1_candidate_shift_bookings__booking_id__check_in_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/shift-bookings/{booking_id}/check-out": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Check Out */
+        post: operations["check_out_v1_candidate_shift_bookings__booking_id__check_out_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/shift-bookings/{booking_id}/respond": {
         parameters: {
             query?: never;
@@ -1220,6 +1271,23 @@ export interface paths {
         get?: never;
         /** Submit Timesheet */
         put: operations["submit_timesheet_v1_candidate_shift_bookings__booking_id__timesheet_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/shift-bookings/{booking_id}/timesheet-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Candidate History */
+        get: operations["candidate_history_v1_candidate_shift_bookings__booking_id__timesheet_history_get"];
+        put?: never;
         post?: never;
         delete?: never;
         options?: never;
@@ -1737,6 +1805,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/attendance-corrections/{event_id}/review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Review Correction */
+        post: operations["review_correction_v1_employers__employer_id__shift_bookings__booking_id__attendance_corrections__event_id__review_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Mark No Show */
+        post: operations["mark_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show/reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reverse No Show */
+        post: operations["reverse_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_reverse_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Employer History */
+        get: operations["employer_history_v1_employers__employer_id__shift_bookings__booking_id__timesheet_history_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-review": {
         parameters: {
             query?: never;
@@ -2031,6 +2167,54 @@ export interface components {
             /** Resume Id */
             resume_id?: string | null;
         };
+        /** AttendanceEventOut */
+        AttendanceEventOut: {
+            /** Actor Role */
+            actor_role: string;
+            /** Claim Kind */
+            claim_kind: string | null;
+            /** Claimed At */
+            claimed_at: string | null;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Kind */
+            kind: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /** Ref Event Id */
+            ref_event_id: string | null;
+            /** Time Zone */
+            time_zone: string;
+        };
+        /**
+         * AttendanceOut
+         * @description Derived state. `venue_time_zone` is for display; instants are the source of truth.
+         */
+        AttendanceOut: {
+            /** Check In At */
+            check_in_at: string | null;
+            /** Check Out At */
+            check_out_at: string | null;
+            /** Events */
+            events: components["schemas"]["AttendanceEventOut"][];
+            /** Pending Corrections */
+            pending_corrections: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "not_started" | "checked_in" | "checked_out" | "no_show";
+            /** Venue Time Zone */
+            venue_time_zone: string;
+        };
         /** AvailabilityCheckOut */
         AvailabilityCheckOut: {
             /** Reason */
@@ -2161,6 +2345,7 @@ export interface components {
         };
         /** BookingOut */
         BookingOut: {
+            attendance?: components["schemas"]["AttendanceOut"] | null;
             /** Candidate Label */
             candidate_label: string;
             /**
@@ -2438,6 +2623,34 @@ export interface components {
             status: "open" | "closed";
             /** Unread */
             unread: boolean;
+        };
+        /**
+         * CorrectionIn
+         * @description A person says an attendance event happened at a different instant. Needs approval.
+         */
+        CorrectionIn: {
+            /**
+             * Claim Kind
+             * @enum {string}
+             */
+            claim_kind: "check_in" | "check_out";
+            /**
+             * Claimed At
+             * Format: date-time
+             */
+            claimed_at: string;
+            /** Reason */
+            reason: string;
+        };
+        /** CorrectionReviewIn */
+        CorrectionReviewIn: {
+            /**
+             * Decision
+             * @enum {string}
+             */
+            decision: "approved" | "rejected";
+            /** Reason */
+            reason: string;
         };
         /** DeleteAccountIn */
         DeleteAccountIn: {
@@ -3898,6 +4111,36 @@ export interface components {
             expected_version: number;
             /** Reason */
             reason: string;
+        };
+        /** TimesheetVersionOut */
+        TimesheetVersionOut: {
+            /** Break Minutes */
+            break_minutes: number;
+            /**
+             * Ends At
+             * Format: date-time
+             */
+            ends_at: string;
+            /** Note */
+            note: string | null;
+            /**
+             * Recorded At
+             * Format: date-time
+             */
+            recorded_at: string;
+            /** Review Note */
+            review_note: string | null;
+            /**
+             * Starts At
+             * Format: date-time
+             */
+            starts_at: string;
+            /** Status */
+            status: string;
+            /** Version */
+            version: number;
+            /** Worked Minutes */
+            worked_minutes: number;
         };
         /** TokenOut */
         TokenOut: {
@@ -6170,6 +6413,103 @@ export interface operations {
             };
         };
     };
+    request_correction_v1_candidate_shift_bookings__booking_id__attendance_corrections_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_in_v1_candidate_shift_bookings__booking_id__check_in_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    check_out_v1_candidate_shift_bookings__booking_id__check_out_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     respond_v1_candidate_shift_bookings__booking_id__respond_post: {
         parameters: {
             query?: never;
@@ -6227,6 +6567,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    candidate_history_v1_candidate_shift_bookings__booking_id__timesheet_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimesheetVersionOut"][];
                 };
             };
             /** @description Validation Error */
@@ -7401,6 +7772,147 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["BookingOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    review_correction_v1_employers__employer_id__shift_bookings__booking_id__attendance_corrections__event_id__review_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                booking_id: string;
+                event_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CorrectionReviewIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    mark_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reverse_no_show_v1_employers__employer_id__shift_bookings__booking_id__no_show_reverse_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReasonIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BookingOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    employer_history_v1_employers__employer_id__shift_bookings__booking_id__timesheet_history_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                booking_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TimesheetVersionOut"][];
                 };
             };
             /** @description Validation Error */
