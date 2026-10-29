@@ -196,6 +196,16 @@ function Gate() {
             }}
           />
           <Stack.Screen
+            name="my-roles"
+            options={{
+              headerShown: true,
+              title: 'Roles you do',
+              headerTintColor: colors.primary,
+              headerStyle: { backgroundColor: colors.surface },
+              headerTitleStyle: { color: colors.text },
+            }}
+          />
+          <Stack.Screen
             name="availability"
             options={{
               headerShown: true,

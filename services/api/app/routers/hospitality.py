@@ -6,6 +6,7 @@ from datetime import UTC, date, datetime
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
 from sqlalchemy import delete, func, select
+from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.audit import audit
 from app.deps import AdminUser, Candidate, CurrentUser, Recruiter, Session, Viewer
@@ -36,9 +37,10 @@ from app.models import (
     PayAssessmentAcknowledgement,
     PenaltyRuleVersion,
     PublicHoliday,
+    Resume,
     VenueType,
 )
-from app.services.hospitality.catalogue import search_roles
+from app.services.hospitality.catalogue import search_roles, suggest_from_text
 from app.services.hospitality.pay import acknowledged, run_assessment, today_in
 
 router = APIRouter(prefix="/v1", tags=["hospitality"])
@@ -280,12 +282,13 @@ async def acknowledge(
     if row.status == "compliant_as_assessed":
         raise conflict("nothing_to_acknowledge", "This pay check does not need a review")
     if not await acknowledged(session, employer_id, row.input_hash):
-        session.add(
-            PayAssessmentAcknowledgement(
-                assessment_id=row.id, employer_id=employer_id, user_id=user.id, note=body.note
-            )
+        # Two concurrent acknowledgements must not fail: the unique key makes the second a no-op.
+        stmt = (
+            pg_insert(PayAssessmentAcknowledgement)
+            .values(assessment_id=row.id, employer_id=employer_id, user_id=user.id, note=body.note)
+            .on_conflict_do_nothing(index_elements=["assessment_id"])
         )
-        await session.flush()
+        await session.execute(stmt)
         await audit(session, user.id, "pay_assessment.acknowledged", "pay_assessment", row.id)
     return _out(row, True)
 
@@ -330,6 +333,40 @@ async def _candidate_roles(session: Session, profile_id: uuid.UUID) -> list[Cand
 @router.get("/candidate/roles", response_model=list[CandidateRoleOut])
 async def my_roles(profile: Candidate, session: Session) -> list[CandidateRoleOut]:
     return await _candidate_roles(session, profile.id)
+
+
+class RoleSuggestionOut(BaseModel):
+    role: RoleOut
+    matched_text: str
+    mentions: int
+
+
+@router.get("/candidate/roles/suggestions", response_model=list[RoleSuggestionOut])
+async def suggest_roles(
+    profile: Candidate, session: Session, resume_id: uuid.UUID | None = None
+) -> list[RoleSuggestionOut]:
+    """Proposed roles found in the person's own resume text. Nothing is saved until they accept."""
+    stmt = select(Resume).where(Resume.candidate_id == profile.id)
+    if resume_id is not None:
+        stmt = stmt.where(Resume.id == resume_id)
+    resumes = list(await session.scalars(stmt))
+    if resume_id is not None and not resumes:
+        raise not_found("resume")
+    text = "\n".join(r.versions[-1].content_text for r in resumes if r.versions)
+    if not text.strip():
+        return []
+    found = await suggest_from_text(session, text)
+    mine = {
+        r.role_code
+        for r in await session.scalars(
+            select(CandidateRole).where(CandidateRole.candidate_id == profile.id)
+        )
+    }
+    return [
+        RoleSuggestionOut(role=role, matched_text=phrase, mentions=n)
+        for role, phrase, n in found
+        if role.code not in mine
+    ]
 
 
 @router.put("/candidate/roles", response_model=list[CandidateRoleOut])

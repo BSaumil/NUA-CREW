@@ -1208,6 +1208,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/candidate/roles/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Suggest Roles
+         * @description Proposed roles found in the person's own resume text. Nothing is saved until they accept.
+         */
+        get: operations["suggest_roles_v1_candidate_roles_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/saved-jobs": {
         parameters: {
             query?: never;
@@ -4267,6 +4287,14 @@ export interface components {
             /** Workstream */
             workstream: string;
         };
+        /** RoleSuggestionOut */
+        RoleSuggestionOut: {
+            /** Matched Text */
+            matched_text: string;
+            /** Mentions */
+            mentions: number;
+            role: components["schemas"]["RoleOut"];
+        };
         /** RosterSegmentOut */
         RosterSegmentOut: {
             /** Award Minimum Minor */
@@ -7113,6 +7141,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CandidateRoleOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    suggest_roles_v1_candidate_roles_suggestions_get: {
+        parameters: {
+            query?: {
+                resume_id?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleSuggestionOut"][];
                 };
             };
             /** @description Validation Error */

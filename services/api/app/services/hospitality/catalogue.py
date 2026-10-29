@@ -122,3 +122,55 @@ async def search_roles(
             )
         )
     return out
+
+
+# Too common in ordinary resume prose to be evidence of a role on their own.
+AMBIGUOUS_TERMS = frozenset(
+    {"server", "host", "crew", "runner", "cleaner", "baker", "porter", "driver", "staff", "dm"}
+)
+MAX_SCAN_CHARS = 100_000
+
+
+async def suggest_from_text(
+    session: AsyncSession, text: str, *, limit: int = 8
+) -> list[tuple[RoleOut, str, int]]:
+    """Proposes roles whose title or alias appears in the text. Proposals only: a person reviews.
+
+    Resume text is untrusted data. It is matched against known role names and nothing in it is
+    ever interpreted as an instruction. Returns (role, matched phrase, mentions), best first.
+    """
+    haystack = f" {normalize(text[:MAX_SCAN_CHARS])} "
+    roles = (
+        await session.execute(
+            select(HospitalityRole.code, HospitalityRole.title, HospitalityRole.title_norm).where(
+                HospitalityRole.status == "active"
+            )
+        )
+    ).all()
+    aliases = (
+        await session.execute(
+            select(
+                HospitalityRoleAlias.role_code,
+                HospitalityRoleAlias.alias,
+                HospitalityRoleAlias.alias_norm,
+            )
+        )
+    ).all()
+    terms: dict[str, list[tuple[str, str]]] = defaultdict(list)  # role -> [(display, norm)]
+    for code, title, title_norm in roles:
+        terms[code].append((title, title_norm))
+    for code, alias, alias_norm in aliases:
+        terms[code].append((alias, alias_norm))
+    best: dict[str, tuple[str, int]] = {}
+    for code, options in terms.items():
+        for display, term in options:
+            if len(term) < 4 or term in AMBIGUOUS_TERMS:
+                continue
+            mentions = haystack.count(f" {term} ")
+            if mentions and (code not in best or mentions > best[code][1]):
+                best[code] = (display, mentions)
+    if not best:
+        return []
+    details = {r.code: r for r in await search_roles(session, codes=list(best), limit=200)}
+    ranked = sorted(best.items(), key=lambda kv: (-kv[1][1], details[kv[0]].tier, kv[0]))
+    return [(details[code], phrase, n) for code, (phrase, n) in ranked[:limit] if code in details]

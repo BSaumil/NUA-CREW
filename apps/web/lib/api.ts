@@ -53,6 +53,7 @@ export function toCard(job: Job) {
     payBasis: job.pay_basis as 'disclosed' | 'estimated' | 'not_disclosed',
     superIncluded: job.super_included ?? null,
     publishedAt: job.published_at ?? null,
+    roleTitle: job.role?.title ?? null,
   };
 }
 

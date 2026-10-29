@@ -116,6 +116,14 @@ export default function JobDetail() {
             {j.title}
           </Text>
           <Text muted>{j.employer.name ?? 'Employer not named'}</Text>
+          {j.role ? (
+            <Row>
+              <Badge label={j.role.title} />
+              <Text variant="caption" muted>
+                {j.role.department_name}
+              </Text>
+            </Row>
+          ) : null}
           <Row>
             {where ? (
               <Text variant="caption" muted>

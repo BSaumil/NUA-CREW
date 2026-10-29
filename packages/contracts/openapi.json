@@ -5177,6 +5177,28 @@
         "title": "RoleOut",
         "type": "object"
       },
+      "RoleSuggestionOut": {
+        "properties": {
+          "matched_text": {
+            "title": "Matched Text",
+            "type": "string"
+          },
+          "mentions": {
+            "title": "Mentions",
+            "type": "integer"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleOut"
+          }
+        },
+        "required": [
+          "role",
+          "matched_text",
+          "mentions"
+        ],
+        "title": "RoleSuggestionOut",
+        "type": "object"
+      },
       "RosterSegmentOut": {
         "properties": {
           "award_minimum_minor": {
@@ -10479,6 +10501,66 @@
           }
         ],
         "summary": "Set My Roles",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/candidate/roles/suggestions": {
+      "get": {
+        "description": "Proposed roles found in the person's own resume text. Nothing is saved until they accept.",
+        "operationId": "suggest_roles_v1_candidate_roles_suggestions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resume_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resume Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleSuggestionOut"
+                  },
+                  "title": "Response Suggest Roles V1 Candidate Roles Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Suggest Roles",
         "tags": [
           "hospitality"
         ]

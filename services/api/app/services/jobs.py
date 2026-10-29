@@ -128,8 +128,12 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.max_weekly_hours = data.max_weekly_hours
     job.start_date = data.start_date
     job.end_date = data.end_date
-    job.role_code = data.role_code
-    job.pay_assessment_id = data.pay_assessment_id
+    # PUT replaces editable fields, but a client that doesn't know about roles (the quick form)
+    # must not silently drop a job's role and pay check: only an explicit value changes them.
+    if "role_code" in data.model_fields_set:
+        job.role_code = data.role_code
+    if "pay_assessment_id" in data.model_fields_set:
+        job.pay_assessment_id = data.pay_assessment_id
 
 
 def is_open(job: Job, now: datetime | None = None) -> bool:

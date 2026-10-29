@@ -4,3 +4,4 @@ export * from './trust';
 export * from './match';
 export * from './cards';
 export * from './nav';
+export * from './pay';
