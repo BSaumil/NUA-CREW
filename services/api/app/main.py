@@ -13,8 +13,10 @@ from app.routers import (
     account,
     admin,
     applications,
+    attendance,
     auth,
     availability,
+    billing,
     candidate,
     employer,
     health,
@@ -25,6 +27,7 @@ from app.routers import (
     notifications,
     pricing,
     saved,
+    shifts,
     talent,
 )
 
@@ -63,6 +66,7 @@ def create_app() -> FastAPI:
         auth.router,
         candidate.router,
         availability.router,
+        billing.router,
         talent.router,
         inbox_candidate.router,
         invites_employer.router,
@@ -75,6 +79,8 @@ def create_app() -> FastAPI:
         saved.router,
         account.router,
         moderation.router,
+        shifts.router,
+        attendance.router,
     ):
         app.include_router(r)
     return app

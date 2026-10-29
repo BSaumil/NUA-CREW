@@ -7,7 +7,8 @@ from typing import Any, Literal
 
 from sqlalchemy import ColumnElement, Select, case, func, literal, or_, select
 
-from app.models import Job, JobSkill, Skill
+from app.config import get_settings
+from app.models import Employer, Job, JobSkill, PublishedPromotion, Skill
 from app.services.jobs import slugify
 from app.services.matching import _TO_HOURLY
 
@@ -118,6 +119,32 @@ def build(p: SearchParams) -> tuple[Select[Any], Select[Any]]:
         count = count.where(Job.search_vector.op("@@")(tsq))
 
     newest = [Job.published_at.desc().nulls_last(), Job.id]
+    # Paid ordering is limited to the exact local/category relevance search sold to the employer.
+    # It never overrides pay/distance/newest sorts or any eligibility/filter/mute condition.
+    if (
+        get_settings().paid_advertising_enabled
+        and p.state
+        and p.suburb
+        and p.category
+        and p.sort == "relevance"
+    ):
+        paid = (
+            select(PublishedPromotion.id)
+            .where(
+                PublishedPromotion.job_id == Job.id,
+                PublishedPromotion.active,
+                PublishedPromotion.starts_at <= func.now(),
+                PublishedPromotion.ends_at > func.now(),
+                func.lower(Job.state) == p.state.lower(),
+                func.lower(Job.suburb) == p.suburb.lower(),
+                func.lower(Job.category) == p.category.lower(),
+                Job.employer_id.in_(
+                    select(Employer.id).where(Employer.verification_status == "verified")
+                ),
+            )
+            .exists()
+        )
+        stmt = stmt.order_by(case((paid, 0), else_=1))
     if p.sort == "pay":
         stmt = stmt.order_by(hourly_max_expr().desc().nulls_last(), *newest)
     elif p.sort == "distance" and near:

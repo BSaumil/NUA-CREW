@@ -18,7 +18,11 @@ export default defineConfig({
   workers: 1,
   retries: 0,
   reporter: [['list']],
-  use: { trace: 'retain-on-failure', ...devices['Desktop Chrome'] },
+  use: {
+    trace: 'retain-on-failure',
+    ...devices['Desktop Chrome'],
+    channel: process.env.NUA_E2E_BROWSER_CHANNEL,
+  },
   webServer: [
     {
       // The mobile app's web build (react-native-web) talking to the real API.

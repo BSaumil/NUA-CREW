@@ -126,6 +126,11 @@ export default function Profile() {
         variant="secondary"
         onPress={() => router.push('/(app)/alerts')}
       />
+      <Button
+        title="My shifts and hours"
+        variant="secondary"
+        onPress={() => router.push('/my-shifts')}
+      />
 
       <Card>
         <Text variant="heading" accessibilityRole="header">

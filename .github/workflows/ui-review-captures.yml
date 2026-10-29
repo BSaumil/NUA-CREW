@@ -1,0 +1,48 @@
+name: ui-review-captures
+on:
+  pull_request:
+    paths: ['.github/workflows/ui-review-captures.yml']
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  export-review-screenshots:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download final app browser captures
+        uses: actions/download-artifact@v4
+        with:
+          name: playwright-traces-and-ui
+          run-id: 40589598473
+          github-token: ${{ github.token }}
+          path: /tmp/nua-captures
+      - name: Select fictional-account screenshots for review
+        run: |
+          python3 - <<'PY'
+          import base64, json, pathlib, shutil
+          root = pathlib.Path('/tmp/nua-captures')
+          out = pathlib.Path('review-screenshots')
+          out.mkdir()
+          names = ['employee-light-390.png', 'employer-light-390.png',
+                   'employer-create-role.png', 'employer-disclose-pay.png',
+                   'employer-review-advertisement.png', 'employer-advertising-billing.png',
+                   'billing-phone.png']
+          for name in names:
+              matches = list(root.rglob(name))
+              if len(matches) != 1:
+                  raise RuntimeError(f'Expected one screenshot: {name}')
+              target = out / name
+              shutil.copyfile(matches[0], target)
+              encoded = base64.b64encode(target.read_bytes()).decode('ascii')
+              for index, offset in enumerate(range(0, len(encoded), 3000)):
+                  print('NUA_IMAGE_PART ' + json.dumps([name, index, encoded[offset:offset+3000]]))
+              print('NUA_IMAGE_DONE ' + json.dumps([name, target.stat().st_size]))
+          PY
+      - name: Save review screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: nua-crew-review-screenshots
+          path: review-screenshots/*.png
+          retention-days: 90

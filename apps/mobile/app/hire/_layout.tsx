@@ -2,9 +2,11 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
 import { useHireWorkspace } from '@/state/HireWorkspace';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useTabBarStyle } from '@/ui/tab-bar';
 
 export default function HireTabs() {
   const { colors } = useTheme();
+  const tabBarStyle = useTabBarStyle();
   const { employerId } = useHireWorkspace();
   return (
     <Tabs
@@ -13,7 +15,7 @@ export default function HireTabs() {
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarStyle,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 12 },
       }}
     >

@@ -50,6 +50,7 @@ export const EMPLOYER_NAV: NavItem[] = [
   { key: 'invitations', href: '/invitations', label: 'Invitations' },
   { key: 'messages', href: '/messages', label: 'Messages' },
   { key: 'team', href: '/team', label: 'Team' },
+  { key: 'billing', href: '/billing', label: 'Advertising & billing' },
 ];
 
 export function EmployerSidebar({

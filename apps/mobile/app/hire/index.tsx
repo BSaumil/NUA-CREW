@@ -97,6 +97,11 @@ function Jobs() {
       <Text variant="heading" accessibilityRole="header">
         Your jobs
       </Text>
+      <Button
+        title="Shifts and timesheets"
+        variant="secondary"
+        onPress={() => router.push('/hire-shifts')}
+      />
       <Row>
         {(['all', 'published', 'draft', 'closed'] as const).map((v) => (
           <Chip

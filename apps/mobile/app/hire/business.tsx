@@ -10,6 +10,7 @@ import {
   useHireBusinesses,
   useHireLocations,
   useHireMembers,
+  useHireQuery,
 } from '@/api/hire';
 import { exportAccount } from '@/features/account-export';
 import { reportSignOut } from '@/features/signout';
@@ -54,6 +55,17 @@ function BusinessContent() {
     queryKey: ['pricing'],
     queryFn: async () => unwrap(await api.GET('/v1/pricing')),
   });
+  const billingStatus = useQuery({
+    queryKey: ['billing-status'],
+    queryFn: async () => unwrap(await api.GET('/v1/billing/status')),
+  });
+  const orders = useHireQuery(['billing-orders'], async (id) =>
+    unwrap(
+      await api.GET('/v1/employers/{employer_id}/billing/orders', {
+        params: { path: { employer_id: id } },
+      }),
+    ),
+  );
   const [modal, setModal] = useState<'location' | 'member' | 'password' | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -236,14 +248,32 @@ function BusinessContent() {
               </Text>
             ))}
             <Text variant="caption" muted>
-              Planned prices. Payments and promotion booking are not active yet. No automatic
-              renewals.
+              Employees remain free. No automatic renewals. Advertising purchases are managed in the
+              employer web portal.
             </Text>
           </>
         ) : prices.isError ? (
           <ErrorState message={messageOf(prices.error)} onRetry={() => void prices.refetch()} />
         ) : (
-          <Text muted>Loading planned prices…</Text>
+          <Text muted>Loading prices…</Text>
+        )}
+        <Text muted>
+          {typeof billingStatus.data?.message === 'string'
+            ? billingStatus.data.message
+            : 'Payment connection status is unavailable.'}
+        </Text>
+        {orders.isError ? (
+          <ErrorState message={messageOf(orders.error)} onRetry={() => void orders.refetch()} />
+        ) : orders.data?.length ? (
+          orders.data.map((order) => (
+            <Text key={order.id}>
+              {order.job_title} · A${(order.amount_minor / 100).toFixed(2)} ·{' '}
+              {order.status.replaceAll('_', ' ')}
+              {order.review_required ? ' · Support review needed' : ''}
+            </Text>
+          ))
+        ) : (
+          <Text muted>No advertising orders yet.</Text>
         )}
       </Card>
       <Card>

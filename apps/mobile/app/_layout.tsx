@@ -205,6 +205,7 @@ function Gate() {
               headerTitleStyle: { color: colors.text },
             }}
           />
+          <Stack.Screen name="my-shifts" options={{ headerShown: true, title: 'My shifts' }} />
           <Stack.Screen
             name="employer-preferences"
             options={{
@@ -238,6 +239,10 @@ function Gate() {
         </Stack.Protected>
         <Stack.Protected guard={status === 'signedIn' && role === 'employer'}>
           <Stack.Screen name="hire" />
+          <Stack.Screen
+            name="hire-shifts"
+            options={{ headerShown: true, title: 'Shifts and hours' }}
+          />
           <Stack.Screen
             name="hire-post"
             options={{ headerShown: true, title: 'Your job advertisement' }}

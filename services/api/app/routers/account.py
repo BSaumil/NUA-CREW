@@ -32,6 +32,9 @@ from app.models import (
     Resume,
     SavedJob,
     SavedSearch,
+    Shift,
+    ShiftBooking,
+    ShiftTimesheet,
     Skill,
     User,
     WorkPreference,
@@ -137,6 +140,43 @@ async def export_account(user: CurrentUser, session: Session) -> Response:
             for r in await session.scalars(select(Resume).where(Resume.candidate_id == p.id))
         ]
         data["applications"] = apps
+        data["shift_bookings"] = []
+        for booking, shift in (
+            await session.execute(
+                select(ShiftBooking, Shift)
+                .join(Shift, Shift.id == ShiftBooking.shift_id)
+                .where(ShiftBooking.candidate_id == p.id)
+            )
+        ).all():
+            sheet = await session.scalar(
+                select(ShiftTimesheet).where(ShiftTimesheet.booking_id == booking.id)
+            )
+            data["shift_bookings"].append(
+                {
+                    **_row(booking, "id", "status", "expires_at", "reason", "created_at"),
+                    "shift": _row(
+                        shift,
+                        "title",
+                        "starts_at",
+                        "ends_at",
+                        "time_zone",
+                        "hourly_rate_minor",
+                        "super_included",
+                    ),
+                    "timesheet": _row(
+                        sheet,
+                        "starts_at",
+                        "ends_at",
+                        "break_minutes",
+                        "status",
+                        "version",
+                        "note",
+                        "review_note",
+                    )
+                    if sheet
+                    else None,
+                }
+            )
         data["work_preferences"] = [
             _row(
                 w,
@@ -272,6 +312,11 @@ async def delete_account(body: DeleteAccountIn, user: CurrentUser, session: Sess
     async with system_scope(session):
         # Only audited deletion requests may remove append-only history.
         await session.execute(text("SELECT set_config('app.allow_erasure', 'on', true)"))
+        # Remove booking references before cascading the candidate's calendar commitments.
+        cid = await session.scalar(
+            select(CandidateProfile.id).where(CandidateProfile.user_id == user.id)
+        )
+        await session.execute(delete(ShiftBooking).where(ShiftBooking.candidate_id == cid))
         await session.execute(delete(User).where(User.id == user.id))
         await session.flush()
         await session.execute(text("SELECT set_config('app.allow_erasure', '', true)"))

@@ -1,6 +1,7 @@
 from functools import lru_cache
+from typing import Literal
 
-from pydantic import model_validator
+from pydantic import SecretStr, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 DEV_JWT_SECRET = "dev-only-insecure-secret-change-me-32bytes!"  # noqa: S105
@@ -42,11 +43,21 @@ class Settings(BaseSettings):
     push_provider: str = "none"  # "expo" enables real push delivery
     ingestion_stale_after_seconds: int = 7 * 24 * 3600
     fixtures_dir: str = "fixtures"
+    stripe_mode: Literal["disabled", "test"] = "disabled"
+    stripe_secret_key: SecretStr | None = None
+    stripe_webhook_secret: SecretStr | None = None
+    billing_terms_approved: bool = False
+    billing_return_url: str = "http://localhost:3001/billing"
+    paid_advertising_enabled: bool = False
 
     @model_validator(mode="after")
     def _no_dev_secret_outside_dev(self) -> "Settings":
         if self.env != "development" and self.jwt_secret == DEV_JWT_SECRET:
             raise ValueError("NUA_JWT_SECRET must be set outside development")
+        if self.stripe_mode == "test" and self.stripe_secret_key:
+            key = self.stripe_secret_key.get_secret_value()
+            if not key.startswith(("sk_test_", "rk_test_")):
+                raise ValueError("Only Stripe test keys are supported; live charging is disabled")
         return self
 
 

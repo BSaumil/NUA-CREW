@@ -38,6 +38,7 @@ export async function requireCandidate() {
 export function toCard(job: Job) {
   return {
     id: job.id,
+    promoted: job.promoted,
     title: job.title,
     employerName: job.employer.name ?? null,
     verification: (job.employer.verification_status ?? null) as
