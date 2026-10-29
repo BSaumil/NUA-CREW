@@ -36,6 +36,20 @@ from app.security import hash_password  # noqa: E402
 
 PASSWORD = "correct-horse-battery"
 
+REFERENCE_TABLES = frozenset(
+    {
+        "hospitality_departments",
+        "hospitality_roles",
+        "hospitality_role_aliases",
+        "venue_types",
+        "role_venue_compatibility",
+        "industrial_instruments",
+        "award_classifications",
+        "award_rate_versions",
+        "penalty_rule_versions",
+    }
+)
+
 
 @pytest.fixture(scope="session", autouse=True)
 def _rls_safe_role() -> None:
@@ -103,6 +117,9 @@ async def _clean_db() -> AsyncIterator[None]:
                 )
             )
         ).scalars()
+        # The hospitality taxonomy and award rules are migration-seeded reference data, not
+        # per-test fixtures, so they survive between tests (public_holidays is test-owned).
+        tables = [t for t in tables if t not in REFERENCE_TABLES]
         await conn.execute(text(f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE"))
     yield
     await dispose_engine()

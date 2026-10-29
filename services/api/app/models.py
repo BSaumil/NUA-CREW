@@ -220,7 +220,7 @@ class Employer(TimestampMixin, Base):
         String(16), nullable=False, server_default="unverified"
     )
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    verified_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id"))
+    verified_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     verification_evidence: Mapped[str | None] = mapped_column(Text)
 
 
@@ -341,6 +341,12 @@ class Job(TimestampMixin, Base):
     max_weekly_hours: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
     start_date: Mapped[date | None] = mapped_column(Date)
     end_date: Mapped[date | None] = mapped_column(Date)
+    role_code: Mapped[str | None] = mapped_column(
+        ForeignKey("hospitality_roles.code", ondelete="SET NULL"), index=True
+    )
+    pay_assessment_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("pay_assessments.id", ondelete="SET NULL")
+    )
     search_vector: Mapped[Any] = mapped_column(
         TSVECTOR,
         Computed(
@@ -890,6 +896,219 @@ class ShiftTimesheetVersion(Base):
     recorded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=text("now()")
     )
+
+
+class HospitalityDepartment(Base):
+    __tablename__ = "hospitality_departments"
+    code: Mapped[str] = mapped_column(String(48), primary_key=True)
+    name: Mapped[str] = mapped_column(String(120))
+    workstream: Mapped[str] = mapped_column(String(12))
+    sort_order: Mapped[int] = mapped_column(Integer)
+
+
+class HospitalityRole(Base):
+    """Curated NUA search taxonomy. A role is never an authoritative award classification."""
+
+    __tablename__ = "hospitality_roles"
+    code: Mapped[str] = mapped_column(String(12), primary_key=True)  # stable: HC-0001..
+    title: Mapped[str] = mapped_column(String(200))
+    title_norm: Mapped[str] = mapped_column(String(220), index=True)
+    department_code: Mapped[str] = mapped_column(
+        ForeignKey("hospitality_departments.code"), index=True
+    )
+    tier: Mapped[int] = mapped_column(Integer)  # seniority: 1 = highest
+    workstream: Mapped[str] = mapped_column(String(12))
+    sort_order: Mapped[int] = mapped_column(Integer)  # display order, separate from seniority
+    scope_text: Mapped[str] = mapped_column(String(200))
+    compliance_note: Mapped[str] = mapped_column(Text)
+    source_url: Mapped[str] = mapped_column(Text)
+    indicative_text: Mapped[str] = mapped_column(String(200))
+    indicative_level_min: Mapped[int | None] = mapped_column(Integer)
+    indicative_level_max: Mapped[int | None] = mapped_column(Integer)
+    duties_based: Mapped[bool] = mapped_column(Boolean)
+    apprentice: Mapped[bool] = mapped_column(Boolean)
+    introductory: Mapped[bool] = mapped_column(Boolean)
+    needs_review: Mapped[bool] = mapped_column(Boolean)
+    status: Mapped[str] = mapped_column(String(10), server_default="active")
+
+
+class HospitalityRoleAlias(Base):
+    __tablename__ = "hospitality_role_aliases"
+    __table_args__ = (UniqueConstraint("role_code", "alias_norm", name="uq_role_alias"),)
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    role_code: Mapped[str] = mapped_column(
+        ForeignKey("hospitality_roles.code", ondelete="CASCADE"), index=True
+    )
+    alias: Mapped[str] = mapped_column(String(200))
+    alias_norm: Mapped[str] = mapped_column(String(220), index=True)
+
+
+class VenueType(Base):
+    __tablename__ = "venue_types"
+    code: Mapped[str] = mapped_column(String(24), primary_key=True)
+    name: Mapped[str] = mapped_column(String(80))
+    # Starting points for an award coverage check only; the employer must confirm coverage.
+    award_leads: Mapped[list[str]] = mapped_column(ARRAY(String))
+    coverage_confidence: Mapped[str] = mapped_column(String(10))
+
+
+class RoleVenueCompatibility(Base):
+    __tablename__ = "role_venue_compatibility"
+    role_code: Mapped[str] = mapped_column(
+        ForeignKey("hospitality_roles.code", ondelete="CASCADE"), primary_key=True
+    )
+    venue_code: Mapped[str] = mapped_column(
+        ForeignKey("venue_types.code", ondelete="CASCADE"), primary_key=True
+    )
+
+
+class IndustrialInstrument(Base):
+    __tablename__ = "industrial_instruments"
+    code: Mapped[str] = mapped_column(String(16), primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    kind: Mapped[str] = mapped_column(String(12), server_default="award")
+    source_url: Mapped[str] = mapped_column(Text)
+    status: Mapped[str] = mapped_column(String(10), server_default="active")
+
+
+class AwardClassification(Base):
+    __tablename__ = "award_classifications"
+    __table_args__ = (UniqueConstraint("instrument_code", "code", name="uq_award_class"),)
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    instrument_code: Mapped[str] = mapped_column(ForeignKey("industrial_instruments.code"))
+    code: Mapped[str] = mapped_column(String(12))
+    label: Mapped[str] = mapped_column(String(120))
+    description: Mapped[str] = mapped_column(Text)
+    kind: Mapped[str] = mapped_column(String(10))  # operative | manager
+    sort_order: Mapped[int] = mapped_column(Integer)
+
+
+class AwardRateVersion(Base):
+    __tablename__ = "award_rate_versions"
+    __table_args__ = (
+        UniqueConstraint("classification_id", "effective_from", name="uq_rate_effective"),
+        CheckConstraint(
+            "data_status IN ('supplied_unverified', 'verified')", name="ck_rate_data_status"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    classification_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("award_classifications.id", ondelete="CASCADE"), index=True
+    )
+    effective_from: Mapped[date] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    weekly_minor: Mapped[int] = mapped_column(Integer)
+    hourly_minor: Mapped[int] = mapped_column(Integer)
+    supplied_casual_ordinary_minor: Mapped[int | None] = mapped_column(Integer)
+    annual_minimum_minor: Mapped[int | None] = mapped_column(Integer)
+    source_url: Mapped[str] = mapped_column(Text)
+    data_status: Mapped[str] = mapped_column(String(20))
+    source_note: Mapped[str] = mapped_column(Text)
+    verified_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class PenaltyRuleVersion(Base):
+    __tablename__ = "penalty_rule_versions"
+    __table_args__ = (
+        UniqueConstraint(
+            "instrument_code",
+            "employment",
+            "day_kind",
+            "effective_from",
+            "classification_codes",
+            name="uq_penalty_rule",
+        ),
+        CheckConstraint("employment IN ('permanent', 'casual')", name="ck_penalty_employment"),
+        CheckConstraint(
+            "day_kind IN ('weekday', 'saturday', 'sunday', 'public_holiday')",
+            name="ck_penalty_day_kind",
+        ),
+        CheckConstraint(
+            "data_status IN ('supplied_unverified', 'verified')", name="ck_penalty_data_status"
+        ),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    instrument_code: Mapped[str] = mapped_column(ForeignKey("industrial_instruments.code"))
+    employment: Mapped[str] = mapped_column(String(10))
+    classification_codes: Mapped[list[str]] = mapped_column(ARRAY(String))
+    day_kind: Mapped[str] = mapped_column(String(16))
+    # Basis points of the permanent ordinary hourly rate; casual rows include the loading.
+    multiplier_bp: Mapped[int] = mapped_column(Integer)
+    effective_from: Mapped[date] = mapped_column(Date)
+    effective_to: Mapped[date | None] = mapped_column(Date)
+    source_url: Mapped[str] = mapped_column(Text)
+    data_status: Mapped[str] = mapped_column(String(20))
+    source_note: Mapped[str] = mapped_column(Text)
+    verified_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
+    verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class PublicHoliday(Base):
+    """Administrator-maintained. Empty until an authoritative calendar is loaded."""
+
+    __tablename__ = "public_holidays"
+    __table_args__ = (UniqueConstraint("state", "holiday_date", name="uq_public_holiday"),)
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    state: Mapped[str] = mapped_column(String(3))
+    holiday_date: Mapped[date] = mapped_column(Date)
+    name: Mapped[str] = mapped_column(String(120))
+    source_url: Mapped[str] = mapped_column(Text)
+
+
+class PayAssessment(Base):
+    """Immutable record of one pay check: inputs, the rule versions used and the result."""
+
+    __tablename__ = "pay_assessments"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), index=True
+    )
+    job_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("jobs.id", ondelete="SET NULL"), index=True
+    )
+    created_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL")
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    effective_on: Mapped[date] = mapped_column(Date)
+    status: Mapped[str] = mapped_column(String(24))
+    input_hash: Mapped[str] = mapped_column(String(64))
+    input: Mapped[dict[str, Any]] = mapped_column(JSONB)
+    result: Mapped[dict[str, Any]] = mapped_column(JSONB)
+
+
+class PayAssessmentAcknowledgement(Base):
+    """An employer's recorded acknowledgement that an assessment still needs human review."""
+
+    __tablename__ = "pay_assessment_acknowledgements"
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    assessment_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("pay_assessments.id", ondelete="CASCADE"), unique=True
+    )
+    employer_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("employers.id", ondelete="CASCADE"), index=True
+    )
+    user_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
+    acknowledged_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+    note: Mapped[str | None] = mapped_column(String(1000))
+
+
+class CandidateRole(Base):
+    """A person's own role preferences. Private: employers never read this table."""
+
+    __tablename__ = "candidate_roles"
+    __table_args__ = (UniqueConstraint("candidate_id", "role_code", name="uq_candidate_role"),)
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), index=True
+    )
+    role_code: Mapped[str] = mapped_column(ForeignKey("hospitality_roles.code"))
+    years_experience: Mapped[int | None] = mapped_column(Integer)
+    is_primary: Mapped[bool] = mapped_column(Boolean, server_default=text("false"))
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
 
 
 class BillingOrder(TimestampMixin, Base):

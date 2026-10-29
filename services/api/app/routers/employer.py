@@ -40,7 +40,14 @@ from app.schemas import (
     StatusChangeIn,
 )
 from app.services.applications import change_status
-from app.services.jobs import apply_job_input, record_version, set_job_skills, to_out
+from app.services.hospitality.pay import enforce_on_publish
+from app.services.jobs import (
+    apply_job_input,
+    record_version,
+    set_job_skills,
+    to_out,
+    validate_hospitality_links,
+)
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 
@@ -157,6 +164,7 @@ async def create_job(
         f"job-create:{employer_id}", get_settings().job_create_limit_per_hour, 3600
     )
     loc = await _location(session, employer_id, body.location_id)
+    await validate_hospitality_links(session, employer_id, body)
     job = Job(employer_id=employer_id, origin="direct", status="draft", created_by=user.id)
     apply_job_input(job, body, loc)
     session.add(job)
@@ -216,6 +224,7 @@ async def update_job(
     )
     if job.status in ("closed", "expired"):
         raise conflict("job_closed", "Closed jobs cannot be edited")
+    await validate_hospitality_links(session, employer_id, body)
     apply_job_input(job, body, await _location(session, employer_id, body.location_id))
     if paid:
         job.expires_at = expires_at
@@ -240,6 +249,7 @@ async def publish_job(
     if not job.suburb:
         raise ApiError(422, "location_required", "A job location is required to publish")
     now = datetime.now(UTC)
+    await enforce_on_publish(session, job, user.id)
     if get_settings().paid_advertising_enabled:
         entitlement = await session.scalar(
             select(AdEntitlement.id)

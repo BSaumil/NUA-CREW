@@ -203,6 +203,10 @@ class JobIn(BaseModel):
     skills: list[Annotated[str, StringConstraints(min_length=1, max_length=100)]] = Field(
         default=[], max_length=30
     )
+    # Optional hospitality role (HC-xxxx) and the pay check run for it. Both are validated and
+    # enforced server-side at publish; a role never decides an award classification.
+    role_code: str | None = Field(None, max_length=12)
+    pay_assessment_id: uuid.UUID | None = None
 
     @model_validator(mode="after")
     def _facets(self) -> "JobIn":
@@ -236,6 +240,13 @@ class JobEmployerOut(BaseModel):
     id: uuid.UUID | None
     name: str | None
     verification_status: str | None
+
+
+class JobRoleOut(BaseModel):
+    code: str
+    title: str
+    department_code: str
+    department_name: str
 
 
 class JobOut(BaseModel):
@@ -272,6 +283,8 @@ class JobOut(BaseModel):
     employer: JobEmployerOut
     location_id: uuid.UUID | None = None
     distance_km: float | None = None  # straight-line, approximate; only for near-me searches
+    role: JobRoleOut | None = None
+    pay_assessment_id: uuid.UUID | None = None
 
 
 class JobList(BaseModel):

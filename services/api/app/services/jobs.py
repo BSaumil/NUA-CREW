@@ -9,8 +9,20 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import get_settings
-from app.models import Employer, Job, JobSkill, JobVersion, Location, PublishedPromotion, Skill
-from app.schemas import JobEmployerOut, JobIn, JobOut
+from app.errors import ApiError
+from app.models import (
+    Employer,
+    HospitalityDepartment,
+    HospitalityRole,
+    Job,
+    JobSkill,
+    JobVersion,
+    Location,
+    PayAssessment,
+    PublishedPromotion,
+    Skill,
+)
+from app.schemas import JobEmployerOut, JobIn, JobOut, JobRoleOut
 from app.services.geo import centroid, haversine_km
 
 _NON_SLUG = re.compile(r"[^a-z0-9]+")
@@ -116,6 +128,8 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.max_weekly_hours = data.max_weekly_hours
     job.start_date = data.start_date
     job.end_date = data.end_date
+    job.role_code = data.role_code
+    job.pay_assessment_id = data.pay_assessment_id
 
 
 def is_open(job: Job, now: datetime | None = None) -> bool:
@@ -160,6 +174,24 @@ async def to_out(
     skills: dict[uuid.UUID, list[str]] = {}
     for job_id, name in skill_rows:
         skills.setdefault(job_id, []).append(name)
+    role_codes = {j.role_code for j in jobs if j.role_code}
+    role_info = {}
+    if role_codes:
+        for code, title, dcode, dname in await session.execute(
+            select(
+                HospitalityRole.code,
+                HospitalityRole.title,
+                HospitalityRole.department_code,
+                HospitalityDepartment.name,
+            )
+            .join(
+                HospitalityDepartment, HospitalityDepartment.code == HospitalityRole.department_code
+            )
+            .where(HospitalityRole.code.in_(role_codes))
+        ):
+            role_info[code] = JobRoleOut(
+                code=code, title=title, department_code=dcode, department_name=dname
+            )
     employer_ids = {j.employer_id for j in jobs if j.employer_id}
     employers = {
         e.id: e
@@ -203,6 +235,8 @@ async def to_out(
                 skills=skills.get(j.id, []),
                 location_id=j.location_id,
                 distance_km=_distance(origin, j),
+                role=role_info.get(j.role_code) if j.role_code else None,
+                pay_assessment_id=j.pay_assessment_id,
                 employer=JobEmployerOut(
                     id=emp.id if emp else None,
                     name=emp.name if emp else j.source_employer_name,
@@ -211,3 +245,24 @@ async def to_out(
             )
         )
     return out
+
+
+async def validate_hospitality_links(
+    session: AsyncSession, employer_id: uuid.UUID, data: JobIn
+) -> None:
+    """The role must exist and the pay check must belong to this business (no cross-tenant ids)."""
+    if data.role_code is not None:
+        role = await session.get(HospitalityRole, data.role_code)
+        if role is None or role.status != "active":
+            raise ApiError(422, "unknown_role", "That role does not exist")
+    if data.pay_assessment_id is not None:
+        found = await session.scalar(
+            select(PayAssessment.id).where(
+                PayAssessment.id == data.pay_assessment_id,
+                PayAssessment.employer_id == employer_id,
+            )
+        )
+        if found is None:
+            raise ApiError(422, "unknown_pay_assessment", "That pay check does not exist")
+    if data.pay_assessment_id is not None and data.role_code is None:
+        raise ApiError(422, "role_required", "Choose a role to attach a pay check")
