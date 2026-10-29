@@ -583,3 +583,114 @@ async def test_candidate_roles_are_private_validated_and_multiple(client):
         )  # employers never read
     async with db_as("candidate", candidate_id=uuid.UUID(cid)) as s:
         assert await s.scalar(text("SELECT count(*) FROM candidate_roles")) == 1
+
+
+# ---- shifts, search and matching --------------------------------------------------------------------
+async def live_role_job(client, tag, **over):
+    emp, eid = await verified_employer(client, f"{tag}@nua-crew.example.com")
+    a = await assess(client, emp, eid)
+    job = (await make_job(client, emp, eid, a["id"], pay_max="60.00", **over)).json()
+    live = await publish(client, emp, eid, job["id"])
+    assert live.status_code == 200, live.text
+    return emp, eid, live.json()
+
+
+def next_weekday(weekday: int, days_ahead: int = 10):
+    from datetime import UTC, datetime, timedelta
+
+    day = datetime.now(UTC).date() + timedelta(days=days_ahead)
+    while day.weekday() != weekday:
+        day += timedelta(days=1)
+    return day.isoformat()
+
+
+async def test_shift_rates_are_checked_for_their_own_day(client):
+    emp, eid, job = await live_role_job(client, "shift-rate")
+
+    def shift(day, rate):
+        return client.post(
+            f"/v1/employers/{eid}/shifts",
+            headers=emp,
+            json={
+                "job_id": job["id"],
+                "local_date": day,
+                "local_start": "10:00",
+                "local_end": "14:00",
+                "time_zone": "Australia/Melbourne",
+                "capacity": 1,
+                "hourly_rate_minor": rate,
+            },
+        )
+
+    weekday = await shift(next_weekday(2), 3385)  # Wednesday: casual L2 ordinary minimum
+    assert weekday.status_code == 201, weekday.text
+    sunday_low = await shift(next_weekday(6), 3385)  # Sunday casual L2 is 150% x $27.08 = $40.62
+    assert (
+        sunday_low.status_code == 422
+        and sunday_low.json()["error"]["code"] == "below_award_minimum"
+    )
+    sunday_ok = await shift(next_weekday(6), 4062)
+    assert sunday_ok.status_code == 201, sunday_ok.text
+    saturday_low = await shift(next_weekday(5), 3800)  # Saturday casual L2 minimum is $40.62
+    assert saturday_low.status_code == 422
+    async with db_as("system") as s:
+        audited = await s.scalar(
+            text("SELECT count(*) FROM audit_events WHERE action = 'shift.created'")
+        )
+        assert audited == 2
+
+
+async def test_jobs_without_a_pay_check_cannot_create_role_shifts(client):
+    emp, eid = await verified_employer(client, "shift-nocheck@nua-crew.example.com")
+    job = (await make_job(client, emp, eid)).json()
+    r = await client.post(
+        f"/v1/employers/{eid}/shifts",
+        headers=emp,
+        json={
+            "job_id": job["id"],
+            "local_date": next_weekday(2),
+            "local_start": "10:00",
+            "local_end": "14:00",
+            "time_zone": "Australia/Melbourne",
+            "capacity": 1,
+            "hourly_rate_minor": 3400,
+        },
+    )
+    assert r.status_code == 409  # draft jobs can't carry shifts; never a silent pass
+
+
+async def test_role_filters_and_match_explanation(client):
+    emp, eid, job = await live_role_job(client, "role-match")
+    by_role = (await client.get("/v1/jobs", params={"role": WAITER})).json()
+    assert [j["id"] for j in by_role["items"]] == [job["id"]]
+    by_dept = (
+        await client.get("/v1/jobs", params={"department": "restaurant-fine-dining-foh"})
+    ).json()
+    assert by_dept["total"] == 1
+    assert (await client.get("/v1/jobs", params={"department": "bars-pubs-beverage"})).json()[
+        "total"
+    ] == 0
+    assert (await client.get("/v1/jobs", params={"role": "HC-0082"})).json()["total"] == 0
+
+    cand = await register_candidate(client, "role-match-c@nua-crew.example.com")
+
+    async def role_component(roles):
+        put = await client.put("/v1/candidate/roles", headers=cand, json={"roles": roles})
+        assert put.status_code == 200, put.text
+        match = (await client.get(f"/v1/jobs/{job['id']}/match", headers=cand)).json()
+        return next(c for c in match["components"] if c["key"] == "role")
+
+    none = await role_component([])
+    assert none["evaluated"] is False
+    exact = await role_component([{"role_code": WAITER, "years_experience": 3}])
+    assert exact["evaluated"] and exact["score"] == 1.0 and "3 years" in exact["evidence"]
+    related = await role_component([{"role_code": "HC-0061"}])  # same department
+    assert related["score"] == 0.5
+    other = await role_component([{"role_code": "HC-0082"}])  # bartender: different department
+    assert other["score"] == 0.0 and other["basis"] == "self_declared"
+    saved = await client.post(
+        "/v1/candidate/saved-searches",
+        headers=cand,
+        json={"name": "Waiter roles", "params": {"role_code": WAITER}, "alerts_enabled": True},
+    )
+    assert saved.status_code in (200, 201), saved.text

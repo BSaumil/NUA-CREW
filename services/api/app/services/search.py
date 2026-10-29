@@ -8,7 +8,7 @@ from typing import Any, Literal
 from sqlalchemy import ColumnElement, Select, case, func, literal, or_, select
 
 from app.config import get_settings
-from app.models import Employer, Job, JobSkill, PublishedPromotion, Skill
+from app.models import Employer, HospitalityRole, Job, JobSkill, PublishedPromotion, Skill
 from app.services.jobs import slugify
 from app.services.matching import _TO_HOURLY
 
@@ -16,7 +16,7 @@ Sort = Literal["relevance", "newest", "pay", "distance"]
 SAVED_SEARCH_KEYS = {
     "q", "suburb", "state", "employment_type", "category", "skill", "min_hourly",
     "near_lat", "near_lng", "radius_km", "posted_within_days",
-    "engagement_basis", "duration_type", "hours_pattern",
+    "engagement_basis", "duration_type", "hours_pattern", "role_code", "department",
 }  # fmt: skip
 
 
@@ -37,6 +37,8 @@ class SearchParams:
     engagement_basis: str | None = None
     duration_type: str | None = None
     hours_pattern: str | None = None
+    role_code: str | None = None
+    department: str | None = None
     exclude_employer_ids: tuple[uuid.UUID, ...] = ()  # a candidate's muted employers
     sort: Sort = "relevance"
 
@@ -84,6 +86,14 @@ def build(p: SearchParams) -> tuple[Select[Any], Select[Any]]:
         where.append(Job.duration_type == p.duration_type)
     if p.hours_pattern:
         where.append(Job.hours_pattern == p.hours_pattern)
+    if p.role_code:
+        where.append(Job.role_code == p.role_code)
+    if p.department:
+        where.append(
+            Job.role_code.in_(
+                select(HospitalityRole.code).where(HospitalityRole.department_code == p.department)
+            )
+        )
     if p.exclude_employer_ids:
         where.append(or_(Job.employer_id.is_(None), Job.employer_id.not_in(p.exclude_employer_ids)))
     if p.skill:

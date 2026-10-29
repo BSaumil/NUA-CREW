@@ -3,7 +3,7 @@
 import hashlib
 import json
 import uuid
-from datetime import date, datetime
+from datetime import date, datetime, time
 from decimal import Decimal
 from zoneinfo import ZoneInfo
 
@@ -139,3 +139,65 @@ async def enforce_on_publish(
             "This pay needs a manual review. Acknowledge the review to publish.",
         )
     return result
+
+
+async def enforce_shift_rate(
+    session: AsyncSession,
+    job: Job,
+    user_id: uuid.UUID,
+    *,
+    local_date: date,
+    local_start: time,
+    local_end: time,
+    hourly_rate_minor: int,
+) -> str:
+    """A shift's own day matters (Sunday, public holiday), so re-check its exact hourly rate.
+
+    Returns "assessed" or "unassessed" (a needed rule isn't loaded, e.g. clubs weekend rates).
+    Below-minimum rates are a hard block. Jobs without a hospitality role are unaffected.
+    """
+    if job.role_code is None or job.pay_basis != "disclosed":
+        return "not_applicable"
+    if job.pay_assessment_id is None:
+        raise conflict(
+            "pay_assessment_required", "Run the pay check for this role before creating shifts"
+        )
+    stored = await session.get(PayAssessment, job.pay_assessment_id)
+    if stored is None or stored.employer_id != job.employer_id:
+        raise conflict(
+            "pay_assessment_required", "Run the pay check for this role before creating shifts"
+        )
+    inp = PayAssessmentIn.model_validate(
+        {
+            **stored.input,
+            "job_id": job.id,
+            "effective_on": local_date.isoformat(),
+            "pay_period": "hour",
+            "pay_amount": str(Decimal(hourly_rate_minor) / 100),
+            "rate_structure": "flat_all_hours",
+            "roster": [
+                {
+                    "local_date": local_date.isoformat(),
+                    "local_start": local_start.isoformat(),
+                    "local_end": local_end.isoformat(),
+                }
+            ],
+        }
+    )
+    assert job.employer_id is not None  # noqa: S101
+    row, result = await run_assessment(session, job.employer_id, user_id, inp, on=local_date)
+    if result.status == "below_minimum":
+        blocking = " ".join(c.text for c in result.checks if c.level == "block")
+        raise ApiError(
+            422,
+            "below_award_minimum",
+            "This shift's rate is below the award minimum for its day and time. " + blocking,
+        )
+    if result.status == "requires_review" and not await acknowledged(
+        session, job.employer_id, stored.input_hash
+    ):
+        raise conflict(
+            "pay_review_required",
+            "This pay needs a manual review. Acknowledge the review to create shifts.",
+        )
+    return "unassessed" if result.status == "missing_source" else "assessed"

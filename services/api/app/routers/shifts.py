@@ -25,6 +25,7 @@ from app.models import (
 from app.rls import system_scope
 from app.routers.availability import _flush_commitment
 from app.services.attendance import derive, events_for
+from app.services.hospitality.pay import enforce_shift_rate
 from app.services.jobs import is_open
 from app.services.scheduling import resolve_window, worked_minutes
 from app.shift_schemas import (
@@ -150,6 +151,15 @@ async def create_shift(
     starts, ends = resolve_window(body.local_date, body.local_start, body.local_end, body.time_zone)
     if starts <= datetime.now(UTC):
         raise conflict("shift_started", "Choose a future shift")
+    rate_check = await enforce_shift_rate(
+        session,
+        job,
+        user.id,
+        local_date=body.local_date,
+        local_start=body.local_start,
+        local_end=body.local_end,
+        hourly_rate_minor=body.hourly_rate_minor,
+    )
     row = Shift(
         employer_id=employer_id,
         job_id=job.id,
@@ -164,7 +174,7 @@ async def create_shift(
     )
     async with system_scope(session):
         session.add(row)
-    await audit(session, user.id, "shift.created", "shift", row.id)
+    await audit(session, user.id, "shift.created", "shift", row.id, pay_check=rate_check)
     return row
 
 

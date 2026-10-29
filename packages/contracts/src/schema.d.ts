@@ -9196,6 +9196,8 @@ export interface operations {
                 engagement_basis?: string | null;
                 duration_type?: string | null;
                 hours_pattern?: string | null;
+                role?: string | null;
+                department?: string | null;
                 category?: string | null;
                 skill?: string | null;
                 min_hourly?: number | null;
