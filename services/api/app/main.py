@@ -20,6 +20,7 @@ from app.routers import (
     candidate,
     employer,
     health,
+    hospitality,
     inbox_candidate,
     invites_employer,
     jobs_public,
@@ -81,6 +82,8 @@ def create_app() -> FastAPI:
         moderation.router,
         shifts.router,
         attendance.router,
+        hospitality.router,
+        hospitality.admin,
     ):
         app.include_router(r)
     return app

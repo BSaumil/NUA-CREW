@@ -1,6 +1,24 @@
 {
   "components": {
     "schemas": {
+      "AcknowledgeIn": {
+        "properties": {
+          "note": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Note"
+          }
+        },
+        "title": "AcknowledgeIn",
+        "type": "object"
+      },
       "ApplicantOut": {
         "properties": {
           "application_id": {
@@ -766,6 +784,84 @@
         "title": "CandidateRegister",
         "type": "object"
       },
+      "CandidateRoleIn": {
+        "properties": {
+          "is_primary": {
+            "default": false,
+            "title": "Is Primary",
+            "type": "boolean"
+          },
+          "role_code": {
+            "maxLength": 12,
+            "title": "Role Code",
+            "type": "string"
+          },
+          "years_experience": {
+            "anyOf": [
+              {
+                "maximum": 60.0,
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Years Experience"
+          }
+        },
+        "required": [
+          "role_code"
+        ],
+        "title": "CandidateRoleIn",
+        "type": "object"
+      },
+      "CandidateRoleOut": {
+        "properties": {
+          "is_primary": {
+            "title": "Is Primary",
+            "type": "boolean"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleOut"
+          },
+          "years_experience": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Years Experience"
+          }
+        },
+        "required": [
+          "role",
+          "years_experience",
+          "is_primary"
+        ],
+        "title": "CandidateRoleOut",
+        "type": "object"
+      },
+      "CandidateRolesIn": {
+        "properties": {
+          "roles": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateRoleIn"
+            },
+            "maxItems": 8,
+            "title": "Roles",
+            "type": "array"
+          }
+        },
+        "required": [
+          "roles"
+        ],
+        "title": "CandidateRolesIn",
+        "type": "object"
+      },
       "CatalogOut": {
         "properties": {
           "assumptions": {
@@ -867,6 +963,34 @@
         "title": "CatalogOut",
         "type": "object"
       },
+      "CheckOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "level": {
+            "enum": [
+              "info",
+              "warn",
+              "block"
+            ],
+            "title": "Level",
+            "type": "string"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "level",
+          "text"
+        ],
+        "title": "CheckOut",
+        "type": "object"
+      },
       "CheckoutIn": {
         "properties": {
           "action": {
@@ -921,6 +1045,107 @@
           "checkout_url"
         ],
         "title": "CheckoutOut",
+        "type": "object"
+      },
+      "ClassificationOut": {
+        "properties": {
+          "annual_minimum_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Minimum Minor"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "data_status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data Status"
+          },
+          "description": {
+            "title": "Description",
+            "type": "string"
+          },
+          "effective_from": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective From"
+          },
+          "hourly_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Hourly Minor"
+          },
+          "kind": {
+            "title": "Kind",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "source_url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Url"
+          },
+          "weekly_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Weekly Minor"
+          }
+        },
+        "required": [
+          "code",
+          "label",
+          "description",
+          "kind",
+          "hourly_minor",
+          "weekly_minor",
+          "annual_minimum_minor",
+          "effective_from",
+          "data_status",
+          "source_url"
+        ],
+        "title": "ClassificationOut",
         "type": "object"
       },
       "CommitmentIn": {
@@ -1234,6 +1459,95 @@
         "title": "CorrectionReviewIn",
         "type": "object"
       },
+      "CoverageGuidanceOut": {
+        "properties": {
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "questions": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Questions",
+            "type": "array"
+          },
+          "role_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Code"
+          },
+          "suggestions": {
+            "items": {
+              "$ref": "#/components/schemas/CoverageSuggestionOut"
+            },
+            "title": "Suggestions",
+            "type": "array"
+          },
+          "venue_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Venue Type"
+          }
+        },
+        "required": [
+          "role_code",
+          "venue_type",
+          "suggestions",
+          "questions",
+          "note"
+        ],
+        "title": "CoverageGuidanceOut",
+        "type": "object"
+      },
+      "CoverageSuggestionOut": {
+        "properties": {
+          "classification_leads": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Classification Leads",
+            "type": "array"
+          },
+          "confidence": {
+            "title": "Confidence",
+            "type": "string"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "instrument",
+          "title",
+          "confidence",
+          "reason",
+          "classification_leads"
+        ],
+        "title": "CoverageSuggestionOut",
+        "type": "object"
+      },
       "DeleteAccountIn": {
         "properties": {
           "password": {
@@ -1246,6 +1560,39 @@
           "password"
         ],
         "title": "DeleteAccountIn",
+        "type": "object"
+      },
+      "DepartmentOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "role_count": {
+            "default": 0,
+            "title": "Role Count",
+            "type": "integer"
+          },
+          "sort_order": {
+            "title": "Sort Order",
+            "type": "integer"
+          },
+          "workstream": {
+            "title": "Workstream",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "workstream",
+          "sort_order"
+        ],
+        "title": "DepartmentOut",
         "type": "object"
       },
       "DeviceIn": {
@@ -1775,6 +2122,40 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "HolidayIn": {
+        "properties": {
+          "holiday_date": {
+            "format": "date",
+            "title": "Holiday Date",
+            "type": "string"
+          },
+          "name": {
+            "maxLength": 120,
+            "minLength": 2,
+            "title": "Name",
+            "type": "string"
+          },
+          "source_url": {
+            "maxLength": 500,
+            "pattern": "^https://",
+            "title": "Source Url",
+            "type": "string"
+          },
+          "state": {
+            "pattern": "^(VIC|NSW|QLD|SA|WA|TAS|ACT|NT)$",
+            "title": "State",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "holiday_date",
+          "name",
+          "source_url"
+        ],
+        "title": "HolidayIn",
+        "type": "object"
+      },
       "InboxSummary": {
         "properties": {
           "unread_conversations": {
@@ -1815,6 +2196,37 @@
           "sources"
         ],
         "title": "IngestionStatsOut",
+        "type": "object"
+      },
+      "InstrumentOut": {
+        "properties": {
+          "classifications": {
+            "items": {
+              "$ref": "#/components/schemas/ClassificationOut"
+            },
+            "title": "Classifications",
+            "type": "array"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "source_url",
+          "classifications"
+        ],
+        "title": "InstrumentOut",
         "type": "object"
       },
       "InvitationAcceptIn": {
@@ -2401,6 +2813,18 @@
             ],
             "title": "Min Weekly Hours"
           },
+          "pay_assessment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Assessment Id"
+          },
           "pay_max": {
             "anyOf": [
               {
@@ -2448,6 +2872,18 @@
               }
             ],
             "title": "Pay Period"
+          },
+          "role_code": {
+            "anyOf": [
+              {
+                "maxLength": 12,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Code"
           },
           "skills": {
             "default": [],
@@ -2680,6 +3116,18 @@
             "title": "Origin",
             "type": "string"
           },
+          "pay_assessment_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pay Assessment Id"
+          },
           "pay_basis": {
             "title": "Pay Basis",
             "type": "string"
@@ -2748,6 +3196,16 @@
               }
             ],
             "title": "Published At"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/JobRoleOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "skills": {
             "items": {
@@ -2836,6 +3294,34 @@
           "employer"
         ],
         "title": "JobOut",
+        "type": "object"
+      },
+      "JobRoleOut": {
+        "properties": {
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "department_code": {
+            "title": "Department Code",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "department_code",
+          "department_name"
+        ],
+        "title": "JobRoleOut",
         "type": "object"
       },
       "LocationIn": {
@@ -3527,6 +4013,409 @@
         "title": "PasswordChangeIn",
         "type": "object"
       },
+      "PayAssessmentIn": {
+        "properties": {
+          "classification": {
+            "anyOf": [
+              {
+                "maxLength": 12,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification"
+          },
+          "classification_confirmed": {
+            "default": false,
+            "title": "Classification Confirmed",
+            "type": "boolean"
+          },
+          "coverage_confirmed": {
+            "default": false,
+            "title": "Coverage Confirmed",
+            "type": "boolean"
+          },
+          "effective_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective On"
+          },
+          "employer_venue_type": {
+            "anyOf": [
+              {
+                "maxLength": 24,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Employer Venue Type"
+          },
+          "employment": {
+            "enum": [
+              "full_time",
+              "part_time",
+              "casual"
+            ],
+            "title": "Employment",
+            "type": "string"
+          },
+          "instrument": {
+            "enum": [
+              "MA000119",
+              "MA000009",
+              "MA000003",
+              "MA000058",
+              "enterprise_agreement",
+              "award_free",
+              "unknown"
+            ],
+            "title": "Instrument",
+            "type": "string"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "pay_amount": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 10000000.0,
+                "type": "number"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Pay Amount"
+          },
+          "pay_includes_super": {
+            "default": false,
+            "title": "Pay Includes Super",
+            "type": "boolean"
+          },
+          "pay_period": {
+            "enum": [
+              "hour",
+              "day",
+              "week",
+              "month",
+              "year"
+            ],
+            "title": "Pay Period",
+            "type": "string"
+          },
+          "rate_structure": {
+            "default": "base_plus_penalties",
+            "enum": [
+              "base_plus_penalties",
+              "flat_all_hours"
+            ],
+            "title": "Rate Structure",
+            "type": "string"
+          },
+          "role_code": {
+            "anyOf": [
+              {
+                "maxLength": 12,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role Code"
+          },
+          "roster": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/RosterShiftIn"
+            },
+            "maxItems": 14,
+            "title": "Roster",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "VIC",
+              "NSW",
+              "QLD",
+              "SA",
+              "WA",
+              "TAS",
+              "ACT",
+              "NT"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "worker_class": {
+            "default": "adult",
+            "enum": [
+              "adult",
+              "junior",
+              "apprentice",
+              "trainee"
+            ],
+            "title": "Worker Class",
+            "type": "string"
+          }
+        },
+        "required": [
+          "state",
+          "instrument",
+          "employment",
+          "pay_period",
+          "pay_amount"
+        ],
+        "title": "PayAssessmentIn",
+        "type": "object"
+      },
+      "PayAssessmentOut": {
+        "properties": {
+          "acknowledged": {
+            "title": "Acknowledged",
+            "type": "boolean"
+          },
+          "created_at": {
+            "title": "Created At",
+            "type": "string"
+          },
+          "effective_on": {
+            "format": "date",
+            "title": "Effective On",
+            "type": "string"
+          },
+          "employer_id": {
+            "format": "uuid",
+            "title": "Employer Id",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "input": {
+            "additionalProperties": true,
+            "title": "Input",
+            "type": "object"
+          },
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "result": {
+            "$ref": "#/components/schemas/PayAssessmentResult"
+          }
+        },
+        "required": [
+          "id",
+          "employer_id",
+          "job_id",
+          "effective_on",
+          "created_at",
+          "acknowledged",
+          "input",
+          "result"
+        ],
+        "title": "PayAssessmentOut",
+        "type": "object"
+      },
+      "PayAssessmentResult": {
+        "properties": {
+          "blocking": {
+            "title": "Blocking",
+            "type": "boolean"
+          },
+          "checks": {
+            "items": {
+              "$ref": "#/components/schemas/CheckOut"
+            },
+            "title": "Checks",
+            "type": "array"
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification"
+          },
+          "classification_label": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Classification Label"
+          },
+          "data_status": {
+            "title": "Data Status",
+            "type": "string"
+          },
+          "employment": {
+            "title": "Employment",
+            "type": "string"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "minimum_ordinary_hourly_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Ordinary Hourly Minor"
+          },
+          "minimum_weekday_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Minimum Weekday Basis"
+          },
+          "needs_acknowledgement": {
+            "title": "Needs Acknowledgement",
+            "type": "boolean"
+          },
+          "not_assessed": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Not Assessed",
+            "type": "array"
+          },
+          "offered_hourly_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Offered Hourly Minor"
+          },
+          "shifts": {
+            "items": {
+              "$ref": "#/components/schemas/RosterShiftOut"
+            },
+            "title": "Shifts",
+            "type": "array"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/RateSourceOut"
+            },
+            "title": "Sources",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "compliant_as_assessed",
+              "below_minimum",
+              "requires_review",
+              "missing_source"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "summary": {
+            "title": "Summary",
+            "type": "string"
+          },
+          "super": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/SuperOut"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "weekend_and_holiday_minimums": {
+            "additionalProperties": {
+              "anyOf": [
+                {
+                  "type": "integer"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "title": "Weekend And Holiday Minimums",
+            "type": "object"
+          }
+        },
+        "required": [
+          "status",
+          "blocking",
+          "summary",
+          "instrument",
+          "classification",
+          "classification_label",
+          "employment",
+          "offered_hourly_minor",
+          "minimum_ordinary_hourly_minor",
+          "minimum_weekday_basis",
+          "weekend_and_holiday_minimums",
+          "checks",
+          "shifts",
+          "sources",
+          "super",
+          "not_assessed",
+          "data_status",
+          "needs_acknowledgement"
+        ],
+        "title": "PayAssessmentResult",
+        "type": "object"
+      },
       "PermissionIn": {
         "properties": {
           "attribution": {
@@ -3902,6 +4791,56 @@
         "title": "ProfileOut",
         "type": "object"
       },
+      "RateSourceOut": {
+        "properties": {
+          "classification": {
+            "title": "Classification",
+            "type": "string"
+          },
+          "data_status": {
+            "title": "Data Status",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "hourly_minor": {
+            "title": "Hourly Minor",
+            "type": "integer"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "rate_version_id": {
+            "format": "uuid",
+            "title": "Rate Version Id",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "weekly_minor": {
+            "title": "Weekly Minor",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "instrument",
+          "classification",
+          "rate_version_id",
+          "effective_from",
+          "hourly_minor",
+          "weekly_minor",
+          "data_status",
+          "source_url"
+        ],
+        "title": "RateSourceOut",
+        "type": "object"
+      },
       "ReasonIn": {
         "properties": {
           "reason": {
@@ -4115,6 +5054,289 @@
           "reason_code"
         ],
         "title": "ReviewReportIn",
+        "type": "object"
+      },
+      "RoleOut": {
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "apprentice": {
+            "title": "Apprentice",
+            "type": "boolean"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "compliance_note": {
+            "title": "Compliance Note",
+            "type": "string"
+          },
+          "department_code": {
+            "title": "Department Code",
+            "type": "string"
+          },
+          "department_name": {
+            "title": "Department Name",
+            "type": "string"
+          },
+          "duties_based": {
+            "title": "Duties Based",
+            "type": "boolean"
+          },
+          "indicative_level_max": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indicative Level Max"
+          },
+          "indicative_level_min": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Indicative Level Min"
+          },
+          "indicative_text": {
+            "title": "Indicative Text",
+            "type": "string"
+          },
+          "introductory": {
+            "title": "Introductory",
+            "type": "boolean"
+          },
+          "matched_alias": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Matched Alias"
+          },
+          "needs_review": {
+            "title": "Needs Review",
+            "type": "boolean"
+          },
+          "scope_text": {
+            "title": "Scope Text",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "tier": {
+            "title": "Tier",
+            "type": "integer"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "workstream": {
+            "title": "Workstream",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "title",
+          "department_code",
+          "department_name",
+          "tier",
+          "workstream",
+          "indicative_text",
+          "indicative_level_min",
+          "indicative_level_max",
+          "needs_review",
+          "duties_based",
+          "apprentice",
+          "introductory",
+          "scope_text",
+          "compliance_note",
+          "source_url"
+        ],
+        "title": "RoleOut",
+        "type": "object"
+      },
+      "RoleSuggestionOut": {
+        "properties": {
+          "matched_text": {
+            "title": "Matched Text",
+            "type": "string"
+          },
+          "mentions": {
+            "title": "Mentions",
+            "type": "integer"
+          },
+          "role": {
+            "$ref": "#/components/schemas/RoleOut"
+          }
+        },
+        "required": [
+          "role",
+          "matched_text",
+          "mentions"
+        ],
+        "title": "RoleSuggestionOut",
+        "type": "object"
+      },
+      "RosterSegmentOut": {
+        "properties": {
+          "award_minimum_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Award Minimum Minor"
+          },
+          "day_kind": {
+            "enum": [
+              "weekday",
+              "saturday",
+              "sunday",
+              "public_holiday"
+            ],
+            "title": "Day Kind",
+            "type": "string"
+          },
+          "estimated_pay_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Estimated Pay Minor"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "minutes": {
+            "title": "Minutes",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "compliant_as_assessed",
+              "below_minimum",
+              "requires_review",
+              "missing_source"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "local_date",
+          "day_kind",
+          "minutes",
+          "award_minimum_minor",
+          "estimated_pay_minor",
+          "status"
+        ],
+        "title": "RosterSegmentOut",
+        "type": "object"
+      },
+      "RosterShiftIn": {
+        "properties": {
+          "break_minutes": {
+            "default": 0,
+            "maximum": 600.0,
+            "minimum": 0.0,
+            "title": "Break Minutes",
+            "type": "integer"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "local_end": {
+            "format": "time",
+            "title": "Local End",
+            "type": "string"
+          },
+          "local_start": {
+            "format": "time",
+            "title": "Local Start",
+            "type": "string"
+          }
+        },
+        "required": [
+          "local_date",
+          "local_start",
+          "local_end"
+        ],
+        "title": "RosterShiftIn",
+        "type": "object"
+      },
+      "RosterShiftOut": {
+        "properties": {
+          "ends_at": {
+            "title": "Ends At",
+            "type": "string"
+          },
+          "local_date": {
+            "format": "date",
+            "title": "Local Date",
+            "type": "string"
+          },
+          "paid_minutes": {
+            "title": "Paid Minutes",
+            "type": "integer"
+          },
+          "segments": {
+            "items": {
+              "$ref": "#/components/schemas/RosterSegmentOut"
+            },
+            "title": "Segments",
+            "type": "array"
+          },
+          "starts_at": {
+            "title": "Starts At",
+            "type": "string"
+          },
+          "time_zone": {
+            "title": "Time Zone",
+            "type": "string"
+          }
+        },
+        "required": [
+          "local_date",
+          "starts_at",
+          "ends_at",
+          "time_zone",
+          "paid_minutes",
+          "segments"
+        ],
+        "title": "RosterShiftOut",
         "type": "object"
       },
       "SavedJobOut": {
@@ -4742,6 +5964,48 @@
           "to_status"
         ],
         "title": "StatusChangeIn",
+        "type": "object"
+      },
+      "SuperOut": {
+        "properties": {
+          "note": {
+            "title": "Note",
+            "type": "string"
+          },
+          "per_hour_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Per Hour Minor"
+          },
+          "rate_bp": {
+            "title": "Rate Bp",
+            "type": "integer"
+          },
+          "roster_total_minor": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Roster Total Minor"
+          }
+        },
+        "required": [
+          "rate_bp",
+          "per_hour_minor",
+          "roster_total_minor",
+          "note"
+        ],
+        "title": "SuperOut",
         "type": "object"
       },
       "TalentAvailability": {
@@ -5523,6 +6787,37 @@
         "title": "ValidationError",
         "type": "object"
       },
+      "VenueTypeOut": {
+        "properties": {
+          "award_leads": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Award Leads",
+            "type": "array"
+          },
+          "code": {
+            "title": "Code",
+            "type": "string"
+          },
+          "coverage_confidence": {
+            "title": "Coverage Confidence",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "name",
+          "award_leads",
+          "coverage_confidence"
+        ],
+        "title": "VenueTypeOut",
+        "type": "object"
+      },
       "VerifyEmployerIn": {
         "properties": {
           "evidence": {
@@ -5546,6 +6841,21 @@
           "evidence"
         ],
         "title": "VerifyEmployerIn",
+        "type": "object"
+      },
+      "VerifyIn": {
+        "properties": {
+          "source_note": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Source Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_note"
+        ],
+        "title": "VerifyIn",
         "type": "object"
       },
       "WorkPreferenceIn": {
@@ -5983,6 +7293,245 @@
         "summary": "Change Password",
         "tags": [
           "account"
+        ]
+      }
+    },
+    "/v1/admin/awards/penalty-rules/{rule_id}/verify": {
+      "post": {
+        "operationId": "verify_penalty_v1_admin_awards_penalty_rules__rule_id__verify_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Verify Penalty V1 Admin Awards Penalty Rules  Rule Id  Verify Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify Penalty",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/awards/public-holidays": {
+      "post": {
+        "operationId": "add_holiday_v1_admin_awards_public_holidays_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HolidayIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Add Holiday V1 Admin Awards Public Holidays Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Holiday",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/awards/rate-versions": {
+      "get": {
+        "operationId": "list_rate_versions_v1_admin_awards_rate_versions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "instrument",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "MA000119",
+                    "MA000009",
+                    "MA000003",
+                    "MA000058"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Instrument"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "additionalProperties": true,
+                    "type": "object"
+                  },
+                  "title": "Response List Rate Versions V1 Admin Awards Rate Versions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Rate Versions",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/awards/rate-versions/{version_id}/verify": {
+      "post": {
+        "operationId": "verify_rate_v1_admin_awards_rate_versions__version_id__verify_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "version_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Version Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VerifyIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Verify Rate V1 Admin Awards Rate Versions  Version Id  Verify Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Verify Rate",
+        "tags": [
+          "admin"
         ]
       }
     },
@@ -7003,6 +8552,128 @@
         "summary": "Register Employer",
         "tags": [
           "auth"
+        ]
+      }
+    },
+    "/v1/awards": {
+      "get": {
+        "operationId": "awards_v1_awards_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "on",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "On"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/InstrumentOut"
+                  },
+                  "title": "Response Awards V1 Awards Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Awards",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/awards/coverage-guidance": {
+      "get": {
+        "description": "Starting points for a coverage check. These are leads, never a determination.",
+        "operationId": "coverage_guidance_v1_awards_coverage_guidance_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "role_code",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 12,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role Code"
+            }
+          },
+          {
+            "in": "query",
+            "name": "venue_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 24,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoverageGuidanceOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Coverage Guidance",
+        "tags": [
+          "hospitality"
         ]
       }
     },
@@ -8754,6 +10425,144 @@
         "summary": "Add Resume Version",
         "tags": [
           "candidate"
+        ]
+      }
+    },
+    "/v1/candidate/roles": {
+      "get": {
+        "operationId": "my_roles_v1_candidate_roles_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CandidateRoleOut"
+                  },
+                  "title": "Response My Roles V1 Candidate Roles Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "My Roles",
+        "tags": [
+          "hospitality"
+        ]
+      },
+      "put": {
+        "operationId": "set_my_roles_v1_candidate_roles_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CandidateRolesIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/CandidateRoleOut"
+                  },
+                  "title": "Response Set My Roles V1 Candidate Roles Put",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Set My Roles",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/candidate/roles/suggestions": {
+      "get": {
+        "description": "Proposed roles found in the person's own resume text. Nothing is saved until they accept.",
+        "operationId": "suggest_roles_v1_candidate_roles_suggestions_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "resume_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "uuid",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Resume Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleSuggestionOut"
+                  },
+                  "title": "Response Suggest Roles V1 Candidate Roles Suggestions Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Suggest Roles",
+        "tags": [
+          "hospitality"
         ]
       }
     },
@@ -11456,6 +13265,190 @@
         ]
       }
     },
+    "/v1/employers/{employer_id}/pay-assessments": {
+      "post": {
+        "operationId": "create_assessment_v1_employers__employer_id__pay_assessments_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PayAssessmentIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayAssessmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Create Assessment",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/pay-assessments/{assessment_id}": {
+      "get": {
+        "operationId": "get_assessment_v1_employers__employer_id__pay_assessments__assessment_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "assessment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assessment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayAssessmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get Assessment",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/pay-assessments/{assessment_id}/acknowledge": {
+      "post": {
+        "operationId": "acknowledge_v1_employers__employer_id__pay_assessments__assessment_id__acknowledge_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "assessment_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Assessment Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AcknowledgeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PayAssessmentOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Acknowledge",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
     "/v1/employers/{employer_id}/shift-bookings": {
       "get": {
         "operationId": "employer_bookings_v1_employers__employer_id__shift_bookings_get",
@@ -12279,6 +14272,40 @@
           },
           {
             "in": "query",
+            "name": "role",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 12,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Role"
+            }
+          },
+          {
+            "in": "query",
+            "name": "department",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 48,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Department"
+            }
+          },
+          {
+            "in": "query",
             "name": "category",
             "required": false,
             "schema": {
@@ -12823,6 +14850,210 @@
         "summary": "Get Estimate",
         "tags": [
           "pricing"
+        ]
+      }
+    },
+    "/v1/taxonomy/departments": {
+      "get": {
+        "operationId": "departments_v1_taxonomy_departments_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DepartmentOut"
+                  },
+                  "title": "Response Departments V1 Taxonomy Departments Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Departments",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/taxonomy/roles": {
+      "get": {
+        "operationId": "roles_v1_taxonomy_roles_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "q",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 80,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Q"
+            }
+          },
+          {
+            "in": "query",
+            "name": "department",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 48,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Department"
+            }
+          },
+          {
+            "in": "query",
+            "name": "venue_type",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 24,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Venue Type"
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 30,
+              "maximum": 100,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          },
+          {
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "schema": {
+              "default": 0,
+              "maximum": 500,
+              "minimum": 0,
+              "title": "Offset",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/RoleOut"
+                  },
+                  "title": "Response Roles V1 Taxonomy Roles Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Roles",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/taxonomy/roles/{code}": {
+      "get": {
+        "operationId": "role_v1_taxonomy_roles__code__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "code",
+            "required": true,
+            "schema": {
+              "title": "Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Role",
+        "tags": [
+          "hospitality"
+        ]
+      }
+    },
+    "/v1/taxonomy/venue-types": {
+      "get": {
+        "operationId": "venue_types_v1_taxonomy_venue_types_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/VenueTypeOut"
+                  },
+                  "title": "Response Venue Types V1 Taxonomy Venue Types Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Venue Types",
+        "tags": [
+          "hospitality"
         ]
       }
     }

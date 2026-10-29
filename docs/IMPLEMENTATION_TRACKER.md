@@ -186,3 +186,18 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | 8 | Unauthorised source blocked; fixture repeat-safe    | DONE   | `test_ingestion.py`                                                   |
 | 9 | Backend tests, FE typecheck/lint, one e2e flow      | DONE   | see README for current counts                                         |
 | 10| No real payment/external submission/scraping        | DONE   | none implemented                                                      |
+
+## Hospitality roles and award engine (2026-10-29, branch `feat/hospitality-roles-awards-20261029`)
+
+| Item | Status | Evidence / limit |
+| ---- | ------ | ---------------- |
+| 287 roles, 14 departments, aliases imported (idempotent, checksummed) | DONE | `test_hospitality_api.py`, `docs/reports/HOSPITALITY_IMPORT_RECONCILIATION_2026-10-29.md` |
+| Role search, filters (job role/department), role-fit match component | DONE | API tests; e2e `hospitality*.spec.ts` |
+| Award engine (MA000119/009/003/058), date-versioned, integer money | DONE (data unverified) | `test_award_engine.py`; rates `supplied_unverified` until an admin verifies against Fair Work |
+| Publish gate + shift-rate check + immutable tenant-isolated assessments | DONE | API tests incl. cross-tenant negatives; e2e direct-API block |
+| Employer guided posting (web) and mobile hire flow with pay check | DONE | e2e + screenshots in `docs/reports/screenshots/hospitality-2026-10-29/` |
+| Candidate roles (web `/profile/roles`, mobile `my-roles`) | DONE | e2e, 228 mobile jest tests |
+| Clubs weekend/PH, evening/night, overtime, allowances, junior/apprentice rates, enterprise agreements, public-holiday calendars | NOT_STARTED | supplied data does not state them; reported as "not assessed" |
+| Role relationships / qualifications / certificates | DEFERRED | not in supplied data |
+| Real-device iOS/Android testing | BLOCKED | no device; web build of the shared app only |
+| Deployment | NOT_DONE | no hosted API/DB; nothing deployed; no merge to main without owner approval |

@@ -16,6 +16,7 @@ export type JobCardJob = {
   payBasis: PayBasis;
   superIncluded?: boolean | null;
   publishedAt?: string | null;
+  roleTitle?: string | null;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -45,6 +46,7 @@ export function JobCard({
           <a href={href}>{job.title}</a>
         </Heading>
         <div className="nua-muted">{job.employerName ?? 'Employer not named'}</div>
+        {job.roleTitle ? <div className="nua-hint">{job.roleTitle}</div> : null}
       </div>
       <div className="nua-row">
         <TrustIndicator status={job.verification} source={job.attribution} />

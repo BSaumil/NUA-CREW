@@ -6,10 +6,18 @@ from sqlalchemy import select
 
 from app.deps import Candidate, OptionalUser, Session
 from app.errors import ApiError, not_found
-from app.models import CandidateSkill, EmployerPreference, Job, JobSkill, Skill
+from app.models import (
+    CandidateRole,
+    CandidateSkill,
+    EmployerPreference,
+    HospitalityRole,
+    Job,
+    JobSkill,
+    Skill,
+)
 from app.schemas import JobList, JobOut, MatchOut
 from app.services.jobs import is_open, to_out
-from app.services.matching import CandidateCtx, JobCtx, compute_match
+from app.services.matching import CandidateCtx, CandidateRoleCtx, JobCtx, compute_match
 from app.services.search import SearchParams, Sort, build
 
 router = APIRouter(prefix="/v1/jobs", tags=["jobs"])
@@ -26,6 +34,8 @@ async def search_jobs(
     engagement_basis: Annotated[str | None, Query(max_length=16)] = None,
     duration_type: Annotated[str | None, Query(max_length=16)] = None,
     hours_pattern: Annotated[str | None, Query(max_length=16)] = None,
+    role: Annotated[str | None, Query(max_length=12)] = None,
+    department: Annotated[str | None, Query(max_length=48)] = None,
     category: Annotated[str | None, Query(max_length=100)] = None,
     skill: Annotated[str | None, Query(max_length=100)] = None,
     min_hourly: Annotated[float | None, Query(ge=0, le=1000)] = None,
@@ -59,6 +69,7 @@ async def search_jobs(
         radius_km=radius_km, posted_within_days=posted_within_days, sort=sort,
         engagement_basis=engagement_basis, duration_type=duration_type,
         hours_pattern=hours_pattern, exclude_employer_ids=muted,
+        role_code=role, department=department,
     )  # fmt: skip
     stmt, count_stmt = build(params)
     total = await session.scalar(count_stmt) or 0
@@ -102,6 +113,19 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
         )
     }
     job_l, cand_l = {x.lower() for x in job_skills}, {x.lower() for x in cand_skills}
+    job_role = await session.get(HospitalityRole, job.role_code) if job.role_code else None
+    my_roles = [
+        CandidateRoleCtx(
+            code=r.code, title=r.title, department_code=r.department_code, years=cr.years_experience
+        )
+        for cr, r in (
+            await session.execute(
+                select(CandidateRole, HospitalityRole)
+                .join(HospitalityRole, HospitalityRole.code == CandidateRole.role_code)
+                .where(CandidateRole.candidate_id == candidate.id)
+            )
+        ).all()
+    ]
     result = compute_match(
         JobCtx(
             job_l,
@@ -112,6 +136,9 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
             job.pay_max,
             job.pay_period,
             job.pay_basis,
+            role_code=job_role.code if job_role else None,
+            role_title=job_role.title if job_role else None,
+            department_code=job_role.department_code if job_role else None,
         ),
         CandidateCtx(
             cand_l,
@@ -120,6 +147,7 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
             candidate.state,
             candidate.postcode,
             candidate.min_hourly_pay,
+            roles=my_roles,
         ),
     )
     display = {n.lower(): n for n in job_skills}

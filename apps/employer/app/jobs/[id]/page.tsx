@@ -1,6 +1,14 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { Button, ButtonLink, EmptyState, SalaryDisclosure, StatusBadge } from '@nua-crew/ui';
+import {
+  Button,
+  ButtonLink,
+  EmptyState,
+  PayVerdict,
+  SalaryDisclosure,
+  StatusBadge,
+  type PayVerdictData,
+} from '@nua-crew/ui';
 import { api, canWrite, requireEmployer } from '@/lib/api';
 import { closeJob, publishJob, unpublishJob } from '../../actions';
 import { Flash, flashFrom } from '../../components';
@@ -24,6 +32,11 @@ export default async function ManageJob({
     client.GET('/v1/employers/{employer_id}/jobs/{job_id}/applications', { params: { path } }),
   ]);
   if (!job) notFound();
+  const { data: assessment } = job.pay_assessment_id
+    ? await client.GET('/v1/employers/{employer_id}/pay-assessments/{assessment_id}', {
+        params: { path: { employer_id: employerId, assessment_id: job.pay_assessment_id } },
+      })
+    : { data: undefined };
   return (
     <div className="nua-stack">
       <Flash error={error} notice={notice} />
@@ -31,6 +44,12 @@ export default async function ManageJob({
       <p>
         Status: <span className="nua-badge">{job.status}</span> · {job.suburb ?? 'No location'}
       </p>
+      {job.role ? (
+        <p>
+          <span className="nua-badge">{job.role.title}</span>{' '}
+          <span className="nua-hint">{job.role.department_name}</span>
+        </p>
+      ) : null}
       <SalaryDisclosure
         min={job.pay_min}
         max={job.pay_max}
@@ -71,6 +90,16 @@ export default async function ManageJob({
             </form>
           ) : null}
         </div>
+      ) : null}
+      {assessment ? (
+        <section className="nua-stack" aria-labelledby="paycheck">
+          <h2 id="paycheck">Pay check</h2>
+          <PayVerdict result={assessment.result as unknown as PayVerdictData} />
+          <p className="nua-hint">
+            Checked {new Date(assessment.created_at).toLocaleDateString('en-AU')}. Publishing
+            re-checks the pay with the rates in force that day.
+          </p>
+        </section>
       ) : null}
       <section className="nua-card" aria-labelledby="desc">
         <h2 id="desc">Description</h2>

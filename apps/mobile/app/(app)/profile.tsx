@@ -139,6 +139,7 @@ export default function Profile() {
         <Text variant="caption" muted>
           Permanent or temporary, when you can work, and who can find you. Private until you choose.
         </Text>
+        <Button title="Roles you do" variant="secondary" onPress={() => router.push('/my-roles')} />
         <Button
           title="Work preferences"
           variant="secondary"

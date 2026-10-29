@@ -51,6 +51,8 @@ ignore = ["B008", "S101"]
 "app/schemas.py" = ["S105"]
 "tests/*" = ["S105", "S106", "S104", "S108", "E501"]
 "app/devseed.py" = ["S105", "S106"]
+# One-off report/import tooling run by hand: long prose lines and a pdftotext subprocess.
+"scripts/*" = ["E501", "S603", "S607"]
 
 [tool.mypy]
 python_version = "3.12"

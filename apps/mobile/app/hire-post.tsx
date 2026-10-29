@@ -9,11 +9,15 @@ import {
   useHireLocations,
 } from '@/api/hire';
 import { messageOf } from '@/api/client';
+import { useAcknowledgePay, type PayAssessmentOut } from '@/api/pay';
+import { useRoleSearch } from '@/api/roles';
 import { validateJob } from '@/features/hire-form';
+import { saveBlocker } from '@/features/pay-check';
 import { useHireWorkspace } from '@/state/HireWorkspace';
 import { useTheme } from '@/theme/ThemeProvider';
 import { Button, Card, Chip, ErrorState, Field, ListSkeleton, Row, Screen, Text } from '@/ui';
 import { HireGate, Notice } from '@/ui/hire';
+import { PayCheckPanel, checkKey, emptyCheck, type CheckState } from '@/ui/pay-check-panel';
 
 export default function PostJob() {
   const { id } = useLocalSearchParams<{ id?: string }>();
@@ -68,7 +72,25 @@ function JobForm({ initial }: { initial?: Schemas['JobOut'] }) {
   const [startDate, setStartDate] = useState(initial?.start_date ?? '');
   const [endDate, setEndDate] = useState(initial?.end_date ?? '');
   const [more, setMore] = useState(!!initial);
+  // Hospitality role + award pay check (optional). A role-built job always carries a pay check.
+  const [roleCode, setRoleCode] = useState<string | null>(initial?.role?.code ?? null);
+  const [roleTitle, setRoleTitle] = useState<string | null>(initial?.role?.title ?? null);
+  const [roleQuery, setRoleQuery] = useState('');
+  const [check, setCheck] = useState<CheckState>(emptyCheck);
+  const [assessment, setAssessment] = useState<PayAssessmentOut | null>(null);
+  const [assessedKey, setAssessedKey] = useState('');
+  const [acknowledged, setAcknowledged] = useState(false);
+  const roleSearch = useRoleSearch(roleQuery, null, roleQuery.trim().length >= 2);
+  const acknowledge = useAcknowledgePay();
   const busy = useRef(false);
+  const state = locations.data?.find((l) => l.id === location)?.state ?? '';
+  const keyNow = checkKey(check, min, type);
+  const stale = !!assessment && assessedKey !== keyNow;
+  const unchangedFromSaved =
+    !!initial?.pay_assessment_id &&
+    min === (initial.pay_min ?? '') &&
+    type === initial.employment_type &&
+    initial.role?.code === roleCode;
   const body: Schemas['JobIn'] = {
     title: title.trim(),
     description: description.trim(),
@@ -93,23 +115,46 @@ function JobForm({ initial }: { initial?: Schemas['JobOut'] }) {
     max_weekly_hours: maxHours.trim() || null,
     start_date: startDate.trim() || null,
     end_date: endDate.trim() || null,
+    role_code: roleCode,
+    pay_assessment_id: roleCode
+      ? !stale && assessment
+        ? assessment.id
+        : unchangedFromSaved
+          ? (initial?.pay_assessment_id ?? null)
+          : null
+      : null,
   };
   const next = () => {
-    const e = validateJob(body, step);
+    const e = validateJob(
+      roleCode ? { ...body, pay_max: body.pay_max ?? body.pay_min } : body,
+      step,
+    );
     setError(e);
     if (!e) setStep(step + 1);
   };
   const save = async () => {
     if (busy.current) return;
-    const e = validateJob(body, 2);
+    const e = validateJob(roleCode ? { ...body, pay_max: body.pay_max ?? body.pay_min } : body, 2);
     if (e) {
       setError(e);
       return;
     }
+    if (roleCode && !(unchangedFromSaved && !assessment)) {
+      const blocker = saveBlocker(assessment?.result ?? null, acknowledged, stale);
+      if (blocker) {
+        setError(blocker);
+        return;
+      }
+    }
     busy.current = true;
     setError(null);
     try {
-      const job = initial ? await edit.mutateAsync(body) : await create.mutateAsync(body);
+      if (roleCode && assessment && !stale && assessment.result.needs_acknowledgement)
+        await acknowledge.mutateAsync(assessment.id);
+      const sent = roleCode
+        ? { ...body, pay_max: body.pay_max ?? body.pay_min, pay_period: 'hour' as const }
+        : body;
+      const job = initial ? await edit.mutateAsync(sent) : await create.mutateAsync(sent);
       router.replace({ pathname: '/hire-job/[id]', params: { id: job.id } });
     } catch (e) {
       setError(
@@ -193,6 +238,47 @@ function JobForm({ initial }: { initial?: Schemas['JobOut'] }) {
             maxLength={150}
             placeholder="e.g. Barista"
           />
+          {roleCode ? (
+            <Card>
+              <Text variant="label">Hospitality role</Text>
+              <Text variant="heading">{roleTitle}</Text>
+              <Button
+                title="Change role"
+                variant="ghost"
+                onPress={() => {
+                  setRoleCode(null);
+                  setRoleTitle(null);
+                  setAssessment(null);
+                }}
+              />
+            </Card>
+          ) : (
+            <>
+              <Field
+                label="Hospitality role (optional)"
+                value={roleQuery}
+                onChangeText={setRoleQuery}
+                placeholder="e.g. waiter, barista, chef de partie"
+                hint="Pick a role to check pay against the award."
+              />
+              {(roleSearch.data ?? []).slice(0, 6).map((r) => (
+                <Button
+                  key={r.code}
+                  title={`${r.title} · ${r.department_name}`}
+                  variant="secondary"
+                  accessibilityLabel={`Use role ${r.title}, ${r.department_name}`}
+                  onPress={() => {
+                    setRoleCode(r.code);
+                    setRoleTitle(r.title);
+                    setRoleQuery('');
+                    if (!title.trim()) setTitle(r.title);
+                    setSuper(false);
+                    setPeriod('hour');
+                  }}
+                />
+              ))}
+            </>
+          )}
           <Text variant="label">Work location</Text>
           <Row>
             {locations.data.map((l) => (
@@ -308,6 +394,27 @@ function JobForm({ initial }: { initial?: Schemas['JobOut'] }) {
             </Card>
           ) : null}
         </>
+      ) : step === 1 && roleCode ? (
+        <PayCheckPanel
+          roleCode={roleCode}
+          state={state}
+          jobType={type}
+          rate={min}
+          onRate={setMin}
+          max={max}
+          onMax={setMax}
+          value={check}
+          onChange={setCheck}
+          assessment={assessment}
+          onAssessment={(a, key) => {
+            setAssessment(a);
+            setAssessedKey(key);
+            setAcknowledged(false);
+          }}
+          stale={stale}
+          acknowledged={acknowledged}
+          onAcknowledge={setAcknowledged}
+        />
       ) : step === 1 ? (
         <>
           <Text muted>

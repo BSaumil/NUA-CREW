@@ -130,6 +130,11 @@ export function JobCard({
             <Text variant="heading">{job.title}</Text>
             {job.promoted ? <Badge label="Promoted" /> : null}
             <Text muted>{job.employer.name ?? 'Employer not named'}</Text>
+            {job.role ? (
+              <Text variant="caption" muted>
+                {job.role.title} · {job.role.department_name}
+              </Text>
+            ) : null}
           </View>
         </View>
         <Row>
