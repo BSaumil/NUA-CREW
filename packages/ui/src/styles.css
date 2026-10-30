@@ -44,7 +44,7 @@
 }
 
 @media (max-width: 640px) {
-  .nua-header--candidate .nua-header__inner {
+  .nua-header--candidate .nua-header__inner:has(> .nua-row > form) {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 8px;

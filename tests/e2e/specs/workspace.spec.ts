@@ -11,6 +11,9 @@ for (const colorScheme of ['light', 'dark'] as const) {
     });
     const page = await context.newPage();
     await page.goto('http://localhost:3000/login');
+    expect(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+    ).toBe(true);
     await page.getByLabel('Email', { exact: true }).fill('candidate-a@nua-crew.example.com');
     await page.getByLabel('Password', { exact: true }).fill('nua-dev-password-1');
     await page.getByRole('button', { name: 'Log in', exact: true }).click();
