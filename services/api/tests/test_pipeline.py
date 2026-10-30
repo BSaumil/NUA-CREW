@@ -334,10 +334,15 @@ async def test_stale_ingested_jobs_expire(client, feed):
     assert await jobs_total(client) == 0
 
 
-async def test_worker_pass_schedules_and_drains(client, feed):
+async def test_worker_pass_schedules_and_drains(client, feed, monkeypatch):
+    # Slots are wall-clock aligned, so pin the clock mid-slot: otherwise a minute boundary
+    # between the two passes legitimately makes the source due again.
+    interval = 60
+    pinned = datetime.fromtimestamp(datetime.now(UTC).timestamp() // interval * interval + 30, UTC)
+    monkeypatch.setattr(queue, "_now", lambda: pinned)
     admin = await admin_headers(client)
     sid = await make_source(client, admin)
-    await schedule(client, admin, sid, interval=60, min_interval=0)
+    await schedule(client, admin, sid, interval=interval, min_interval=0)
     stats = await run_once()
     assert stats["scheduled"] == 1 and stats["succeeded"] == 1
     assert await jobs_total(client) == 2
