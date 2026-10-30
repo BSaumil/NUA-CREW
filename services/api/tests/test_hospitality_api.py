@@ -787,3 +787,16 @@ async def test_concurrent_acknowledgements_are_idempotent(client):
     assert {r.status_code for r in results} == {200}
     async with db_as("system") as s:
         assert await s.scalar(text("SELECT count(*) FROM pay_assessment_acknowledgements")) == 1
+
+
+async def test_role_can_be_required_to_publish(client, monkeypatch):
+    from app.config import get_settings
+
+    emp, eid = await verified_employer(client, "role-req@nua-crew.example.com")
+    legacy = (await make_job(client, emp, eid, role_code=None, pay_min="20", pay_max="25")).json()
+    assert (await publish(client, emp, eid, legacy["id"])).status_code in (200, 201, 204)
+
+    monkeypatch.setattr(get_settings(), "require_role_on_publish", True)
+    other = (await make_job(client, emp, eid, role_code=None, pay_min="20", pay_max="25")).json()
+    blocked = await publish(client, emp, eid, other["id"])
+    assert blocked.status_code == 409 and blocked.json()["error"]["code"] == "role_required"

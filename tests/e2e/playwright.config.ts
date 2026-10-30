@@ -16,8 +16,11 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   fullyParallel: false,
   workers: 1,
-  retries: 0,
-  reporter: [['list']],
+  // One CI retry absorbs dev-server compile stalls; a spec that needs it is reported as flaky.
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI
+    ? [['list'], ['json', { outputFile: 'test-results/results.json' }]]
+    : [['list']],
   use: {
     trace: 'retain-on-failure',
     ...devices['Desktop Chrome'],
