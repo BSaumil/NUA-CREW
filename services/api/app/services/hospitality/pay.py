@@ -10,6 +10,7 @@ from zoneinfo import ZoneInfo
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import get_settings
 from app.errors import ApiError, conflict, not_found
 from app.hospitality_schemas import PayAssessmentIn, PayAssessmentResult
 from app.models import HospitalityRole, Job, PayAssessment, PayAssessmentAcknowledgement
@@ -99,10 +100,17 @@ def _stale(job: Job, stored: dict[str, object]) -> str | None:
     return None
 
 
+settings = get_settings()
+
+
 async def enforce_on_publish(
     session: AsyncSession, job: Job, user_id: uuid.UUID
 ) -> PayAssessmentResult | None:
     """Server-side gate. Jobs built with a hospitality role must carry a current pay check."""
+    if job.role_code is None and job.employer_id is not None and settings.require_role_on_publish:
+        raise conflict(
+            "role_required", "Choose the hospitality role for this job so its pay can be checked"
+        )
     if job.role_code is None or job.pay_basis != "disclosed":
         return None
     if job.pay_assessment_id is None:

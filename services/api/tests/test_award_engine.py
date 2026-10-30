@@ -302,3 +302,18 @@ def test_not_assessed_is_always_disclosed_and_data_status_flagged():
     assert any("Overtime" in n for n in r.not_assessed)
     assert r.data_status == "supplied_unverified"
     assert any(c.code == "rates_unverified" for c in r.checks)
+
+
+def test_rate_older_than_the_next_annual_review_asks_for_a_check():
+    """From 1 July after the rate's effective date a newer rate may apply: ask, never assume."""
+    before = run(base(), on=date(2027, 6, 30))
+    after = run(base(), on=date(2027, 7, 1))
+    assert "rates_may_be_out_of_date" not in {c.code for c in before.checks}
+    assert "rates_may_be_out_of_date" in {c.code for c in after.checks}
+    assert after.status == "requires_review" and not after.blocking
+    assert before.status == "compliant_as_assessed"
+
+
+def test_out_of_date_warning_never_hides_a_real_shortfall():
+    short = run(base(pay_amount=Decimal("10.00")), on=date(2027, 7, 1))
+    assert short.status == "below_minimum" and short.blocking

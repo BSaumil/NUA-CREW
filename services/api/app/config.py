@@ -11,6 +11,9 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=".env", env_prefix="NUA_", extra="ignore")
 
     env: str = "development"
+    # When on, a direct employer job cannot be published without a hospitality role (and so
+    # without a pay check). Off by default until existing adverts have been reconciled.
+    require_role_on_publish: bool = False
     database_url: str = "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew"
     # Alembic connects with this schema-owning role when set; the API never does (ADR-008).
     migration_database_url: str | None = None

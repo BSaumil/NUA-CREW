@@ -210,3 +210,14 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | Role relationships / qualifications / certificates | DEFERRED | not in supplied data |
 | Real-device iOS/Android testing | BLOCKED | no device; web build of the shared app only |
 | Deployment | NOT_DONE | no hosted API/DB; nothing deployed; no merge to main without owner approval |
+
+## Award governance follow-ups (2026-10-30)
+
+| Item | Status | Evidence / limit |
+| ---- | ------ | ---------------- |
+| Out-of-date rate warning (a rate older than the next 1 July review asks for a check; never hides a shortfall) | DONE | `test_award_engine.py` (2 new tests) |
+| Require a role to publish (`NUA_REQUIRE_ROLE_ON_PUBLISH`, default off) | DONE, flag off | `test_hospitality_api.py::test_role_can_be_required_to_publish`; turn on only after existing adverts are reconciled |
+| Admin verification of rates against Fair Work | PARTIAL | verify endpoints exist; no one has verified any rate; needs a person with the official pay guide |
+| Clubs weekend/PH, overtime, allowances, junior/apprentice rates, holiday calendars | BLOCKED | no source data supplied; engine reports them as not assessed |
+| Attendance screens, qualifications, discovery by availability, device testing, real sign-in, legal text, hosting | NOT_STARTED | see the final message of this session for what each needs |
+| e2e: one CI retry plus JSON report so flaky specs are named | DONE | `tests/e2e/playwright.config.ts` |

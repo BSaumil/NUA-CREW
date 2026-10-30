@@ -137,6 +137,12 @@ def _segments(
     return s, e, out
 
 
+def _next_annual_review(effective_from: date) -> date:
+    """The first 1 July after ``effective_from`` (annual wage review changes take effect then)."""
+    this_year = date(effective_from.year, 7, 1)
+    return this_year if this_year > effective_from else date(effective_from.year + 1, 7, 1)
+
+
 def _day_kind(d: date, rules: RuleSet) -> str:
     if d in rules.holidays:
         return "public_holiday"
@@ -152,6 +158,7 @@ def assess(
 ) -> PayAssessmentResult:
     checks: list[CheckOut] = []
     reasons_review: list[str] = []
+    stale_rate = False
     offered_minor = to_minor(inp.pay_amount)
 
     def result(
@@ -291,6 +298,18 @@ def assess(
             "Manager levels have separate annual minimums and eligibility rules.",
         )
         reasons_review.append("manager")
+
+    next_review = _next_annual_review(rate.effective_from)
+    if effective_on >= next_review:
+        _check(
+            checks,
+            "rates_may_be_out_of_date",
+            "warn",
+            f"The loaded rate took effect on {rate.effective_from}. Award rates are normally "
+            f"reviewed each 1 July, so a newer rate may apply from {next_review}. Check the Fair "
+            "Work pay guide before relying on this result.",
+        )
+        stale_rate = True
 
     sources = [
         RateSourceOut(
@@ -554,6 +573,10 @@ def assess(
     elif reasons_review:
         status = "requires_review"
         summary = "Confirm coverage and classification to finish the pay check."
+    elif stale_rate:
+        # Rates only rise at a review, so a shortfall above stays a shortfall; a pass does not.
+        status = "requires_review"
+        summary = "The loaded rate may be out of date. Check the Fair Work pay guide."
     elif missing_day_rule:
         status = "missing_source"
         summary = "Part of the roster can't be assessed because a rule is missing."
