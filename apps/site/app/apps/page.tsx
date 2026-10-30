@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { PageHero, Section } from '../components';
 import { AppWalkthrough } from '../app-walkthrough';
+import { VisualShowcase } from '../visual-showcase';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -24,7 +25,7 @@ export default function Apps() {
     <>
       <PageHero
         visual={{
-          src: '/visuals/applications.webp',
+          src: '/brand-kit/features/applications.webp',
           alt: 'Illustrated NUA CREW mobile app journey for Android and iOS',
           width: 1400,
           height: 1060,
@@ -49,6 +50,12 @@ export default function Apps() {
         intro="The same app runs on Android and iOS. Tap through the steps to see what you can do before you sign up."
       >
         <AppWalkthrough />
+      </Section>
+      <Section
+        title="A closer look at the app"
+        intro="Sample visual journeys for Android and iOS. App access remains in testing."
+      >
+        <VisualShowcase audience="mobile" limit={4} />
       </Section>
       <Section
         title="Choose your experience"

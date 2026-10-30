@@ -4,6 +4,7 @@ import { ArrowRight, Banknote, CalendarDays, Check, ShieldCheck } from 'lucide-r
 import { SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { Card, Cards, Cta, Faq, Section, Steps } from './components';
 import { JourneyPreview } from './journey-preview';
+import { VisualShowcase } from './visual-showcase';
 import { SITE, toApp, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -17,7 +18,7 @@ export default function Home() {
       <header className="home-hero home-hero--branded">
         <figure className="home-hero__photo">
           <Image
-            src="/visuals/home-hero.webp"
+            src="/brand-kit/banners/home.webp"
             alt="Hospitality professionals at work in a welcoming café and restaurant setting"
             fill
             sizes="100vw"
@@ -82,7 +83,7 @@ export default function Home() {
         <div className="nua-visual-grid">
           <article className="nua-visual-card">
             <Image
-              src="/visuals/job-discovery.webp"
+              src="/brand-kit/features/job-discovery.webp"
               alt="Illustrated NUA CREW mobile job discovery interface with hospitality job cards"
               width={1400}
               height={1060}
@@ -103,7 +104,7 @@ export default function Home() {
           </article>
           <article className="nua-visual-card">
             <Image
-              src="/visuals/applications.webp"
+              src="/brand-kit/features/applications.webp"
               alt="Illustration of an application journey displayed in the NUA CREW app"
               width={1400}
               height={1060}
@@ -222,6 +223,17 @@ export default function Home() {
             </small>
           </div>
         </div>
+      </Section>
+      <Section
+        title="The details, made visual."
+        intro="Roles, locations, availability and shifts — see the ideas behind the app before it launches."
+      >
+        <VisualShowcase audience="jobs" limit={6} />
+        <p style={{ marginTop: 18 }}>
+          <a className="text-link" href="/features">
+            Explore all feature illustrations
+          </a>
+        </p>
       </Section>
       <Section title="A few good questions">
         <Faq
