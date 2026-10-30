@@ -1,51 +1,72 @@
 import type { Metadata } from 'next';
-import { PageHero, Section } from '../components';
-import { SITE } from '@/lib/site';
-
+import { Mail, MapPin, ShieldCheck } from 'lucide-react';
+import { Card, Cards, PageHero, Section } from '../components';
+import { BUSINESS } from '@/lib/business';
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'How to contact NUA CREW.',
+  description: 'Contact NUA CREW, part of NUA POS, for support, privacy and employer enquiries.',
   alternates: { canonical: '/contact' },
 };
-
 export default function Contact() {
   return (
     <>
       <PageHero
-        eyebrow="Contact"
-        title="Talk to us."
-        lede="Questions, feedback, safety concerns or press."
+        eyebrow="NUA CREW · PART OF NUA POS"
+        title="Talk to a real person."
+        lede="Questions about work, hiring, privacy or the upcoming launch? Start here."
       />
-      <Section>
-        <div className="site-cards">
-          <article className="site-card">
-            <h3>Email</h3>
-            {SITE.contactEmail ? (
-              <p>
-                <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>
-              </p>
-            ) : (
-              <p>
-                A contact address will be published here before launch. We would rather show none
-                than one that does not work yet.
-              </p>
-            )}
-          </article>
-          <article className="site-card">
-            <h3>Safety concerns</h3>
+      <Section title="Choose the right starting point">
+        <Cards>
+          <Card title="General and employer enquiries">
+            <Mail size={28} aria-hidden="true" />
             <p>
-              Use <strong>Report</strong> inside a conversation in the app so the message is
-              attached. Please do not send passwords, bank details or tax file numbers to anyone.
+              <a href={`mailto:${BUSINESS.email}?subject=NUA%20CREW%20enquiry`}>{BUSINESS.email}</a>
             </p>
-          </article>
-          <article className="site-card">
-            <h3>Employers</h3>
             <p>
-              Include your business name and ABN so we can find your account. We never ask for your
-              password.
+              Put “NUA CREW” in the subject. Include a business name or job reference if relevant.
+              We never need your password.
             </p>
-          </article>
+          </Card>
+          <Card title="Privacy and safety">
+            <ShieldCheck size={28} aria-hidden="true" />
+            <p>
+              Use the same email with “NUA CREW Privacy” or “NUA CREW Safety” in the subject.
+              Describe the concern without sending unnecessary identity documents.
+            </p>
+            <a className="text-link" href="/privacy#complaints">
+              Privacy requests and complaints →
+            </a>
+          </Card>
+          <Card title="Business correspondence">
+            <MapPin size={28} aria-hidden="true" />
+            <p>
+              {BUSINESS.tradingName}
+              <br />
+              ABN {BUSINESS.abn}
+            </p>
+            <p>{BUSINESS.address}</p>
+            <p>Postal contact; visits by arrangement.</p>
+          </Card>
+        </Cards>
+        <p className="demo-caption">
+          Support is not an emergency service. If anyone is in immediate danger in Australia, call
+          000.
+        </p>
+      </Section>
+      <Section tone="alt" title="An answer might be one tap away">
+        <div className="site-cta-row">
+          <a className="nua-button" href="/help">
+            Help &amp; quick answers
+          </a>
+          <a className="nua-button nua-button--secondary" href="/apps">
+            Check launch status
+          </a>
         </div>
+        <p style={{ marginTop: 20 }}>
+          If you email us, we use the details you provide to respond and manage the enquiry. See our{' '}
+          <a href="/privacy">privacy policy</a>. Please do not email resumes or certificates for
+          storage; public document uploads are not open yet.
+        </p>
       </Section>
     </>
   );

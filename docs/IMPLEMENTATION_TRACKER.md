@@ -1,5 +1,14 @@
 # Implementation tracker
 
+## Website source and guided onboarding — 30 October 2026
+
+Branch `feat/website-onboarding-validation-20261030`, main baseline `3be7849`. See [review and validation](reports/WEBSITE_ONBOARDING_VALIDATION_2026-10-30.md).
+
+- Website source reconciliation on feature branch: implemented; public production remains pinned until reviewed integration.
+- Candidate/employer guided setup: implemented in web and shared Android/iOS source; 228 mobile and 41 shared UI tests pass, all workspace types/lint/builds pass.
+- Real PostgreSQL baseline evidence: 276 API and 45 browser tests pass in main CI run 40895815550. Fresh branch CI remains required for new registration scenarios; the public branch push was blocked by automatic approval review pending destination-specific owner approval.
+- Earlier unmerged product bundle preserved separately; API migrations and current main award/attendance work unchanged.
+
 ## Claude release acceptance C1/C2 — 29 October 2026
 
 Branch `feat/claude-release-acceptance-20261029`, baseline `f208965ca1813920746a48796753a05648cdae77` (remote `feat/hiring-acceptance-shifts-20261028`; the brief's integrated commit `2067f6e` was not available). Report: `reports/CLAUDE_ACCEPTANCE_2026-10-29.md`.

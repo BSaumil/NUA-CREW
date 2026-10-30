@@ -4,8 +4,9 @@ import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
 import '@nua-crew/ui/styles.css';
 import './site.css';
-import { AI_DISCLOSURE, BrandLockup, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
+import { BrandLockup, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { MainNav } from './nav';
+import { BUSINESS } from '@/lib/business';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -19,6 +20,14 @@ export const metadata: Metadata = {
     description: SUPPORT_LINE,
     type: 'website',
     locale: 'en_AU',
+    images: [
+      {
+        url: '/illustrations/hospitality-team.webp',
+        width: 1200,
+        height: 900,
+        alt: 'NUA CREW — Better Jobs. Stronger Teams.',
+      },
+    ],
   },
   robots: SITE.indexable ? undefined : { index: false, follow: false },
 };
@@ -27,7 +36,7 @@ export const viewport: Viewport = { themeColor: '#3C0B21' };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en-AU">
+    <html lang="en-AU" data-theme="light">
       <body>
         <a className="nua-skip" href="#main">
           Skip to content
@@ -42,11 +51,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   Log in
                 </ButtonLink>
               ) : null}
-              <ButtonLink href="/apps">Get the app</ButtonLink>
+              <ButtonLink href="/apps">
+                {SITE.productLive ? 'Open NUA CREW' : 'App status'}
+              </ButtonLink>
             </div>
           </div>
         </header>
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>
+          {children}
+        </main>
         <footer className="site-footer">
           <div className="nua-container" style={{ padding: '0 16px' }}>
             <div className="site-footer__grid">
@@ -54,6 +67,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                 <BrandLockup />
                 <p style={{ marginTop: 16 }}>{TAGLINE}</p>
                 <p>{SUPPORT_LINE}</p>
+                <p className="parent-brand">
+                  A recruitment product from <a href={BUSINESS.parentUrl}>NUA POS</a>.
+                </p>
               </div>
               <div>
                 <h2>Product</h2>
@@ -82,7 +98,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                     <a href="/trust">Trust &amp; privacy</a>
                   </li>
                   <li>
-                    <a href="/legal">Terms and privacy policy</a>
+                    <a href="/privacy">Privacy policy</a>
+                  </li>
+                  <li>
+                    <a href="/terms">Terms of use</a>
+                  </li>
+                  <li>
+                    <a href="/legal">All policies</a>
                   </li>
                   <li>
                     <a href="/contact">Contact</a>
@@ -106,12 +128,18 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       <a href="/apps">Launch status</a>
                     </li>
                   )}
+                  <li>
+                    <a href="/features">Explore features</a>
+                  </li>
+                  <li>
+                    <a href="/help">Help &amp; FAQs</a>
+                  </li>
                 </ul>
               </div>
             </div>
-            <small>{AI_DISCLOSURE}</small>
             <small style={{ marginTop: 8 }}>
-              NUA CREW is a working name; trade mark and business-name clearance is still pending.
+              {BUSINESS.tradingName} · ABN {BUSINESS.abn}. NUA CREW is a product name; no separate
+              registration or trade mark status is claimed.
             </small>
           </div>
         </footer>

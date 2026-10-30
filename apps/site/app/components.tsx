@@ -1,5 +1,38 @@
 import type { ReactNode } from 'react';
 import { ButtonLink } from '@nua-crew/ui';
+import {
+  BriefcaseBusiness,
+  Users,
+  ShieldCheck,
+  Banknote,
+  SlidersHorizontal,
+  MapPin,
+  Heart,
+  FileCheck,
+  ExternalLink,
+  CalendarDays,
+  MessageCircle,
+  Search,
+  UserCheck,
+} from 'lucide-react';
+
+const CARD_ICONS = {
+  J: BriefcaseBusiness,
+  H: Users,
+  '✓': ShieldCheck,
+  $: Banknote,
+  '≈': SlidersHorizontal,
+  '◎': MapPin,
+  '♡': Heart,
+  '✎': FileCheck,
+  '!': ExternalLink,
+  '1': BriefcaseBusiness,
+  '2': ShieldCheck,
+  '3': FileCheck,
+  '4': Search,
+  '5': CalendarDays,
+  '6': MessageCircle,
+} as const;
 
 export function Section({
   id,
@@ -42,11 +75,12 @@ export function Card({
   title: string;
   children: ReactNode;
 }) {
+  const Icon = icon ? (CARD_ICONS[icon as keyof typeof CARD_ICONS] ?? UserCheck) : null;
   return (
     <article className="site-card">
       {icon ? (
         <span className="site-icon" aria-hidden="true">
-          {icon}
+          {Icon ? <Icon size={23} strokeWidth={1.7} /> : null}
         </span>
       ) : null}
       <h3>{title}</h3>

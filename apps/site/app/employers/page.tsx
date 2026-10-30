@@ -1,6 +1,7 @@
+import { FeatureExplorer } from '../feature-explorer';
 import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
-import { toHire } from '@/lib/site';
+import { SITE, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'For employers',
@@ -14,24 +15,37 @@ export default function Employers() {
     <>
       <PageHero
         eyebrow="NUA CREW Hire"
-        title="Meet qualified people without unnecessary noise."
-        lede="Post a role, find people who agreed to be found, see who is free when you need them, and invite them. Every hiring decision stays with your team."
+        title="Good people. A clearer way to hire."
+        lede="Post a role. Find consenting talent. Start a conversation. Your team makes every hiring decision."
       >
         <div className="site-cta-row">
-          <Cta href={toHire('/register')}>Register your business</Cta>
+          <Cta href={toHire('/register')}>
+            {SITE.productLive ? 'Register your business' : 'See employer launch status'}
+          </Cta>
           <Cta href="/pricing" ghost>
             See pricing
           </Cta>
         </div>
       </PageHero>
 
+      <nav className="page-shortcuts nua-container" aria-label="On this page">
+        <a href="#explore">Explore features</a>
+        <a href="/help#employers">Common questions</a>
+        <a href="/apps">Launch status</a>
+      </nav>
+      <Section
+        id="explore"
+        title="See how the details fit together"
+        intro="Pay guidance, team permissions and shift records, without the guesswork."
+      >
+        <FeatureExplorer audience="hire" />
+      </Section>
       <Section title="What you can do">
         <Cards>
           <Card icon="1" title="Post roles clearly">
             <p>
-              Disclosed pay, location and an arrangement that keeps employment basis, duration and
-              hours separate (&ldquo;not specified&rdquo; is fine). Edit, unpublish or close at any
-              time.
+              Show pay, location, hours and work type up front. Edit, pause or close the role when
+              plans change.
             </p>
           </Card>
           <Card icon="2" title="Get verified">
@@ -42,26 +56,26 @@ export default function Employers() {
           </Card>
           <Card icon="3" title="Run your applicants">
             <p>
-              A pipeline of real applications with private notes, a required human reason for any
-              rejection, and a clear history. No automatic screening or rejection.
+              Keep applications, private notes and decisions in one pipeline. People decide;
+              rejections need a human reason.
             </p>
           </Card>
           <Card icon="4" title="Find people who chose to be found">
             <p>
-              Search permanent or temporary talent by suburb and skills. Results show a first name
-              and last initial, headline, suburb, skills and a short list of what is unknown.
+              Search by skills, suburb and work type. See limited profiles only from people who
+              opted in.
             </p>
           </Card>
           <Card icon="5" title="Check availability for the time you need">
             <p>
-              Ask about a date and time and get free, not free or unknown, plus weekly-hours fit.
-              You never see a calendar, and unknown is never presented as free.
+              Ask about a time window. See free, not free or unknown. A person’s private calendar
+              stays private.
             </p>
           </Card>
           <Card icon="6" title="Invite and talk">
             <p>
-              Send a short note with a specific open job. If they accept, you get one conversation.
-              Your team shares the thread, and removing a teammate cuts their access straight away.
+              Invite someone to an open role. An accepted invitation opens a shared team
+              conversation.
             </p>
           </Card>
         </Cards>
@@ -107,7 +121,8 @@ export default function Employers() {
               narrows the risk; it does not promise anonymity.
             </li>
             <li>
-              No hidden ranking, no secret scores, and no access to anyone&apos;s minimum pay.
+              See only the profile information people choose to share, without access to their
+              minimum pay.
             </li>
           </ul>
           <Phone label="A phone showing talent search results with availability labels">
@@ -118,12 +133,14 @@ export default function Employers() {
 
       <Section title="On your phone or on the web">
         <p className="site-intro">
-          NUA CREW Hire works on the web today, and a native Android and iOS hiring workspace is in
-          testing for posting jobs, reviewing applicants, finding people and messaging.
+          {SITE.productLive
+            ? 'The hiring workspace is available on the web.'
+            : 'The web hiring workspace is in pre-launch testing.'}{' '}
+          Android and iOS apps are also in testing. Check launch status for verified access links.
         </p>
         <div className="nua-row">
           <a className="nua-button" href={toHire('/register')}>
-            Register your business
+            {SITE.productLive ? 'Register your business' : 'See employer launch status'}
           </a>
           <a className="nua-button nua-button--secondary" href="/apps">
             App status

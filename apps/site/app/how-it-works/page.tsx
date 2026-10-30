@@ -14,7 +14,7 @@ export default function HowItWorks() {
       <PageHero
         eyebrow="How it works"
         title="Mutual choice, step by step."
-        lede="Nothing reaches a person without their consent, and nothing is decided by a score."
+        lede="Choose the opportunities you want to explore and the conversations you want to start."
       />
 
       <Section title="Job seekers">
@@ -61,7 +61,7 @@ export default function HowItWorks() {
           <Card title="Booked work">
             <p>
               Work you have confirmed blocks overlapping times. Applying for a job does not book
-              you; only work you add does.
+              you; a separately accepted shift offer or work you add blocks time.
             </p>
           </Card>
           <Card title="Unknown stays unknown">
@@ -128,6 +128,12 @@ export default function HowItWorks() {
         </p>
       </Section>
 
+      <Section title="Want to see the details?">
+        <p className="site-intro">
+          Explore visual examples of document sharing, shifts, pay guidance and team access.
+        </p>
+        <PrimaryLink href="/features">Open the feature guide</PrimaryLink>
+      </Section>
       <Section title="Questions">
         <Faq
           items={[

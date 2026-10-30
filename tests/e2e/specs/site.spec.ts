@@ -13,6 +13,13 @@ const PAGES = [
   '/apps',
   '/contact',
   '/legal',
+  '/features',
+  '/help',
+  '/privacy',
+  '/terms',
+  '/employer-terms',
+  '/community-guidelines',
+  '/cookies',
 ];
 
 for (const scheme of ['light', 'dark'] as const) {
@@ -40,7 +47,7 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
 }) => {
   await page.goto(SITE + '/');
   await expect(
-    page.getByText(/trade mark and business-name clearance is still pending/),
+    page.getByText(/no separate registration or trade mark status is claimed/),
   ).toBeVisible();
   const robots = await (await request.get(SITE + '/robots.txt')).text();
   expect(robots).toMatch(/Disallow: \//);
@@ -68,11 +75,13 @@ test('claims stay truthful: apps are not in stores, billing is a preview, free f
   await expect(page.getByText('A$30').first()).toBeVisible();
   await expect(page.getByText('A$10')).toHaveCount(0); // no employee price exists
   await page.goto(SITE + '/legal');
-  await expect(page.getByText(/Pending legal review/)).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Who you are dealing with' })).toBeVisible();
+  await expect(page.getByText('ABN 54 299 131 653')).toBeVisible();
   // never claims the name, domain or trade mark is available or registered
   for (const path of PAGES) {
     await page.goto(SITE + path);
     const text = (await page.locator('body').innerText()).toLowerCase();
+    expect(text, path).not.toMatch(/\bai\b|artificial intelligence|saumil|vijaykumar|bhatt/);
     expect(text, path).not.toMatch(
       /registered trade ?mark|™|®|domain is available|name is available/,
     );
