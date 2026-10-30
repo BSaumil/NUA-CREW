@@ -152,7 +152,9 @@ export function PageHero({
               alt={visual.alt}
               width={visual.width}
               height={visual.height}
-              sizes={isWideBanner ? "(max-width: 899px) 100vw, 85vw" : "(max-width: 899px) 100vw, 45vw"}
+              sizes={
+                isWideBanner ? '(max-width: 899px) 100vw, 85vw' : '(max-width: 899px) 100vw, 45vw'
+              }
               priority
             />
             <figcaption>Illustrative concept · The app is in testing</figcaption>
