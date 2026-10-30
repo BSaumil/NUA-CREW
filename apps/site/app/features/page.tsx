@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Section } from '../components';
 import { FeatureExplorer } from '../feature-explorer';
+import { VisualShowcase } from '../visual-showcase';
 export const metadata: Metadata = {
   title: 'Explore the features',
   description:
@@ -12,7 +13,7 @@ export default function Features() {
     <>
       <PageHero
         visual={{
-          src: '/visuals/applications.webp',
+          src: '/brand-kit/features/applications.webp',
           alt: 'Illustration of a hospitality job application journey in NUA CREW',
           width: 1400,
           height: 1060,
@@ -33,6 +34,12 @@ export default function Features() {
         intro="Choose a topic. Every preview shows what it means for you, including its limits."
       >
         <FeatureExplorer />
+      </Section>
+      <Section
+        title="Every feature, illustrated"
+        intro="Sixteen visual explanations covering job seeking, employer hiring, documents and shifts. The pictures show concepts, not live screens."
+      >
+        <VisualShowcase />
       </Section>
       <Section tone="alt" title="Know what is available">
         <Cards>

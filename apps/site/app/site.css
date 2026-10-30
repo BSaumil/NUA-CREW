@@ -1710,3 +1710,110 @@ main {
     max-height: none;
   }
 }
+
+/* Branded visual feature gallery: all imagery remains illustrative, not a live UI. */
+.nua-showcase-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+}
+
+.nua-showcase-card {
+  min-width: 0;
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: 0 16px 32px #3c0b2109;
+}
+
+.nua-showcase-card > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1400 / 1060;
+  object-fit: cover;
+}
+
+.nua-showcase-card__text {
+  padding: 20px;
+}
+
+.nua-showcase-card__text h3 {
+  color: var(--nua-deep-wine);
+  margin-bottom: 10px;
+}
+
+.nua-showcase-card__text p {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+}
+
+.nua-showcase-card__text small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.75rem;
+  margin-top: 12px;
+}
+
+.nua-venue-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.nua-venue-card {
+  margin: 0;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.nua-venue-card > img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 2400 / 900;
+  object-fit: cover;
+}
+
+.nua-venue-card figcaption {
+  display: grid;
+  gap: 4px;
+  padding: 16px 20px 20px;
+}
+
+.nua-venue-card figcaption strong {
+  color: var(--nua-deep-wine);
+  font-size: 1.125rem;
+}
+
+.nua-venue-card figcaption span {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.site-hero--visual .site-hero__visual img {
+  aspect-ratio: 1.45;
+  object-fit: cover;
+  object-position: right center;
+}
+
+@media (max-width: 1080px) {
+  .nua-showcase-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 660px) {
+  .nua-showcase-grid,
+  .nua-venue-gallery {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nua-showcase-card__text {
+    padding: 18px;
+  }
+}

@@ -1,4 +1,5 @@
 import { FeatureExplorer } from '../feature-explorer';
+import { VisualShowcase } from '../visual-showcase';
 import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
 import { SITE, toHire } from '@/lib/site';
@@ -15,8 +16,8 @@ export default function Employers() {
     <>
       <PageHero
         visual={{
-          src: '/visuals/home-hero.webp',
-          alt: 'Hospitality professionals at work in a busy venue',
+          src: '/brand-kit/banners/employers.webp',
+          alt: 'NUA CREW employer hiring workspace illustrated with hospitality staff and sample app views',
           width: 2400,
           height: 900,
         }}
@@ -45,6 +46,12 @@ export default function Employers() {
         intro="Pay guidance, team permissions and shift records, without the guesswork."
       >
         <FeatureExplorer audience="hire" />
+      </Section>
+      <Section
+        title="Hiring, from a different perspective"
+        intro="See illustrative examples of posting a role, considering applicants and managing a venue team."
+      >
+        <VisualShowcase audience="hire" limit={7} />
       </Section>
       <Section title="What you can do">
         <Cards>

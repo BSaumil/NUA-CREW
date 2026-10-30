@@ -1,4 +1,5 @@
 import { FeatureExplorer } from '../feature-explorer';
+import { VisualShowcase } from '../visual-showcase';
 import type { Metadata } from 'next';
 import {
   AvailabilityScreen,
@@ -24,10 +25,10 @@ export default function JobSeekers() {
     <>
       <PageHero
         visual={{
-          src: '/visuals/job-discovery.webp',
-          alt: 'Illustrated NUA CREW job search interface showing hospitality opportunities',
-          width: 1400,
-          height: 1060,
+          src: '/brand-kit/banners/job-seekers.webp',
+          alt: 'NUA CREW concept banner showing hospitality job search and mobile app views',
+          width: 2400,
+          height: 900,
         }}
         eyebrow="NUA CREW Jobs"
         title="Find work that fits your life."
@@ -54,6 +55,12 @@ export default function JobSeekers() {
         intro="Resumes, certificates and shift records, explained with simple examples."
       >
         <FeatureExplorer audience="jobs" />
+      </Section>
+      <Section
+        title="Explore the job seeker experience"
+        intro="Pictures of the journey from searching by role to tracking an application. These screens are concepts."
+      >
+        <VisualShowcase audience="jobs" limit={8} />
       </Section>
       <Section title="Search and apply with your eyes open">
         <Cards>
