@@ -76,7 +76,7 @@ test('claims stay truthful: apps are not in stores, billing is a preview, free f
   await expect(page.getByText('A$10')).toHaveCount(0); // no employee price exists
   await page.goto(SITE + '/legal');
   await expect(page.getByRole('heading', { name: 'Who you are dealing with' })).toBeVisible();
-  await expect(page.getByText('ABN 54 299 131 653')).toBeVisible();
+  await expect(page.getByText('ABN 54 299 131 653', { exact: true })).toBeVisible();
   // never claims the name, domain or trade mark is available or registered
   for (const path of PAGES) {
     await page.goto(SITE + path);
