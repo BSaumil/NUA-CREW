@@ -1926,13 +1926,14 @@ main {
     height: auto;
     margin: 0;
     border-radius: 16px;
-     order: -1;
+    order: -1;
   }
 
   .site-hero--banner .site-hero__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
   }
+
   .site-hero--banner .site-hero__visual {
     order: -1;
   }
