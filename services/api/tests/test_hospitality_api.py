@@ -800,3 +800,119 @@ async def test_role_can_be_required_to_publish(client, monkeypatch):
     other = (await make_job(client, emp, eid, role_code=None, pay_min="20", pay_max="25")).json()
     blocked = await publish(client, emp, eid, other["id"])
     assert blocked.status_code == 409 and blocked.json()["error"]["code"] == "role_required"
+
+
+# ---- loading new rates and rules without a code change ---------------------------------------------
+LOAD_NOTE = "test load: not a real Fair Work figure"
+
+
+async def _cleanup_loaded_rules() -> None:
+    async with db_as("system") as s:
+        await s.execute(
+            text("DELETE FROM award_rate_versions WHERE source_note = :n"), {"n": LOAD_NOTE}
+        )
+        await s.execute(
+            text("DELETE FROM penalty_rule_versions WHERE source_note = :n"), {"n": LOAD_NOTE}
+        )
+        await s.execute(
+            text(
+                "UPDATE award_rate_versions SET effective_to = NULL "
+                "WHERE effective_to IN ('2027-07-01', '2028-07-01')"
+            )
+        )
+        await s.execute(
+            text(
+                "UPDATE penalty_rule_versions SET effective_to = NULL "
+                "WHERE effective_to IN ('2027-07-01', '2028-07-01')"
+            )
+        )
+        await s.commit()
+
+
+def _rate(**over):
+    return {
+        "instrument": "MA000119",
+        "classification": "L2",
+        "effective_from": "2027-07-01",
+        "weekly_minor": 120000,
+        "hourly_minor": 3158,
+        "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+        "source_note": LOAD_NOTE,
+        **over,
+    }
+
+
+async def test_admin_can_load_a_new_rate_which_stays_unverified_until_checked(client):
+    emp, _ = await register_employer(client, "load-a@nua-crew.example.com")
+    admin = await admin_headers(client)
+    try:
+        denied = await client.post("/v1/admin/awards/rate-versions", headers=emp, json=_rate())
+        assert denied.status_code in (403, 404)
+        made = await client.post("/v1/admin/awards/rate-versions", headers=admin, json=_rate())
+        assert made.status_code == 201 and made.json()["data_status"] == "supplied_unverified"
+        again = await client.post("/v1/admin/awards/rate-versions", headers=admin, json=_rate())
+        assert again.status_code == 409 and again.json()["error"]["code"] == "rate_exists"
+        unknown = await client.post(
+            "/v1/admin/awards/rate-versions", headers=admin, json=_rate(classification="L99")
+        )
+        assert unknown.status_code == 404
+        earlier = await client.post(
+            "/v1/admin/awards/rate-versions",
+            headers=admin,
+            json=_rate(effective_from="2026-12-01"),
+        )
+        assert earlier.status_code == 409 and earlier.json()["error"]["code"] == "rate_overlaps"
+    finally:
+        await _cleanup_loaded_rules()
+
+
+async def test_loaded_rate_is_used_from_its_start_date(client):
+    emp, eid = await register_employer(client, "load-d@nua-crew.example.com")
+    admin = await admin_headers(client)
+    try:
+        await client.post(
+            "/v1/admin/awards/rate-versions", headers=admin, json=_rate(hourly_minor=4000)
+        )
+        before = await assess(client, emp, eid, effective_on="2027-06-30")
+        after = await assess(client, emp, eid, effective_on="2027-07-01")
+        assert before["result"]["minimum_ordinary_hourly_minor"] != 5000
+        assert after["result"]["minimum_ordinary_hourly_minor"] == 5000  # 4000 + 25% casual
+    finally:
+        await _cleanup_loaded_rules()
+
+
+def _rule(**over):
+    return {
+        "instrument": "MA000058",
+        "employment": "casual",
+        "classification_codes": ["L3"],
+        "day_kind": "sunday",
+        "multiplier_bp": 20000,
+        "effective_from": "2027-07-01",
+        "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+        "source_note": LOAD_NOTE,
+        **over,
+    }
+
+
+async def test_admin_can_load_a_penalty_rule_and_overlaps_are_refused(client):
+    admin = await admin_headers(client)
+    try:
+        made = await client.post("/v1/admin/awards/penalty-rules", headers=admin, json=_rule())
+        assert made.status_code == 201 and made.json()["data_status"] == "supplied_unverified"
+        same_day = await client.post(
+            "/v1/admin/awards/penalty-rules", headers=admin, json=_rule(multiplier_bp=21000)
+        )
+        assert same_day.status_code == 409 and same_day.json()["error"]["code"] == "rule_overlaps"
+        bad_level = await client.post(
+            "/v1/admin/awards/penalty-rules",
+            headers=admin,
+            json=_rule(classification_codes=["L99"], effective_from="2028-07-01"),
+        )
+        assert bad_level.status_code == 422
+        silly = await client.post(
+            "/v1/admin/awards/penalty-rules", headers=admin, json=_rule(multiplier_bp=100)
+        )
+        assert silly.status_code == 422
+    finally:
+        await _cleanup_loaded_rules()

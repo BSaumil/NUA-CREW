@@ -221,3 +221,11 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | Clubs weekend/PH, overtime, allowances, junior/apprentice rates, holiday calendars | BLOCKED | no source data supplied; engine reports them as not assessed |
 | Attendance screens, qualifications, discovery by availability, device testing, real sign-in, legal text, hosting | NOT_STARTED | see the final message of this session for what each needs |
 | e2e: one CI retry plus JSON report so flaky specs are named | DONE | `tests/e2e/playwright.config.ts` |
+
+## Award data loading and device plan (2026-10-30)
+
+| Item | Status | Evidence / limit |
+| ---- | ------ | ---------------- |
+| Admin can load new rate versions and penalty rules (unverified, audited, no overlaps) | DONE | `test_hospitality_api.py` (3 new); `docs/operations/AWARD_DATA_RUNBOOK.md` |
+| Clubs weekend/PH, overtime, allowances, junior rates, holiday calendars | BLOCKED | the loader exists; the source figures have not been supplied. Nothing was invented. |
+| Device test plan | DONE (document only) | `docs/operations/DEVICE_TEST_PLAN.md`; no device has been used |

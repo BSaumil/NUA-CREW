@@ -2,6 +2,7 @@
 
 import uuid
 from datetime import UTC, date, datetime
+from typing import Literal
 
 from fastapi import APIRouter, Query
 from pydantic import BaseModel, Field
@@ -17,6 +18,7 @@ from app.hospitality_schemas import (
     ClassificationOut,
     CoverageGuidanceOut,
     CoverageSuggestionOut,
+    DayKind,
     DepartmentOut,
     InstrumentOut,
     PayAssessmentIn,
@@ -465,6 +467,142 @@ async def list_rate_versions(
         }
         for rv, c in (await session.execute(stmt)).all()
     ]
+
+
+class RateVersionIn(BaseModel):
+    """A new effective-dated rate. It is stored as supplied_unverified until someone verifies it."""
+
+    instrument: AwardCode
+    classification: str = Field(min_length=1, max_length=12)
+    effective_from: date
+    weekly_minor: int = Field(gt=0, le=10_000_000)
+    hourly_minor: int = Field(gt=0, le=100_000)
+    supplied_casual_ordinary_minor: int | None = Field(None, gt=0, le=200_000)
+    annual_minimum_minor: int | None = Field(None, gt=0, le=100_000_000)
+    source_url: str = Field(pattern=r"^https://", max_length=500)
+    source_note: str = Field(min_length=10, max_length=2000)
+
+
+class PenaltyRuleIn(BaseModel):
+    instrument: AwardCode
+    employment: Literal["permanent", "casual"]
+    classification_codes: list[str] = Field(min_length=1, max_length=40)
+    day_kind: DayKind
+    multiplier_bp: int = Field(ge=5_000, le=40_000)  # 50% to 400% of the ordinary hourly rate
+    effective_from: date
+    source_url: str = Field(pattern=r"^https://", max_length=500)
+    source_note: str = Field(min_length=10, max_length=2000)
+
+
+@admin.post("/rate-versions", status_code=201)
+async def add_rate_version(
+    body: RateVersionIn, user: AdminUser, session: Session
+) -> dict[str, str]:
+    """Load a new rate without a code change. An earlier open-ended version is closed on the day
+    the new one starts; two versions never overlap. Nothing is verified automatically."""
+    cls = await session.scalar(
+        select(AwardClassification).where(
+            AwardClassification.instrument_code == body.instrument,
+            AwardClassification.code == body.classification,
+        )
+    )
+    if cls is None:
+        raise not_found("classification")
+    versions = list(
+        await session.scalars(
+            select(AwardRateVersion).where(AwardRateVersion.classification_id == cls.id)
+        )
+    )
+    if any(v.effective_from == body.effective_from for v in versions):
+        raise conflict("rate_exists", "A rate with that start date is already loaded")
+    for v in versions:
+        if v.effective_from > body.effective_from and (
+            v.effective_to is None or v.effective_to > body.effective_from
+        ):
+            raise conflict(
+                "rate_overlaps", "A later rate is already loaded; load rates in date order"
+            )
+    for v in versions:
+        if v.effective_from < body.effective_from and (
+            v.effective_to is None or v.effective_to > body.effective_from
+        ):
+            v.effective_to = body.effective_from
+    row = AwardRateVersion(
+        classification_id=cls.id,
+        effective_from=body.effective_from,
+        weekly_minor=body.weekly_minor,
+        hourly_minor=body.hourly_minor,
+        supplied_casual_ordinary_minor=body.supplied_casual_ordinary_minor,
+        annual_minimum_minor=body.annual_minimum_minor,
+        source_url=body.source_url,
+        data_status="supplied_unverified",
+        source_note=body.source_note,
+    )
+    session.add(row)
+    await session.flush()
+    await audit(session, user.id, "award.rate_added", "rate_version", row.id)
+    return {"id": str(row.id), "data_status": row.data_status}
+
+
+@admin.post("/penalty-rules", status_code=201)
+async def add_penalty_rule(
+    body: PenaltyRuleIn, user: AdminUser, session: Session
+) -> dict[str, str]:
+    """Load a weekend, holiday or other multiplier. It replaces an identical-scope rule from its
+    start date; a partly overlapping rule is refused so a lookup is never ambiguous."""
+    known = set(
+        await session.scalars(
+            select(AwardClassification.code).where(
+                AwardClassification.instrument_code == body.instrument
+            )
+        )
+    )
+    unknown = sorted(set(body.classification_codes) - known)
+    if unknown:
+        raise ApiError(422, "unknown_classification", f"Unknown classification: {unknown[0]}")
+    wanted = set(body.classification_codes)
+    existing = list(
+        await session.scalars(
+            select(PenaltyRuleVersion).where(
+                PenaltyRuleVersion.instrument_code == body.instrument,
+                PenaltyRuleVersion.employment == body.employment,
+                PenaltyRuleVersion.day_kind == body.day_kind,
+            )
+        )
+    )
+    to_close: list[PenaltyRuleVersion] = []
+    for r in existing:
+        active_then = r.effective_from <= body.effective_from and (
+            r.effective_to is None or r.effective_to > body.effective_from
+        )
+        later = r.effective_from > body.effective_from
+        if not (active_then or later) or not (wanted & set(r.classification_codes)):
+            continue
+        if later or r.effective_from == body.effective_from:
+            raise conflict("rule_overlaps", "A rule for these levels already starts then or later")
+        if set(r.classification_codes) != wanted:
+            raise conflict(
+                "rule_overlaps",
+                "An existing rule covers only some of these levels; load them as separate rules",
+            )
+        to_close.append(r)
+    for r in to_close:
+        r.effective_to = body.effective_from
+    row = PenaltyRuleVersion(
+        instrument_code=body.instrument,
+        employment=body.employment,
+        classification_codes=sorted(wanted),
+        day_kind=body.day_kind,
+        multiplier_bp=body.multiplier_bp,
+        effective_from=body.effective_from,
+        source_url=body.source_url,
+        data_status="supplied_unverified",
+        source_note=body.source_note,
+    )
+    session.add(row)
+    await session.flush()
+    await audit(session, user.id, "award.penalty_added", "penalty_rule", row.id)
+    return {"id": str(row.id), "data_status": row.data_status}
 
 
 @admin.post("/public-holidays", status_code=201)
