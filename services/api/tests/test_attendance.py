@@ -308,3 +308,38 @@ async def test_timesheet_history_keeps_every_version_and_decision(client):
     async with db_as("system") as session:
         with pytest.raises(DBAPIError):
             await session.execute(text("UPDATE shift_timesheet_versions SET break_minutes = 0"))
+
+
+async def test_venue_local_correction_resolves_using_the_stored_shift_zone(client):
+    from zoneinfo import ZoneInfo
+
+    emp, eid, cand, _, bid, start = await live(client, "att-local")
+    local = (
+        (start - timedelta(minutes=2))
+        .astimezone(ZoneInfo("Australia/Melbourne"))
+        .replace(second=0, microsecond=0)
+    )
+    result = await client.post(
+        cand_url(bid, "attendance-corrections"),
+        headers=cand,
+        json={
+            "claim_kind": "check_in",
+            "local_date": local.date().isoformat(),
+            "local_time": local.time().isoformat(),
+            "reason": "Arrived before opening the app",
+        },
+    )
+    assert result.status_code == 200, result.text
+    event = next(
+        e for e in result.json()["attendance"]["events"] if e["kind"] == "correction_requested"
+    )
+    assert datetime.fromisoformat(event["claimed_at"]) == local.astimezone(UTC)
+    assert result.json()["attendance"]["check_in_at"] is None
+    # Another business cannot review a guessed correction ID.
+    other, other_eid = await register_employer(client, "local-other@example.invalid")
+    denied = await client.post(
+        emp_url(other_eid, bid, f"attendance-corrections/{event['id']}/review"),
+        headers=other,
+        json={"decision": "approved", "reason": "Guessed record"},
+    )
+    assert denied.status_code == 404

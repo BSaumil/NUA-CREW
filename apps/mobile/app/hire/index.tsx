@@ -94,6 +94,11 @@ function Jobs() {
           body="You can save drafts now. Publishing and invitations become available after your business and authorised representative are reviewed."
         />
       ) : null}
+      <Button
+        title="Notifications"
+        variant="secondary"
+        onPress={() => router.push('/hire-alerts')}
+      />
       <Text variant="heading" accessibilityRole="header">
         Your jobs
       </Text>

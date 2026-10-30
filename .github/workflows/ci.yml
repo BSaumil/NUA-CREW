@@ -42,6 +42,8 @@ jobs:
       - run: uv run ruff format --check .
       - run: uv run mypy app
       - run: uv run pytest -q
+      - name: Document safety and time-zone unit tests
+        run: uv run python -m pytest unit_tests -q
       - name: Worker smoke test (drains and exits)
         run: uv run python -m app.worker --once
       - name: Audit the locked API production dependencies
@@ -62,6 +64,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm pilot:test
       - run: pnpm build
       - name: Mobile app compiles for Android and iOS (Metro + Hermes)
         run: pnpm --filter @nua-crew/mobile bundle:check

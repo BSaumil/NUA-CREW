@@ -82,7 +82,7 @@ function Harness({ onResult }: { onResult?: (a: PayAssessmentOut) => void }) {
         setAck(false);
         onResult?.(out);
       }}
-      stale={!!a && key !== checkKey(check, rate, 'casual')}
+      stale={!!a && key !== checkKey(check, rate, 'casual', 'HC-0060', 'VIC')}
       acknowledged={ack}
       onAcknowledge={setAck}
     />
@@ -167,4 +167,25 @@ it('shows a plain message when the check cannot run', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Check this pay' }));
   expect(await screen.findByText('Enter the hourly rate you plan to pay.')).toBeTruthy();
   expect(POST).not.toHaveBeenCalled();
+});
+
+it('clears duties confirmation when the classification changes and coverage when the award changes', async () => {
+  await renderApp(<Harness />);
+  await fireEvent.press(await screen.findByRole('button', { name: 'Restaurant · often used' }));
+  const coverage = () =>
+    screen.getByRole('button', { name: 'This award covers my business and this work' });
+  const duties = () => screen.getByRole('button', { name: /I’ve matched this to the real duties/ });
+  await fireEvent.press(coverage());
+  await fireEvent.press(screen.getByRole('button', { name: /Level 2 ·/ }));
+  await fireEvent.press(duties());
+  await fireEvent.press(screen.getByRole('button', { name: /Level 3 ·/ }));
+  expect(duties().props.accessibilityState.selected).toBe(false);
+  await fireEvent.press(screen.getByRole('button', { name: 'Enterprise agreement / not sure' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Restaurant · often used' }));
+  expect(coverage().props.accessibilityState.selected).toBe(false);
+});
+it('invalidates a pay check when its role or work state changes', () => {
+  const original = checkKey(emptyCheck, '40', 'casual', 'HC-0060', 'VIC');
+  expect(checkKey(emptyCheck, '40', 'casual', 'HC-0061', 'VIC')).not.toBe(original);
+  expect(checkKey(emptyCheck, '40', 'casual', 'HC-0060', 'NSW')).not.toBe(original);
 });

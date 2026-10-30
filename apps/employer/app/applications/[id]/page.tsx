@@ -32,6 +32,11 @@ export default async function Applicant({
     params: { path: { employer_id: employerId, application_id: id } },
   });
   if (!a) notFound();
+  const documents = await (
+    await api()
+  ).GET('/v1/employers/{employer_id}/applications/{application_id}/documents', {
+    params: { path: { employer_id: employerId, application_id: id } },
+  });
   const write = canWrite(role);
   return (
     <div className="nua-stack">
@@ -62,6 +67,25 @@ export default async function Applicant({
         ) : null}
       </section>
 
+      <section className="nua-card nua-stack">
+        <h2>Documents shared for this application</h2>
+        <p className="nua-hint">
+          Scanned files are not verified qualifications. Access ends if the candidate withdraws or
+          removes a file.
+        </p>
+        {documents.error ? (
+          <p role="alert">Documents are currently unavailable.</p>
+        ) : documents.data?.length ? (
+          documents.data.map((d) => (
+            <p key={d.id}>
+              <a href={`/applications/${id}/documents/${d.id}`}>{d.title}</a> ·{' '}
+              {d.kind.replaceAll('_', ' ')} · Not verified
+            </p>
+          ))
+        ) : (
+          <p>No files were shared.</p>
+        )}
+      </section>
       {write ? (
         <section className="nua-card nua-stack" aria-labelledby="actions">
           <h2 id="actions">Decision</h2>

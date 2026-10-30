@@ -1371,3 +1371,53 @@ class TalentExposure(Base):
     last_shown_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+
+
+class CandidateDocument(Base, TimestampMixin):
+    __tablename__ = "candidate_documents"
+    __table_args__ = (
+        CheckConstraint(
+            "kind IN ('resume','rsa','food_safety','first_aid','qualification','other')",
+            name="ck_document_kind",
+        ),
+        CheckConstraint("status IN ('pending','ready')", name="ck_document_status"),
+        CheckConstraint("size_bytes > 0 AND size_bytes <= 4194304", name="ck_document_size"),
+        UniqueConstraint("candidate_id", "client_key", name="uq_document_client_key"),
+    )
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), index=True
+    )
+    kind: Mapped[str] = mapped_column(String(20))
+    title: Mapped[str] = mapped_column(String(160))
+    filename: Mapped[str] = mapped_column(String(160))
+    content_type: Mapped[str] = mapped_column(String(80))
+    size_bytes: Mapped[int] = mapped_column(Integer)
+    client_key: Mapped[str] = mapped_column(String(80))
+    status: Mapped[str] = mapped_column(String(12), default="pending")
+    sha256: Mapped[str | None] = mapped_column(String(64))
+    issuer: Mapped[str | None] = mapped_column(String(160))
+    jurisdiction: Mapped[str | None] = mapped_column(String(8))
+    completed_on: Mapped[date | None] = mapped_column(Date)
+    review_due_on: Mapped[date | None] = mapped_column(Date)
+    scanned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ApplicationDocument(Base):
+    __tablename__ = "application_documents"
+    application_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("applications.id", ondelete="CASCADE"), primary_key=True
+    )
+    document_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_documents.id", ondelete="CASCADE"), primary_key=True
+    )
+    candidate_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("candidate_profiles.id", ondelete="CASCADE"), index=True
+    )
+
+
+class DocumentDeletion(Base):
+    __tablename__ = "document_deletions"
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True)
+    candidate_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True))
+    attempts: Mapped[int] = mapped_column(Integer, default=0)

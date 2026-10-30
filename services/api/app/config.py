@@ -43,6 +43,12 @@ class Settings(BaseSettings):
     push_provider: str = "none"  # "expo" enables real push delivery
     ingestion_stale_after_seconds: int = 7 * 24 * 3600
     fixtures_dir: str = "fixtures"
+    document_storage: Literal["disabled", "local", "s3"] = "disabled"
+    document_local_root: str = ".private-documents"
+    document_s3_bucket: str | None = None
+    document_s3_region: str = "ap-southeast-2"
+    document_clamd_host: str | None = None
+    document_clamd_port: int = 3310
     stripe_mode: Literal["disabled", "test"] = "disabled"
     stripe_secret_key: SecretStr | None = None
     stripe_webhook_secret: SecretStr | None = None

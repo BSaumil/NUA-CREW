@@ -19,9 +19,12 @@ function Nav({ items, current, label }: { items: NavItem[]; current: string; lab
 }
 
 export const CANDIDATE_NAV: NavItem[] = [
+  { key: 'dashboard', href: '/dashboard', label: 'Overview' },
   { key: 'discover', href: '/jobs', label: 'Discover' },
   { key: 'applications', href: '/applications', label: 'Applications' },
   { key: 'profile', href: '/profile', label: 'Profile' },
+  { key: 'shifts', href: '/shifts', label: 'Shifts' },
+  { key: 'notifications', href: '/notifications', label: 'Updates' },
 ];
 
 export function CandidateNav({
@@ -50,6 +53,8 @@ export const EMPLOYER_NAV: NavItem[] = [
   { key: 'invitations', href: '/invitations', label: 'Invitations' },
   { key: 'messages', href: '/messages', label: 'Messages' },
   { key: 'team', href: '/team', label: 'Team' },
+  { key: 'shifts', href: '/shifts', label: 'Shifts & hours' },
+  { key: 'notifications', href: '/notifications', label: 'Updates' },
   { key: 'billing', href: '/billing', label: 'Advertising & billing' },
 ];
 

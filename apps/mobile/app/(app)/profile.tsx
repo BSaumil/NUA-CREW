@@ -119,6 +119,11 @@ export default function Profile() {
         <Text variant="title" accessibilityRole="header">
           Profile
         </Text>
+        <Button
+          title="Your workspace overview"
+          variant="secondary"
+          onPress={() => router.push('/dashboard')}
+        />
         <Button title="Settings" variant="secondary" onPress={() => router.push('/settings')} />
       </Row>
       <Button
@@ -309,7 +314,8 @@ export default function Profile() {
           ))
         ) : (
           <Text muted>
-            No resumes yet. Paste your resume text to apply with it. File upload is coming later.
+            No resumes yet. Paste your resume text to apply with it. PDF files and certificates can
+            be added in Documents.
           </Text>
         )}
         <Text variant="caption" muted>
@@ -331,6 +337,11 @@ export default function Profile() {
             },
           ])
         }
+      />
+      <Button
+        title="Documents — PDF resumes and certificates"
+        variant="secondary"
+        onPress={() => router.push('/documents')}
       />
       <ResumeModal target={resumeModal} onClose={() => setResumeModal(null)} />
     </Screen>

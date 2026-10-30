@@ -1,2 +1,44 @@
 @import './tokens.css';
 @import './components.css';
+
+.nua-task-list,
+.nua-notifications {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 12px;
+}
+.nua-task-list li > a {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 14px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  text-decoration: none;
+  min-height: 64px;
+}
+.nua-task-list li > a:hover {
+  border-color: var(--primary);
+}
+.nua-task-list strong,
+.nua-task-list .nua-hint {
+  display: block;
+}
+.nua-task-count {
+  font-size: 1.4rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.nua-table-scroll {
+  overflow-x: auto;
+  max-width: 100%;
+}
+.nua-shell > main {
+  min-width: 0;
+}
+.nua-notifications h2 {
+  font-size: 1.1rem;
+}

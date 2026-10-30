@@ -7,7 +7,20 @@ const str = (f: FormData, k: string) => String(f.get(k) ?? '').trim();
 const back = (path: string, kind: 'error' | 'notice', msg: string) =>
   redirect(`${path}${path.includes('?') ? '&' : '?'}${kind}=${encodeURIComponent(msg)}`);
 
-const KEEP = ['venue', 'role', 'inst', 'loc', 'pay_max', 'q', 'dept'] as const;
+const KEEP = [
+  'venue',
+  'role',
+  'inst',
+  'loc',
+  'pay_max',
+  'q',
+  'dept',
+  'classification',
+  'employment',
+  'rate_structure',
+  'worker_class',
+  'pay_min',
+] as const;
 const carry = (form: FormData, step: number, extra: Record<string, string> = {}) => {
   const p = new URLSearchParams({ step: String(step) });
   for (const k of KEEP) {
@@ -15,6 +28,11 @@ const carry = (form: FormData, step: number, extra: Record<string, string> = {})
     if (v) p.set(k, v);
   }
   for (const [k, v] of Object.entries(extra)) p.set(k, v);
+  if (str(form, 'pay_min')) p.set('rate', str(form, 'pay_min'));
+  if (str(form, 'rate_structure')) p.set('structure', str(form, 'rate_structure'));
+  if (str(form, 'worker_class')) p.set('worker', str(form, 'worker_class'));
+  if (form.get('coverage_confirmed') === 'on') p.set('coverage', 'yes');
+  if (form.get('classification_confirmed') === 'on') p.set('confirmed', 'yes');
   return `/jobs/new/guided?${p.toString()}`;
 };
 

@@ -139,6 +139,15 @@ async def export_account(user: CurrentUser, session: Session) -> Response:
             }
             for r in await session.scalars(select(Resume).where(Resume.candidate_id == p.id))
         ]
+        from app.document_schemas import DocumentOut
+        from app.models import CandidateDocument
+
+        data["documents"] = [
+            DocumentOut.model_validate(d).model_dump(mode="json")
+            for d in await session.scalars(
+                select(CandidateDocument).where(CandidateDocument.candidate_id == p.id)
+            )
+        ]
         data["applications"] = apps
         data["shift_bookings"] = []
         for booking, shift in (

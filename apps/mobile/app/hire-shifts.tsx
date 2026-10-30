@@ -25,6 +25,7 @@ import {
   Text,
 } from '@/ui';
 import { HireGate, Notice } from '@/ui/hire';
+import { Attendance } from '@/ui/attendance';
 import { ShiftDetails, TimesheetDetails } from '@/ui/shift';
 
 export default function HireShifts() {
@@ -234,6 +235,7 @@ function Workspace() {
 }
 function Review({ booking: b, editable }: { booking: Schemas['BookingOut']; editable: boolean }) {
   const review = useReviewTimesheet();
+  const { employerId } = useHireWorkspace();
   const [reason, setReason] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [decision, setDecision] = useState<'approved' | 'disputed' | null>(null);
@@ -265,6 +267,7 @@ function Review({ booking: b, editable }: { booking: Schemas['BookingOut']; edit
         {b.candidate_label} · {b.status}
       </Text>
       <Text>{b.shift.title}</Text>
+      <Attendance booking={b} employerId={employerId} editable={editable} />
       {b.timesheet ? <TimesheetDetails sheet={b.timesheet} /> : null}
       {editable && b.timesheet?.status === 'submitted' ? (
         <>

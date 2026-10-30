@@ -1,7 +1,9 @@
+import { Platform } from 'react-native';
+import { downloadPrivateDocument } from '@/api/documents';
 import type { Schemas } from '@nua-crew/contracts';
 import { useLocalSearchParams } from 'expo-router';
-import { useRef, useState } from 'react';
-import { canRecruit, useHireApplicant, useHireDecision } from '@/api/hire';
+import { useEffect, useRef, useState } from 'react';
+import { canRecruit, useHireApplicant, useHireDecision, useHireDocuments } from '@/api/hire';
 import { messageOf } from '@/api/client';
 import { APPLICATION_STAGE } from '@/features/hire-form';
 import { useHireWorkspace } from '@/state/HireWorkspace';
@@ -37,7 +39,17 @@ export default function Applicant() {
 function ApplicantContent({ id }: { id: string }) {
   const query = useHireApplicant(id);
   const decide = useHireDecision(id);
-  const { role } = useHireWorkspace();
+  const { role, employerId } = useHireWorkspace();
+  const sharedDocuments = useHireDocuments(id);
+  const active = useRef(true);
+  const workspace = useRef(employerId);
+  workspace.current = employerId;
+  useEffect(() => {
+    active.current = true;
+    return () => {
+      active.current = false;
+    };
+  }, [employerId]);
   const { colors } = useTheme();
   const [target, setTarget] = useState<Schemas['StatusChangeIn']['to_status'] | null>(null);
   const [note, setNote] = useState('');
@@ -147,6 +159,38 @@ function ApplicantContent({ id }: { id: string }) {
           {e.note ? <Text>{e.note}</Text> : null}
         </Card>
       ))}
+      <Card>
+        <Text variant="heading">Shared documents</Text>
+        <Text variant="caption" muted>
+          Only files selected for this application. Qualifications are not automatically verified.
+        </Text>
+        {sharedDocuments.isError ? (
+          <Text accessibilityRole="alert">Documents are unavailable.</Text>
+        ) : sharedDocuments.data?.length ? (
+          sharedDocuments.data.map((d) => (
+            <Card key={d.id}>
+              <Text>{d.title} · Not verified</Text>
+              {Platform.OS !== 'web' ? (
+                <Button
+                  title={`Open ${d.title}`}
+                  variant="secondary"
+                  onPress={() => {
+                    void downloadPrivateDocument(
+                      `/v1/employers/${employerId}/applications/${id}/documents/${d.id}/content`,
+                      d.content_type,
+                      () => active.current && workspace.current === employerId,
+                    ).catch((e) => setError(messageOf(e)));
+                  }}
+                />
+              ) : (
+                <Text>Download from the employer web portal.</Text>
+              )}
+            </Card>
+          ))
+        ) : (
+          <Text>No files shared.</Text>
+        )}
+      </Card>
       <ConfirmSheet
         visible={target !== null}
         title={

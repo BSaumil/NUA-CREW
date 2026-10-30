@@ -31,6 +31,7 @@ export default async function Profile({
   return (
     <div className="nua-stack">
       <h1>Your profile</h1>
+      <a href="/documents">Manage your private document wallet</a>
       <Flash error={error} notice={notice} />
       <form action={saveProfile} className="nua-card nua-stack" aria-labelledby="profile-h">
         <h2 id="profile-h">About you</h2>

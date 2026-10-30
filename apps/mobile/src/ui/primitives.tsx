@@ -206,6 +206,7 @@ export function Chip({
   onPress,
   accessibilityHint,
   role = 'button',
+  disabled = false,
 }: {
   label: string;
   selected?: boolean;
@@ -213,13 +214,15 @@ export function Chip({
   accessibilityHint?: string;
   /** Use "tab" for chips that switch between panels (inside a tablist). */
   role?: 'button' | 'tab';
+  disabled?: boolean;
 }) {
   const { colors } = useTheme();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole={onPress ? role : 'text'}
-      accessibilityState={{ selected: !!selected }}
+      disabled={disabled}
+      accessibilityState={{ selected: !!selected, ...(disabled ? { disabled: true } : {}) }}
       accessibilityHint={accessibilityHint}
       style={{
         minHeight: MIN_TOUCH - 4,

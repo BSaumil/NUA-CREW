@@ -74,6 +74,7 @@ export function useBookingAction() {
       ),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['shift-bookings'] });
+      void qc.invalidateQueries({ queryKey: ['timesheet-history'] });
       void qc.invalidateQueries({ queryKey: ['availability'] });
     },
   });
@@ -90,6 +91,76 @@ export function useSubmitTimesheet() {
       ),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['shift-bookings'] });
+      void qc.invalidateQueries({ queryKey: ['timesheet-history'] });
     },
+  });
+}
+
+export function useCandidateAttendance() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      booking,
+      action,
+      body,
+    }: {
+      booking: string;
+      action: 'check-in' | 'check-out' | 'correction';
+      body?: Schemas['CorrectionIn'];
+    }) => {
+      if (action === 'correction')
+        return unwrap(
+          await api.POST('/v1/candidate/shift-bookings/{booking_id}/attendance-corrections', {
+            params: { path: { booking_id: booking } },
+            body: body!,
+          }),
+        );
+      if (action === 'check-in')
+        return unwrap(
+          await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-in', {
+            params: { path: { booking_id: booking } },
+          }),
+        );
+      return unwrap(
+        await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-out', {
+          params: { path: { booking_id: booking } },
+        }),
+      );
+    },
+    onSuccess: () => {
+      void qc.invalidateQueries({ queryKey: ['shift-bookings'] });
+    },
+  });
+}
+export const useReviewCorrection = () =>
+  useHireMutation(
+    async (id, input: { booking: string; event: string; body: Schemas['CorrectionReviewIn'] }) =>
+      unwrap(
+        await api.POST(
+          '/v1/employers/{employer_id}/shift-bookings/{booking_id}/attendance-corrections/{event_id}/review',
+          {
+            params: { path: { employer_id: id, booking_id: input.booking, event_id: input.event } },
+            body: input.body,
+          },
+        ),
+      ),
+  );
+export function useTimesheetHistory(booking: string, employerId: string | null, enabled: boolean) {
+  return useQuery({
+    queryKey: ['timesheet-history', employerId, booking],
+    enabled,
+    queryFn: async () =>
+      employerId
+        ? unwrap(
+            await api.GET(
+              '/v1/employers/{employer_id}/shift-bookings/{booking_id}/timesheet-history',
+              { params: { path: { employer_id: employerId, booking_id: booking } } },
+            ),
+          )
+        : unwrap(
+            await api.GET('/v1/candidate/shift-bookings/{booking_id}/timesheet-history', {
+              params: { path: { booking_id: booking } },
+            }),
+          ),
   });
 }

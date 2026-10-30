@@ -87,13 +87,20 @@ class CorrectionIn(BaseModel):
     """A person says an attendance event happened at a different instant. Needs approval."""
 
     claim_kind: Literal["check_in", "check_out"]
-    claimed_at: datetime
+    claimed_at: datetime | None = None
+    local_date: date | None = None
+    local_time: time | None = None
     reason: str = Field(min_length=3, max_length=1000, pattern=r"\S")
 
     @model_validator(mode="after")
     def aware(self) -> "CorrectionIn":
-        if self.claimed_at.tzinfo is None:
-            raise ValueError("claimed_at must include a time zone offset")
+        if self.claimed_at is not None:
+            if self.claimed_at.tzinfo is None:
+                raise ValueError("claimed_at must include a time zone offset")
+            if self.local_date is not None or self.local_time is not None:
+                raise ValueError("Choose an instant or a venue-local date and time, not both")
+        elif self.local_date is None or self.local_time is None:
+            raise ValueError("Provide a venue-local date and time")
         return self
 
 

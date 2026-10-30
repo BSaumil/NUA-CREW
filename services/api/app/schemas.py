@@ -315,6 +315,7 @@ class MatchOut(BaseModel):
 
 # ---- applications ----
 class ApplyIn(BaseModel):
+    document_ids: list[uuid.UUID] = Field(default_factory=list, max_length=10)
     resume_id: uuid.UUID | None = None
     cover_note: str | None = Field(None, max_length=5000)
 

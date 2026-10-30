@@ -16,6 +16,7 @@ import {
   Text,
 } from '@/ui';
 import { Notice } from '@/ui/hire';
+import { Attendance } from '@/ui/attendance';
 import { ShiftDetails, TimesheetDetails } from '@/ui/shift';
 
 export default function MyShifts() {
@@ -98,9 +99,11 @@ function Booking({ booking: b }: { booking: Schemas['BookingOut'] }) {
           />
         </>
       ) : null}
+      <Attendance booking={b} />
       {b.timesheet ? <TimesheetDetails sheet={b.timesheet} /> : null}
       {b.status === 'confirmed' &&
       new Date(b.shift.ends_at).getTime() <= Date.now() &&
+      b.attendance?.status !== 'no_show' &&
       b.timesheet?.status !== 'approved' ? (
         <Hours booking={b} />
       ) : null}

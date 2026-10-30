@@ -1,0 +1,95 @@
+{
+  "version": 1,
+  "audience": "invitation-only",
+  "billing": "disabled",
+  "gates": [
+    {
+      "id": "database-isolation",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "hiring-journey",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "document-storage-scan",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "identity-recovery",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "android-device",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "ios-device",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "accessibility",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "backup-restore",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "monitoring-rollback",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "business-legal-review",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    },
+    {
+      "id": "owner-pilot-approval",
+      "status": "pending",
+      "commit": null,
+      "evidence": "",
+      "reviewer": "",
+      "checked_at": null
+    }
+  ]
+}

@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.audit import audit
 from app.deps import Candidate, CurrentUser, Recruiter, Session, Viewer
-from app.errors import conflict
+from app.errors import ApiError, conflict
 from app.models import (
     CandidateProfile,
     EmployerMembership,
@@ -26,7 +26,7 @@ from app.rls import system_scope
 from app.routers.shifts import _booking, _out, _shift
 from app.services.attendance import derive, events_for, pending_requests
 from app.services.notify import notify
-from app.services.scheduling import worked_minutes
+from app.services.scheduling import resolve_instant, worked_minutes
 from app.shift_schemas import (
     BookingOut,
     CorrectionIn,
@@ -143,7 +143,14 @@ async def request_correction(
 ) -> BookingOut:
     async with system_scope(session):
         row, shift = await _locked(session, booking_id, cid=profile.id)
-        claimed = body.claimed_at.astimezone(UTC)
+        try:
+            claimed = (
+                body.claimed_at.astimezone(UTC)
+                if body.claimed_at is not None
+                else resolve_instant(body.local_date, body.local_time, shift.time_zone)  # type: ignore[arg-type]
+            )
+        except ValueError as exc:
+            raise ApiError(422, "invalid_local_time", str(exc)) from exc
         if (
             claimed < shift.starts_at - CORRECTION_WINDOW
             or claimed > shift.ends_at + CORRECTION_WINDOW
