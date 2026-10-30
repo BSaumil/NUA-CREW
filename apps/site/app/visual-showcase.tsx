@@ -98,7 +98,8 @@ const visuals: Visual[] = [
   {
     slug: 'credentials',
     title: 'Share relevant documents',
-    detail: 'Preview the journey for resumes, RSA and other certificates; verification is separate.',
+    detail:
+      'Preview the journey for resumes, RSA and other certificates; verification is separate.',
     alt: 'Illustration of RSA and qualification documents attached to a profile',
     audiences: ['jobs', 'hire'],
   },
@@ -133,9 +134,7 @@ export function VisualShowcase({
   limit?: number;
 }) {
   const matching =
-    audience === 'all'
-      ? visuals
-      : visuals.filter((visual) => visual.audiences.includes(audience));
+    audience === 'all' ? visuals : visuals.filter((visual) => visual.audiences.includes(audience));
   const selected = typeof limit === 'number' ? matching.slice(0, limit) : matching;
 
   return (
@@ -215,7 +214,9 @@ export function VenueBanners() {
           </figure>
         ))}
       </div>
-      <p className="nua-visual-note">Concept artwork illustrating different parts of hospitality.</p>
+      <p className="nua-visual-note">
+        Concept artwork illustrating different parts of hospitality.
+      </p>
     </>
   );
 }
