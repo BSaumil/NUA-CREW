@@ -143,6 +143,12 @@ a {
 .site-button-ghost:hover {
   background: rgba(201, 169, 110, 0.15);
 }
+
+/* Outline calls to action need dark text on the light content surfaces. */
+.site-section:not(.site-section--wine) .site-button-ghost {
+  color: var(--nua-burgundy);
+  border-color: var(--nua-burgundy);
+}
 .site-cta-row {
   display: flex;
   gap: 12px;
