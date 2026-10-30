@@ -10,6 +10,7 @@ import {
   Users,
 } from 'lucide-react';
 import { PageHero, Section } from '../components';
+import { AppWalkthrough } from '../app-walkthrough';
 import { SITE } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -37,6 +38,12 @@ export default function Apps() {
           </span>
         </div>
       </PageHero>
+      <Section
+        title="See how the app works"
+        intro="The same app runs on Android and iOS. Tap through the steps to see what you can do before you sign up."
+      >
+        <AppWalkthrough />
+      </Section>
       <Section
         title="Choose your experience"
         intro="The public website is live. Not in the app stores yet; download links will appear when published."
