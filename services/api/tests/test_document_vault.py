@@ -50,7 +50,9 @@ async def test_private_document_application_sharing_withdrawal_and_durable_delet
     candidate = await register_candidate(client, "documents-a@nua-crew.example.com")
     other = await register_candidate(client, "documents-b@nua-crew.example.com")
     employer, eid = await verified_employer(client, "documents-owner@nua-crew.example.com")
-    outsider, other_eid = await verified_employer(client, "documents-other-owner@nua-crew.example.com")
+    outsider, other_eid = await verified_employer(
+        client, "documents-other-owner@nua-crew.example.com"
+    )
     data = file_bytes()
     did = await reserve(client, candidate, data)
     result = await client.put(
