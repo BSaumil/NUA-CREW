@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AiDisclosure, Button, ButtonLink } from '@nua-crew/ui';
+import { MatchDisclosure, Button, ButtonLink } from '@nua-crew/ui';
 import { api, requireCandidate } from '@/lib/api';
 import { addResume, saveProfile, setDiscovery } from '../actions';
 import { Field, Flash, flashFrom } from '../components';
@@ -31,6 +31,7 @@ export default async function Profile({
   return (
     <div className="nua-stack">
       <h1>Your profile</h1>
+      <a href="/documents">Manage your private document wallet</a>
       <Flash error={error} notice={notice} />
       <form action={saveProfile} className="nua-card nua-stack" aria-labelledby="profile-h">
         <h2 id="profile-h">About you</h2>
@@ -157,7 +158,7 @@ export default async function Profile({
             </Button>
           </div>
         </form>
-        <AiDisclosure />
+        <MatchDisclosure />
       </section>
     </div>
   );

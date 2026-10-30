@@ -1,3 +1,4 @@
+import { useDocuments } from '@/api/documents';
 import * as Haptics from 'expo-haptics';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
@@ -20,7 +21,7 @@ import { shareJob } from '@/features/share';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, space } from '@/theme/tokens';
 import {
-  AI_DISCLOSURE,
+  MATCH_DISCLOSURE,
   Badge,
   Button,
   Card,
@@ -204,7 +205,7 @@ export default function JobDetail() {
             <>
               <MatchBreakdown match={match.data} />
               <Text variant="caption" muted>
-                {AI_DISCLOSURE}
+                {MATCH_DISCLOSURE}
               </Text>
               <Button
                 title="Improve my profile"
@@ -299,6 +300,8 @@ function ApplySheet({
   const router = useRouter();
   const { colors } = useTheme();
   const { data: resumes } = useResumes();
+  const documents = useDocuments();
+  const [documentIds, setDocumentIds] = useState<string[]>([]);
   const apply = useApply();
   const [resumeId, setResumeId] = useState<string | null>(null);
   const [note, setNote] = useState('');
@@ -310,7 +313,7 @@ function ApplySheet({
   const guard = useRef(createApplyGuard()).current;
 
   const submit = async () => {
-    const key = guard.begin(chosen, note);
+    const key = guard.begin(chosen, note, documentIds);
     if (key === null) return; // a submit is already in flight
     setError(null);
     try {
@@ -319,6 +322,7 @@ function ApplySheet({
         resumeId: chosen,
         note: note.trim(),
         idempotencyKey: key,
+        documentIds,
       });
       guard.end('success');
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
@@ -361,6 +365,27 @@ function ApplySheet({
       ) : (
         <Text muted>No resume yet. You can still apply, or add one in Profile first.</Text>
       )}
+      <Text variant="label">Documents to share (optional)</Text>
+      <Text variant="caption" muted>
+        Only selected files go to this application. Qualifications are not automatically verified.
+      </Text>
+      <Row>
+        {documents.data
+          ?.filter((d) => d.status === 'ready')
+          .map((d) => (
+            <Chip
+              key={d.id}
+              label={d.title}
+              selected={documentIds.includes(d.id)}
+              disabled={!documentIds.includes(d.id) && documentIds.length >= 10}
+              onPress={() =>
+                setDocumentIds((ids) =>
+                  ids.includes(d.id) ? ids.filter((id) => id !== d.id) : [...ids, d.id],
+                )
+              }
+            />
+          ))}
+      </Row>
       <Field
         label="Note to the employer (optional)"
         value={note}

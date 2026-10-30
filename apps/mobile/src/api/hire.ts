@@ -24,6 +24,7 @@ export function useHireMutation<T, R>(task: (id: string, input: T) => Promise<R>
     },
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['hire', employerId] });
+      void qc.invalidateQueries({ queryKey: ['timesheet-history', employerId] });
     },
   });
 }
@@ -221,6 +222,15 @@ export const useHireReport = (conversationId: string) =>
       await api.POST('/v1/employers/{employer_id}/conversations/{conversation_id}/report', {
         params: { path: { employer_id: id, conversation_id: conversationId } },
         body: input,
+      }),
+    ),
+  );
+
+export const useHireDocuments = (applicationId: string) =>
+  useHireQuery(['application-documents', applicationId], async (id) =>
+    unwrap(
+      await api.GET('/v1/employers/{employer_id}/applications/{application_id}/documents', {
+        params: { path: { employer_id: id, application_id: applicationId } },
       }),
     ),
   );

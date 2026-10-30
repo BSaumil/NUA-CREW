@@ -2,6 +2,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, RefreshControl, View } from 'react-native';
 import { messageOf } from '@/api/client';
 import { useMarkAllRead, useMarkRead, useNotifications } from '@/api/queries';
+import { useAuth } from '@/state/AuthProvider';
 import { routeFor } from '@/features/links';
 import { useTheme } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
@@ -19,6 +20,7 @@ import {
 
 export default function Alerts() {
   const router = useRouter();
+  const { role } = useAuth();
   const { colors } = useTheme();
   const q = useNotifications();
   const markRead = useMarkRead();
@@ -40,10 +42,18 @@ export default function Alerts() {
           Alerts
         </Text>
         {unread > 0 ? (
-          <Button title="Mark all read" variant="ghost" onPress={() => markAll.mutate()} />
+          <Button
+            title="Mark all read"
+            variant="ghost"
+            loading={markAll.isPending}
+            onPress={() => markAll.mutate()}
+          />
         ) : null}
       </Row>
       <OfflineBanner />
+      {markRead.isError || markAll.isError ? (
+        <ErrorState message="The read status was not saved. Try marking the update read again." />
+      ) : null}
       {q.isPending ? (
         <ListSkeleton count={3} />
       ) : q.isError ? (
@@ -52,7 +62,11 @@ export default function Alerts() {
         <EmptyState
           title="Nothing yet"
           body="Application updates and new-job alerts will show up here."
-          action={{ label: 'Set up a job alert', onPress: () => router.push('/(app)/discover') }}
+          action={
+            role === 'employer'
+              ? { label: 'Back to hiring', onPress: () => router.push('/hire') }
+              : { label: 'Set up a job alert', onPress: () => router.push('/(app)/discover') }
+          }
         />
       ) : (
         q.data.map((n) => (
@@ -62,7 +76,9 @@ export default function Alerts() {
               accessibilityLabel={`${n.read_at ? '' : 'Unread. '}${n.title}`}
               onPress={() => {
                 if (!n.read_at) markRead.mutate(n.id);
-                router.push(routeFor(n.kind, n.data as Record<string, unknown>));
+                router.push(
+                  routeFor(n.kind, n.data as Record<string, unknown>, role === 'employer'),
+                );
               }}
               style={{ gap: space(0.5) }}
             >

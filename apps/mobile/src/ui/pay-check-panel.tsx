@@ -12,6 +12,8 @@ import {
 import { useTheme } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
 import { Button, Chip, Field, Row, Text } from './primitives';
+import { ErrorState } from './states';
+
 import { PayVerdictCard } from './pay';
 
 export type CheckState = {
@@ -27,8 +29,17 @@ export const emptyCheck: CheckState = {
   classOk: false,
 };
 
-export function checkKey(c: CheckState, rate: string, jobType: string) {
-  return [c.instrument, c.classification, c.coverageOk, c.classOk, rate.trim(), jobType].join('|');
+export function checkKey(c: CheckState, rate: string, jobType: string, roleCode = '', state = '') {
+  return [
+    c.instrument,
+    c.classification,
+    c.coverageOk,
+    c.classOk,
+    rate.trim(),
+    jobType,
+    roleCode,
+    state,
+  ].join('|');
 }
 
 /** Employer picks the award and classification; the server checks the rate. Titles never decide. */
@@ -89,7 +100,7 @@ export function PayCheckPanel({
     if (!built.body) return setError(built.error ?? 'Check the details.');
     try {
       const out = await assess.mutateAsync(built.body);
-      onAssessment(out, checkKey(value, rate, jobType));
+      onAssessment(out, checkKey(value, rate, jobType, roleCode, state));
     } catch (e) {
       setError(messageOf(e));
     }
@@ -104,19 +115,33 @@ export function PayCheckPanel({
       <Text variant="caption" muted>
         {guidance.data?.note ?? 'A job title never decides pay.'}
       </Text>
+      {awards.isError ? (
+        <ErrorState message={messageOf(awards.error)} onRetry={() => void awards.refetch()} />
+      ) : null}
+      {awards.isPending ? (
+        <Text accessibilityLiveRegion="polite">Loading award choices…</Text>
+      ) : null}
+      <Text variant="caption" muted>
+        Choose award → match duties → enter pay → review the server check. Classification amounts
+        are base references; casual loading and penalties are assessed separately.
+      </Text>
       <Row>
         {(awards.data ?? []).map((a) => (
           <Chip
             key={a.code}
             label={`${AWARD_LABEL[a.code] ?? a.title}${suggested.has(a.code) ? ' · often used' : ''}`}
             selected={value.instrument === a.code}
-            onPress={() => set({ instrument: a.code, classification: null, classOk: false })}
+            onPress={() =>
+              set({ instrument: a.code, classification: null, coverageOk: false, classOk: false })
+            }
           />
         ))}
         <Chip
           label="Enterprise agreement / not sure"
           selected={value.instrument === 'unknown'}
-          onPress={() => set({ instrument: 'unknown', classification: null, classOk: false })}
+          onPress={() =>
+            set({ instrument: 'unknown', classification: null, coverageOk: false, classOk: false })
+          }
         />
       </Row>
       {award ? (
@@ -133,7 +158,7 @@ export function PayCheckPanel({
               key={c.code}
               label={`${c.label} · ${dollars(c.hourly_minor)}/h${leads.has(c.code) ? ' · listed for this role' : ''}`}
               selected={value.classification === c.code}
-              onPress={() => set({ classification: c.code })}
+              onPress={() => set({ classification: c.code, classOk: false })}
             />
           ))}
           {value.classification ? (

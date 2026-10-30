@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
-  AiDisclosure,
+  MatchDisclosure,
   Button,
   ButtonLink,
   MatchBreakdown,
@@ -39,13 +39,14 @@ export default async function JobPage({
   if (!job) notFound();
   const viewer = await getViewer();
   const candidate = viewer?.role === 'candidate';
-  const [match, resumes, mine] = candidate
+  const [match, resumes, mine, documents] = candidate
     ? await Promise.all([
         client.GET('/v1/jobs/{job_id}/match', { params: { path: { job_id: id } } }),
         client.GET('/v1/candidate/resumes'),
         client.GET('/v1/candidate/applications'),
+        client.GET('/v1/candidate/documents'),
       ])
-    : [null, null, null];
+    : [null, null, null, null];
   const existing = mine?.data?.find((a) => a.job.id === id && a.status !== 'withdrawn');
 
   return (
@@ -111,7 +112,7 @@ export default async function JobPage({
             missingSkills={match.data.missing_skills}
             label={match.data.label}
           />
-          <AiDisclosure />
+          <MatchDisclosure />
         </>
       ) : null}
 
@@ -146,6 +147,21 @@ export default async function JobPage({
                   <a href="/profile">Add or edit resumes</a>
                 </span>
               </div>
+              <fieldset>
+                <legend>Documents to share with this employer (optional)</legend>
+                <p className="nua-hint">
+                  Only selected files are attached. Certificates are not automatically verified.
+                </p>
+                {(documents?.data ?? [])
+                  .filter((d) => d.status === 'ready')
+                  .map((d) => (
+                    <label key={d.id} style={{ display: 'block', padding: '8px' }}>
+                      <input type="checkbox" name="document_ids" value={d.id} /> {d.title} (
+                      {d.kind.replaceAll('_', ' ')})
+                    </label>
+                  ))}
+                <a href="/documents">Manage documents</a>
+              </fieldset>
               <div className="nua-field">
                 <label htmlFor="cover_note">Note to the employer (optional)</label>
                 <textarea id="cover_note" name="cover_note" maxLength={5000} />

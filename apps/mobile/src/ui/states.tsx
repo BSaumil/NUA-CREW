@@ -18,8 +18,6 @@ export function EmptyState({
   const { colors } = useTheme();
   return (
     <View
-      accessible
-      accessibilityLabel={`${title}. ${body ?? ''}`}
       style={{
         alignItems: 'center',
         gap: space(1.5),
@@ -48,7 +46,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
   return (
     <Card style={{ borderColor: colors.danger }}>
       <Text variant="heading">Something went wrong</Text>
-      <Text accessibilityLiveRegion="polite" muted>
+      <Text accessibilityRole="alert" accessibilityLiveRegion="polite" muted>
         {message}
       </Text>
       {onRetry ? <Button title="Try again" onPress={onRetry} variant="secondary" /> : null}

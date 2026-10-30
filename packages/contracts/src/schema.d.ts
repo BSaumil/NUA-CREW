@@ -964,6 +964,59 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/candidate/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Documents */
+        get: operations["list_documents_v1_candidate_documents_get"];
+        put?: never;
+        /** Create */
+        post: operations["create_v1_candidate_documents_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete */
+        delete: operations["delete_v1_candidate_documents__document_id__delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/candidate/documents/{document_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Own Content */
+        get: operations["own_content_v1_candidate_documents__document_id__content_get"];
+        /** Upload */
+        put: operations["upload_v1_candidate_documents__document_id__content_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/candidate/employer-directory": {
         parameters: {
             query?: never;
@@ -1523,6 +1576,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/documents/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Status */
+        get: operations["status_v1_documents_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers": {
         parameters: {
             query?: never;
@@ -1566,6 +1636,40 @@ export interface paths {
         };
         /** Get Application */
         get: operations["get_application_v1_employers__employer_id__applications__application_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/applications/{application_id}/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Shared */
+        get: operations["shared_v1_employers__employer_id__applications__application_id__documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/applications/{application_id}/documents/{document_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Shared Content */
+        get: operations["shared_content_v1_employers__employer_id__applications__application_id__documents__document_id__content_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -2457,6 +2561,8 @@ export interface components {
         ApplyIn: {
             /** Cover Note */
             cover_note?: string | null;
+            /** Document Ids */
+            document_ids?: string[];
             /** Resume Id */
             resume_id?: string | null;
         };
@@ -2987,11 +3093,12 @@ export interface components {
              * @enum {string}
              */
             claim_kind: "check_in" | "check_out";
-            /**
-             * Claimed At
-             * Format: date-time
-             */
-            claimed_at: string;
+            /** Claimed At */
+            claimed_at?: string | null;
+            /** Local Date */
+            local_date?: string | null;
+            /** Local Time */
+            local_time?: string | null;
             /** Reason */
             reason: string;
         };
@@ -3061,6 +3168,76 @@ export interface components {
             platform: "ios" | "android";
             /** Token */
             token: string;
+        };
+        /** DocumentIn */
+        DocumentIn: {
+            /** Client Key */
+            client_key: string;
+            /** Completed On */
+            completed_on?: string | null;
+            /**
+             * Content Type
+             * @enum {string}
+             */
+            content_type: "application/pdf" | "image/jpeg" | "image/png";
+            /** Filename */
+            filename: string;
+            /** Issuer */
+            issuer?: string | null;
+            /** Jurisdiction */
+            jurisdiction?: ("ACT" | "NSW" | "NT" | "QLD" | "SA" | "TAS" | "VIC" | "WA") | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "resume" | "rsa" | "food_safety" | "first_aid" | "qualification" | "other";
+            /** Review Due On */
+            review_due_on?: string | null;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Title */
+            title: string;
+        };
+        /** DocumentOut */
+        DocumentOut: {
+            /** Completed On */
+            completed_on: string | null;
+            /** Content Type */
+            content_type: string;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Filename */
+            filename: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Issuer */
+            issuer: string | null;
+            /** Jurisdiction */
+            jurisdiction: string | null;
+            /** Kind */
+            kind: string;
+            /** Review Due On */
+            review_due_on: string | null;
+            /** Scanned At */
+            scanned_at: string | null;
+            /** Size Bytes */
+            size_bytes: number;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+            /**
+             * Verification
+             * @default not_verified
+             * @constant
+             */
+            verification: "not_verified";
         };
         /** EmployerApplicationOut */
         EmployerApplicationOut: {
@@ -6738,6 +6915,150 @@ export interface operations {
             };
         };
     };
+    list_documents_v1_candidate_documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"][];
+                };
+            };
+        };
+    };
+    create_v1_candidate_documents_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DocumentIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    delete_v1_candidate_documents__document_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    own_content_v1_candidate_documents__document_id__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    upload_v1_candidate_documents__document_id__content_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     employer_directory_v1_candidate_employer_directory_get: {
         parameters: {
             query: {
@@ -7892,6 +8213,28 @@ export interface operations {
             };
         };
     };
+    status_v1_documents_status_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: unknown;
+                    };
+                };
+            };
+        };
+    };
     my_employers_v1_employers_get: {
         parameters: {
             query?: never;
@@ -7962,6 +8305,71 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EmployerApplicationOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shared_v1_employers__employer_id__applications__application_id__documents_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                application_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    shared_content_v1_employers__employer_id__applications__application_id__documents__document_id__content_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                application_id: string;
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
                 };
             };
             /** @description Validation Error */

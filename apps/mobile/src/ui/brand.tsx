@@ -4,7 +4,7 @@ import { Text } from './primitives';
 
 export const TAGLINE = 'Better Jobs. Stronger Teams.';
 export const SUPPORT_LINE = 'Real work. Real people. Better matches.';
-export const AI_DISCLOSURE =
+export const MATCH_DISCLOSURE =
   'Match scores are explainable estimates, not promises of employment. People at the employer make every hiring decision.';
 
 /** Icon-only glyph; use this at small sizes rather than the full lockup. */

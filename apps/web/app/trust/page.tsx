@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AI_DISCLOSURE } from '@nua-crew/ui';
+import { MATCH_DISCLOSURE } from '@nua-crew/ui';
 
 export const metadata: Metadata = { title: 'Trust and safety' };
 
@@ -23,8 +23,8 @@ export default function Trust() {
         </p>
       </section>
       <section className="nua-card">
-        <h2>Matching and AI</h2>
-        <p>{AI_DISCLOSURE}</p>
+        <h2>How matching works</h2>
+        <p>{MATCH_DISCLOSURE}</p>
         <p>
           Match percentages are heuristic estimates built from information on your profile. They do
           not predict whether you will be interviewed or hired, and employers make every hiring

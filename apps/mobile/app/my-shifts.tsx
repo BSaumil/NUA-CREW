@@ -16,6 +16,7 @@ import {
   Text,
 } from '@/ui';
 import { Notice } from '@/ui/hire';
+import { BookingHistory } from '@/ui/booking-history';
 import { CandidateAttendance } from '@/ui/attendance';
 import { ShiftDetails, TimesheetDetails } from '@/ui/shift';
 
@@ -29,6 +30,12 @@ export default function MyShifts() {
       <Notice
         title="Your choice, every time"
         body="An invitation opens a conversation. A shift is booked only after you accept its time and pay. Offers do not hold a place."
+      />
+      <Button
+        title="Refresh shifts"
+        variant="secondary"
+        loading={query.isRefetching}
+        onPress={() => void query.refetch()}
       />
       {query.isPending ? (
         <ListSkeleton count={2} />
@@ -99,13 +106,14 @@ function Booking({ booking: b }: { booking: Schemas['BookingOut'] }) {
           />
         </>
       ) : null}
-      {b.status === 'confirmed' &&
-      new Date(b.shift.ends_at).getTime() + 12 * 3_600_000 > Date.now() ? (
+      {b.status === 'confirmed' && b.shift.status === 'open' ? (
         <CandidateAttendance booking={b} />
       ) : null}
+      <BookingHistory booking={b} />
       {b.timesheet ? <TimesheetDetails sheet={b.timesheet} /> : null}
       {b.status === 'confirmed' &&
       new Date(b.shift.ends_at).getTime() <= Date.now() &&
+      b.attendance?.status !== 'no_show' &&
       b.timesheet?.status !== 'approved' ? (
         <Hours booking={b} />
       ) : null}

@@ -56,3 +56,14 @@ describe('outcomeOfError', () => {
     expect(outcomeOfError(new Error('network'))).toBe('unknown');
   });
 });
+
+describe('application attachments and retries', () => {
+  it('keeps a retry key across reordering, but changes it when shared files change', () => {
+    const guard = createApplyGuard(keys());
+    const first = guard.begin('resume', 'hello', ['doc-b', 'doc-a']);
+    guard.end('unknown');
+    expect(guard.begin('resume', 'hello', ['doc-a', 'doc-b'])).toBe(first);
+    guard.end('unknown');
+    expect(guard.begin('resume', 'hello', ['doc-a'])).not.toBe(first);
+  });
+});

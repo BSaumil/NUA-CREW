@@ -17,6 +17,7 @@ from app.db import assert_rls_safe_role, dispose_engine, get_sessionmaker
 from app.rls import set_context
 from app.services.alerts import run_alerts
 from app.services.billing import sweep_billing
+from app.services.documents import sweep_deletions
 from app.services.ingestion.queue import expire_stale, process_one, schedule_due
 from app.services.invitations import sweep_expired
 from app.services.push import deliver_pending
@@ -35,6 +36,7 @@ async def run_once(max_tasks: int = 1000) -> Counter[str]:
     stats: Counter[str] = Counter()
     async with factory() as s:
         await set_context(s, role="system")
+        stats["documents_deleted"] = await sweep_deletions(s)
         stats["scheduled"] = await schedule_due(s)
         stats["expired"] = await expire_stale(s, get_settings().ingestion_stale_after_seconds)
         stats["alerts"] = await run_alerts(s)
