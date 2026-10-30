@@ -100,6 +100,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/awards/penalty-rules": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Add Penalty Rule
+         * @description Load a weekend, holiday or other multiplier. It replaces an identical-scope rule from its
+         *     start date; a partly overlapping rule is refused so a lookup is never ambiguous.
+         */
+        post: operations["add_penalty_rule_v1_admin_awards_penalty_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/awards/penalty-rules/{rule_id}/verify": {
         parameters: {
             query?: never;
@@ -144,7 +165,12 @@ export interface paths {
         /** List Rate Versions */
         get: operations["list_rate_versions_v1_admin_awards_rate_versions_get"];
         put?: never;
-        post?: never;
+        /**
+         * Add Rate Version
+         * @description Load a new rate without a code change. An earlier open-ended version is closed on the day
+         *     the new one starts; two versions never overlap. Nothing is verified automatically.
+         */
+        post: operations["add_rate_version_v1_admin_awards_rate_versions_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4028,6 +4054,37 @@ export interface components {
                 [key: string]: number | null;
             };
         };
+        /** PenaltyRuleIn */
+        PenaltyRuleIn: {
+            /** Classification Codes */
+            classification_codes: string[];
+            /**
+             * Day Kind
+             * @enum {string}
+             */
+            day_kind: "weekday" | "saturday" | "sunday" | "public_holiday";
+            /**
+             * Effective From
+             * Format: date
+             */
+            effective_from: string;
+            /**
+             * Employment
+             * @enum {string}
+             */
+            employment: "permanent" | "casual";
+            /**
+             * Instrument
+             * @enum {string}
+             */
+            instrument: "MA000119" | "MA000009" | "MA000003" | "MA000058";
+            /** Multiplier Bp */
+            multiplier_bp: number;
+            /** Source Note */
+            source_note: string;
+            /** Source Url */
+            source_url: string;
+        };
         /** PermissionIn */
         PermissionIn: {
             /** Attribution */
@@ -4153,6 +4210,36 @@ export interface components {
             rate_version_id: string;
             /** Source Url */
             source_url: string;
+            /** Weekly Minor */
+            weekly_minor: number;
+        };
+        /**
+         * RateVersionIn
+         * @description A new effective-dated rate. It is stored as supplied_unverified until someone verifies it.
+         */
+        RateVersionIn: {
+            /** Annual Minimum Minor */
+            annual_minimum_minor?: number | null;
+            /** Classification */
+            classification: string;
+            /**
+             * Effective From
+             * Format: date
+             */
+            effective_from: string;
+            /** Hourly Minor */
+            hourly_minor: number;
+            /**
+             * Instrument
+             * @enum {string}
+             */
+            instrument: "MA000119" | "MA000009" | "MA000003" | "MA000058";
+            /** Source Note */
+            source_note: string;
+            /** Source Url */
+            source_url: string;
+            /** Supplied Casual Ordinary Minor */
+            supplied_casual_ordinary_minor?: number | null;
             /** Weekly Minor */
             weekly_minor: number;
         };
@@ -5107,6 +5194,41 @@ export interface operations {
             };
         };
     };
+    add_penalty_rule_v1_admin_awards_penalty_rules_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PenaltyRuleIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     verify_penalty_v1_admin_awards_penalty_rules__rule_id__verify_post: {
         parameters: {
             query?: never;
@@ -5199,6 +5321,41 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     }[];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_rate_version_v1_admin_awards_rate_versions_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RateVersionIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
                 };
             };
             /** @description Validation Error */

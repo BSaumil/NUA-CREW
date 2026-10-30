@@ -4416,6 +4416,82 @@
         "title": "PayAssessmentResult",
         "type": "object"
       },
+      "PenaltyRuleIn": {
+        "properties": {
+          "classification_codes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "minItems": 1,
+            "title": "Classification Codes",
+            "type": "array"
+          },
+          "day_kind": {
+            "enum": [
+              "weekday",
+              "saturday",
+              "sunday",
+              "public_holiday"
+            ],
+            "title": "Day Kind",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "employment": {
+            "enum": [
+              "permanent",
+              "casual"
+            ],
+            "title": "Employment",
+            "type": "string"
+          },
+          "instrument": {
+            "enum": [
+              "MA000119",
+              "MA000009",
+              "MA000003",
+              "MA000058"
+            ],
+            "title": "Instrument",
+            "type": "string"
+          },
+          "multiplier_bp": {
+            "maximum": 40000.0,
+            "minimum": 5000.0,
+            "title": "Multiplier Bp",
+            "type": "integer"
+          },
+          "source_note": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Source Note",
+            "type": "string"
+          },
+          "source_url": {
+            "maxLength": 500,
+            "pattern": "^https://",
+            "title": "Source Url",
+            "type": "string"
+          }
+        },
+        "required": [
+          "instrument",
+          "employment",
+          "classification_codes",
+          "day_kind",
+          "multiplier_bp",
+          "effective_from",
+          "source_url",
+          "source_note"
+        ],
+        "title": "PenaltyRuleIn",
+        "type": "object"
+      },
       "PermissionIn": {
         "properties": {
           "attribution": {
@@ -4839,6 +4915,93 @@
           "source_url"
         ],
         "title": "RateSourceOut",
+        "type": "object"
+      },
+      "RateVersionIn": {
+        "description": "A new effective-dated rate. It is stored as supplied_unverified until someone verifies it.",
+        "properties": {
+          "annual_minimum_minor": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 100000000.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Annual Minimum Minor"
+          },
+          "classification": {
+            "maxLength": 12,
+            "minLength": 1,
+            "title": "Classification",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "hourly_minor": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000.0,
+            "title": "Hourly Minor",
+            "type": "integer"
+          },
+          "instrument": {
+            "enum": [
+              "MA000119",
+              "MA000009",
+              "MA000003",
+              "MA000058"
+            ],
+            "title": "Instrument",
+            "type": "string"
+          },
+          "source_note": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Source Note",
+            "type": "string"
+          },
+          "source_url": {
+            "maxLength": 500,
+            "pattern": "^https://",
+            "title": "Source Url",
+            "type": "string"
+          },
+          "supplied_casual_ordinary_minor": {
+            "anyOf": [
+              {
+                "exclusiveMinimum": 0.0,
+                "maximum": 200000.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Supplied Casual Ordinary Minor"
+          },
+          "weekly_minor": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 10000000.0,
+            "title": "Weekly Minor",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "instrument",
+          "classification",
+          "effective_from",
+          "weekly_minor",
+          "hourly_minor",
+          "source_url",
+          "source_note"
+        ],
+        "title": "RateVersionIn",
         "type": "object"
       },
       "ReasonIn": {
@@ -7296,6 +7459,57 @@
         ]
       }
     },
+    "/v1/admin/awards/penalty-rules": {
+      "post": {
+        "description": "Load a weekend, holiday or other multiplier. It replaces an identical-scope rule from its\nstart date; a partly overlapping rule is refused so a lookup is never ambiguous.",
+        "operationId": "add_penalty_rule_v1_admin_awards_penalty_rules_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PenaltyRuleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Add Penalty Rule V1 Admin Awards Penalty Rules Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Penalty Rule",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/awards/penalty-rules/{rule_id}/verify": {
       "post": {
         "operationId": "verify_penalty_v1_admin_awards_penalty_rules__rule_id__verify_post",
@@ -7468,6 +7682,55 @@
           }
         ],
         "summary": "List Rate Versions",
+        "tags": [
+          "admin"
+        ]
+      },
+      "post": {
+        "description": "Load a new rate without a code change. An earlier open-ended version is closed on the day\nthe new one starts; two versions never overlap. Nothing is verified automatically.",
+        "operationId": "add_rate_version_v1_admin_awards_rate_versions_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RateVersionIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Add Rate Version V1 Admin Awards Rate Versions Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add Rate Version",
         "tags": [
           "admin"
         ]
