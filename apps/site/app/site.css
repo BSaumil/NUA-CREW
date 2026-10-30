@@ -1833,14 +1833,14 @@ main {
 }
 
 .home-hero--branded .home-hero__grid {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
   gap: clamp(24px, 3vw, 36px);
 }
 
 .home-hero--branded .home-hero__copy {
-  max-width: 840px;
+  max-width: 500px;
 }
 
 .home-hero--branded .home-hero__photo {
@@ -1876,13 +1876,13 @@ main {
 /* Wide artwork is a genuine, visible banner rather than a cropped phone-sized card. */
 .site-hero--banner .site-hero__grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  align-items: start;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
   gap: 28px;
 }
 
 .site-hero--banner .site-hero__copy {
-  max-width: 840px;
+  max-width: 520px;
 }
 
 .site-hero--banner .site-hero__visual {
@@ -1926,10 +1926,14 @@ main {
     height: auto;
     margin: 0;
     border-radius: 16px;
+     order: -1;
   }
 
   .site-hero--banner .site-hero__grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 20px;
+  }
+  .site-hero--banner .site-hero__visual {
+    order: -1;
   }
 }
