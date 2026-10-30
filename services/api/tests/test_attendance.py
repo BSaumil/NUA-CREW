@@ -336,7 +336,7 @@ async def test_venue_local_correction_resolves_using_the_stored_shift_zone(clien
     assert datetime.fromisoformat(event["claimed_at"]) == local.astimezone(UTC)
     assert result.json()["attendance"]["check_in_at"] is None
     # Another business cannot review a guessed correction ID.
-    other, other_eid = await register_employer(client, "local-other@example.invalid")
+    other, other_eid = await register_employer(client, "local-other@nua-crew.example.com")
     denied = await client.post(
         emp_url(other_eid, bid, f"attendance-corrections/{event['id']}/review"),
         headers=other,

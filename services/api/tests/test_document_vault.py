@@ -47,10 +47,10 @@ async def reserve(client, headers, data):
 
 
 async def test_private_document_application_sharing_withdrawal_and_durable_delete(client, vault):
-    candidate = await register_candidate(client, "documents-a@example.invalid")
-    other = await register_candidate(client, "documents-b@example.invalid")
-    employer, eid = await verified_employer(client, "documents-owner@example.invalid")
-    outsider, other_eid = await verified_employer(client, "documents-other-owner@example.invalid")
+    candidate = await register_candidate(client, "documents-a@nua-crew.example.com")
+    other = await register_candidate(client, "documents-b@nua-crew.example.com")
+    employer, eid = await verified_employer(client, "documents-owner@nua-crew.example.com")
+    outsider, other_eid = await verified_employer(client, "documents-other-owner@nua-crew.example.com")
     data = file_bytes()
     did = await reserve(client, candidate, data)
     result = await client.put(
@@ -116,7 +116,7 @@ async def test_private_document_application_sharing_withdrawal_and_durable_delet
 
 
 async def test_document_rls_is_forced_and_employers_cannot_query_vault(client, vault):
-    candidate = await register_candidate(client, "vault-rls@example.invalid")
+    candidate = await register_candidate(client, "vault-rls@nua-crew.example.com")
     did = await reserve(client, candidate, file_bytes())
     async with db_as("employer") as session:
         assert (await session.execute(text("SELECT id FROM candidate_documents"))).all() == []
