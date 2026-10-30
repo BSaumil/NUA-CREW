@@ -107,3 +107,39 @@ test('works on a small phone with no sideways scrolling and loads nothing from o
   }
   expect(foreign).toEqual([]);
 });
+
+test('the apps page walks people through both experiences without overclaiming', async ({
+  page,
+}) => {
+  await page.goto(SITE + '/apps');
+  const walk = page.locator('.walk');
+  await expect(walk).toBeVisible();
+  // job seeker steps by default
+  await expect(walk.getByRole('heading', { name: 'Find work that fits' })).toBeVisible();
+  await walk.getByRole('button', { name: /Share when you can work/ }).click();
+  await expect(walk.getByRole('heading', { name: 'Share when you can work' })).toBeVisible();
+  await expect(walk.getByRole('img', { name: /sample weekly availability/ })).toBeVisible();
+  // employer steps
+  await walk.getByRole('button', { name: /I’m hiring/ }).click();
+  await walk.getByRole('button', { name: /Check the pay/ }).click();
+  await expect(walk.getByText(/You confirm coverage and level/)).toBeVisible();
+  await expect(walk.getByText(/not legal advice/)).toBeVisible();
+  // truthfulness: fictional data is labelled, no store links, no award figures
+  await expect(walk.getByText(/fictional sample data/i).first()).toBeVisible();
+  await expect(page.locator('a[href*="apps.apple.com"], a[href*="play.google.com"]')).toHaveCount(
+    0,
+  );
+  await expect(walk.getByText(/\$\d/)).toHaveCount(0);
+});
+
+test('the walkthrough fits a small phone with no sideways scrolling', async ({ browser }) => {
+  const page = await (
+    await browser.newContext({ viewport: { width: 360, height: 740 } })
+  ).newPage();
+  await page.goto(SITE + '/apps');
+  await page.locator('.walk').scrollIntoViewIfNeeded();
+  const overflow = await page.evaluate(
+    () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+  );
+  expect(overflow).toBeLessThanOrEqual(0);
+});

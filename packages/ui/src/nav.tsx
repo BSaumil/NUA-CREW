@@ -37,7 +37,7 @@ export function CandidateNav({
   items?: NavItem[];
 }) {
   return (
-    <header className="nua-header">
+    <header className="nua-header nua-header--candidate">
       <div className="nua-container nua-header__inner">
         <BrandLockup />
         <Nav items={items} current={current} label="Main" />

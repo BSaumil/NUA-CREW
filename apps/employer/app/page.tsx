@@ -112,8 +112,11 @@ export default async function Dashboard({
                     <a href={`/jobs/${j.id}`}>{j.title}</a>
                   </th>
                   <td>
-                    <StatusBadge status={j.status === 'published' ? 'under_review' : j.status} />{' '}
-                    <span className="nua-muted">{j.status}</span>
+                    {j.status === 'published' ? (
+                      <span className="nua-badge nua-badge--live">Live</span>
+                    ) : (
+                      <StatusBadge status={j.status} />
+                    )}
                   </td>
                   <td>{j.suburb ?? '—'}</td>
                   <td>

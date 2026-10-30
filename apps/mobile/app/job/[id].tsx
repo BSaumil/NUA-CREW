@@ -21,7 +21,7 @@ import { shareJob } from '@/features/share';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, space } from '@/theme/tokens';
 import {
-  AI_DISCLOSURE,
+  MATCH_DISCLOSURE,
   Badge,
   Button,
   Card,
@@ -205,7 +205,7 @@ export default function JobDetail() {
             <>
               <MatchBreakdown match={match.data} />
               <Text variant="caption" muted>
-                {AI_DISCLOSURE}
+                {MATCH_DISCLOSURE}
               </Text>
               <Button
                 title="Improve my profile"

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import {
-  AiDisclosure,
+  MatchDisclosure,
   Button,
   ButtonLink,
   MatchBreakdown,
@@ -112,7 +112,7 @@ export default async function JobPage({
             missingSkills={match.data.missing_skills}
             label={match.data.label}
           />
-          <AiDisclosure />
+          <MatchDisclosure />
         </>
       ) : null}
 

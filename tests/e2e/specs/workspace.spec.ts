@@ -24,6 +24,7 @@ for (const colorScheme of ['light', 'dark'] as const) {
     for (const [route, title] of screens) {
       await page.goto(`http://localhost:3000${route}`);
       await expect(page.getByRole('heading', { level: 1, name: title, exact: true })).toBeVisible();
+      await expect(page.locator('body')).not.toContainText(/\bAI\b|artificial intelligence/);
       if (route === '/documents') {
         await expect(
           page.getByRole('group', { name: 'Upload a private document' }),

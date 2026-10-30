@@ -96,42 +96,42 @@ export function useSubmitTimesheet() {
   });
 }
 
-export function useCandidateAttendance() {
+/** Attendance: the server records the time of a check in or out; the phone never sends one. */
+function useCandidateAttendance<T>(call: (booking: string, input: T) => Promise<unknown>) {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: async ({
-      booking,
-      action,
-      body,
-    }: {
-      booking: string;
-      action: 'check-in' | 'check-out' | 'correction';
-      body?: Schemas['CorrectionIn'];
-    }) => {
-      if (action === 'correction')
-        return unwrap(
-          await api.POST('/v1/candidate/shift-bookings/{booking_id}/attendance-corrections', {
-            params: { path: { booking_id: booking } },
-            body: body!,
-          }),
-        );
-      if (action === 'check-in')
-        return unwrap(
-          await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-in', {
-            params: { path: { booking_id: booking } },
-          }),
-        );
-      return unwrap(
-        await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-out', {
-          params: { path: { booking_id: booking } },
-        }),
-      );
-    },
+    mutationFn: async (input: { booking: string } & T) => call(input.booking, input),
     onSuccess: () => {
       void qc.invalidateQueries({ queryKey: ['shift-bookings'] });
+      void qc.invalidateQueries({ queryKey: ['timesheet-history'] });
     },
   });
 }
+export const useCheckIn = () =>
+  useCandidateAttendance<object>(async (booking) =>
+    unwrap(
+      await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-in', {
+        params: { path: { booking_id: booking } },
+      }),
+    ),
+  );
+export const useCheckOut = () =>
+  useCandidateAttendance<object>(async (booking) =>
+    unwrap(
+      await api.POST('/v1/candidate/shift-bookings/{booking_id}/check-out', {
+        params: { path: { booking_id: booking } },
+      }),
+    ),
+  );
+export const useRequestCorrection = () =>
+  useCandidateAttendance<{ body: Schemas['CorrectionIn'] }>(async (booking, input) =>
+    unwrap(
+      await api.POST('/v1/candidate/shift-bookings/{booking_id}/attendance-corrections', {
+        params: { path: { booking_id: booking } },
+        body: input.body,
+      }),
+    ),
+  );
 export const useReviewCorrection = () =>
   useHireMutation(
     async (id, input: { booking: string; event: string; body: Schemas['CorrectionReviewIn'] }) =>
@@ -139,12 +139,35 @@ export const useReviewCorrection = () =>
         await api.POST(
           '/v1/employers/{employer_id}/shift-bookings/{booking_id}/attendance-corrections/{event_id}/review',
           {
-            params: { path: { employer_id: id, booking_id: input.booking, event_id: input.event } },
+            params: {
+              path: { employer_id: id, booking_id: input.booking, event_id: input.event },
+            },
             body: input.body,
           },
         ),
       ),
   );
+export const useNoShow = () =>
+  useHireMutation(
+    async (id, input: { booking: string; reverse: boolean; body: Schemas['ReasonIn'] }) =>
+      input.reverse
+        ? unwrap(
+            await api.POST(
+              '/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show/reverse',
+              {
+                params: { path: { employer_id: id, booking_id: input.booking } },
+                body: input.body,
+              },
+            ),
+          )
+        : unwrap(
+            await api.POST('/v1/employers/{employer_id}/shift-bookings/{booking_id}/no-show', {
+              params: { path: { employer_id: id, booking_id: input.booking } },
+              body: input.body,
+            }),
+          ),
+  );
+
 export function useTimesheetHistory(booking: string, employerId: string | null, enabled: boolean) {
   return useQuery({
     queryKey: ['timesheet-history', employerId, booking],

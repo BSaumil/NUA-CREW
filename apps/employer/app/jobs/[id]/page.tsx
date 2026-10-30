@@ -142,7 +142,7 @@ export default async function ManageJob({
           </table>
         )}
         <p className="nua-hint">
-          Applicants appear in the order they applied. No AI ranking is applied to this list.
+          Applicants appear in the order they applied. Each application is reviewed by the employer.
         </p>
       </section>
     </div>

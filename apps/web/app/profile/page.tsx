@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AiDisclosure, Button, ButtonLink } from '@nua-crew/ui';
+import { MatchDisclosure, Button, ButtonLink } from '@nua-crew/ui';
 import { api, requireCandidate } from '@/lib/api';
 import { addResume, saveProfile, setDiscovery } from '../actions';
 import { Field, Flash, flashFrom } from '../components';
@@ -158,7 +158,7 @@ export default async function Profile({
             </Button>
           </div>
         </form>
-        <AiDisclosure />
+        <MatchDisclosure />
       </section>
     </div>
   );

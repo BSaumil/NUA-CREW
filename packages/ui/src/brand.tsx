@@ -68,9 +68,9 @@ export function BrandLockup({
 
 export const TAGLINE = 'Better Jobs. Stronger Teams.';
 export const SUPPORT_LINE = 'Real work. Real people. Better matches.';
-export const AI_DISCLOSURE =
-  'AI recommendations are explainable suggestions, not promises of employment or automated hiring decisions.';
+export const MATCH_DISCLOSURE =
+  'Match estimates reflect the information provided. Employers make every hiring decision.';
 
-export function AiDisclosure({ children }: { children?: ReactNode }) {
-  return <p className="nua-hint">{children ?? AI_DISCLOSURE}</p>;
+export function MatchDisclosure({ children }: { children?: ReactNode }) {
+  return <p className="nua-hint">{children ?? MATCH_DISCLOSURE}</p>;
 }

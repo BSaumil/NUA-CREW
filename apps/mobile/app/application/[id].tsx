@@ -108,7 +108,7 @@ export default function ApplicationDetail() {
         ))}
         <Text variant="caption" muted>
           Only actions recorded in NUA CREW appear here. Decisions are made by people at the
-          employer, not by AI.
+          employer.
         </Text>
       </Card>
       {a.cover_note ? (

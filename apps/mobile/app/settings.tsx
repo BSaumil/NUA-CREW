@@ -9,7 +9,7 @@ import { reportSignOut } from '@/features/signout';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme, type ThemeMode } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
-import { AI_DISCLOSURE, Button, Card, Chip, Field, Row, Screen, Sheet, Text } from '@/ui';
+import { MATCH_DISCLOSURE, Button, Card, Chip, Field, Row, Screen, Sheet, Text } from '@/ui';
 
 function SwitchRow({
   title,
@@ -196,7 +196,7 @@ export default function Settings() {
           {Application.nativeBuildVersion ?? 'dev'})
         </Text>
         <Text variant="caption" muted>
-          {AI_DISCLOSURE}
+          {MATCH_DISCLOSURE}
         </Text>
         <Text variant="caption" muted>
           NUA CREW is a working name pending legal clearance. Terms and Privacy Policy links will

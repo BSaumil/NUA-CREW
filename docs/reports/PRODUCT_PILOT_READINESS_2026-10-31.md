@@ -1,6 +1,6 @@
 # Enhancement items 4–10 — 31 October 2026
 
-Base: explicit `main` at `865845e14f05cd85682b653ff54cc53daae0f268` (PR #9). Branch: `feat/product-pilot-readiness-20261031`. The archived `7f0ce15` wallet was selectively reconciled; its separate award engine, account/team changes and competing attendance tables were not imported. Existing main hospitality and append-only attendance APIs remain authoritative.
+Base: explicit `main` at `865845e14f05cd85682b653ff54cc53daae0f268` (PR #9). Branch: `feat/product-pilot-readiness-20261031`. The archived `7f0ce15` wallet was selectively reconciled; its separate award engine, account/team changes and competing attendance tables were not imported. Existing main hospitality and append-only attendance APIs remain authoritative. Later main changes through `5f49c57` (PRs #10/#12) are integrated: the illustrated app walkthrough and candidate/employer attendance screens are preserved. Private hours-version history is added alongside those screens, duplicate attendance UI is removed, and repeated DST times/invalid calendar dates are refused.
 
 | Item | Implemented in this branch | Acceptance / remaining gate |
 | --- | --- | --- |
@@ -15,7 +15,7 @@ Base: explicit `main` at `865845e14f05cd85682b653ff54cc53daae0f268` (PR #9). Bra
 ## Local verification before publication
 
 - Workspace typecheck and lint pass, all eight packages; formatting and diff checks pass.
-- Mobile Jest: 237 tests, 36 suites pass. Shared UI: 43 tests pass. Pilot evidence checker: three tests pass.
+- Mobile Jest: 257 tests, 38 suites pass. Shared UI: 43 tests pass. Pilot evidence checker: three tests pass.
 - Python isolated units: 51 pass; Ruff and mypy pass (74 application source files).
 - Three Next.js production builds pass. Stale local Turbopack persistence was cleared after its cache failed to open; clean builds use the normal default commands.
 - Android/iOS Metro + Hermes compilation passes. These are not signed binaries or device acceptance.

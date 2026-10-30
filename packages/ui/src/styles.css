@@ -42,3 +42,22 @@
 .nua-notifications h2 {
   font-size: 1.1rem;
 }
+
+@media (max-width: 640px) {
+  .nua-header--candidate .nua-header__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+  .nua-header--candidate .nua-header__inner > nav {
+    grid-column: 1/-1;
+    grid-row: 2;
+  }
+  .nua-header--candidate .nua-header__inner > .nua-row {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .nua-header--candidate .nua-nav a {
+    padding-inline: 8px;
+  }
+}

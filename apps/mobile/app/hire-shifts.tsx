@@ -25,7 +25,8 @@ import {
   Text,
 } from '@/ui';
 import { HireGate, Notice } from '@/ui/hire';
-import { Attendance } from '@/ui/attendance';
+import { BookingHistory } from '@/ui/booking-history';
+import { EmployerAttendance } from '@/ui/attendance';
 import { ShiftDetails, TimesheetDetails } from '@/ui/shift';
 
 export default function HireShifts() {
@@ -110,6 +111,17 @@ function Workspace() {
       <Notice
         title="A clear offer comes first"
         body="Choose a published hourly-pay job, set a specific time and rate, then offer it to someone in an accepted temporary-work conversation. A place is booked only when they accept."
+      />
+      <Button
+        title="Refresh shifts and hours"
+        variant="secondary"
+        loading={shifts.isRefetching || bookings.isRefetching}
+        onPress={() => {
+          void shifts.refetch();
+          void bookings.refetch();
+          void jobs.refetch();
+          void threads.refetch();
+        }}
       />
       {write ? (
         <Card>
@@ -267,7 +279,10 @@ function Review({ booking: b, editable }: { booking: Schemas['BookingOut']; edit
         {b.candidate_label} · {b.status}
       </Text>
       <Text>{b.shift.title}</Text>
-      <Attendance booking={b} employerId={employerId} editable={editable} />
+      {b.status === 'confirmed' && new Date(b.shift.starts_at).getTime() <= Date.now() ? (
+        <EmployerAttendance booking={b} editable={editable} />
+      ) : null}
+      <BookingHistory booking={b} employerId={employerId} />
       {b.timesheet ? <TimesheetDetails sheet={b.timesheet} /> : null}
       {editable && b.timesheet?.status === 'submitted' ? (
         <>

@@ -4,7 +4,7 @@
 
 Branch `feat/product-pilot-readiness-20261031`, baseline `865845e` (merged PR #9). [Implementation and limits](reports/PRODUCT_PILOT_READINESS_2026-10-31.md).
 
-Document wallet integration, role/pay usability, web/native overviews, web shifts and native attendance/history, notifications/recovery and controlled-pilot evidence tooling are implemented. Local checks: 237 mobile tests, 43 UI tests, 51 Python units, three pilot-gate tests; web builds and Android/iOS exports pass. Fresh PostgreSQL/browser/native CI is required. Real-device and storage/scanner/identity-provider acceptance remain pending; no pilot is opened.
+Document wallet integration, role/pay usability, web/native overviews, web shifts and native attendance/history, notifications/recovery and controlled-pilot evidence tooling are implemented. Local checks: 257 mobile tests, 43 UI tests, 51 Python units, three pilot-gate tests; web builds and Android/iOS exports pass. Fresh PostgreSQL/browser/native CI is required. Real-device and storage/scanner/identity-provider acceptance remain pending; no pilot is opened.
 
 PR #9 completed after the historical section below: all 276 API / 47 browser / 228 mobile tests passed and merged as `865845e`. Its earlier approval/CI blocker is resolved for that PR only.
 
@@ -229,3 +229,12 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | Clubs weekend/PH, overtime, allowances, junior/apprentice rates, holiday calendars | BLOCKED | no source data supplied; engine reports them as not assessed |
 | Attendance screens, qualifications, discovery by availability, device testing, real sign-in, legal text, hosting | NOT_STARTED | see the final message of this session for what each needs |
 | e2e: one CI retry plus JSON report so flaky specs are named | DONE | `tests/e2e/playwright.config.ts` |
+
+## Attendance screens (2026-10-30)
+
+| Item | Status | Evidence / limit |
+| ---- | ------ | ---------------- |
+| Worker: check in/out inside the window, correction request, plain-language status | DONE (component-tested) | `__tests__/attendance-logic.test.ts` (9, incl. daylight-saving edge cases), `__tests__/attendance-screens.test.tsx` (9) |
+| Business: see attendance, approve/decline corrections with a note, mark/reverse no-show | DONE (component-tested) | same files; read-only members see facts but no controls |
+| Browser e2e of attendance | NOT_STARTED | needs a confirmed booking inside the check-in window; API rules are covered by `test_attendance.py` |
+| Real-device testing | BLOCKED | no device |
