@@ -30,6 +30,7 @@ export function Field({
   autoComplete,
   min,
   max,
+  minLength,
   step,
 }: {
   name: string;
@@ -41,6 +42,7 @@ export function Field({
   autoComplete?: string;
   min?: number;
   max?: number;
+  minLength?: number;
   step?: string;
 }) {
   return (
@@ -55,6 +57,7 @@ export function Field({
         autoComplete={autoComplete}
         min={min}
         max={max}
+        minLength={minLength}
         step={step}
         aria-describedby={hint ? `${name}-hint` : undefined}
       />

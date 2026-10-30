@@ -1,18 +1,10 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
+import { ArrowRight, Banknote, CalendarDays, Check, ShieldCheck, Users } from 'lucide-react';
 import { SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
-import {
-  AvailabilityScreen,
-  Card,
-  Cards,
-  Cta,
-  Faq,
-  InvitationScreen,
-  Phone,
-  Section,
-  Steps,
-  TalentScreen,
-} from './components';
-import { toApp, toHire } from '@/lib/site';
+import { Card, Cards, Cta, Faq, Section, Steps } from './components';
+import { JourneyPreview } from './journey-preview';
+import { SITE, toApp, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: `NUA CREW — ${TAGLINE}`,
@@ -22,210 +14,226 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <header className="site-hero">
-        <div className="nua-container site-hero__grid" style={{ padding: '0 16px' }}>
-          <div>
-            <p className="site-eyebrow">Permanent jobs · Temporary work · Australia</p>
-            <h1>{TAGLINE}</h1>
-            <p className="lede">
-              {SUPPORT_LINE} Clear pay, honest matching and mutual choice for job seekers and
-              employers, starting with hospitality and local services in Melbourne.
+      <header className="home-hero">
+        <div className="nua-container home-hero__grid">
+          <div className="home-hero__copy">
+            <span className="launch-pill">
+              <span aria-hidden="true" />
+              {SITE.productLive ? 'Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
+            </span>
+            <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
+            <h1>
+              Better Jobs.
+              <br />
+              <span>Stronger Teams.</span>
+            </h1>
+            <p className="home-hero__lede">
+              Find your next role. Meet your next teammate. Hospitality and local work, built around
+              real life.
             </p>
             <div className="site-cta-row">
-              <Cta href={toApp('/register')}>Find work</Cta>
-              <Cta href={toHire('/register')} ghost>
-                Hire with NUA CREW
-              </Cta>
+              <a className="nua-button" href={SITE.productLive ? toApp('/jobs') : '/job-seekers'}>
+                I’m looking for work <ArrowRight size={18} aria-hidden="true" />
+              </a>
+              <a
+                className="nua-button nua-button--secondary"
+                href={SITE.productLive ? toHire('/register') : '/employers'}
+              >
+                I’m hiring <ArrowRight size={18} aria-hidden="true" />
+              </a>
             </div>
-            <p style={{ marginTop: 20, color: '#cbbfb6' }}>
-              Free for job seekers in every state and territory, on Android, iOS and the web.
+            <p className="home-hero__note">
+              <Check size={17} aria-hidden="true" />
+              Free for job seekers across Australia.
             </p>
           </div>
-          <Phone label="A phone showing an invitation from Fitzroy Cafe with pay, hours and Accept and Decline buttons">
-            <InvitationScreen />
-          </Phone>
+          <figure className="home-hero__art">
+            <Image
+              src="/illustrations/hospitality-team.webp"
+              alt="Illustration of a barista, chef and cafe manager planning work together in Melbourne"
+              width={1200}
+              height={900}
+              sizes="(max-width: 899px) 100vw, 50vw"
+              preload
+            />
+            <figcaption>
+              <Users size={18} aria-hidden="true" />
+              <span>
+                Good work starts with
+                <br />
+                <strong>a human connection.</strong>
+              </span>
+            </figcaption>
+          </figure>
         </div>
       </header>
-
+      <div className="benefit-strip" aria-label="The NUA CREW approach">
+        <div className="nua-container">
+          <span>
+            <Banknote aria-hidden="true" size={22} />
+            Clear pay labels
+          </span>
+          <span>
+            <CalendarDays aria-hidden="true" size={22} />
+            Your availability, your call
+          </span>
+          <span>
+            <ShieldCheck aria-hidden="true" size={22} />
+            Contact by mutual choice
+          </span>
+        </div>
+      </div>
       <Section
-        title="Two ways in. One honest marketplace."
-        intro="Whether you want a permanent role, a few shifts a week, or both, you set the terms, and employers only reach you if you chose to be found."
+        id="your-experience"
+        title="Your next move. On your terms."
+        intro="One platform. Two simple ways to get started."
       >
+        <JourneyPreview />
+      </Section>
+      <Section tone="alt" title="Less guesswork. More clarity." intro={SUPPORT_LINE}>
         <Cards>
-          <Card icon="J" title="NUA CREW Jobs">
+          <Card icon="$" title="Know the pay">
             <p>
-              Search permanent and temporary roles, see whether pay is disclosed, and apply with a
-              resume and a note.
+              Disclosed, estimated or not published. Every listing tells you where its pay
+              information comes from.
             </p>
-            <p>
-              <a href="/job-seekers">See what job seekers get →</a>
-            </p>
+            <a className="text-link" href="/job-seekers">
+              Explore jobs <ArrowRight size={17} aria-hidden="true" />
+            </a>
           </Card>
-          <Card icon="H" title="NUA CREW Hire">
+          <Card icon="5" title="Make work fit life">
             <p>
-              Post a role, find people who agreed to be found, check who is free for the time you
-              need, and invite them. Every hiring decision stays yours.
+              Permanent work, temporary work or both. Set your times while keeping your private
+              calendar to yourself.
             </p>
-            <p>
-              <a href="/employers">See what employers get →</a>
-            </p>
+            <a className="text-link" href="/how-it-works">
+              See how it works <ArrowRight size={17} aria-hidden="true" />
+            </a>
           </Card>
-          <Card icon="✓" title="Trust you can check">
+          <Card icon="✓" title="Choose the conversation">
             <p>
-              Verified means we reviewed who runs the business, not that we endorse it. Match scores
-              are estimates, never promises.
+              Turn discovery on when you’re ready. Accept or decline an invitation, with no reason
+              required.
             </p>
-            <p>
-              <a href="/trust">How trust and privacy work →</a>
-            </p>
+            <a className="text-link" href="/trust">
+              Your privacy controls <ArrowRight size={17} aria-hidden="true" />
+            </a>
           </Card>
         </Cards>
       </Section>
-
       <Section
-        tone="alt"
-        title="Built around how people really work"
-        intro="Permanent and temporary work are different, so you answer each separately. Choosing both never overwrites either."
-      >
-        <div className="site-split">
-          <div>
-            <ul className="site-list">
-              <li>
-                <strong>Permanent or temporary, or both.</strong> Notice period and start date for
-                permanent work; weekly times, breaks and overnight windows for temporary work.
-              </li>
-              <li>
-                <strong>Availability you control.</strong> Employers only learn whether you are free
-                for a time they ask about, never your calendar. If you share nothing, you show as
-                &ldquo;unknown&rdquo;, never as available.
-              </li>
-              <li>
-                <strong>Pay shown plainly.</strong> Pay is labelled Disclosed or Estimated, and a
-                missing figure says so. Your own minimum pay stays private.
-              </li>
-              <li>
-                <strong>Employers you prefer or avoid.</strong> Prefer, hide from, mute or block any
-                business.
-              </li>
-            </ul>
-            <p>
-              <a href="/how-it-works">See how it works →</a>
-            </p>
-          </div>
-          <Phone label="A phone showing a weekly availability editor with split shifts and an overnight window">
-            <AvailabilityScreen />
-          </Phone>
-        </div>
-      </Section>
-
-      <Section
-        title="From search to conversation in four steps"
-        intro="No cold messages. A conversation opens only when a person says yes."
+        title="A little setup. A clearer next step."
+        intro="How consent-based discovery works once the product opens."
       >
         <Steps
           items={[
             {
-              title: 'Choose to be found',
-              body: 'Turn on discovery for permanent work, temporary work or both. It is off until you decide.',
+              title: 'Tell us what fits',
+              body: 'Add your skills and work preferences. Choose whether employers can find you.',
             },
             {
-              title: 'Employers search',
-              body: 'Verified employers see your first name and last initial, headline, suburb, skills and whether you are free for a time they ask about.',
+              title: 'Find common ground',
+              body: 'Verified employers search by skills, suburb and the time they need.',
             },
             {
-              title: 'You get an invitation',
-              body: 'It shows the business, role, location, pay and hours. Accept or decline; you never have to give a reason.',
+              title: 'Choose to connect',
+              body: 'See the role, pay and hours. Accept an invitation only if it feels right.',
             },
             {
               title: 'Talk it through',
-              body: 'Accepting opens one conversation. It is not a job offer, and shares no contact details, resume or calendar.',
+              body: 'An accepted invitation opens a conversation. It does not accept a job or reserve a shift.',
             },
           ]}
         />
       </Section>
-
       <Section
         tone="wine"
-        title="Meet qualified people without unnecessary noise"
-        intro="Employers get search, availability fit and invitations with limits that protect people from spam."
+        title="Small team. Big plans?"
+        intro="Spend less time sorting through noise and more time meeting people."
       >
-        <div className="site-split site-split--reverse">
-          <Phone label="A phone showing a talent search result list with availability labels and an invite button">
-            <TalentScreen />
-          </Phone>
+        <div className="employer-callout">
           <div>
-            <ul className="site-list">
-              <li>Only people who chose to be found appear, and results are not ranked.</li>
-              <li>
-                Availability is answered for the time you ask about: free, not free or unknown.
-              </li>
-              <li>
-                Invitation limits, a cooldown after a decline and a block button keep it respectful.
-              </li>
-              <li>An ad costs A$19 for 14 days. Nothing renews automatically.</li>
-            </ul>
+            <span className="section-kicker">NUA CREW HIRE</span>
+            <h3>
+              A clear role.
+              <br />A stronger starting point.
+            </h3>
+            <p>Disclosed pay. Consenting talent. A shared applicant pipeline.</p>
             <div className="site-cta-row">
-              <Cta href="/employers">Explore NUA CREW Hire</Cta>
+              <Cta href="/employers">
+                Explore employer tools <ArrowRight size={18} aria-hidden="true" />
+              </Cta>
               <Cta href="/pricing" ghost>
-                See pricing
+                View planned pricing
               </Cta>
             </div>
           </div>
+          <div className="price-feature">
+            <span>PLANNED ADVERTISEMENT</span>
+            <p>A$19</p>
+            <strong>14 days. No automatic renewal.</strong>
+            <small>
+              Billing is not live. Promotion is a separate A$30 / 5-day add-on, subject to capacity.
+            </small>
+          </div>
         </div>
       </Section>
-
-      <Section title="Common questions">
+      <Section title="A few good questions">
         <Faq
           items={[
             {
-              q: 'Is NUA CREW live?',
+              q: 'Can I use NUA CREW today?',
               a: (
                 <p>
-                  It is in pre-launch. The apps are in internal testing and are not in the app
-                  stores yet. See <a href="/apps">the apps page</a> for status.
+                  {SITE.productLive
+                    ? 'The web product is open.'
+                    : 'The website is live; the hiring product is still in pre-launch testing.'}{' '}
+                  Check <a href="/apps">app and web status</a> for access. App-store links appear
+                  only when the apps are published.
                 </p>
               ),
             },
             {
-              q: 'Does it cost anything to look for work?',
+              q: 'Is it free to look for work?',
+              a: <p>Yes. Employees join and apply free in every Australian state and territory.</p>,
+            },
+            {
+              q: 'Who can see my details?',
               a: (
                 <p>
-                  No. Job seeker access is free across every Australian state and territory, and
-                  does not depend on any employer paying.
+                  Discovery is off by default. Consenting profiles show limited details; your
+                  minimum pay and calendar stay private.{' '}
+                  <a href="/trust">See what employers can see.</a>
                 </p>
               ),
             },
             {
-              q: 'Does AI decide who gets hired?',
+              q: 'Where are you starting?',
               a: (
                 <p>
-                  No. Match scores are explainable estimates that never predict whether you will be
-                  hired, and employers make every hiring decision. There are no automatic
-                  rejections.
-                </p>
-              ),
-            },
-            {
-              q: 'Who can see my information?',
-              a: (
-                <p>
-                  Only what you choose. Employers see a short, limited profile only if you turned
-                  discovery on, and never your minimum pay or calendar. You can export or delete
-                  your data in the app. Details are on the <a href="/trust">trust page</a>.
-                </p>
-              ),
-            },
-            {
-              q: 'Where does it work?',
-              a: (
-                <p>
-                  We are starting with hospitality and local services in Melbourne. Job seeker
-                  access is open to all Australian states and territories.
+                  Melbourne hospitality and local services first, with job seeker access planned
+                  across Australia.
                 </p>
               ),
             },
           ]}
         />
+      </Section>
+      <Section
+        tone="alt"
+        title="See the details before you get started"
+        intro="Resumes and RSA certificates. Clear pay guidance. Shift records. A hiring team with the right access."
+      >
+        <div className="site-cta-row">
+          <Cta href="/features">Explore the visual feature guide</Cta>
+          <Cta href="/help" ghost>
+            Quick answers
+          </Cta>
+        </div>
+        <p style={{ marginTop: 20 }}>
+          Part of the <a href="https://www.nuapos.com.au">NUA POS</a> family. Job seekers do not
+          need a POS subscription.
+        </p>
       </Section>
     </>
   );

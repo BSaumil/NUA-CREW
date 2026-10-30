@@ -75,11 +75,11 @@ describe('Login', () => {
 describe('Register', () => {
   it('requires a name, valid email, a 12+ character password and agreement to the terms', async () => {
     await renderApp(<Register />);
-    await fireEvent.press(screen.getByRole('button', { name: 'Create account' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
     expect(screen.getByText('Enter your name')).toBeOnTheScreen();
     expect(screen.getByText('Enter your email')).toBeOnTheScreen();
     expect(screen.getByText('Enter your password')).toBeOnTheScreen();
-    expect(screen.getByText('You need to accept the terms to continue')).toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: 'Create account' })).toBeNull();
     await type('Password', 'short');
     expect(screen.getByText('Use at least 12 characters')).toBeOnTheScreen();
     expect(mockRegister).not.toHaveBeenCalled();
@@ -91,6 +91,10 @@ describe('Register', () => {
     await type('Full name', ' Alex Candidate ');
     await type('Email', 'alex@example.com');
     await type('Password', 'a-long-enough-password');
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'Create account' }));
+    expect(mockRegister).not.toHaveBeenCalled();
+    expect(screen.getByRole('alert')).toHaveTextContent('You need to accept the terms to continue');
     await fireEvent(
       screen.getByLabelText('I agree to the terms and understand how my data is used'),
       'valueChange',

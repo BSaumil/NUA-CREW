@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { AI_DISCLOSURE } from '@nua-crew/ui';
 import { Card, Cards, PageHero, PrimaryLink, Section } from '../components';
 
 export const metadata: Metadata = {
@@ -18,6 +17,13 @@ export default function Trust() {
         lede="What our labels mean, what employers can see, and what you control."
       />
 
+      <Section>
+        <p className="site-note">
+          Product privacy controls described here are in pre-launch testing. This public website
+          does not accept accounts, applications or documents.{' '}
+          <a href="/privacy">Read the privacy policy</a> for current website and enquiry handling.
+        </p>
+      </Section>
       <Section title="What our labels mean">
         <Cards>
           <Card title="Verified business">
@@ -32,11 +38,10 @@ export default function Trust() {
               is our inference and is always labelled. If pay is not published we say so.
             </p>
           </Card>
-          <Card title="Match estimates">
-            <p>{AI_DISCLOSURE}</p>
+          <Card title="Contact by choice">
             <p>
-              Scores show their evidence. They never predict whether you will be interviewed or
-              hired.
+              Choose whether employers can find you. Accept or decline invitations on your terms;
+              accepting a conversation does not accept a job.
             </p>
           </Card>
         </Cards>
@@ -96,9 +101,9 @@ export default function Trust() {
           </Card>
           <Card title="Your data">
             <p>
-              Export everything we hold about you, or delete your account, from inside the app.
-              Messages and invitations go with your account. A minimal copy of a message you
-              reported may be kept for safety.
+              Request access, correction, an available export or deletion through account controls
+              or support. Limited safety, audit, shared business and legally required records may be
+              retained, as explained in the privacy policy.
             </p>
           </Card>
         </Cards>

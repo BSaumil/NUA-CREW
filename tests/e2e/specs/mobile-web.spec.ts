@@ -183,6 +183,7 @@ test('a new user can register, set up a profile, and permanently delete the acco
   await field(page, 'Full name').fill('Nina New');
   await field(page, 'Email').fill(email);
   await field(page, 'Password').fill('a-long-enough-password');
+  await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page.getByText('You need to accept the terms to continue')).toBeVisible();
   await page.getByRole('switch', { name: /I agree to the terms/ }).click();

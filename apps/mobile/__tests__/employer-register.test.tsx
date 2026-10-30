@@ -16,12 +16,20 @@ beforeEach(() => mockRegister.mockReset());
 
 it('requires identity, business details and explicit terms consent before creating a workspace', async () => {
   await renderApp(<RegisterEmployer />);
-  await fireEvent.press(screen.getByRole('button', { name: 'Create employer account' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   expect(mockRegister).not.toHaveBeenCalled();
   await fireEvent.changeText(screen.getByLabelText('Your full name'), 'Sam Example');
-  await fireEvent.changeText(screen.getByLabelText('Business name'), 'Fictional Cafe');
   await fireEvent.changeText(screen.getByLabelText('Work email'), ' owner@example.invalid ');
   await fireEvent.changeText(screen.getByLabelText('Password'), 'a-long-password-123');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Enter your business name');
+  await fireEvent.changeText(screen.getByLabelText('Business name'), 'Fictional Cafe');
+  await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+  expect(screen.getByLabelText('Work email')).toHaveProp('value', ' owner@example.invalid ');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByLabelText('Business name')).toHaveProp('value', 'Fictional Cafe');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Create employer account' }));
   expect(screen.getByRole('alert')).toHaveTextContent(/Accept the terms/);
   expect(mockRegister).not.toHaveBeenCalled();

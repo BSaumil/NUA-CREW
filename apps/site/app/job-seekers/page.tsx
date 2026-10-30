@@ -1,3 +1,4 @@
+import { FeatureExplorer } from '../feature-explorer';
 import type { Metadata } from 'next';
 import {
   AvailabilityScreen,
@@ -9,7 +10,7 @@ import {
   Phone,
   Section,
 } from '../components';
-import { toApp } from '@/lib/site';
+import { SITE, toApp } from '@/lib/site';
 
 export const metadata: Metadata = {
   title: 'For job seekers',
@@ -23,17 +24,31 @@ export default function JobSeekers() {
     <>
       <PageHero
         eyebrow="NUA CREW Jobs"
-        title="Find work that fits your skills, life and ambitions."
+        title="Find work that fits your life."
         lede="Search permanent and temporary roles, see what they pay, and decide who can find you. Free in every state and territory."
       >
         <div className="site-cta-row">
-          <Cta href={toApp('/register')}>Create a free account</Cta>
+          <Cta href={toApp('/register')}>
+            {SITE.productLive ? 'Create a free account' : 'See job seeker launch status'}
+          </Cta>
           <Cta href="/apps" ghost>
             Android and iOS apps
           </Cta>
         </div>
       </PageHero>
 
+      <nav className="page-shortcuts nua-container" aria-label="On this page">
+        <a href="#explore">Explore features</a>
+        <a href="/help#job-seekers">Common questions</a>
+        <a href="/apps">Launch status</a>
+      </nav>
+      <Section
+        id="explore"
+        title="Bring your experience. Keep control."
+        intro="Resumes, certificates and shift records, explained with simple examples."
+      >
+        <FeatureExplorer audience="jobs" />
+      </Section>
       <Section title="Search and apply with your eyes open">
         <Cards>
           <Card icon="$" title="Pay you can see">
@@ -43,11 +58,10 @@ export default function JobSeekers() {
               a minimum hourly rate.
             </p>
           </Card>
-          <Card icon="≈" title="Honest matching">
+          <Card icon="≈" title="Find what fits">
             <p>
-              Match scores are explainable estimates built from your skills, location, pay and
-              preferences. They show their evidence, and they never predict whether you will be
-              hired.
+              Use skills, location and work preferences to narrow your search and find opportunities
+              that fit your life.
             </p>
           </Card>
           <Card icon="◎" title="Near me, without tracking">
@@ -58,8 +72,8 @@ export default function JobSeekers() {
           </Card>
           <Card icon="♡" title="Saved jobs and alerts">
             <p>
-              Save jobs, save searches and choose when to be alerted. Turn alerts and push
-              notifications off any time.
+              Save the roles you like. Set search alerts and turn notifications off whenever you
+              want.
             </p>
           </Card>
           <Card icon="✎" title="Apply once, track it">
@@ -136,14 +150,19 @@ export default function JobSeekers() {
 
       <Section tone="wine" title="Your data, your call">
         <ul className="site-list">
-          <li>Download everything we hold about you from the app.</li>
-          <li>Delete your account and the data attached to it in the app.</li>
+          <li>
+            Request an export of your personal information through account controls or support.
+          </li>
+          <li>
+            Request account deletion. Some safety, business or legal records may need to be
+            retained; see our privacy policy.
+          </li>
           <li>Optional app lock with Face ID or fingerprint; sign out everywhere.</li>
         </ul>
         <div className="site-cta-row">
           <Cta href="/trust">Read about trust and privacy</Cta>
           <Cta href={toApp('/register')} ghost>
-            Create a free account
+            {SITE.productLive ? 'Create a free account' : 'See job seeker launch status'}
           </Cta>
         </div>
       </Section>
