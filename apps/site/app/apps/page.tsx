@@ -23,6 +23,12 @@ export default function Apps() {
   return (
     <>
       <PageHero
+        visual={{
+          src: '/visuals/applications.webp',
+          alt: 'Illustrated NUA CREW mobile app journey for Android and iOS',
+          width: 1400,
+          height: 1060,
+        }}
         eyebrow="APP AND WEB STATUS"
         title="Good things are taking shape."
         lede="A simpler way to find work and build a team. Here’s where each experience stands."

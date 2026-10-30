@@ -11,6 +11,12 @@ export default function Features() {
   return (
     <>
       <PageHero
+        visual={{
+          src: '/visuals/applications.webp',
+          alt: 'Illustration of a hospitality job application journey in NUA CREW',
+          width: 1400,
+          height: 1060,
+        }}
         eyebrow="THE PRODUCT, EXPLAINED"
         title="Less to figure out. More to get on with."
         lede="See the everyday details that make finding work and hiring feel clearer."
