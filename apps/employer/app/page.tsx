@@ -27,9 +27,9 @@ export default async function Dashboard({
       <Flash error={error} notice={notice} />
       {!verified ? (
         <p role="note" className="nua-alert">
-          <strong>Verification status: {employer?.verification_status}.</strong> You can draft jobs
-          now, but they cannot be published until NUA CREW has reviewed your business and authorised
-          representative. We never publish on an ABN number alone.
+          <strong>Verification status: {employer?.verification_status ?? 'unavailable'}.</strong>{' '}
+          You can draft jobs now, but they cannot be published until NUA CREW has reviewed your
+          business and authorised representative. We never publish on an ABN number alone.
         </p>
       ) : null}
       <div className="nua-grid">

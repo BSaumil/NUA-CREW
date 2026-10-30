@@ -98,7 +98,17 @@ export function NotificationList({
                 · Melbourne time
               </time>
               <div className="nua-row">
-                <a href={hrefFor(n.kind, n.data)}>View update</a>
+                <a href={hrefFor(n.kind, n.data)}>
+                  {['/', '/dashboard'].includes(hrefFor(n.kind, n.data))
+                    ? 'Open your workspace'
+                    : 'View update'}
+                </a>
+                {hrefFor(n.kind, n.data) === '/dashboard' &&
+                ['invitation_received', 'message_received'].includes(n.kind) ? (
+                  <span className="nua-hint">
+                    Use the mobile app to respond to invitations and messages.
+                  </span>
+                ) : null}
                 {!n.read_at ? (
                   <form action={markRead}>
                     <input type="hidden" name="id" value={n.id} />

@@ -88,7 +88,9 @@ export function ShiftHistory({
           </li>
         ))}
       </ol>
-      <a href={`/shifts/${booking.id}/history`}>View every hours version</a>
+      <a href={`/shifts/${booking.id}/history?zone=${encodeURIComponent(booking.shift.time_zone)}`}>
+        View every hours version
+      </a>
     </details>
   );
 }

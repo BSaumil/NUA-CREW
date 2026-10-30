@@ -25,7 +25,13 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await page.goto(`http://localhost:3000${route}`);
       await expect(page.getByRole('heading', { level: 1, name: title, exact: true })).toBeVisible();
       if (route === '/documents') {
-        await expect(page.getByRole('group', { name: 'Upload a private document' })).toBeDisabled();
+        await expect(
+          page.getByRole('group', { name: 'Upload a private document' }),
+        ).toHaveAttribute('disabled', '');
+        await expect(page.getByLabel('Choose a file, up to 4 MB')).toBeDisabled();
+        await expect(
+          page.getByRole('button', { name: 'Upload document', exact: true }),
+        ).toBeDisabled();
         await expect(
           page.getByText('Document uploads are not connected yet.', { exact: false }),
         ).toBeVisible();

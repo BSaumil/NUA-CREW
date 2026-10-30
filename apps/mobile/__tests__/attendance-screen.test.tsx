@@ -6,7 +6,24 @@ const mockMutate = jest.fn();
 jest.mock('../src/api/shifts', () => ({
   useCandidateAttendance: () => ({ mutateAsync: mockMutate, isPending: false }),
   useReviewCorrection: () => ({ mutateAsync: mockMutate, isPending: false }),
-  useTimesheetHistory: () => ({ isPending: false, isError: false, data: [], refetch: jest.fn() }),
+  useTimesheetHistory: () => ({
+    isPending: false,
+    isError: false,
+    data: [
+      {
+        version: 1,
+        status: 'submitted',
+        worked_minutes: 390,
+        break_minutes: 30,
+        starts_at: '2026-10-30T01:00:00Z',
+        ends_at: '2026-10-30T08:00:00Z',
+        recorded_at: '2026-10-30T08:01:00Z',
+        note: 'Actual hours',
+        review_note: null,
+      },
+    ],
+    refetch: jest.fn(),
+  }),
 }));
 const booking = {
   id: 'b1',
@@ -50,4 +67,13 @@ it('uses venue-local correction fields and retains the typed reason after a netw
   });
   expect(screen.getByLabelText('Correction reason')).toHaveProp('value', 'Arrived earlier');
   expect(screen.getByRole('alert')).toBeOnTheScreen();
+});
+
+it('shows the actual interval, unpaid break and note for every hours version', async () => {
+  await renderApp(<Attendance booking={booking} />);
+  await fireEvent.press(screen.getByRole('button', { name: 'View hours history' }));
+  expect(screen.getByText('Version 1 · submitted')).toBeOnTheScreen();
+  expect(screen.getByText('390 worked minutes · 30 unpaid break minutes')).toBeOnTheScreen();
+  expect(screen.getByText('Actual hours')).toBeOnTheScreen();
+  expect(screen.getAllByText(/Australia\/Melbourne/).length).toBeGreaterThan(1);
 });

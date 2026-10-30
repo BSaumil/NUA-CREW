@@ -168,10 +168,22 @@ export function Attendance({
           />
         ) : historyQuery.data.length ? (
           historyQuery.data.map((v) => (
-            <Text key={v.version}>
-              Version {v.version} · {v.status} · {v.worked_minutes} worked minutes
-              {v.review_note ? ` · ${v.review_note}` : ''}
-            </Text>
+            <Card key={v.version}>
+              <Text variant="label">
+                Version {v.version} · {v.status}
+              </Text>
+              <Text>
+                {format(v.starts_at)} – {format(v.ends_at)} · {b.shift.time_zone}
+              </Text>
+              <Text>
+                {v.worked_minutes} worked minutes · {v.break_minutes} unpaid break minutes
+              </Text>
+              <Text variant="caption" muted>
+                Recorded {format(v.recorded_at)}
+              </Text>
+              {v.note ? <Text>{v.note}</Text> : null}
+              {v.review_note ? <Text>{v.review_note}</Text> : null}
+            </Card>
           ))
         ) : (
           <Text>No hours submitted yet.</Text>
