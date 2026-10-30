@@ -1,6 +1,7 @@
 import { SalaryDisclosure, TrustIndicator, type PayBasis, type VerificationStatus } from './trust';
 
 export type JobCardJob = {
+  promoted?: boolean;
   id: string;
   title: string;
   employerName: string | null;
@@ -15,6 +16,7 @@ export type JobCardJob = {
   payBasis: PayBasis;
   superIncluded?: boolean | null;
   publishedAt?: string | null;
+  roleTitle?: string | null;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -39,10 +41,12 @@ export function JobCard({
   return (
     <article className="nua-card nua-stack" aria-labelledby={`job-${job.id}`}>
       <div>
+        {job.promoted ? <span className="nua-badge">Promoted</span> : null}
         <Heading id={`job-${job.id}`} style={{ marginBottom: 4, fontSize: '1.125rem' }}>
           <a href={href}>{job.title}</a>
         </Heading>
         <div className="nua-muted">{job.employerName ?? 'Employer not named'}</div>
+        {job.roleTitle ? <div className="nua-hint">{job.roleTitle}</div> : null}
       </div>
       <div className="nua-row">
         <TrustIndicator status={job.verification} source={job.attribution} />

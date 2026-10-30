@@ -15,6 +15,8 @@ dependencies = [
   "pyjwt>=2.9",
   "argon2-cffi>=23.1",
   "redis>=5.2",
+  "stripe>=13",
+  "httpx[socks]>=0.28",
 ]
 
 [dependency-groups]
@@ -33,7 +35,7 @@ package = false
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 asyncio_default_test_loop_scope = "function"
-testpaths = ["tests"]
+testpaths = ["tests", "unit_tests"]
 filterwarnings = ["error::sqlalchemy.exc.SAWarning"]
 
 [tool.ruff]
@@ -49,6 +51,8 @@ ignore = ["B008", "S101"]
 "app/schemas.py" = ["S105"]
 "tests/*" = ["S105", "S106", "S104", "S108", "E501"]
 "app/devseed.py" = ["S105", "S106"]
+# One-off report/import tooling run by hand: long prose lines and a pdftotext subprocess.
+"scripts/*" = ["E501", "S603", "S607"]
 
 [tool.mypy]
 python_version = "3.12"

@@ -93,6 +93,10 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   await tab(page, 'Saved').click();
   await expect(page.getByRole('button', { name: new RegExp(`^${title},`) })).toBeVisible();
   await tab(page, 'Discover').click();
+  await expect(tab(page, 'Discover')).toHaveAttribute('aria-selected', 'true');
+  // Both tabs stay mounted. Wait until Saved leaves the accessibility tree before
+  // resolving a card shared by both screens, so the click targets Discover.
+  await expect(page.getByRole('heading', { name: 'Saved', exact: true })).toHaveCount(0);
 
   // Detail: match is an estimate with evidence, not a promise.
   await page.getByRole('button', { name: new RegExp(`^${title},`) }).click();
@@ -123,7 +127,8 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   await page.goto(appUrl);
   await expect(page.getByText('The employer updated your status')).toBeVisible();
   await page.goto(APP);
-  await tab(page, 'Alerts').click();
+  // Alerts moved behind the bell on Discover when navigation was simplified.
+  await page.getByRole('button', { name: 'Notifications', exact: true }).click();
   await expect(page.getByText(`Your application for ${title} is under review`)).toBeVisible();
   await page
     .getByRole('button', { name: /Unread\. Your application for/ })
@@ -139,13 +144,14 @@ test('candidate discovers, saves, reads the match, applies and follows the emplo
   ).toBeVisible();
 });
 
-test('signing in as an employer is refused, and signed-out deep links go to sign-in', async ({
+test('signed-out deep links go to sign-in, and an employer account lands in the hiring workspace', async ({
   page,
 }) => {
   await page.goto(`${APP}/job/00000000-0000-0000-0000-000000000000`);
   await expect(page.getByRole('button', { name: 'Skip' }).or(field(page, 'Email'))).toBeVisible();
   await signIn(page, 'owner-a@nua-crew.example.com');
-  await expect(page.getByText(/This app is for job seekers/)).toBeVisible();
+  // Employers use the native hiring workspace; they never get the job-seeker tabs or data.
+  await expect(page.getByRole('heading', { name: 'Build your next team.' })).toBeVisible();
   await expect(tab(page, 'Discover')).toHaveCount(0);
 });
 
@@ -177,6 +183,7 @@ test('a new user can register, set up a profile, and permanently delete the acco
   await field(page, 'Full name').fill('Nina New');
   await field(page, 'Email').fill(email);
   await field(page, 'Password').fill('a-long-enough-password');
+  await page.getByRole('button', { name: 'Continue' }).click();
   await page.getByRole('button', { name: 'Create account' }).click();
   await expect(page.getByText('You need to accept the terms to continue')).toBeVisible();
   await page.getByRole('switch', { name: /I agree to the terms/ }).click();

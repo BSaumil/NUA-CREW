@@ -16,4 +16,11 @@ Dev logins (password `nua-dev-password-1`): `owner-a@nua-crew.example.com` (veri
 
 Mobile app: see `docs/mobile/README.md` (`cd apps/mobile && pnpm start`).
 
-Without Docker: create role `nua` and databases `nua_crew`, `nua_crew_test`, `nua_crew_e2e`, then `make test` and `make e2e`.
+Without Docker: create databases `nua_crew`, `nua_crew_test`, `nua_crew_e2e`, then run the role bootstrap on each as a superuser (ADR-008):
+
+```bash
+psql -d nua_crew_test -v ON_ERROR_STOP=1 -v migrator_password=nua_migrator_dev -v runtime_password=nua_runtime_dev \
+  -v grant_truncate=1 -f db/roles/bootstrap.sql   # grant_truncate only for test databases
+```
+
+The API uses `NUA_DATABASE_URL` (role `nua_runtime`, subject to RLS); Alembic uses `NUA_MIGRATION_DATABASE_URL` (role `nua_migrator`). The API refuses to start on a superuser/BYPASSRLS role outside development. Then `make test` and `make e2e`.

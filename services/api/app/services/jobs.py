@@ -1,15 +1,28 @@
 import re
 import uuid
 from collections.abc import Iterable, Sequence
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from decimal import Decimal
 from typing import Any
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Employer, Job, JobSkill, JobVersion, Location, Skill
-from app.schemas import JobEmployerOut, JobIn, JobOut
+from app.config import get_settings
+from app.errors import ApiError
+from app.models import (
+    Employer,
+    HospitalityDepartment,
+    HospitalityRole,
+    Job,
+    JobSkill,
+    JobVersion,
+    Location,
+    PayAssessment,
+    PublishedPromotion,
+    Skill,
+)
+from app.schemas import JobEmployerOut, JobIn, JobOut, JobRoleOut
 from app.services.geo import centroid, haversine_km
 
 _NON_SLUG = re.compile(r"[^a-z0-9]+")
@@ -39,13 +52,14 @@ def _snapshot(job: Job, skills: Sequence[str]) -> dict[str, Any]:
     def conv(v: object) -> object:
         if isinstance(v, Decimal):
             return str(v)
-        if isinstance(v, datetime | uuid.UUID):
+        if isinstance(v, datetime | date | uuid.UUID):
             return str(v)
         return v
 
     cols = (
         "title description status employment_type category suburb state postcode pay_min pay_max "
-        "pay_period pay_currency super_included pay_basis apply_url expires_at"
+        "pay_period pay_currency super_included pay_basis apply_url expires_at engagement_basis "
+        "duration_type hours_pattern min_weekly_hours max_weekly_hours start_date end_date"
     ).split()
     return {**{c: conv(getattr(job, c)) for c in cols}, "skills": sorted(skills)}
 
@@ -107,6 +121,19 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
         "disclosed" if (data.pay_min is not None or data.pay_max is not None) else "not_disclosed"
     )
     job.expires_at = data.expires_at
+    job.engagement_basis = data.engagement_basis
+    job.duration_type = data.duration_type
+    job.hours_pattern = data.hours_pattern
+    job.min_weekly_hours = data.min_weekly_hours
+    job.max_weekly_hours = data.max_weekly_hours
+    job.start_date = data.start_date
+    job.end_date = data.end_date
+    # PUT replaces editable fields, but a client that doesn't know about roles (the quick form)
+    # must not silently drop a job's role and pay check: only an explicit value changes them.
+    if "role_code" in data.model_fields_set:
+        job.role_code = data.role_code
+    if "pay_assessment_id" in data.model_fields_set:
+        job.pay_assessment_id = data.pay_assessment_id
 
 
 def is_open(job: Job, now: datetime | None = None) -> bool:
@@ -128,6 +155,20 @@ async def to_out(
     if not jobs:
         return []
     ids = [j.id for j in jobs]
+    promoted_ids = (
+        set(
+            await session.scalars(
+                select(PublishedPromotion.job_id).where(
+                    PublishedPromotion.job_id.in_(ids),
+                    PublishedPromotion.active,
+                    PublishedPromotion.starts_at <= func.now(),
+                    PublishedPromotion.ends_at > func.now(),
+                )
+            )
+        )
+        if get_settings().paid_advertising_enabled
+        else set()
+    )
     skill_rows = await session.execute(
         select(JobSkill.job_id, Skill.name)
         .join(Skill, Skill.id == JobSkill.skill_id)
@@ -137,6 +178,24 @@ async def to_out(
     skills: dict[uuid.UUID, list[str]] = {}
     for job_id, name in skill_rows:
         skills.setdefault(job_id, []).append(name)
+    role_codes = {j.role_code for j in jobs if j.role_code}
+    role_info = {}
+    if role_codes:
+        for code, title, dcode, dname in await session.execute(
+            select(
+                HospitalityRole.code,
+                HospitalityRole.title,
+                HospitalityRole.department_code,
+                HospitalityDepartment.name,
+            )
+            .join(
+                HospitalityDepartment, HospitalityDepartment.code == HospitalityRole.department_code
+            )
+            .where(HospitalityRole.code.in_(role_codes))
+        ):
+            role_info[code] = JobRoleOut(
+                code=code, title=title, department_code=dcode, department_name=dname
+            )
     employer_ids = {j.employer_id for j in jobs if j.employer_id}
     employers = {
         e.id: e
@@ -147,12 +206,21 @@ async def to_out(
         emp = employers.get(j.employer_id) if j.employer_id else None
         out.append(
             JobOut(
+                promoted=j.id in promoted_ids
+                and bool(emp and emp.verification_status == "verified"),
                 id=j.id,
                 origin=j.origin,
                 title=j.title,
                 description=j.description,
                 status=j.status,
                 employment_type=j.employment_type,
+                engagement_basis=j.engagement_basis,
+                duration_type=j.duration_type,
+                hours_pattern=j.hours_pattern,
+                min_weekly_hours=j.min_weekly_hours,
+                max_weekly_hours=j.max_weekly_hours,
+                start_date=j.start_date,
+                end_date=j.end_date,
                 category=j.category,
                 suburb=j.suburb,
                 state=j.state,
@@ -171,6 +239,8 @@ async def to_out(
                 skills=skills.get(j.id, []),
                 location_id=j.location_id,
                 distance_km=_distance(origin, j),
+                role=role_info.get(j.role_code) if j.role_code else None,
+                pay_assessment_id=j.pay_assessment_id,
                 employer=JobEmployerOut(
                     id=emp.id if emp else None,
                     name=emp.name if emp else j.source_employer_name,
@@ -179,3 +249,24 @@ async def to_out(
             )
         )
     return out
+
+
+async def validate_hospitality_links(
+    session: AsyncSession, employer_id: uuid.UUID, data: JobIn
+) -> None:
+    """The role must exist and the pay check must belong to this business (no cross-tenant ids)."""
+    if data.role_code is not None:
+        role = await session.get(HospitalityRole, data.role_code)
+        if role is None or role.status != "active":
+            raise ApiError(422, "unknown_role", "That role does not exist")
+    if data.pay_assessment_id is not None:
+        found = await session.scalar(
+            select(PayAssessment.id).where(
+                PayAssessment.id == data.pay_assessment_id,
+                PayAssessment.employer_id == employer_id,
+            )
+        )
+        if found is None:
+            raise ApiError(422, "unknown_pay_assessment", "That pay check does not exist")
+    if data.pay_assessment_id is not None and data.role_code is None:
+        raise ApiError(422, "role_required", "Choose a role to attach a pay check")

@@ -1,0 +1,1404 @@
+{
+ "meta": {
+  "source_workbook": "NUA_Crew_Hospitality_Roles_and_Paygrades_2026.xlsx",
+  "source_sha256": "74224e74d43252fc64bced8738d7f9d4385852ec865e97a2193adc3304ea9d5e",
+  "edition": "2026-10-29",
+  "role_count": 287,
+  "department_count": 14
+ },
+ "effective_from": "2026-07-01",
+ "instruments": [
+  {
+   "code": "MA000119",
+   "title": "Restaurant Industry Award 2020",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html"
+  },
+  {
+   "code": "MA000009",
+   "title": "Hospitality Industry (General) Award 2020",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html"
+  },
+  {
+   "code": "MA000003",
+   "title": "Fast Food Industry Award 2020",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html"
+  },
+  {
+   "code": "MA000058",
+   "title": "Registered and Licensed Clubs Award 2020",
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html"
+  }
+ ],
+ "classifications": [
+  {
+   "instrument_code": "MA000119",
+   "code": "INTRO",
+   "label": "Introductory",
+   "description": "New entrant—restricted introductory period",
+   "kind": "operative",
+   "sort_order": 0
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L1",
+   "label": "Level 1",
+   "description": "Food & beverage grade 1; kitchen attendant grade 1; guest service grade 1",
+   "kind": "operative",
+   "sort_order": 1
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L2",
+   "label": "Level 2",
+   "description": "F&B grade 2; cook grade 1; kitchen grade 2; clerical/guest/front office etc.",
+   "kind": "operative",
+   "sort_order": 2
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L3",
+   "label": "Level 3",
+   "description": "F&B grade 3; cook grade 2; kitchen grade 3; clerical/front office etc.",
+   "kind": "operative",
+   "sort_order": 3
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L4",
+   "label": "Level 4",
+   "description": "Trade-qualified commis chef; skilled specialist fine-dining attendant; front office grade 3",
+   "kind": "operative",
+   "sort_order": 4
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L5",
+   "label": "Level 5",
+   "description": "Demi chef; food and beverage supervisor; front office supervisor; clerical supervisor",
+   "kind": "operative",
+   "sort_order": 5
+  },
+  {
+   "instrument_code": "MA000119",
+   "code": "L6",
+   "label": "Level 6",
+   "description": "Chef de partie / cook grade 5",
+   "kind": "operative",
+   "sort_order": 6
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "INTRO",
+   "label": "Introductory",
+   "description": "New entrant—restricted introductory period",
+   "kind": "operative",
+   "sort_order": 0
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L1",
+   "label": "Level 1",
+   "description": "Food & beverage grade 1; kitchen attendant grade 1; guest service grade 1",
+   "kind": "operative",
+   "sort_order": 1
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L2",
+   "label": "Level 2",
+   "description": "F&B grade 2; cook grade 1; kitchen grade 2; clerical/guest/front office etc.",
+   "kind": "operative",
+   "sort_order": 2
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L3",
+   "label": "Level 3",
+   "description": "F&B grade 3; cook grade 2; kitchen grade 3; clerical/front office etc.",
+   "kind": "operative",
+   "sort_order": 3
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L4",
+   "label": "Level 4",
+   "description": "Trade-qualified commis chef; skilled specialist fine-dining attendant; front office grade 3",
+   "kind": "operative",
+   "sort_order": 4
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L5",
+   "label": "Level 5",
+   "description": "Demi chef; food and beverage supervisor; front office supervisor; clerical supervisor",
+   "kind": "operative",
+   "sort_order": 5
+  },
+  {
+   "instrument_code": "MA000009",
+   "code": "L6",
+   "label": "Level 6",
+   "description": "Chef de partie / cook grade 5",
+   "kind": "operative",
+   "sort_order": 6
+  },
+  {
+   "instrument_code": "MA000003",
+   "code": "FF1",
+   "label": "Fast Food Employee level 1",
+   "description": "Casual ordinary includes 25% loading. Saturday rates are separately prescribed.",
+   "kind": "operative",
+   "sort_order": 1
+  },
+  {
+   "instrument_code": "MA000003",
+   "code": "FF2",
+   "label": "Fast Food Employee level 2",
+   "description": "Casual ordinary includes 25% loading. Saturday rates are separately prescribed.",
+   "kind": "operative",
+   "sort_order": 2
+  },
+  {
+   "instrument_code": "MA000003",
+   "code": "FF3A",
+   "label": "Fast Food Employee level 3—in charge of ≤1",
+   "description": "Casual ordinary includes 25% loading. Saturday rates are separately prescribed.",
+   "kind": "operative",
+   "sort_order": 3
+  },
+  {
+   "instrument_code": "MA000003",
+   "code": "FF3B",
+   "label": "Fast Food Employee level 3—in charge of ≥2",
+   "description": "Casual ordinary includes 25% loading. Saturday rates are separately prescribed.",
+   "kind": "operative",
+   "sort_order": 4
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "INTRO",
+   "label": "Introductory",
+   "description": "Introductory",
+   "kind": "operative",
+   "sort_order": 0
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L1",
+   "label": "Level 1",
+   "description": "F&B grade 1, kitchen grade 1 etc",
+   "kind": "operative",
+   "sort_order": 1
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L2",
+   "label": "Level 2",
+   "description": "F&B grade 2, kitchen grade 2 etc",
+   "kind": "operative",
+   "sort_order": 2
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L3",
+   "label": "Level 3",
+   "description": "F&B / gaming attendant grade 3 etc",
+   "kind": "operative",
+   "sort_order": 3
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L4",
+   "label": "Level 4",
+   "description": "Trade cook grade 3, skilled F&B attendant etc",
+   "kind": "operative",
+   "sort_order": 4
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L5",
+   "label": "Level 5",
+   "description": "F&B/gaming supervisor, demi chef etc",
+   "kind": "operative",
+   "sort_order": 5
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L6",
+   "label": "Level 6",
+   "description": "Cook grade 5 / other Level 6",
+   "kind": "operative",
+   "sort_order": 6
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L6M",
+   "label": "Level 6 - Manager",
+   "description": "Club manager if gross annual revenue < $500k",
+   "kind": "manager",
+   "sort_order": 6
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L7",
+   "label": "Level 7",
+   "description": "Manager Level A",
+   "kind": "manager",
+   "sort_order": 7
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L8",
+   "label": "Level 8",
+   "description": "Manager Level B",
+   "kind": "manager",
+   "sort_order": 8
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L9",
+   "label": "Level 9",
+   "description": "Manager Level C",
+   "kind": "manager",
+   "sort_order": 9
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L10",
+   "label": "Level 10",
+   "description": "Manager Level D",
+   "kind": "manager",
+   "sort_order": 10
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L11",
+   "label": "Level 11",
+   "description": "Manager Level E",
+   "kind": "manager",
+   "sort_order": 11
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L12",
+   "label": "Level 12",
+   "description": "Manager Level F",
+   "kind": "manager",
+   "sort_order": 12
+  },
+  {
+   "instrument_code": "MA000058",
+   "code": "L13",
+   "label": "Level 13",
+   "description": "Manager Level G",
+   "kind": "manager",
+   "sort_order": 13
+  }
+ ],
+ "rate_versions": [
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "INTRO",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 97810,
+   "hourly_minor": 2574,
+   "supplied_casual_ordinary_minor": 3218,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L1",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 100490,
+   "hourly_minor": 2644,
+   "supplied_casual_ordinary_minor": 3305,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L2",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 102910,
+   "hourly_minor": 2708,
+   "supplied_casual_ordinary_minor": 3385,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L3",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 106290,
+   "hourly_minor": 2797,
+   "supplied_casual_ordinary_minor": 3496,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L4",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 111910,
+   "hourly_minor": 2945,
+   "supplied_casual_ordinary_minor": 3681,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L5",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 118940,
+   "hourly_minor": 3130,
+   "supplied_casual_ordinary_minor": 3913,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000119",
+   "classification_code": "L6",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 122110,
+   "hourly_minor": 3213,
+   "supplied_casual_ordinary_minor": 4016,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "INTRO",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 97810,
+   "hourly_minor": 2574,
+   "supplied_casual_ordinary_minor": 3218,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L1",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 100490,
+   "hourly_minor": 2644,
+   "supplied_casual_ordinary_minor": 3305,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L2",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 102910,
+   "hourly_minor": 2708,
+   "supplied_casual_ordinary_minor": 3385,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L3",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 106290,
+   "hourly_minor": 2797,
+   "supplied_casual_ordinary_minor": 3496,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L4",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 111910,
+   "hourly_minor": 2945,
+   "supplied_casual_ordinary_minor": 3681,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L5",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 118940,
+   "hourly_minor": 3130,
+   "supplied_casual_ordinary_minor": 3913,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000009",
+   "classification_code": "L6",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 122110,
+   "hourly_minor": 3213,
+   "supplied_casual_ordinary_minor": 4016,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000003",
+   "classification_code": "FF1",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 105680,
+   "hourly_minor": 2781,
+   "supplied_casual_ordinary_minor": 3476,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000003",
+   "classification_code": "FF2",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 111910,
+   "hourly_minor": 2945,
+   "supplied_casual_ordinary_minor": 3681,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000003",
+   "classification_code": "FF3A",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 113640,
+   "hourly_minor": 2991,
+   "supplied_casual_ordinary_minor": 3739,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000003",
+   "classification_code": "FF3B",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 115040,
+   "hourly_minor": 3027,
+   "supplied_casual_ordinary_minor": 3784,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "INTRO",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 97810,
+   "hourly_minor": 2574,
+   "supplied_casual_ordinary_minor": 3218,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L1",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 100490,
+   "hourly_minor": 2644,
+   "supplied_casual_ordinary_minor": 3305,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L2",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 102910,
+   "hourly_minor": 2708,
+   "supplied_casual_ordinary_minor": 3385,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L3",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 106290,
+   "hourly_minor": 2797,
+   "supplied_casual_ordinary_minor": 3496,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L4",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 111910,
+   "hourly_minor": 2945,
+   "supplied_casual_ordinary_minor": 3681,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L5",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 118940,
+   "hourly_minor": 3130,
+   "supplied_casual_ordinary_minor": 3913,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L6",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 122110,
+   "hourly_minor": 3213,
+   "supplied_casual_ordinary_minor": 4016,
+   "annual_minimum_minor": null,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L6M",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 122110,
+   "hourly_minor": 3213,
+   "supplied_casual_ordinary_minor": 4016,
+   "annual_minimum_minor": 6367200,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L7",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 125190,
+   "hourly_minor": 3294,
+   "supplied_casual_ordinary_minor": 4118,
+   "annual_minimum_minor": 6527800,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L8",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 130490,
+   "hourly_minor": 3434,
+   "supplied_casual_ordinary_minor": 4293,
+   "annual_minimum_minor": 6804100,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L9",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 132230,
+   "hourly_minor": 3480,
+   "supplied_casual_ordinary_minor": 4350,
+   "annual_minimum_minor": 6894800,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L10",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 137100,
+   "hourly_minor": 3608,
+   "supplied_casual_ordinary_minor": 4510,
+   "annual_minimum_minor": 7148800,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L11",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 142090,
+   "hourly_minor": 3739,
+   "supplied_casual_ordinary_minor": 4674,
+   "annual_minimum_minor": 7409000,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L12",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 151080,
+   "hourly_minor": 3976,
+   "supplied_casual_ordinary_minor": 4970,
+   "annual_minimum_minor": 7877700,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  },
+  {
+   "instrument_code": "MA000058",
+   "classification_code": "L13",
+   "effective_from": "2026-07-01",
+   "weekly_minor": 154030,
+   "hourly_minor": 4053,
+   "supplied_casual_ordinary_minor": 5066,
+   "annual_minimum_minor": 8031600,
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "Supplied NUA Crew workbook/PDF edition 29 October 2026 (adult minimum ordinary rates from the first full pay period starting on or after 1 July 2026). Not yet reconciled against the official Fair Work pay guide."
+  }
+ ],
+ "penalty_rules": [
+  {
+   "instrument_code": "MA000119",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 10000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 22500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 10000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 22500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 25000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 17500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 17500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000119",
+   "employment": "casual",
+   "classification_codes": [
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 25000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000119.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000009",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 25000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000009.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 10000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 22500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 10000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "permanent",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 22500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF1"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 25000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "saturday",
+   "multiplier_bp": 15000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "sunday",
+   "multiplier_bp": 17500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000003",
+   "employment": "casual",
+   "classification_codes": [
+    "FF2",
+    "FF3A",
+    "FF3B"
+   ],
+   "day_kind": "public_holiday",
+   "multiplier_bp": 25000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000003.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; "
+  },
+  {
+   "instrument_code": "MA000058",
+   "employment": "permanent",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L6M",
+    "L7",
+    "L8",
+    "L9",
+    "L10",
+    "L11",
+    "L12",
+    "L13"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 10000,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; ordinary rate"
+  },
+  {
+   "instrument_code": "MA000058",
+   "employment": "casual",
+   "classification_codes": [
+    "INTRO",
+    "L1",
+    "L2",
+    "L3",
+    "L4",
+    "L5",
+    "L6",
+    "L6M",
+    "L7",
+    "L8",
+    "L9",
+    "L10",
+    "L11",
+    "L12",
+    "L13"
+   ],
+   "day_kind": "weekday",
+   "multiplier_bp": 12500,
+   "effective_from": "2026-07-01",
+   "source_url": "https://awards.fairwork.gov.au/MA000058.html",
+   "data_status": "supplied_unverified",
+   "source_note": "PDF section 04 / workbook PENALTIES + SPECIAL RULES; 25% casual loading per rate sheet"
+  }
+ ],
+ "venue_types": [
+  {
+   "code": "cafe",
+   "name": "Café",
+   "award_leads": [
+    "MA000119"
+   ],
+   "coverage_confidence": "likely"
+  },
+  {
+   "code": "takeaway",
+   "name": "Takeaway / quick service",
+   "award_leads": [
+    "MA000003"
+   ],
+   "coverage_confidence": "review"
+  },
+  {
+   "code": "restaurant",
+   "name": "Restaurant / bistro",
+   "award_leads": [
+    "MA000119"
+   ],
+   "coverage_confidence": "likely"
+  },
+  {
+   "code": "fine_dining",
+   "name": "Fine dining",
+   "award_leads": [
+    "MA000119"
+   ],
+   "coverage_confidence": "likely"
+  },
+  {
+   "code": "bar_pub",
+   "name": "Bar / pub",
+   "award_leads": [
+    "MA000009"
+   ],
+   "coverage_confidence": "review"
+  },
+  {
+   "code": "club",
+   "name": "Registered club / RSL",
+   "award_leads": [
+    "MA000058"
+   ],
+   "coverage_confidence": "likely"
+  },
+  {
+   "code": "hotel_resort",
+   "name": "Hotel / resort",
+   "award_leads": [
+    "MA000009"
+   ],
+   "coverage_confidence": "likely"
+  },
+  {
+   "code": "banquet_venue",
+   "name": "Function / banquet venue",
+   "award_leads": [
+    "MA000119",
+    "MA000009"
+   ],
+   "coverage_confidence": "review"
+  },
+  {
+   "code": "catering",
+   "name": "Catering",
+   "award_leads": [
+    "MA000009",
+    "MA000119"
+   ],
+   "coverage_confidence": "review"
+  }
+ ]
+}

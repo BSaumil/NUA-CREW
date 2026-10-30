@@ -1,0 +1,71 @@
+name: native-build-validation
+on:
+  workflow_dispatch:
+  push:
+    branches: [feat/hiring-acceptance-shifts-20261028]
+    paths:
+      - 'apps/mobile/**'
+      - '.github/workflows/native-builds.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_API_URL: http://10.0.2.2:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - run: pnpm install --frozen-lockfile
+      - name: Generate Android native project
+        run: pnpm --filter @nua-crew/mobile exec expo prebuild --platform android --no-install
+      - name: Compile an Android debug APK
+        working-directory: apps/mobile/android
+        run: ./gradlew assembleDebug --no-daemon --max-workers=2
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nua-crew-android-debug
+          path: apps/mobile/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
+  ios-simulator:
+    runs-on: macos-latest
+    timeout-minutes: 45
+    env:
+      EXPO_NO_TELEMETRY: '1'
+      EXPO_PUBLIC_API_URL: http://localhost:8000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - name: Generate iOS native project
+        run: pnpm --filter @nua-crew/mobile exec expo prebuild --platform ios --no-install
+      - name: Install native pods
+        working-directory: apps/mobile/ios
+        run: pod install
+      - name: Compile an unsigned Simulator app
+        run: |
+          nua_workspace="$(find apps/mobile/ios -maxdepth 1 -name '*.xcworkspace' -print -quit)"
+          test -n "$nua_workspace"
+          nua_scheme="$(basename "$nua_workspace" .xcworkspace)"
+          xcodebuild -workspace "$nua_workspace" -scheme "$nua_scheme" \
+            -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath /tmp/nua-ios-build CODE_SIGNING_ALLOWED=NO build
+          nua_app="$(find /tmp/nua-ios-build/Build/Products/Debug-iphonesimulator -maxdepth 1 -name '*.app' -print -quit)"
+          test -n "$nua_app"
+          tar -czf nua-crew-ios-simulator.tar.gz -C "$(dirname "$nua_app")" "$(basename "$nua_app")"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: nua-crew-ios-simulator
+          path: nua-crew-ios-simulator.tar.gz
+          retention-days: 7

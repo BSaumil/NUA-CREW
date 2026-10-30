@@ -136,3 +136,52 @@ export async function withdraw(form: FormData) {
   if (error) back(`/applications/${id}`, 'error', errorMessage(error));
   back(`/applications/${id}`, 'notice', 'Application withdrawn');
 }
+
+type RolePick = { role_code: string; years_experience: number | null; is_primary: boolean };
+
+async function currentRoles(): Promise<RolePick[]> {
+  const { data } = await (await api()).GET('/v1/candidate/roles');
+  return (data ?? []).map((r) => ({
+    role_code: r.role.code,
+    years_experience: r.years_experience ?? null,
+    is_primary: r.is_primary,
+  }));
+}
+
+async function putRoles(roles: RolePick[], notice: string) {
+  const { error } = await (await api()).PUT('/v1/candidate/roles', { body: { roles } });
+  if (error) back('/profile/roles', 'error', errorMessage(error));
+  revalidatePath('/profile/roles');
+  back('/profile/roles', 'notice', notice);
+}
+
+export async function addMyRole(form: FormData) {
+  const code = str(form, 'role_code');
+  const list = await currentRoles();
+  if (list.some((r) => r.role_code === code)) back('/profile/roles', 'notice', 'Already added');
+  if (list.length >= 8) back('/profile/roles', 'error', 'You can add up to 8 roles');
+  await putRoles(
+    [...list, { role_code: code, years_experience: null, is_primary: list.length === 0 }],
+    'Role added',
+  );
+}
+
+export async function removeMyRole(code: string, _form: FormData) {
+  const next = (await currentRoles()).filter((r) => r.role_code !== code);
+  if (next.length && !next.some((r) => r.is_primary)) next[0] = { ...next[0]!, is_primary: true };
+  await putRoles(next, 'Role removed');
+}
+
+export async function saveMyRoles(form: FormData) {
+  const primary = str(form, 'primary');
+  const roles = form.getAll('role_code').map((c) => {
+    const code = String(c);
+    const years = str(form, `years_${code}`);
+    return {
+      role_code: code,
+      years_experience: years === '' ? null : Number(years),
+      is_primary: code === primary,
+    };
+  });
+  await putRoles(roles, 'Roles saved. Your job matches now use them.');
+}

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { AiDisclosure, Button } from '@nua-crew/ui';
+import { AiDisclosure, Button, ButtonLink } from '@nua-crew/ui';
 import { api, requireCandidate } from '@/lib/api';
 import { addResume, saveProfile, setDiscovery } from '../actions';
 import { Field, Flash, flashFrom } from '../components';
@@ -95,6 +95,23 @@ export default async function Profile({
         </div>
       </form>
 
+      <section
+        className="nua-card nua-row"
+        aria-labelledby="roles-h"
+        style={{ justifyContent: 'space-between' }}
+      >
+        <div>
+          <h2 id="roles-h" style={{ marginBottom: 4 }}>
+            Roles you do
+          </h2>
+          <p className="nua-hint" style={{ margin: 0 }}>
+            Waiter, barista, chef de partie… Pick several to improve your matches.
+          </p>
+        </div>
+        <ButtonLink href="/profile/roles" variant="secondary">
+          Choose roles
+        </ButtonLink>
+      </section>
       <section className="nua-card nua-stack" aria-labelledby="resume-h">
         <h2 id="resume-h">Resumes</h2>
         {(resumes ?? []).length === 0 ? (

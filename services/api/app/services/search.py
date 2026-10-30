@@ -1,12 +1,14 @@
 """Public job search shared by the API route and saved-search alerts."""
 
+import uuid
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, Literal
 
 from sqlalchemy import ColumnElement, Select, case, func, literal, or_, select
 
-from app.models import Job, JobSkill, Skill
+from app.config import get_settings
+from app.models import Employer, HospitalityRole, Job, JobSkill, PublishedPromotion, Skill
 from app.services.jobs import slugify
 from app.services.matching import _TO_HOURLY
 
@@ -14,6 +16,7 @@ Sort = Literal["relevance", "newest", "pay", "distance"]
 SAVED_SEARCH_KEYS = {
     "q", "suburb", "state", "employment_type", "category", "skill", "min_hourly",
     "near_lat", "near_lng", "radius_km", "posted_within_days",
+    "engagement_basis", "duration_type", "hours_pattern", "role_code", "department",
 }  # fmt: skip
 
 
@@ -31,6 +34,12 @@ class SearchParams:
     radius_km: float | None = None
     posted_within_days: int | None = None
     published_after: datetime | None = None  # used by alerts
+    engagement_basis: str | None = None
+    duration_type: str | None = None
+    hours_pattern: str | None = None
+    role_code: str | None = None
+    department: str | None = None
+    exclude_employer_ids: tuple[uuid.UUID, ...] = ()  # a candidate's muted employers
     sort: Sort = "relevance"
 
     @classmethod
@@ -71,6 +80,22 @@ def build(p: SearchParams) -> tuple[Select[Any], Select[Any]]:
         where.append(Job.employment_type == p.employment_type)
     if p.category:
         where.append(func.lower(Job.category) == p.category.lower())
+    if p.engagement_basis:
+        where.append(Job.engagement_basis == p.engagement_basis)
+    if p.duration_type:
+        where.append(Job.duration_type == p.duration_type)
+    if p.hours_pattern:
+        where.append(Job.hours_pattern == p.hours_pattern)
+    if p.role_code:
+        where.append(Job.role_code == p.role_code)
+    if p.department:
+        where.append(
+            Job.role_code.in_(
+                select(HospitalityRole.code).where(HospitalityRole.department_code == p.department)
+            )
+        )
+    if p.exclude_employer_ids:
+        where.append(or_(Job.employer_id.is_(None), Job.employer_id.not_in(p.exclude_employer_ids)))
     if p.skill:
         where.append(
             Job.id.in_(
@@ -104,6 +129,32 @@ def build(p: SearchParams) -> tuple[Select[Any], Select[Any]]:
         count = count.where(Job.search_vector.op("@@")(tsq))
 
     newest = [Job.published_at.desc().nulls_last(), Job.id]
+    # Paid ordering is limited to the exact local/category relevance search sold to the employer.
+    # It never overrides pay/distance/newest sorts or any eligibility/filter/mute condition.
+    if (
+        get_settings().paid_advertising_enabled
+        and p.state
+        and p.suburb
+        and p.category
+        and p.sort == "relevance"
+    ):
+        paid = (
+            select(PublishedPromotion.id)
+            .where(
+                PublishedPromotion.job_id == Job.id,
+                PublishedPromotion.active,
+                PublishedPromotion.starts_at <= func.now(),
+                PublishedPromotion.ends_at > func.now(),
+                func.lower(Job.state) == p.state.lower(),
+                func.lower(Job.suburb) == p.suburb.lower(),
+                func.lower(Job.category) == p.category.lower(),
+                Job.employer_id.in_(
+                    select(Employer.id).where(Employer.verification_status == "verified")
+                ),
+            )
+            .exists()
+        )
+        stmt = stmt.order_by(case((paid, 0), else_=1))
     if p.sort == "pay":
         stmt = stmt.order_by(hourly_max_expr().desc().nulls_last(), *newest)
     elif p.sort == "distance" and near:

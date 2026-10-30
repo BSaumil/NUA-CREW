@@ -13,11 +13,14 @@ import socket
 from collections import Counter
 
 from app.config import get_settings
-from app.db import dispose_engine, get_sessionmaker
+from app.db import assert_rls_safe_role, dispose_engine, get_sessionmaker
 from app.rls import set_context
 from app.services.alerts import run_alerts
+from app.services.billing import sweep_billing
 from app.services.ingestion.queue import expire_stale, process_one, schedule_due
+from app.services.invitations import sweep_expired
 from app.services.push import deliver_pending
+from app.services.stripe_payments import refund_unfulfilled
 
 log = logging.getLogger("nua.worker")
 
@@ -35,6 +38,9 @@ async def run_once(max_tasks: int = 1000) -> Counter[str]:
         stats["scheduled"] = await schedule_due(s)
         stats["expired"] = await expire_stale(s, get_settings().ingestion_stale_after_seconds)
         stats["alerts"] = await run_alerts(s)
+        stats["invitations_expired"] = await sweep_expired(s)
+        stats["billing_expired"] = await sweep_billing(s)
+        stats["billing_refunds_requested"] = await refund_unfulfilled(s)
         await s.commit()
     async with factory() as s:
         await set_context(s, role="system")
@@ -64,6 +70,7 @@ async def serve(poll_seconds: float, stop: asyncio.Event) -> None:
 
 
 async def _main(once: bool, poll: float) -> None:
+    await assert_rls_safe_role()
     if once:
         print(dict(await run_once()))  # noqa: T201
     else:

@@ -4,12 +4,20 @@ from typing import Annotated
 from fastapi import APIRouter, Query
 from sqlalchemy import select
 
-from app.deps import Candidate, Session
+from app.deps import Candidate, OptionalUser, Session
 from app.errors import ApiError, not_found
-from app.models import CandidateSkill, Job, JobSkill, Skill
+from app.models import (
+    CandidateRole,
+    CandidateSkill,
+    EmployerPreference,
+    HospitalityRole,
+    Job,
+    JobSkill,
+    Skill,
+)
 from app.schemas import JobList, JobOut, MatchOut
 from app.services.jobs import is_open, to_out
-from app.services.matching import CandidateCtx, JobCtx, compute_match
+from app.services.matching import CandidateCtx, CandidateRoleCtx, JobCtx, compute_match
 from app.services.search import SearchParams, Sort, build
 
 router = APIRouter(prefix="/v1/jobs", tags=["jobs"])
@@ -18,10 +26,16 @@ router = APIRouter(prefix="/v1/jobs", tags=["jobs"])
 @router.get("", response_model=JobList)
 async def search_jobs(
     session: Session,
+    user: OptionalUser,
     q: Annotated[str | None, Query(max_length=200)] = None,
     suburb: Annotated[str | None, Query(max_length=100)] = None,
     state: Annotated[str | None, Query(max_length=3)] = None,
     employment_type: str | None = None,
+    engagement_basis: Annotated[str | None, Query(max_length=16)] = None,
+    duration_type: Annotated[str | None, Query(max_length=16)] = None,
+    hours_pattern: Annotated[str | None, Query(max_length=16)] = None,
+    role: Annotated[str | None, Query(max_length=12)] = None,
+    department: Annotated[str | None, Query(max_length=48)] = None,
     category: Annotated[str | None, Query(max_length=100)] = None,
     skill: Annotated[str | None, Query(max_length=100)] = None,
     min_hourly: Annotated[float | None, Query(ge=0, le=1000)] = None,
@@ -41,10 +55,21 @@ async def search_jobs(
         raise ApiError(422, "near_incomplete", "Provide both near_lat and near_lng")
     if sort == "distance" and near_lat is None:
         raise ApiError(422, "near_required", "sort=distance needs near_lat and near_lng")
+    muted: tuple[uuid.UUID, ...] = ()
+    if user is not None and user.role == "candidate":
+        # A candidate's own "mute" choices (private; RLS shows them only their own rows).
+        muted = tuple(
+            await session.scalars(
+                select(EmployerPreference.employer_id).where(EmployerPreference.kind == "mute")
+            )
+        )
     params = SearchParams(
         q=q, suburb=suburb, state=state, employment_type=employment_type, category=category,
         skill=skill, min_hourly=min_hourly, near_lat=near_lat, near_lng=near_lng,
         radius_km=radius_km, posted_within_days=posted_within_days, sort=sort,
+        engagement_basis=engagement_basis, duration_type=duration_type,
+        hours_pattern=hours_pattern, exclude_employer_ids=muted,
+        role_code=role, department=department,
     )  # fmt: skip
     stmt, count_stmt = build(params)
     total = await session.scalar(count_stmt) or 0
@@ -88,6 +113,19 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
         )
     }
     job_l, cand_l = {x.lower() for x in job_skills}, {x.lower() for x in cand_skills}
+    job_role = await session.get(HospitalityRole, job.role_code) if job.role_code else None
+    my_roles = [
+        CandidateRoleCtx(
+            code=r.code, title=r.title, department_code=r.department_code, years=cr.years_experience
+        )
+        for cr, r in (
+            await session.execute(
+                select(CandidateRole, HospitalityRole)
+                .join(HospitalityRole, HospitalityRole.code == CandidateRole.role_code)
+                .where(CandidateRole.candidate_id == candidate.id)
+            )
+        ).all()
+    ]
     result = compute_match(
         JobCtx(
             job_l,
@@ -98,6 +136,9 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
             job.pay_max,
             job.pay_period,
             job.pay_basis,
+            role_code=job_role.code if job_role else None,
+            role_title=job_role.title if job_role else None,
+            department_code=job_role.department_code if job_role else None,
         ),
         CandidateCtx(
             cand_l,
@@ -106,6 +147,7 @@ async def match(job_id: uuid.UUID, candidate: Candidate, session: Session) -> Ma
             candidate.state,
             candidate.postcode,
             candidate.min_hourly_pay,
+            roles=my_roles,
         ),
     )
     display = {n.lower(): n for n in job_skills}

@@ -1,8 +1,15 @@
 packages:
-  - "apps/*"
-  - "packages/*"
-  - "tests/e2e"
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
-  - unrs-resolver
+  - 'apps/*'
+  - 'packages/*'
+  - 'tests/e2e'
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+minimumReleaseAgeStrict: true
+
+overrides:
+  '@expo/cli>zod': 4.6.6
+  '@expo/cli>node-forge': 1.4.1
+  '@expo/code-signing-certificates>node-forge': 1.4.1

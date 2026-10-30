@@ -1,11 +1,26 @@
 import { createApi, errorMessage } from '@nua-crew/api-client';
 import { API_URL, REQUEST_TIMEOUT_MS } from '@/lib/config';
-import { session } from './session';
+import { session, SessionChangedError } from './session';
+import { CredentialStorageError } from '@/lib/storage';
+
+const responseGenerations = new WeakMap<Response, number>();
+
+function assertResponseSession(response: Response) {
+  const revision = responseGenerations.get(response);
+  if (revision !== undefined && revision !== session.generation()) {
+    throw new SessionChangedError();
+  }
+}
 
 /** fetch that adds the bearer token, times out, and retries once after a 401 via token refresh. */
 export async function authFetch(input: Request): Promise<Response> {
+  const revision = session.generation();
+  const assertSameSession = () => {
+    if (session.generation() !== revision) throw new SessionChangedError();
+  };
   const retry = input.clone();
   const attempt = async (req: Request, token: string | null) => {
+    assertSameSession();
     if (token) req.headers.set('Authorization', `Bearer ${token}`);
     const ctl = new AbortController();
     const timer = setTimeout(() => ctl.abort(), REQUEST_TIMEOUT_MS);
@@ -16,10 +31,16 @@ export async function authFetch(input: Request): Promise<Response> {
     }
   };
   const res = await attempt(input, await session.getAccessToken());
+  responseGenerations.set(res, revision);
+  assertSameSession();
   if (res.status !== 401) return res;
-  const fresh = await session.refreshNow();
+  const fresh = await session.refreshNow(revision);
   if (!fresh) return res; // session is gone; the auth gate will route to sign-in
-  return attempt(retry, fresh);
+  assertSameSession();
+  const retried = await attempt(retry, fresh);
+  responseGenerations.set(retried, revision);
+  assertSameSession();
+  return retried;
 }
 
 export const api = createApi({ baseUrl: API_URL, fetch: authFetch });
@@ -36,6 +57,7 @@ export class ApiFailure extends Error {
 
 /** Unwraps an openapi-fetch result, turning API errors into one readable exception type. */
 export function unwrap<T>(r: { data?: T; error?: unknown; response: Response }): T {
+  assertResponseSession(r.response);
   if (r.data !== undefined && r.response.ok) return r.data;
   const code = (r.error as { error?: { code?: string } } | undefined)?.error?.code;
   throw new ApiFailure(errorMessage(r.error), r.response.status, code);
@@ -50,7 +72,9 @@ export class UserMessage extends Error {
 }
 
 export function messageOf(e: unknown): string {
-  if (e instanceof ApiFailure || e instanceof UserMessage) return e.message;
+  if (e instanceof SessionChangedError) return e.message;
+  if (e instanceof ApiFailure || e instanceof UserMessage || e instanceof CredentialStorageError)
+    return e.message;
   if (e instanceof Error && e.name === 'AbortError')
     return 'The request timed out. Check your connection.';
   return 'We could not reach NUA CREW. Check your connection and try again.';
@@ -58,6 +82,7 @@ export function messageOf(e: unknown): string {
 
 /** For endpoints that return 204 No Content. */
 export function unwrapVoid(r: { error?: unknown; response: Response }): void {
+  assertResponseSession(r.response);
   if (r.response.ok) return;
   const code = (r.error as { error?: { code?: string } } | undefined)?.error?.code;
   throw new ApiFailure(errorMessage(r.error), r.response.status, code);

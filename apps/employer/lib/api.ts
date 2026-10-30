@@ -36,4 +36,11 @@ export async function requireEmployer() {
 
 export const canWrite = (role: string) => role === 'owner' || role === 'recruiter';
 
+export async function requireAdmin() {
+  const viewer = await getViewer();
+  if (!viewer || viewer.role !== 'admin')
+    redirect('/login?error=' + encodeURIComponent('Operator access required'));
+  return viewer;
+}
+
 export { errorMessage };

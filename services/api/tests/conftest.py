@@ -1,8 +1,14 @@
 import os
 
 # Must be set before any app import so Settings picks them up.
+# Runtime role (subject to RLS) for the app; schema owner for Alembic. See ADR-008.
 os.environ.setdefault(
-    "NUA_DATABASE_URL", "postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew_test"
+    "NUA_DATABASE_URL",
+    "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew_test",
+)
+os.environ.setdefault(
+    "NUA_MIGRATION_DATABASE_URL",
+    "postgresql+asyncpg://nua_migrator:nua_migrator_dev@localhost:5432/nua_crew_test",
 )
 os.environ["NUA_DB_NULL_POOL"] = "true"
 os.environ.pop("NUA_REDIS_URL", None)
@@ -30,9 +36,69 @@ from app.security import hash_password  # noqa: E402
 
 PASSWORD = "correct-horse-battery"
 
+REFERENCE_TABLES = frozenset(
+    {
+        "hospitality_departments",
+        "hospitality_roles",
+        "hospitality_role_aliases",
+        "venue_types",
+        "role_venue_compatibility",
+        "industrial_instruments",
+        "award_classifications",
+        "award_rate_versions",
+        "penalty_rule_versions",
+    }
+)
+
 
 @pytest.fixture(scope="session", autouse=True)
-def _migrated() -> None:
+def _rls_safe_role() -> None:
+    """Fail fast: against a superuser/BYPASSRLS role every isolation test would pass for the
+    wrong reason (or fail confusingly). See db/roles/bootstrap.sql."""
+    import asyncio
+
+    from app.db import current_role, dispose_engine
+
+    async def check():
+        try:
+            return await current_role()
+        finally:
+            await dispose_engine()
+
+    info = asyncio.run(check())
+    if info.unsafe:
+        pytest.exit(
+            f"Database role {info.name!r} bypasses row-level security (superuser={info.superuser}, "
+            f"bypassrls={info.bypass_rls}). Run db/roles/bootstrap.sql and connect as nua_runtime.",
+            returncode=3,
+        )
+
+
+@pytest.fixture(scope="session", autouse=True)
+def _migrated(_rls_safe_role: None) -> None:
+    import asyncio
+
+    async def wipe() -> None:
+        # A previous run's rows (e.g. audit events of deleted users) would make a downgrade that
+        # re-adds a foreign key fail, so start from empty tables.
+        async with get_engine().begin() as conn:
+            tables = (
+                (
+                    await conn.execute(
+                        text(
+                            "SELECT tablename FROM pg_tables WHERE schemaname='public' "
+                            "AND tablename <> 'alembic_version'"
+                        )
+                    )
+                )
+                .scalars()
+                .all()
+            )
+            if tables:
+                await conn.execute(text(f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE"))
+        await dispose_engine()
+
+    asyncio.run(wipe())
     cfg = Config("alembic.ini")
     command.downgrade(cfg, "base")
     command.upgrade(cfg, "head")
@@ -51,6 +117,9 @@ async def _clean_db() -> AsyncIterator[None]:
                 )
             )
         ).scalars()
+        # The hospitality taxonomy and award rules are migration-seeded reference data, not
+        # per-test fixtures, so they survive between tests (public_holidays is test-owned).
+        tables = [t for t in tables if t not in REFERENCE_TABLES]
         await conn.execute(text(f"TRUNCATE {', '.join(tables)} RESTART IDENTITY CASCADE"))
     yield
     await dispose_engine()

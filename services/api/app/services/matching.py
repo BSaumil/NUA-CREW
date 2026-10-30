@@ -19,6 +19,7 @@ WEIGHTS = {
     "salary": 10,
     "preference": 5,
     "trajectory": 5,
+    "role": 20,  # hospitality role fit; only evaluated when both sides declared roles
 }
 _HOURS_PER_WEEK = Decimal(38)
 _TO_HOURLY = {
@@ -40,6 +41,17 @@ class JobCtx:
     pay_max: Decimal | None
     pay_period: str | None
     pay_basis: str
+    role_code: str | None = None
+    role_title: str | None = None
+    department_code: str | None = None
+
+
+@dataclass
+class CandidateRoleCtx:
+    code: str
+    title: str
+    department_code: str
+    years: int | None = None
 
 
 @dataclass
@@ -50,6 +62,7 @@ class CandidateCtx:
     state: str | None
     postcode: str | None
     min_hourly_pay: Decimal | None
+    roles: list[CandidateRoleCtx] = field(default_factory=list)
 
 
 @dataclass
@@ -154,6 +167,34 @@ def compute_match(job: JobCtx, cand: CandidateCtx) -> MatchResult:
         comps.append(_skip("preference", "No employment type preference set."))
 
     comps.append(_skip("trajectory", "Career trajectory matching is not enabled yet."))
+
+    if job.role_code and cand.roles:
+        exact = next((r for r in cand.roles if r.code == job.role_code), None)
+        related = next((r for r in cand.roles if r.department_code == job.department_code), None)
+        if exact:
+            yrs = f" with {exact.years} years" if exact.years else ""
+            score, ev = 1.0, f"You listed {exact.title}{yrs}."
+        elif related:
+            score, ev = 0.5, f"You listed {related.title}, in the same area as this role."
+        else:
+            score, ev = 0.0, "None of your listed roles are in this department."
+        comps.append(
+            MatchComponent(
+                key="role",
+                weight=WEIGHTS["role"],
+                evaluated=True,
+                score=score,
+                evidence=ev,
+                basis="self_declared",
+            )
+        )
+    else:
+        comps.append(
+            _skip(
+                "role",
+                "The job has no listed role or you haven't added roles to your profile.",
+            )
+        )
 
     evaluated = [c for c in comps if c.evaluated and c.score is not None]
     total_w = sum(c.weight for c in evaluated)

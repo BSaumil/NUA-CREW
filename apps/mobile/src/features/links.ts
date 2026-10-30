@@ -8,6 +8,12 @@ export function routeFor(kind: string | undefined, data: Data): Href {
   if (kind?.startsWith('application.') && str('application_id')) {
     return { pathname: '/application/[id]', params: { id: str('application_id')! } };
   }
+  if (kind === 'invitation_received' && str('invitation_id')) {
+    return { pathname: '/invitation/[id]', params: { id: str('invitation_id')! } };
+  }
+  if (kind === 'message_received' && str('conversation_id')) {
+    return { pathname: '/conversation/[id]', params: { id: str('conversation_id')! } };
+  }
   if (kind === 'job.alert') {
     const first = Array.isArray(data?.job_ids)
       ? (data.job_ids as unknown[]).find((x) => typeof x === 'string')

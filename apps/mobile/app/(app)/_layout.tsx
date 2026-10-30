@@ -1,7 +1,9 @@
-import { Ionicons } from '@expo/vector-icons';
+// Single icon set, imported directly: the package index bundles every icon font family.
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { Tabs } from 'expo-router';
-import { useNotifications } from '@/api/queries';
+import { useInboxSummary } from '@/api/queries';
 import { useTheme } from '@/theme/ThemeProvider';
+import { useTabBarStyle } from '@/ui/tab-bar';
 
 type IconName = React.ComponentProps<typeof Ionicons>['name'];
 const icon =
@@ -15,18 +17,20 @@ export const unstable_settings = { initialRouteName: 'discover' };
 
 export default function AppTabs() {
   const { colors } = useTheme();
-  const { data } = useNotifications();
-  const unread = data?.filter((n) => !n.read_at).length ?? 0;
+  const tabBarStyle = useTabBarStyle();
+  const inbox = useInboxSummary().data;
+  const inboxUnread = (inbox?.unread_invitations ?? 0) + (inbox?.unread_conversations ?? 0);
   return (
     <Tabs
       screenOptions={{
         headerShown: false,
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
-        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
+        tabBarStyle,
         tabBarLabelStyle: { fontFamily: 'Inter_600SemiBold', fontSize: 12 },
       }}
     >
+      <Tabs.Screen name="index" options={{ href: null }} />
       <Tabs.Screen
         name="discover"
         options={{ title: 'Discover', tabBarIcon: icon('search-outline', 'search') }}
@@ -43,15 +47,18 @@ export default function AppTabs() {
         }}
       />
       <Tabs.Screen
-        name="alerts"
+        name="inbox"
         options={{
-          title: 'Alerts',
-          tabBarIcon: icon('notifications-outline', 'notifications'),
-          tabBarBadge: unread > 0 ? unread : undefined,
+          title: 'Inbox',
+          tabBarIcon: icon('mail-outline', 'mail'),
+          tabBarBadge: inboxUnread > 0 ? inboxUnread : undefined,
           tabBarBadgeStyle: { backgroundColor: colors.primary, color: colors.onPrimary },
-          tabBarAccessibilityLabel: unread ? `Alerts, ${unread} unread` : 'Alerts',
+          tabBarAccessibilityLabel: inboxUnread ? `Inbox, ${inboxUnread} unread` : 'Inbox',
         }}
       />
+      {/* Reached from the bell on Discover and from notification taps. `href: null` would remove the
+          route itself, so hide only the tab button. */}
+      <Tabs.Screen name="alerts" options={{ title: 'Notifications', tabBarButton: () => null }} />
       <Tabs.Screen
         name="profile"
         options={{ title: 'Profile', tabBarIcon: icon('person-outline', 'person') }}

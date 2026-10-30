@@ -128,7 +128,13 @@ export function JobCard({
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', gap: 8 }}>
           <View style={{ flex: 1, gap: 2 }}>
             <Text variant="heading">{job.title}</Text>
+            {job.promoted ? <Badge label="Promoted" /> : null}
             <Text muted>{job.employer.name ?? 'Employer not named'}</Text>
+            {job.role ? (
+              <Text variant="caption" muted>
+                {job.role.title} · {job.role.department_name}
+              </Text>
+            ) : null}
           </View>
         </View>
         <Row>

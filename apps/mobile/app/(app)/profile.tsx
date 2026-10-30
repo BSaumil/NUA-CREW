@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, Modal, Pressable, View } from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import { messageOf } from '@/api/client';
 import {
   useAddResume,
@@ -11,6 +11,7 @@ import {
 } from '@/api/queries';
 import { TYPE_LABEL, type EmploymentType } from '@/features/filters';
 import { profileStrength } from '@/features/format';
+import { reportSignOut } from '@/features/signout';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, space } from '@/theme/tokens';
@@ -25,6 +26,7 @@ import {
   Row,
   Screen,
   Text,
+  Sheet,
 } from '@/ui';
 
 const STATES = ['VIC', 'NSW', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'] as const;
@@ -119,6 +121,41 @@ export default function Profile() {
         </Text>
         <Button title="Settings" variant="secondary" onPress={() => router.push('/settings')} />
       </Row>
+      <Button
+        title="Notifications and job alerts"
+        variant="secondary"
+        onPress={() => router.push('/(app)/alerts')}
+      />
+      <Button
+        title="My shifts and hours"
+        variant="secondary"
+        onPress={() => router.push('/my-shifts')}
+      />
+
+      <Card>
+        <Text variant="heading" accessibilityRole="header">
+          Work and availability
+        </Text>
+        <Text variant="caption" muted>
+          Permanent or temporary, when you can work, and who can find you. Private until you choose.
+        </Text>
+        <Button title="Roles you do" variant="secondary" onPress={() => router.push('/my-roles')} />
+        <Button
+          title="Work preferences"
+          variant="secondary"
+          onPress={() => router.push('/work-preferences')}
+        />
+        <Button
+          title="Availability"
+          variant="secondary"
+          onPress={() => router.push('/availability')}
+        />
+        <Button
+          title="Employers I prefer or avoid"
+          variant="secondary"
+          onPress={() => router.push('/employer-preferences')}
+        />
+      </Card>
 
       <Card>
         <Row style={{ justifyContent: 'space-between' }}>
@@ -287,7 +324,11 @@ export default function Profile() {
         onPress={() =>
           Alert.alert('Sign out of NUA CREW?', undefined, [
             { text: 'Cancel', style: 'cancel' },
-            { text: 'Sign out', style: 'destructive', onPress: () => void signOut() },
+            {
+              text: 'Sign out',
+              style: 'destructive',
+              onPress: () => void signOut().then(reportSignOut),
+            },
           ])
         }
       />
@@ -330,36 +371,32 @@ function ResumeModal({
   };
 
   return (
-    <Modal visible={!!target} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            {target?.id ? `New version of ${target.title}` : 'Add a resume'}
-          </Text>
-          {!target?.id ? <Field label="Name" value={title} onChangeText={setTitle} /> : null}
-          <Field
-            label="Resume text"
-            value={text}
-            onChangeText={setText}
-            multiline
-            maxLength={50000}
-            style={{ minHeight: 160, textAlignVertical: 'top' }}
-          />
-          {error ? (
-            <Text accessibilityLiveRegion="polite" color={colors.danger}>
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button
-              title="Save"
-              loading={add.isPending || addVersion.isPending}
-              onPress={() => void submit()}
-            />
-            <Button title="Cancel" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+    <Sheet visible={!!target} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        {target?.id ? `New version of ${target.title}` : 'Add a resume'}
+      </Text>
+      {!target?.id ? <Field label="Name" value={title} onChangeText={setTitle} /> : null}
+      <Field
+        label="Resume text"
+        value={text}
+        onChangeText={setText}
+        multiline
+        maxLength={50000}
+        style={{ minHeight: 160, textAlignVertical: 'top' }}
+      />
+      {error ? (
+        <Text accessibilityLiveRegion="polite" color={colors.danger}>
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button
+          title="Save"
+          loading={add.isPending || addVersion.isPending}
+          onPress={() => void submit()}
+        />
+        <Button title="Cancel" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }

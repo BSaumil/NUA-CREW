@@ -4,8 +4,8 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Modal,
   RefreshControl,
+  ScrollView,
   Switch,
   View,
 } from 'react-native';
@@ -26,7 +26,6 @@ import { space } from '@/theme/tokens';
 import {
   BrandLockup,
   Button,
-  Card,
   Chip,
   EmptyState,
   ErrorState,
@@ -36,6 +35,7 @@ import {
   OfflineBanner,
   Row,
   Text,
+  Sheet,
 } from '@/ui';
 
 const QUICK_TYPES: EmploymentType[] = ['casual', 'part_time', 'full_time'];
@@ -102,7 +102,18 @@ export default function Discover() {
 
   const header = (
     <View style={{ gap: space(1.5), paddingBottom: space(1.5) }}>
-      <BrandLockup />
+      <Row style={{ justifyContent: 'space-between' }}>
+        <BrandLockup />
+        <Button
+          title="Notifications"
+          variant="ghost"
+          onPress={() => router.push('/(app)/alerts')}
+        />
+      </Row>
+      <Text variant="display" accessibilityRole="header">
+        Work that fits your life.
+      </Text>
+      <Text muted>Permanent roles. Flexible work. Your choice.</Text>
       <OfflineBanner />
       <Field
         label="Search jobs"
@@ -112,39 +123,46 @@ export default function Discover() {
         returnKeyType="search"
         autoCorrect={false}
       />
-      <Row>
-        <Button
-          title={n ? `Filters (${n})` : 'Filters'}
-          variant="secondary"
-          onPress={() => router.push('/filters')}
-        />
-        {QUICK_TYPES.map((t) => (
-          <Chip
-            key={t}
-            label={QUICK_LABEL[t] ?? t}
-            selected={filters.employment_type === t}
-            onPress={() => toggleType(t)}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <Row style={{ flexWrap: 'nowrap' }}>
+          <Button
+            title={n ? `Filters (${n})` : 'Filters'}
+            variant="secondary"
+            onPress={() => router.push('/filters')}
           />
-        ))}
-        <Chip
-          label="Near me"
-          selected={!!filters.near}
-          onPress={() => void toggleNear()}
-          accessibilityHint="Uses your approximate location once. It is not stored."
-        />
-        <Chip
-          label="$30+/h"
-          selected={filters.min_hourly === 30}
-          onPress={() => setFilters((f) => ({ ...f, min_hourly: f.min_hourly === 30 ? null : 30 }))}
-        />
-        <Chip
-          label="New this week"
-          selected={filters.posted_within_days === 7}
-          onPress={() =>
-            setFilters((f) => ({ ...f, posted_within_days: f.posted_within_days === 7 ? null : 7 }))
-          }
-        />
-      </Row>
+          {QUICK_TYPES.map((t) => (
+            <Chip
+              key={t}
+              label={QUICK_LABEL[t] ?? t}
+              selected={filters.employment_type === t}
+              onPress={() => toggleType(t)}
+            />
+          ))}
+          <Chip
+            label="Near me"
+            selected={!!filters.near}
+            onPress={() => void toggleNear()}
+            accessibilityHint="Uses your approximate location once. It is not stored."
+          />
+          <Chip
+            label="$30+/h"
+            selected={filters.min_hourly === 30}
+            onPress={() =>
+              setFilters((f) => ({ ...f, min_hourly: f.min_hourly === 30 ? null : 30 }))
+            }
+          />
+          <Chip
+            label="New this week"
+            selected={filters.posted_within_days === 7}
+            onPress={() =>
+              setFilters((f) => ({
+                ...f,
+                posted_within_days: f.posted_within_days === 7 ? null : 7,
+              }))
+            }
+          />
+        </Row>
+      </ScrollView>
       <Row style={{ justifyContent: 'space-between' }}>
         <Text accessibilityRole="header" accessibilityLiveRegion="polite" variant="label" muted>
           {jobs.isPending
@@ -273,38 +291,34 @@ function SaveSearchModal({
   };
 
   return (
-    <Modal visible={opened} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            Save this search
+    <Sheet visible={opened} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        Save this search
+      </Text>
+      <Field label="Name" value={name} onChangeText={setName} maxLength={100} />
+      <Row style={{ justifyContent: 'space-between' }}>
+        <View style={{ flex: 1 }}>
+          <Text variant="label">Alert me about new jobs</Text>
+          <Text variant="caption" muted>
+            At most one alert an hour. Turn off any time.
           </Text>
-          <Field label="Name" value={name} onChangeText={setName} maxLength={100} />
-          <Row style={{ justifyContent: 'space-between' }}>
-            <View style={{ flex: 1 }}>
-              <Text variant="label">Alert me about new jobs</Text>
-              <Text variant="caption" muted>
-                At most one alert an hour. Turn off any time.
-              </Text>
-            </View>
-            <Switch
-              value={alerts}
-              onValueChange={setAlerts}
-              accessibilityLabel="Alert me about new jobs"
-              trackColor={{ true: colors.primary, false: colors.border }}
-            />
-          </Row>
-          {error ? (
-            <Text color={colors.danger} accessibilityLiveRegion="polite">
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button title="Save" loading={create.isPending} onPress={() => void save()} />
-            <Button title="Cancel" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+        </View>
+        <Switch
+          value={alerts}
+          onValueChange={setAlerts}
+          accessibilityLabel="Alert me about new jobs"
+          trackColor={{ true: colors.primary, false: colors.border }}
+        />
+      </Row>
+      {error ? (
+        <Text color={colors.danger} accessibilityLiveRegion="polite">
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button title="Save" loading={create.isPending} onPress={() => void save()} />
+        <Button title="Cancel" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }

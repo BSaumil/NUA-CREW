@@ -16,9 +16,16 @@ export default defineConfig({
   expect: { timeout: 15_000 },
   fullyParallel: false,
   workers: 1,
-  retries: 0,
-  reporter: [['list']],
-  use: { trace: 'retain-on-failure', ...devices['Desktop Chrome'] },
+  // One CI retry absorbs dev-server compile stalls; a spec that needs it is reported as flaky.
+  retries: process.env.CI ? 1 : 0,
+  reporter: process.env.CI
+    ? [['list'], ['json', { outputFile: 'test-results/results.json' }]]
+    : [['list']],
+  use: {
+    trace: 'retain-on-failure',
+    ...devices['Desktop Chrome'],
+    channel: process.env.NUA_E2E_BROWSER_CHANNEL,
+  },
   webServer: [
     {
       // The mobile app's web build (react-native-web) talking to the real API.
@@ -42,6 +49,12 @@ export default defineConfig({
       command: 'pnpm --filter @nua-crew/web dev',
       env: { API_BASE_URL: 'http://localhost:8000' },
       url: 'http://localhost:3000/trust',
+      reuseExistingServer: !process.env.CI,
+      timeout: 120_000,
+    },
+    {
+      command: 'pnpm --filter @nua-crew/site dev',
+      url: 'http://localhost:3002/',
       reuseExistingServer: !process.env.CI,
       timeout: 120_000,
     },

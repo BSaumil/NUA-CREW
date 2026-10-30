@@ -1,6 +1,7 @@
 import { forwardRef, type ReactNode } from 'react';
 import {
   ActivityIndicator,
+  KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
@@ -61,7 +62,7 @@ export function Text({
       : (FONT.body[v.weight] ?? FONT.body['400']);
   return (
     <RNText
-      maxFontSizeMultiplier={1.6}
+      maxFontSizeMultiplier={2}
       {...rest}
       style={[
         {
@@ -95,17 +96,25 @@ export function Screen({
   const pad = padded ? { padding: space(2), paddingBottom: space(6), gap: space(2) } : undefined;
   return (
     <SafeAreaView edges={edges} style={{ flex: 1, backgroundColor: colors.bg }}>
-      {scroll ? (
-        <ScrollView
-          contentContainerStyle={pad}
-          refreshControl={refreshControl}
-          keyboardShouldPersistTaps={keyboardShouldPersistTaps}
-        >
-          {children}
-        </ScrollView>
-      ) : (
-        <View style={[{ flex: 1 }, pad]}>{children}</View>
-      )}
+      {/* Keeps the focused field above the keyboard on both platforms (edge-to-edge Android does
+          not resize the window). The content still scrolls when it does not fit. */}
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'web' ? undefined : 'padding'}
+        style={{ flex: 1 }}
+      >
+        {scroll ? (
+          <ScrollView
+            contentContainerStyle={pad}
+            refreshControl={refreshControl}
+            keyboardShouldPersistTaps={keyboardShouldPersistTaps}
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          <View style={[{ flex: 1 }, pad]}>{children}</View>
+        )}
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -282,7 +291,7 @@ export const Field = forwardRef<
         ref={ref}
         accessibilityLabel={label}
         placeholderTextColor={colors.muted}
-        maxFontSizeMultiplier={1.6}
+        maxFontSizeMultiplier={2}
         style={[
           {
             minHeight: MIN_TOUCH + 4,

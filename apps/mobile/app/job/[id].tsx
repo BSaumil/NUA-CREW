@@ -1,8 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
-import { useState } from 'react';
-import { Alert, Modal, Pressable, Share, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { Alert, Pressable, View } from 'react-native';
 import { messageOf } from '@/api/client';
 import {
   useApplications,
@@ -14,7 +14,9 @@ import {
   useToggleSave,
 } from '@/api/queries';
 import { TYPE_LABEL, type EmploymentType } from '@/features/filters';
+import { createApplyGuard, outcomeOfError } from '@/features/apply';
 import { isStale, postedAgo } from '@/features/format';
+import { shareJob } from '@/features/share';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, space } from '@/theme/tokens';
 import {
@@ -34,6 +36,7 @@ import {
   Screen,
   Text,
   TrustBadge,
+  Sheet,
 } from '@/ui';
 
 type Tab = 'overview' | 'match' | 'company';
@@ -98,11 +101,7 @@ export default function JobDetail() {
               accessibilityRole="button"
               accessibilityLabel="Share this job"
               hitSlop={12}
-              onPress={() =>
-                void Share.share({
-                  message: `${j.title} at ${j.employer.name ?? 'an employer'}${where ? ` (${where})` : ''} — on NUA CREW`,
-                })
-              }
+              onPress={() => void shareJob(j)}
             >
               <Text color={colors.primary} variant="label">
                 Share
@@ -117,6 +116,14 @@ export default function JobDetail() {
             {j.title}
           </Text>
           <Text muted>{j.employer.name ?? 'Employer not named'}</Text>
+          {j.role ? (
+            <Row>
+              <Badge label={j.role.title} />
+              <Text variant="caption" muted>
+                {j.role.department_name}
+              </Text>
+            </Row>
+          ) : null}
           <Row>
             {where ? (
               <Text variant="caption" muted>
@@ -298,70 +305,83 @@ function ApplySheet({
   const [error, setError] = useState<string | null>(null);
   const chosen = resumeId === '' ? null : (resumeId ?? resumes?.[0]?.id ?? null);
 
+  // One guard per sheet: stable idempotency key across retries of the same unchanged application,
+  // and a hard stop on rapid double taps (state updates lag a render; this does not).
+  const guard = useRef(createApplyGuard()).current;
+
   const submit = async () => {
+    const key = guard.begin(chosen, note);
+    if (key === null) return; // a submit is already in flight
     setError(null);
     try {
-      const a = await apply.mutateAsync({ jobId, resumeId: chosen, note: note.trim() });
+      const a = await apply.mutateAsync({
+        jobId,
+        resumeId: chosen,
+        note: note.trim(),
+        idempotencyKey: key,
+      });
+      guard.end('success');
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(
         () => undefined,
       );
       onClose();
       router.replace({ pathname: '/application/[id]', params: { id: a.id } });
     } catch (e) {
-      setError(messageOf(e));
+      guard.end(outcomeOfError(e));
+      setError(
+        outcomeOfError(e) === 'unknown'
+          ? `${messageOf(e)} Your application may have been sent: tap Submit again to retry safely, or check Applications.`
+          : messageOf(e),
+      );
     }
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: '#0008' }}>
-        <Card style={{ borderBottomLeftRadius: 0, borderBottomRightRadius: 0, gap: space(2) }}>
-          <Text variant="title" accessibilityRole="header">
-            Apply for {title}
-          </Text>
-          <Text variant="caption" muted>
-            The employer will see your profile, the resume you choose and your note. Applying is
-            free and you can withdraw later.
-          </Text>
-          <Text variant="label">Resume</Text>
-          {resumes?.length ? (
-            <Row>
-              {resumes.map((r) => (
-                <Chip
-                  key={r.id}
-                  label={r.title}
-                  selected={chosen === r.id}
-                  onPress={() => setResumeId(r.id)}
-                />
-              ))}
-              <Chip label="None" selected={chosen === null} onPress={() => setResumeId('')} />
-            </Row>
-          ) : (
-            <Text muted>No resume yet. You can still apply, or add one in Profile first.</Text>
-          )}
-          <Field
-            label="Note to the employer (optional)"
-            value={note}
-            onChangeText={setNote}
-            multiline
-            maxLength={5000}
-            style={{ minHeight: 90, textAlignVertical: 'top' }}
-          />
-          {error ? (
-            <Text accessibilityRole="alert" color={colors.danger}>
-              {error}
-            </Text>
-          ) : null}
-          <Row>
-            <Button
-              title="Submit application"
-              loading={apply.isPending}
-              onPress={() => void submit()}
+    <Sheet visible={visible} onClose={onClose}>
+      <Text variant="title" accessibilityRole="header">
+        Apply for {title}
+      </Text>
+      <Text variant="caption" muted>
+        The employer will see your profile, the resume you choose and your note. Applying is free
+        and you can withdraw later.
+      </Text>
+      <Text variant="label">Resume</Text>
+      {resumes?.length ? (
+        <Row>
+          {resumes.map((r) => (
+            <Chip
+              key={r.id}
+              label={r.title}
+              selected={chosen === r.id}
+              onPress={() => setResumeId(r.id)}
             />
-            <Button title="Cancel" variant="ghost" onPress={onClose} />
-          </Row>
-        </Card>
-      </View>
-    </Modal>
+          ))}
+          <Chip label="None" selected={chosen === null} onPress={() => setResumeId('')} />
+        </Row>
+      ) : (
+        <Text muted>No resume yet. You can still apply, or add one in Profile first.</Text>
+      )}
+      <Field
+        label="Note to the employer (optional)"
+        value={note}
+        onChangeText={setNote}
+        multiline
+        maxLength={5000}
+        style={{ minHeight: 90, textAlignVertical: 'top' }}
+      />
+      {error ? (
+        <Text accessibilityRole="alert" color={colors.danger}>
+          {error}
+        </Text>
+      ) : null}
+      <Row>
+        <Button
+          title="Submit application"
+          loading={apply.isPending}
+          onPress={() => void submit()}
+        />
+        <Button title="Cancel" variant="ghost" onPress={onClose} />
+      </Row>
+    </Sheet>
   );
 }

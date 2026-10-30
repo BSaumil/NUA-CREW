@@ -9,14 +9,17 @@ from app.config import get_settings
 from app.deps import CurrentUser, Owner, Recruiter, Session, Viewer
 from app.errors import ApiError, conflict, forbidden, not_found
 from app.models import (
+    AdEntitlement,
     Application,
     ApplicationEvent,
+    BillingOrder,
     CandidateProfile,
     CandidateSkill,
     Employer,
     EmployerMembership,
     Job,
     Location,
+    PromotionReservation,
     ResumeVersion,
     Skill,
     User,
@@ -37,7 +40,14 @@ from app.schemas import (
     StatusChangeIn,
 )
 from app.services.applications import change_status
-from app.services.jobs import apply_job_input, record_version, set_job_skills, to_out
+from app.services.hospitality.pay import enforce_on_publish
+from app.services.jobs import (
+    apply_job_input,
+    record_version,
+    set_job_skills,
+    to_out,
+    validate_hospitality_links,
+)
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 
@@ -154,6 +164,7 @@ async def create_job(
         f"job-create:{employer_id}", get_settings().job_create_limit_per_hour, 3600
     )
     loc = await _location(session, employer_id, body.location_id)
+    await validate_hospitality_links(session, employer_id, body)
     job = Job(employer_id=employer_id, origin="direct", status="draft", created_by=user.id)
     apply_job_input(job, body, loc)
     session.add(job)
@@ -179,9 +190,44 @@ async def update_job(
     session: Session,
 ) -> JobOut:
     job = await _own_job(session, employer_id, job_id)
+    await session.execute(select(Employer.id).where(Employer.id == employer_id).with_for_update())
+    await session.refresh(job, with_for_update=True)
+    now = datetime.now(UTC)
+    pending = await session.scalar(
+        select(BillingOrder.id)
+        .where(
+            BillingOrder.job_id == job_id,
+            BillingOrder.status == "pending",
+            BillingOrder.expires_at > now,
+        )
+        .limit(1)
+    )
+    promoted = await session.scalar(
+        select(PromotionReservation.id)
+        .where(
+            PromotionReservation.job_id == job_id,
+            PromotionReservation.status == "active",
+            PromotionReservation.ends_at > now,
+        )
+        .limit(1)
+    )
+    if pending or promoted:
+        raise conflict(
+            "advertisement_locked",
+            "Finish the checkout or refund the active promotion before editing its terms",
+        )
+    expires_at = job.expires_at
+    paid = get_settings().paid_advertising_enabled or bool(
+        await session.scalar(
+            select(AdEntitlement.id).where(AdEntitlement.job_id == job_id).limit(1)
+        )
+    )
     if job.status in ("closed", "expired"):
         raise conflict("job_closed", "Closed jobs cannot be edited")
+    await validate_hospitality_links(session, employer_id, body)
     apply_job_input(job, body, await _location(session, employer_id, body.location_id))
+    if paid:
+        job.expires_at = expires_at
     await session.flush()
     names = await set_job_skills(session, job, body.skills)
     await record_version(session, job, names, user.id)
@@ -203,6 +249,22 @@ async def publish_job(
     if not job.suburb:
         raise ApiError(422, "location_required", "A job location is required to publish")
     now = datetime.now(UTC)
+    await enforce_on_publish(session, job, user.id)
+    if get_settings().paid_advertising_enabled:
+        entitlement = await session.scalar(
+            select(AdEntitlement.id)
+            .where(
+                AdEntitlement.job_id == job.id,
+                AdEntitlement.active,
+                AdEntitlement.starts_at <= now,
+                AdEntitlement.ends_at > now,
+            )
+            .limit(1)
+        )
+        if entitlement is None:
+            raise conflict(
+                "advertisement_payment_required", "Confirm a paid advertisement before publishing"
+            )
     job.status, job.published_at, job.last_verified_at = "published", job.published_at or now, now
     await session.flush()
     names = [n for n in (await to_out(session, [job]))[0].skills]

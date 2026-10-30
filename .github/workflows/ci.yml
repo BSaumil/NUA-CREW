@@ -1,5 +1,6 @@
 name: ci
 on:
+  workflow_dispatch:
   pull_request:
   push:
     branches: [main]
@@ -13,22 +14,29 @@ jobs:
     services:
       postgres:
         image: pgvector/pgvector:pg16
-        env: { POSTGRES_USER: nua, POSTGRES_PASSWORD: nua_dev_password, POSTGRES_DB: nua_crew_test }
+        env: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres_ci, POSTGRES_DB: nua_crew_test }
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U nua" --health-interval 5s --health-timeout 3s --health-retries 10
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
       redis:
         image: redis:7-alpine
         ports: ['6379:6379']
         options: >-
           --health-cmd "redis-cli ping" --health-interval 5s --health-timeout 3s --health-retries 10
     env:
-      NUA_DATABASE_URL: postgresql+asyncpg://nua:nua_dev_password@localhost:5432/nua_crew_test
+      NUA_DATABASE_URL: postgresql+asyncpg://nua_runtime:nua_runtime_ci@localhost:5432/nua_crew_test
+      NUA_MIGRATION_DATABASE_URL: postgresql+asyncpg://nua_migrator:nua_migrator_ci@localhost:5432/nua_crew_test
       NUA_TEST_REDIS_URL: redis://localhost:6379/15
     defaults: { run: { working-directory: services/api } }
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v5
+      - name: Create least-privilege database roles
+        run: |
+          sudo apt-get install -y --no-install-recommends postgresql-client >/dev/null
+          PGPASSWORD=postgres_ci psql -h localhost -U postgres -d nua_crew_test -v ON_ERROR_STOP=1 \
+            -v migrator_password=nua_migrator_ci -v runtime_password=nua_runtime_ci -v grant_truncate=1 \
+            -f ../../db/roles/bootstrap.sql
       - run: uv sync --frozen
       - run: uv run ruff check .
       - run: uv run ruff format --check .
@@ -36,7 +44,10 @@ jobs:
       - run: uv run pytest -q
       - name: Worker smoke test (drains and exits)
         run: uv run python -m app.worker --once
-      - run: uvx pip-audit
+      - name: Audit the locked API production dependencies
+        run: |
+          uv export --frozen --no-dev --no-emit-project --no-hashes --output-file /tmp/nua-api-requirements.txt
+          uvx pip-audit -r /tmp/nua-api-requirements.txt
 
   web:
     runs-on: ubuntu-latest
@@ -55,14 +66,23 @@ jobs:
       - name: Mobile app compiles for Android and iOS (Metro + Hermes)
         run: pnpm --filter @nua-crew/mobile bundle:check
         env:
-          EXPO_NO_TELEMETRY: "1"
-          CI: "1"
-      - run: pnpm audit --prod --audit-level=high
+          EXPO_NO_TELEMETRY: '1'
+          CI: '1'
       - name: Contracts are up to date with the API
         run: |
           (cd services/api && uv sync --frozen)
           pnpm contracts
           git diff --exit-code packages/contracts
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --prod --audit-level=high
 
   e2e:
     runs-on: ubuntu-latest
@@ -70,21 +90,32 @@ jobs:
     services:
       postgres:
         image: pgvector/pgvector:pg16
-        env: { POSTGRES_USER: nua, POSTGRES_PASSWORD: nua_dev_password, POSTGRES_DB: nua_crew_e2e }
+        env: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres_ci, POSTGRES_DB: nua_crew_e2e }
         ports: ['5432:5432']
         options: >-
-          --health-cmd "pg_isready -U nua" --health-interval 5s --health-timeout 3s --health-retries 10
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - uses: astral-sh/setup-uv@v5
+      - name: Create least-privilege database roles
+        run: |
+          sudo apt-get install -y --no-install-recommends postgresql-client >/dev/null
+          PGPASSWORD=postgres_ci psql -h localhost -U postgres -d nua_crew_e2e -v ON_ERROR_STOP=1 \
+            -v migrator_password=nua_migrator_ci -v runtime_password=nua_runtime_ci -v grant_truncate=1 \
+            -f db/roles/bootstrap.sql
       - run: pnpm install --frozen-lockfile
       - run: cd services/api && uv sync --frozen
-      - run: pnpm --filter @nua-crew/e2e exec playwright install --with-deps chromium
+      - name: Check the hosted runner Chrome installation
+        run: google-chrome --version
       - run: pnpm e2e
-        env: { CI: 'true' }
+        env:
+          CI: 'true'
+          NUA_E2E_BROWSER_CHANNEL: chrome
+          NUA_E2E_DATABASE_URL: postgresql+asyncpg://nua_runtime:nua_runtime_ci@localhost:5432/nua_crew_e2e
+          NUA_E2E_MIGRATION_DATABASE_URL: postgresql+asyncpg://nua_migrator:nua_migrator_ci@localhost:5432/nua_crew_e2e
       - uses: actions/upload-artifact@v4
-        if: failure()
-        with: { name: playwright-traces, path: tests/e2e/test-results }
+        if: always()
+        with: { name: playwright-traces-and-ui, path: tests/e2e/test-results, retention-days: 7 }

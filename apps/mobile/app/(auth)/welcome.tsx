@@ -37,7 +37,7 @@ export default function Welcome() {
   const [index, setIndex] = useState(0);
   const ref = useRef<React.ComponentRef<typeof ScrollView>>(null);
 
-  const done = async (to: '/login' | '/register') => {
+  const done = async (to: '/login' | '/register' | '/register-employer') => {
     await AsyncStorage.setItem(ONBOARDED_KEY, '1').catch(() => undefined);
     router.replace(to);
   };
@@ -98,6 +98,12 @@ export default function Welcome() {
         ))}
       </View>
       <View style={{ padding: space(2.5), gap: space(1.5) }}>
+        <Button
+          title="I'm hiring"
+          variant="secondary"
+          full
+          onPress={() => void done('/register-employer')}
+        />
         {last ? (
           <>
             <Button title="Create free account" full onPress={() => void done('/register')} />
