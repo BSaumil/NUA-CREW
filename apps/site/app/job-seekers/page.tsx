@@ -23,7 +23,12 @@ export default function JobSeekers() {
   return (
     <>
       <PageHero
-        visual={{ src: '/visuals/job-discovery.webp', alt: 'Illustrated NUA CREW job search interface showing hospitality opportunities', width: 1400, height: 1060 }}
+        visual={{
+          src: '/visuals/job-discovery.webp',
+          alt: 'Illustrated NUA CREW job search interface showing hospitality opportunities',
+          width: 1400,
+          height: 1060,
+        }}
         eyebrow="NUA CREW Jobs"
         title="Find work that fits your life."
         lede="Search permanent and temporary roles, see what they pay, and decide who can find you. Free in every state and territory."

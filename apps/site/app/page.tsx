@@ -92,7 +92,10 @@ export default function Home() {
             <div className="nua-visual-card__copy">
               <p className="section-kicker">FOR JOB SEEKERS</p>
               <h3>Find a role that fits.</h3>
-              <p>Explore hospitality work by role, location and availability, with clearer information before you apply.</p>
+              <p>
+                Explore hospitality work by role, location and availability, with clearer
+                information before you apply.
+              </p>
               <a className="text-link" href="/job-seekers">
                 See the job seeker journey <ArrowRight size={17} aria-hidden="true" />
               </a>
@@ -110,14 +113,20 @@ export default function Home() {
             <div className="nua-visual-card__copy">
               <p className="section-kicker">ONE PLACE TO APPLY</p>
               <h3>Know your next step.</h3>
-              <p>View applications, invitations and hiring updates in a single place as the product moves through testing.</p>
+              <p>
+                View applications, invitations and hiring updates in a single place as the product
+                moves through testing.
+              </p>
               <a className="text-link" href="/apps">
                 See the app walkthrough <ArrowRight size={17} aria-hidden="true" />
               </a>
             </div>
           </article>
         </div>
-        <p className="nua-visual-note">Concept illustrations, not screenshots of live accounts. NUA CREW's hiring apps remain in pre-launch testing.</p>
+        <p className="nua-visual-note">
+          Concept illustrations, not screenshots of live accounts. NUA CREW's hiring apps remain in
+          pre-launch testing.
+        </p>
       </Section>
       <Section
         id="your-experience"
