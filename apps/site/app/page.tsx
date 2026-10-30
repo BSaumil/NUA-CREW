@@ -16,15 +16,6 @@ export default function Home() {
   return (
     <>
       <header className="home-hero home-hero--branded">
-        <figure className="home-hero__photo">
-          <Image
-            src="/brand-kit/banners/home.webp"
-            alt="Hospitality professionals at work in a welcoming café and restaurant setting"
-            fill
-            sizes="100vw"
-            priority
-          />
-        </figure>
         <div className="nua-container home-hero__grid">
           <div className="home-hero__copy">
             <span className="launch-pill">
@@ -57,6 +48,16 @@ export default function Home() {
               Free for job seekers across Australia.
             </p>
           </div>
+          <figure className="home-hero__photo">
+            <Image
+              src="/brand-kit/banners/home.webp"
+              alt="NUA CREW illustration of a hospitality venue and sample app screens"
+              width={2400}
+              height={900}
+              sizes="(max-width: 899px) 100vw, 85vw"
+              priority
+            />
+          </figure>
         </div>
       </header>
       <div className="benefit-strip" aria-label="The NUA CREW approach">

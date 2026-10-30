@@ -129,8 +129,15 @@ export function PageHero({
   children?: ReactNode;
   visual?: { src: string; alt: string; width: number; height: number };
 }) {
+  const isWideBanner = Boolean(visual && visual.width >= visual.height * 2);
   return (
-    <header className={visual ? 'site-hero site-hero--visual' : 'site-hero'}>
+    <header
+      className={
+        visual
+          ? `site-hero site-hero--visual${isWideBanner ? ' site-hero--banner' : ''}`
+          : 'site-hero'
+      }
+    >
       <div className="nua-container site-hero__grid" style={{ padding: '0 16px' }}>
         <div className="site-hero__copy">
           <p className="site-eyebrow">{eyebrow}</p>
@@ -145,7 +152,9 @@ export function PageHero({
               alt={visual.alt}
               width={visual.width}
               height={visual.height}
-              sizes="(max-width: 899px) 100vw, 45vw"
+              sizes={
+                isWideBanner ? '(max-width: 899px) 100vw, 85vw' : '(max-width: 899px) 100vw, 45vw'
+              }
               priority
             />
             <figcaption>Illustrative concept · The app is in testing</figcaption>
