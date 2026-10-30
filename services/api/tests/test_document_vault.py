@@ -10,7 +10,7 @@ from sqlalchemy import text
 
 from app.config import get_settings
 from app.services import documents
-from tests.conftest import db_as, register_candidate, verified_employer
+from tests.conftest import PASSWORD, db_as, register_candidate, verified_employer
 
 
 @pytest.fixture
@@ -95,7 +95,10 @@ async def test_private_document_application_sharing_withdrawal_and_durable_delet
     aid = application.json()["id"]
     base = f"/v1/employers/{eid}/applications/{aid}/documents"
     assert (await client.get(base, headers=employer)).json()[0]["id"] == did
-    assert (await client.get(base + f"/{did}/content", headers=employer)).content == data
+    download = await client.get(base + f"/{did}/content", headers=employer)
+    assert download.content == data
+    assert download.headers["Cache-Control"] == "no-store"
+    assert download.headers["X-Content-Type-Options"] == "nosniff"
     assert (await client.get(base, headers=outsider)).status_code == 404
     assert (
         await client.get(
@@ -135,3 +138,39 @@ async def test_document_rls_is_forced_and_employers_cannot_query_vault(client, v
     assert (
         await client.delete(f"/v1/candidate/documents/{did}", headers=candidate)
     ).status_code == 204
+
+
+async def test_account_erasure_keeps_private_storage_cleanup_without_the_profile(client, vault):
+    candidate = await register_candidate(client, "vault-erasure@nua-crew.example.com")
+    profile = (await client.get("/v1/candidate/profile", headers=candidate)).json()
+    did = await reserve(client, candidate, file_bytes())
+    data = file_bytes()
+    uploaded = await client.put(
+        f"/v1/candidate/documents/{did}/content",
+        headers={**candidate, "Content-Type": "application/pdf"},
+        content=data,
+    )
+    assert uploaded.status_code == 200, uploaded.text
+    exported = await client.get("/v1/account/export", headers=candidate)
+    assert exported.status_code == 200
+    assert exported.json()["documents"][0]["id"] == did
+    erased = await client.request(
+        "DELETE", "/v1/account", headers=candidate, json={"password": PASSWORD}
+    )
+    assert erased.status_code == 204, erased.text
+    assert (
+        await client.get(f"/v1/candidate/documents/{did}/content", headers=candidate)
+    ).status_code == 401
+    async with db_as("candidate", candidate_id=uuid.UUID(profile["id"])) as session:
+        assert (await session.execute(text("SELECT id FROM document_deletions"))).all() == []
+        assert (
+            await session.execute(text("UPDATE document_deletions SET attempts=99"))
+        ).rowcount == 0
+    async with db_as() as session:
+        assert (
+            await session.scalar(
+                text("SELECT count(*) FROM document_deletions WHERE id=:id"), {"id": uuid.UUID(did)}
+            )
+            == 1
+        )
+        assert await documents.sweep_deletions(session) == 1

@@ -56,10 +56,12 @@ def upgrade() -> None:
     op.execute(
         "CREATE POLICY deletion_worker ON document_deletions FOR ALL USING (app_privileged()) WITH CHECK (app_privileged())"
     )
+    # Keep the queue worker-only. An explicit ON CONFLICT(id) arbiter also applies SELECT
+    # policies to proposed rows; targetless DO NOTHING needs no candidate read access.
     # A deletion, including account cascade, cannot lose its storage cleanup job.
     op.execute("""CREATE FUNCTION queue_document_deletion() RETURNS trigger LANGUAGE plpgsql AS $$
       BEGIN INSERT INTO document_deletions(id,candidate_id) VALUES(OLD.id,OLD.candidate_id)
-      ON CONFLICT(id) DO NOTHING; RETURN OLD; END $$""")
+      ON CONFLICT DO NOTHING; RETURN OLD; END $$""")
     op.execute(
         "CREATE TRIGGER document_cleanup BEFORE DELETE ON candidate_documents FOR EACH ROW EXECUTE FUNCTION queue_document_deletion()"
     )
