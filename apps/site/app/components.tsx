@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import Image from 'next/image';
 import { ButtonLink } from '@nua-crew/ui';
 import {
   BriefcaseBusiness,
@@ -120,19 +121,36 @@ export function PageHero({
   title,
   lede,
   children,
+  visual,
 }: {
   eyebrow: string;
   title: string;
   lede: ReactNode;
   children?: ReactNode;
+  visual?: { src: string; alt: string; width: number; height: number };
 }) {
   return (
-    <header className="site-hero">
-      <div className="nua-container" style={{ padding: '0 16px' }}>
-        <p className="site-eyebrow">{eyebrow}</p>
-        <h1>{title}</h1>
-        <p className="lede">{lede}</p>
-        {children}
+    <header className={visual ? 'site-hero site-hero--visual' : 'site-hero'}>
+      <div className="nua-container site-hero__grid" style={{ padding: '0 16px' }}>
+        <div className="site-hero__copy">
+          <p className="site-eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p className="lede">{lede}</p>
+          {children}
+        </div>
+        {visual ? (
+          <figure className="site-hero__visual">
+            <Image
+              src={visual.src}
+              alt={visual.alt}
+              width={visual.width}
+              height={visual.height}
+              sizes="(max-width: 899px) 100vw, 45vw"
+              priority
+            />
+            <figcaption>Illustrative concept · The app is in testing</figcaption>
+          </figure>
+        ) : null}
       </div>
     </header>
   );

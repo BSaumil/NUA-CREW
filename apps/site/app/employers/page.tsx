@@ -14,6 +14,7 @@ export default function Employers() {
   return (
     <>
       <PageHero
+        visual={{ src: '/visuals/home-hero.webp', alt: 'Hospitality professionals at work in a busy venue', width: 2400, height: 900 }}
         eyebrow="NUA CREW Hire"
         title="Good people. A clearer way to hire."
         lede="Post a role. Find consenting talent. Start a conversation. Your team makes every hiring decision."

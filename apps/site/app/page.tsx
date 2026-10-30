@@ -14,7 +14,16 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <header className="home-hero">
+      <header className="home-hero home-hero--branded">
+        <figure className="home-hero__photo">
+          <Image
+            src="/visuals/home-hero.webp"
+            alt="Hospitality professionals at work in a welcoming café and restaurant setting"
+            fill
+            sizes="100vw"
+            priority
+          />
+        </figure>
         <div className="nua-container home-hero__grid">
           <div className="home-hero__copy">
             <span className="launch-pill">
@@ -47,24 +56,6 @@ export default function Home() {
               Free for job seekers across Australia.
             </p>
           </div>
-          <figure className="home-hero__art">
-            <Image
-              src="/illustrations/hospitality-team.webp"
-              alt="Illustration of a barista, chef and cafe manager planning work together in Melbourne"
-              width={1200}
-              height={900}
-              sizes="(max-width: 899px) 100vw, 50vw"
-              preload
-            />
-            <figcaption>
-              <Users size={18} aria-hidden="true" />
-              <span>
-                Good work starts with
-                <br />
-                <strong>a human connection.</strong>
-              </span>
-            </figcaption>
-          </figure>
         </div>
       </header>
       <div className="benefit-strip" aria-label="The NUA CREW approach">
@@ -83,6 +74,51 @@ export default function Home() {
           </span>
         </div>
       </div>
+      <Section
+        id="picture-the-possibilities"
+        title="See what NUA CREW helps you do."
+        intro="Explore the journey visually, from finding the right opportunity to keeping track of an application."
+      >
+        <div className="nua-visual-grid">
+          <article className="nua-visual-card">
+            <Image
+              src="/visuals/job-discovery.webp"
+              alt="Illustrated NUA CREW mobile job discovery interface with hospitality job cards"
+              width={1400}
+              height={1060}
+              sizes="(max-width: 799px) 100vw, 50vw"
+              loading="lazy"
+            />
+            <div className="nua-visual-card__copy">
+              <p className="section-kicker">FOR JOB SEEKERS</p>
+              <h3>Find a role that fits.</h3>
+              <p>Explore hospitality work by role, location and availability, with clearer information before you apply.</p>
+              <a className="text-link" href="/job-seekers">
+                See the job seeker journey <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
+          </article>
+          <article className="nua-visual-card">
+            <Image
+              src="/visuals/applications.webp"
+              alt="Illustration of an application journey displayed in the NUA CREW app"
+              width={1400}
+              height={1060}
+              sizes="(max-width: 799px) 100vw, 50vw"
+              loading="lazy"
+            />
+            <div className="nua-visual-card__copy">
+              <p className="section-kicker">ONE PLACE TO APPLY</p>
+              <h3>Know your next step.</h3>
+              <p>View applications, invitations and hiring updates in a single place as the product moves through testing.</p>
+              <a className="text-link" href="/apps">
+                See the app walkthrough <ArrowRight size={17} aria-hidden="true" />
+              </a>
+            </div>
+          </article>
+        </div>
+        <p className="nua-visual-note">Concept illustrations, not screenshots of live accounts. NUA CREW's hiring apps remain in pre-launch testing.</p>
+      </Section>
       <Section
         id="your-experience"
         title="Your next move. On your terms."
