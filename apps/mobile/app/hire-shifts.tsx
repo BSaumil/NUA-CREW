@@ -25,6 +25,7 @@ import {
   Text,
 } from '@/ui';
 import { HireGate, Notice } from '@/ui/hire';
+import { EmployerAttendance } from '@/ui/attendance';
 import { ShiftDetails, TimesheetDetails } from '@/ui/shift';
 
 export default function HireShifts() {
@@ -265,6 +266,9 @@ function Review({ booking: b, editable }: { booking: Schemas['BookingOut']; edit
         {b.candidate_label} · {b.status}
       </Text>
       <Text>{b.shift.title}</Text>
+      {b.status === 'confirmed' && new Date(b.shift.starts_at).getTime() <= Date.now() ? (
+        <EmployerAttendance booking={b} editable={editable} />
+      ) : null}
       {b.timesheet ? <TimesheetDetails sheet={b.timesheet} /> : null}
       {editable && b.timesheet?.status === 'submitted' ? (
         <>

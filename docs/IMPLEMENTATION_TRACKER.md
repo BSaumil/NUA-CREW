@@ -229,3 +229,11 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | Admin can load new rate versions and penalty rules (unverified, audited, no overlaps) | DONE | `test_hospitality_api.py` (3 new); `docs/operations/AWARD_DATA_RUNBOOK.md` |
 | Clubs weekend/PH, overtime, allowances, junior rates, holiday calendars | BLOCKED | the loader exists; the source figures have not been supplied. Nothing was invented. |
 | Device test plan | DONE (document only) | `docs/operations/DEVICE_TEST_PLAN.md`; no device has been used |
+## Attendance screens (2026-10-30)
+
+| Item | Status | Evidence / limit |
+| ---- | ------ | ---------------- |
+| Worker: check in/out inside the window, correction request, plain-language status | DONE (component-tested) | `__tests__/attendance-logic.test.ts` (9, incl. daylight-saving edge cases), `__tests__/attendance-screens.test.tsx` (9) |
+| Business: see attendance, approve/decline corrections with a note, mark/reverse no-show | DONE (component-tested) | same files; read-only members see facts but no controls |
+| Browser e2e of attendance | NOT_STARTED | needs a confirmed booking inside the check-in window; API rules are covered by `test_attendance.py` |
+| Real-device testing | BLOCKED | no device |
