@@ -100,11 +100,11 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
   ).toBeVisible();
   const robots = await (await request.get(SITE + '/robots.txt')).text();
   if (process.env.NUA_SITE_INDEXABLE === 'true') {
-    expect(robots).toMatch(/Allow: \\/);
+    expect(robots).toMatch(/Allow: \//);
     expect(robots).toContain('Sitemap: https://iksaa.com.au/sitemap.xml');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);
   } else {
-    expect(robots).toMatch(/Disallow: \\/);
+    expect(robots).toMatch(/Disallow: \//);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   }
   // a launch-status page instead of dead links while the product apps are not deployed
