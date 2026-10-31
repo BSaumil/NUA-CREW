@@ -15,8 +15,8 @@ export default function Features() {
         visual={{
           src: '/brand-kit/features/applications.webp',
           alt: 'Illustration of a hospitality job application journey in NUA CREW',
-          width: 1400,
-          height: 1060,
+          width: 1448,
+          height: 987,
         }}
         eyebrow="THE PRODUCT, EXPLAINED"
         title="Less to figure out. More to get on with."

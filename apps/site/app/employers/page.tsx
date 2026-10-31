@@ -18,8 +18,8 @@ export default function Employers() {
         visual={{
           src: '/brand-kit/banners/employers.webp',
           alt: 'NUA CREW employer hiring workspace illustrated with hospitality staff and sample app views',
-          width: 2400,
-          height: 900,
+          width: 2048,
+          height: 768,
         }}
         eyebrow="NUA CREW Hire"
         title="Good people. A clearer way to hire."
