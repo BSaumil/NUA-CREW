@@ -1,5 +1,19 @@
 # Implementation tracker
 
+## SEO foundation — 1 November 2026
+
+Branch `feat/site-seo-foundation-20261101`, baseline `d305755`. Handoff: [site SEO audit](HANDOFF_FOR_CHATGPT_SITE_SEO_2026-10-31.md).
+
+| Item | Status | Evidence/remaining work |
+| --- | --- | --- |
+| Unique page descriptions, canonicals and per-page Open Graph/Twitter | IN_PROGRESS | Code for 16 routes in `apps/site/lib/seo.ts`. E2E metadata checks and CI/preview required. |
+| Safe operator and website JSON-LD | IN_PROGRESS | `apps/site/app/site-json-ld.tsx`; no job, ratings or store claims. Breadcrumb and FAQ schema not yet implemented. |
+| Sitemap modification date and non-indexable headers | IN_PROGRESS | `app/sitemap.ts` and `next.config.ts`; test both crawl modes before any future indexing approval. |
+| Browser manifest and AVIF processing | IN_PROGRESS | Provisional icon only; real PNG icon set and 1200×630 social artwork remain blocked on approved artwork. |
+| Performance baseline, WCAG review, monitoring | NOT_STARTED | Measure before claiming metrics or introducing tracking. |
+| Legal clearance, site indexing, production app launch | BLOCKED | Explicit owner/counsel review required. `NUA_SITE_INDEXABLE` and `NUA_PRODUCT_LIVE` unchanged. |
+
+
 ## Website source and guided onboarding — 30 October 2026
 
 Branch `feat/website-onboarding-validation-20261030`, main baseline `3be7849`. See [review and validation](reports/WEBSITE_ONBOARDING_VALIDATION_2026-10-30.md).

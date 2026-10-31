@@ -1,9 +1,6 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { LegalDocument } from '../legal-document';
-export const metadata: Metadata = {
-  title: 'Community guidelines',
-  alternates: { canonical: '/community-guidelines' },
-};
+export const metadata = buildMetadata('/community-guidelines');
 export default function Community() {
   return (
     <LegalDocument

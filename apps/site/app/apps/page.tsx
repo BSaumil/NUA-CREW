@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import {
   ArrowRight,
   BriefcaseBusiness,
@@ -20,11 +20,7 @@ import { AppWalkthrough } from '../app-walkthrough';
 import { VisualShowcase } from '../visual-showcase';
 import { SITE } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'App and web status',
-  description: 'Verified access links and launch status for NUA CREW job seekers and employers.',
-  alternates: { canonical: '/apps' },
-};
+export const metadata = buildMetadata('/apps');
 
 export default function Apps() {
   return (

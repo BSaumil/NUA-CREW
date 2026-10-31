@@ -8,6 +8,7 @@ import { BrandLockup, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { MainNav } from './nav';
 import { BUSINESS } from '@/lib/business';
 import { SITE } from '@/lib/site';
+import { SiteJsonLd } from './site-json-ld';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
@@ -29,7 +30,13 @@ export const metadata: Metadata = {
       },
     ],
   },
-  robots: SITE.indexable ? undefined : { index: false, follow: false },
+  robots: SITE.indexable ? { index: true, follow: true } : { index: false, follow: false },
+  verification: {
+    google: process.env.NUA_GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.NUA_BING_SITE_VERIFICATION
+      ? { 'msvalidate.01': process.env.NUA_BING_SITE_VERIFICATION }
+      : undefined,
+  },
 };
 
 export const viewport: Viewport = { themeColor: '#3C0B21' };
@@ -38,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en-AU" data-theme="light">
       <body>
+        <SiteJsonLd />
         <a className="nua-skip" href="#main">
           Skip to content
         </a>

@@ -1,6 +1,6 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { LegalDocument } from '../legal-document';
-export const metadata: Metadata = { title: 'Terms of use', alternates: { canonical: '/terms' } };
+export const metadata = buildMetadata('/terms');
 export default function Terms() {
   return (
     <LegalDocument
