@@ -25,10 +25,10 @@ export default function JobSeekers() {
     <>
       <PageHero
         visual={{
-          src: '/brand-kit/banners/job-seekers.webp',
-          alt: 'NUA CREW concept banner showing hospitality job search and mobile app views',
-          width: 2048,
-          height: 768,
+          src: '/brand-kit/features/job-discovery.webp',
+          alt: 'Illustration of NUA CREW hospitality job discovery on a phone',
+          width: 1448,
+          height: 987,
         }}
         eyebrow="NUA CREW Jobs"
         title="Find work that fits your life."
@@ -60,7 +60,7 @@ export default function JobSeekers() {
         title="Explore the job seeker experience"
         intro="Pictures of the journey from searching by role to tracking an application. These screens are concepts."
       >
-        <VisualShowcase audience="jobs" limit={8} />
+        <VisualShowcase audience="jobs" exclude={['job-discovery']} />
       </Section>
       <Section title="Search and apply with your eyes open">
         <Cards>

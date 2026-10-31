@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section } from '../components';
 import { PricePreview } from '../price-preview';
+import { AdOptionsComparison } from '../visuals';
 import { SITE, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -55,7 +56,14 @@ export default function Pricing() {
         </Cards>
       </Section>
 
-      <Section title="Plan before you pay">
+      <Section
+        title="Compare the employer options"
+        intro="Two ways to advertise a role, side by side."
+      >
+        <AdOptionsComparison />
+      </Section>
+
+      <Section tone="alt" title="Plan before you pay">
         <PricePreview />
       </Section>
 

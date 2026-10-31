@@ -122,22 +122,20 @@ export function PageHero({
   lede,
   children,
   visual,
+  aside,
 }: {
   eyebrow: string;
   title: string;
   lede: ReactNode;
   children?: ReactNode;
+  /** An illustration shown intact beside the copy. */
   visual?: { src: string; alt: string; width: number; height: number };
+  /** An HTML interface preview shown beside the copy. */
+  aside?: ReactNode;
 }) {
-  const isWideBanner = Boolean(visual && visual.width >= visual.height * 2);
+  const hasVisual = Boolean(visual || aside);
   return (
-    <header
-      className={
-        visual
-          ? `site-hero site-hero--visual${isWideBanner ? ' site-hero--banner' : ''}`
-          : 'site-hero'
-      }
-    >
+    <header className={hasVisual ? 'site-hero site-hero--visual' : 'site-hero'}>
       <div className="nua-container site-hero__grid" style={{ padding: '0 16px' }}>
         <div className="site-hero__copy">
           <p className="site-eyebrow">{eyebrow}</p>
@@ -152,14 +150,13 @@ export function PageHero({
               alt={visual.alt}
               width={visual.width}
               height={visual.height}
-              sizes={
-                isWideBanner ? '(max-width: 899px) 100vw, 85vw' : '(max-width: 899px) 100vw, 45vw'
-              }
+              sizes="(max-width: 899px) 100vw, 45vw"
               priority
             />
             <figcaption>Illustrative concept · The app is in testing</figcaption>
           </figure>
         ) : null}
+        {aside ? <div className="site-hero__visual">{aside}</div> : null}
       </div>
     </header>
   );
@@ -281,5 +278,30 @@ export function TalentScreen() {
       </p>
       <span className="phone__btn">Invite to a job</span>
     </>
+  );
+}
+
+/** A single device, labelled by platform. Sample data only; not a screenshot of a live service. */
+export function DeviceMockup({
+  platform,
+  label,
+  children,
+}: {
+  platform: 'android' | 'ios';
+  label: string;
+  children: ReactNode;
+}) {
+  return (
+    <figure className={`device device--${platform}`}>
+      <div className={`phone phone--${platform}`} role="img" aria-label={label}>
+        <div className="phone__screen" aria-hidden="true">
+          {children}
+        </div>
+      </div>
+      <figcaption>
+        <strong>{platform === 'android' ? 'Android' : 'iPhone'}</strong> · In testing
+        <span>Illustration with fictional sample data.</span>
+      </figcaption>
+    </figure>
   );
 }
