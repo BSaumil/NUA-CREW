@@ -1,9 +1,6 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { LegalDocument } from '../legal-document';
-export const metadata: Metadata = {
-  title: 'Cookies and website data',
-  alternates: { canonical: '/cookies' },
-};
+export const metadata = buildMetadata('/cookies');
 export default function Cookies() {
   return (
     <LegalDocument

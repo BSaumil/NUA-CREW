@@ -1,12 +1,7 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { LegalDocument } from '../legal-document';
 import { BUSINESS } from '@/lib/business';
-export const metadata: Metadata = {
-  title: 'Privacy policy',
-  description:
-    'How NUA CREW handles website visits, enquiries and personal information in its recruitment services.',
-  alternates: { canonical: '/privacy' },
-};
+export const metadata = buildMetadata('/privacy');
 export default function Privacy() {
   return (
     <LegalDocument
