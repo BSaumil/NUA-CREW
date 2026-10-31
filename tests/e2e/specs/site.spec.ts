@@ -41,6 +41,55 @@ for (const scheme of ['light', 'dark'] as const) {
   });
 }
 
+test('every marketing page has unique search metadata and factual structured data', async ({
+  page,
+  request,
+}) => {
+  const titles = new Set<string>();
+  const descriptions = new Set<string>();
+  for (const path of PAGES) {
+    const response = await page.goto(SITE + path);
+    expect(response?.status(), path).toBe(200);
+    const title = await page.title();
+    expect(titles.has(title), `Duplicate title at ${path}`).toBe(false);
+    titles.add(title);
+
+    const description = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(description?.length, path).toBeGreaterThanOrEqual(110);
+    expect(description?.length, path).toBeLessThanOrEqual(165);
+    expect(descriptions.has(description!), `Duplicate description at ${path}`).toBe(false);
+    descriptions.add(description!);
+
+    const canonical = path === '/' ? 'https://iksaa.com.au' : `https://iksaa.com.au${path}`;
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
+    await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
+    await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
+      'content',
+      description!,
+    );
+    await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute(
+      'content',
+      'summary_large_image',
+    );
+    await expect(page.locator('h1')).toHaveCount(1);
+
+    const structured = page.locator('script[type="application/ld+json"]');
+    await expect(structured).toHaveCount(1);
+    const json = JSON.parse((await structured.first().textContent())!);
+    expect(json['@context']).toBe('https://schema.org');
+    expect(json['@graph'].map((item: { '@type': string }) => item['@type'])).toEqual([
+      'Organization',
+      'WebSite',
+    ]);
+  }
+
+  const image = await page.locator('meta[property="og:image"]').getAttribute('content');
+  expect(image).toBeTruthy();
+  const imageResponse = await request.get(SITE + new URL(image!).pathname);
+  expect(imageResponse.status()).toBe(200);
+  expect(imageResponse.headers()['content-type']).toMatch(/^image\//);
+});
+
 test('crawlers are told to stay away until launch, and the sitemap uses the configured domain', async ({
   page,
   request,
@@ -50,8 +99,14 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
     page.getByText(/no separate registration or trade mark status is claimed/),
   ).toBeVisible();
   const robots = await (await request.get(SITE + '/robots.txt')).text();
-  expect(robots).toMatch(/Disallow: \//);
-  await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  if (process.env.NUA_SITE_INDEXABLE === 'true') {
+    expect(robots).toMatch(/Allow: \\/);
+    expect(robots).toContain('Sitemap: https://iksaa.com.au/sitemap.xml');
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);
+  } else {
+    expect(robots).toMatch(/Disallow: \\/);
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
+  }
   // a launch-status page instead of dead links while the product apps are not deployed
   await page.goto(SITE + '/');
   await expect(
@@ -59,6 +114,8 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
   ).toHaveCount(0);
   const sitemap = await (await request.get(SITE + '/sitemap.xml')).text();
   expect(sitemap).toContain('https://iksaa.com.au');
+  expect((sitemap.match(/<loc>/g) ?? []).length).toBe(PAGES.length);
+  expect((sitemap.match(/<lastmod>/g) ?? []).length).toBe(PAGES.length);
 });
 
 test('claims stay truthful: apps are not in stores, billing is a preview, free for job seekers', async ({
