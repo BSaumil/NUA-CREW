@@ -10,6 +10,18 @@ type Visual = {
   audiences: Audience[];
 };
 
+// The clean replacement artwork is 1448 x 987; the remaining images keep their original size.
+const CLEAN_SLUGS = new Set([
+  'job-discovery',
+  'role-categories',
+  'location-search',
+  'availability',
+  'temporary-shifts',
+  'applications',
+]);
+const sizeFor = (slug: string) =>
+  CLEAN_SLUGS.has(slug) ? { width: 1448, height: 987 } : { width: 1400, height: 1060 };
+
 const visuals: Visual[] = [
   {
     slug: 'job-discovery',
@@ -145,8 +157,7 @@ export function VisualShowcase({
             <Image
               src={`/brand-kit/features/${visual.slug}.webp`}
               alt={visual.alt}
-              width={1400}
-              height={1060}
+              {...sizeFor(visual.slug)}
               sizes="(max-width: 660px) 100vw, (max-width: 1080px) 50vw, 33vw"
               loading="lazy"
             />

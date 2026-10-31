@@ -1620,8 +1620,7 @@ main {
   width: 100%;
   height: auto;
   display: block;
-  aspect-ratio: 1400 / 1060;
-  object-fit: cover;
+  object-fit: contain;
 }
 .nua-visual-card__copy {
   padding: 24px;
@@ -1731,8 +1730,7 @@ main {
   display: block;
   width: 100%;
   height: auto;
-  aspect-ratio: 1400 / 1060;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .nua-showcase-card__text {
@@ -1908,6 +1906,12 @@ main {
   aspect-ratio: auto;
   object-fit: contain;
   max-height: none;
+}
+
+/* The visual hero sits on deep wine, so its caption must follow the hero's ivory text (WCAG AA). */
+.site-hero .site-hero__visual figcaption {
+  color: inherit;
+  opacity: 0.88;
 }
 
 @media (max-width: 899px) {

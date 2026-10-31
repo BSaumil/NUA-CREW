@@ -27,8 +27,8 @@ export default function JobSeekers() {
         visual={{
           src: '/brand-kit/banners/job-seekers.webp',
           alt: 'NUA CREW concept banner showing hospitality job search and mobile app views',
-          width: 2400,
-          height: 900,
+          width: 2048,
+          height: 768,
         }}
         eyebrow="NUA CREW Jobs"
         title="Find work that fits your life."

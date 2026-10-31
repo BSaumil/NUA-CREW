@@ -52,8 +52,8 @@ export default function Home() {
             <Image
               src="/brand-kit/banners/home.webp"
               alt="NUA CREW illustration of a hospitality venue and sample app screens"
-              width={2400}
-              height={900}
+              width={2048}
+              height={768}
               sizes="(max-width: 899px) 100vw, 85vw"
               priority
             />
@@ -86,8 +86,8 @@ export default function Home() {
             <Image
               src="/brand-kit/features/job-discovery.webp"
               alt="Illustrated NUA CREW mobile job discovery interface with hospitality job cards"
-              width={1400}
-              height={1060}
+              width={1448}
+              height={987}
               sizes="(max-width: 799px) 100vw, 50vw"
               loading="lazy"
             />
@@ -107,8 +107,8 @@ export default function Home() {
             <Image
               src="/brand-kit/features/applications.webp"
               alt="Illustration of an application journey displayed in the NUA CREW app"
-              width={1400}
-              height={1060}
+              width={1448}
+              height={987}
               sizes="(max-width: 799px) 100vw, 50vw"
               loading="lazy"
             />

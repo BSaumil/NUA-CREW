@@ -27,8 +27,8 @@ export default function Apps() {
         visual={{
           src: '/brand-kit/features/applications.webp',
           alt: 'Illustrated NUA CREW mobile app journey for Android and iOS',
-          width: 1400,
-          height: 1060,
+          width: 1448,
+          height: 987,
         }}
         eyebrow="APP AND WEB STATUS"
         title="Good things are taking shape."

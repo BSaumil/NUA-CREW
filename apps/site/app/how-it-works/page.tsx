@@ -16,8 +16,8 @@ export default function HowItWorks() {
         visual={{
           src: '/brand-kit/banners/temporary-shifts.webp',
           alt: 'NUA CREW temporary shifts concept showing roster and job invitations on mobile phones',
-          width: 2400,
-          height: 900,
+          width: 2048,
+          height: 768,
         }}
         eyebrow="How it works"
         title="Mutual choice, step by step."
