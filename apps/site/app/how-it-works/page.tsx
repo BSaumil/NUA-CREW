@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { VenueBanners, VisualShowcase } from '../visual-showcase';
+import Image from 'next/image';
+import { FeatureImage, JourneySteps } from '../visuals';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section, Steps } from '../components';
 
 export const metadata: Metadata = {
@@ -13,16 +14,18 @@ export default function HowItWorks() {
   return (
     <>
       <PageHero
-        visual={{
-          src: '/brand-kit/banners/temporary-shifts.webp',
-          alt: 'NUA CREW temporary shifts concept showing roster and job invitations on mobile phones',
-          width: 2048,
-          height: 768,
-        }}
         eyebrow="How it works"
         title="Mutual choice, step by step."
         lede="Choose the opportunities you want to explore and the conversations you want to start."
       />
+
+      <Section
+        tone="alt"
+        title="The whole journey, at a glance"
+        intro="Search, apply, review, invite and hire. Every step needs a person's choice."
+      >
+        <JourneySteps />
+      </Section>
 
       <Section title="Job seekers">
         <Steps
@@ -92,13 +95,6 @@ export default function HowItWorks() {
         </Cards>
       </Section>
 
-      <Section
-        title="See how shift planning connects"
-        intro="Illustrations showing availability, temporary shifts and attendance records."
-      >
-        <VisualShowcase audience="shifts" />
-      </Section>
-
       <Section title="Employers">
         <Steps
           items={[
@@ -143,10 +139,34 @@ export default function HowItWorks() {
       </Section>
 
       <Section
-        title="Hospitality in all its forms"
-        intro="From cafés and restaurants to hotels, events and growing hospitality careers."
+        id="temporary-shifts"
+        title="Temporary shifts, from the floor"
+        intro="Hospitality teams run on shifts. See how availability and short-term work fit together."
       >
-        <VenueBanners />
+        <div className="shift-gallery">
+          <figure className="shift-gallery__team">
+            <Image
+              src="/illustrations/hospitality-team.webp"
+              alt="Illustration of a café team, a barista, a chef and a floor manager, looking over a weekly roster together"
+              width={1200}
+              height={900}
+              sizes="(max-width: 899px) 100vw, 50vw"
+              loading="lazy"
+            />
+          </figure>
+          <figure>
+            <FeatureImage slug="availability" sizes="(max-width: 899px) 100vw, 40vw" />
+            <figcaption>Set the times you can work.</figcaption>
+          </figure>
+          <figure>
+            <FeatureImage slug="temporary-shifts" sizes="(max-width: 899px) 100vw, 40vw" />
+            <figcaption>See the shift details before you decide.</figcaption>
+          </figure>
+        </div>
+        <p className="nua-visual-note">
+          Concept illustrations, not screenshots of live accounts. Accepting an invitation does not
+          reserve a shift.
+        </p>
       </Section>
 
       <Section title="Want to see the details?">

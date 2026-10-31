@@ -4,7 +4,14 @@ import { ArrowRight, Banknote, CalendarDays, Check, ShieldCheck } from 'lucide-r
 import { SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { Card, Cards, Cta, Faq, Section, Steps } from './components';
 import { JourneyPreview } from './journey-preview';
-import { VisualShowcase } from './visual-showcase';
+import {
+  ConversationPreview,
+  FeatureImage,
+  FeatureRows,
+  HiringDashboardPreview,
+  JobSearchPreview,
+  PreviewFrame,
+} from './visuals';
 import { SITE, toApp, toHire } from '@/lib/site';
 
 export const metadata: Metadata = {
@@ -15,7 +22,7 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <>
-      <header className="home-hero home-hero--branded">
+      <header className="home-hero">
         <div className="nua-container home-hero__grid">
           <div className="home-hero__copy">
             <span className="launch-pill">
@@ -48,15 +55,23 @@ export default function Home() {
               Free for job seekers across Australia.
             </p>
           </div>
-          <figure className="home-hero__photo">
-            <Image
-              src="/brand-kit/banners/home.webp"
-              alt="NUA CREW illustration of a hospitality venue and sample app screens"
-              width={2048}
-              height={768}
-              sizes="(max-width: 899px) 100vw, 85vw"
-              priority
-            />
+          <figure className="home-hero__art">
+            <div className="home-hero__frame">
+              <Image
+                src="/illustrations/hospitality-team.webp"
+                alt="Illustration of a café team, a barista, a chef and a floor manager, looking over a weekly roster together"
+                width={1200}
+                height={900}
+                sizes="(max-width: 899px) 100vw, 46vw"
+                priority
+              />
+              <div className="home-hero__preview" aria-hidden="true">
+                <JobSearchPreview />
+              </div>
+            </div>
+            <figcaption>
+              Illustration with a fictional sample job search. Not a live service.
+            </figcaption>
           </figure>
         </div>
       </header>
@@ -81,53 +96,71 @@ export default function Home() {
         title="See what NUA CREW helps you do."
         intro="Explore the journey visually, from finding the right opportunity to keeping track of an application."
       >
-        <div className="nua-visual-grid">
-          <article className="nua-visual-card">
-            <Image
-              src="/brand-kit/features/job-discovery.webp"
-              alt="Illustrated NUA CREW mobile job discovery interface with hospitality job cards"
-              width={1448}
-              height={987}
-              sizes="(max-width: 799px) 100vw, 50vw"
-              loading="lazy"
-            />
-            <div className="nua-visual-card__copy">
-              <p className="section-kicker">FOR JOB SEEKERS</p>
-              <h3>Find a role that fits.</h3>
-              <p>
-                Explore hospitality work by role, location and availability, with clearer
-                information before you apply.
-              </p>
-              <a className="text-link" href="/job-seekers">
-                See the job seeker journey <ArrowRight size={17} aria-hidden="true" />
-              </a>
-            </div>
-          </article>
-          <article className="nua-visual-card">
-            <Image
-              src="/brand-kit/features/applications.webp"
-              alt="Illustration of an application journey displayed in the NUA CREW app"
-              width={1448}
-              height={987}
-              sizes="(max-width: 799px) 100vw, 50vw"
-              loading="lazy"
-            />
-            <div className="nua-visual-card__copy">
-              <p className="section-kicker">ONE PLACE TO APPLY</p>
-              <h3>Know your next step.</h3>
-              <p>
-                View applications, invitations and hiring updates in a single place as the product
-                moves through testing.
-              </p>
-              <a className="text-link" href="/apps">
-                See the app walkthrough <ArrowRight size={17} aria-hidden="true" />
-              </a>
-            </div>
-          </article>
-        </div>
+        <FeatureRows
+          rows={[
+            {
+              kicker: 'FOR JOB SEEKERS',
+              title: 'Find a role that fits.',
+              body: 'Explore hospitality work by role, location and availability, with clearer information before you apply.',
+              href: '/job-seekers',
+              linkLabel: 'See the job seeker journey',
+              visual: <FeatureImage slug="job-discovery" sizes="(max-width: 899px) 100vw, 540px" />,
+            },
+            {
+              kicker: 'ONE PLACE TO APPLY',
+              title: 'Know your next step.',
+              body: 'View applications, invitations and hiring updates in a single place as the product moves through testing.',
+              href: '/apps',
+              linkLabel: 'See the app walkthrough',
+              visual: <FeatureImage slug="applications" sizes="(max-width: 899px) 100vw, 540px" />,
+            },
+            {
+              kicker: 'FOR EMPLOYERS',
+              title: 'See every applicant in one place.',
+              body: 'Post a role with disclosed pay, review applicants together and invite people who chose to be found. Your team makes every hiring decision.',
+              href: '/employers',
+              linkLabel: 'See the employer tools',
+              visual: (
+                <PreviewFrame label="Illustration of a hiring dashboard listing three fictional applicants and their stages">
+                  <HiringDashboardPreview />
+                </PreviewFrame>
+              ),
+            },
+            {
+              kicker: 'CONVERSATIONS BY CONSENT',
+              title: 'Talk once you both agree.',
+              body: 'A conversation opens only after an invitation is accepted. It does not accept a job or reserve a shift.',
+              href: '/trust',
+              linkLabel: 'How consent works',
+              visual: (
+                <PreviewFrame label="Illustration of a short conversation between an employer and a job seeker">
+                  <ConversationPreview />
+                </PreviewFrame>
+              ),
+            },
+            {
+              kicker: 'YOUR AVAILABILITY',
+              title: 'Show when you can work. Keep the rest private.',
+              body: 'Set recurring times, days off and extra days. Employers only learn whether you are free for a time they ask about.',
+              href: '/how-it-works',
+              linkLabel: 'See how availability works',
+              visual: <FeatureImage slug="availability" sizes="(max-width: 899px) 100vw, 540px" />,
+            },
+            {
+              kicker: 'TEMPORARY SHIFTS',
+              title: 'Short-term work, clearly set out.',
+              body: 'See the role, pay and hours before you decide whether a shift is suitable. Accepting an invitation does not reserve a shift.',
+              href: '/how-it-works',
+              linkLabel: 'See how shifts work',
+              visual: (
+                <FeatureImage slug="temporary-shifts" sizes="(max-width: 899px) 100vw, 540px" />
+              ),
+            },
+          ]}
+        />
         <p className="nua-visual-note">
-          Concept illustrations, not screenshots of live accounts. NUA CREW's hiring apps remain in
-          pre-launch testing.
+          Concept illustrations and previews with fictional sample data, not screenshots of live
+          accounts. NUA CREW's hiring apps remain in pre-launch testing.
         </p>
       </Section>
       <Section
@@ -224,17 +257,6 @@ export default function Home() {
             </small>
           </div>
         </div>
-      </Section>
-      <Section
-        title="The details, made visual."
-        intro="Roles, locations, availability and shifts — see the ideas behind the app before it launches."
-      >
-        <VisualShowcase audience="jobs" limit={6} />
-        <p style={{ marginTop: 18 }}>
-          <a className="text-link" href="/features">
-            Explore all feature illustrations
-          </a>
-        </p>
       </Section>
       <Section title="A few good questions">
         <Faq

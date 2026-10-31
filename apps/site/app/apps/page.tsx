@@ -9,7 +9,13 @@ import {
   Smartphone,
   Users,
 } from 'lucide-react';
-import { PageHero, Section } from '../components';
+import {
+  AvailabilityScreen,
+  DeviceMockup,
+  InvitationScreen,
+  PageHero,
+  Section,
+} from '../components';
 import { AppWalkthrough } from '../app-walkthrough';
 import { VisualShowcase } from '../visual-showcase';
 import { SITE } from '@/lib/site';
@@ -24,12 +30,6 @@ export default function Apps() {
   return (
     <>
       <PageHero
-        visual={{
-          src: '/brand-kit/features/applications.webp',
-          alt: 'Illustrated NUA CREW mobile app journey for Android and iOS',
-          width: 1448,
-          height: 987,
-        }}
         eyebrow="APP AND WEB STATUS"
         title="Good things are taking shape."
         lede="A simpler way to find work and build a team. Here’s where each experience stands."
@@ -46,6 +46,26 @@ export default function Apps() {
         </div>
       </PageHero>
       <Section
+        title="One app, on Android and iPhone"
+        intro="The same experience on both platforms. These are illustrations with fictional sample data, and the apps are still in testing."
+      >
+        <div className="device-pair">
+          <DeviceMockup
+            platform="android"
+            label="Illustration of the NUA CREW availability screen on an Android phone"
+          >
+            <AvailabilityScreen />
+          </DeviceMockup>
+          <DeviceMockup
+            platform="ios"
+            label="Illustration of the NUA CREW invitation screen on an iPhone"
+          >
+            <InvitationScreen />
+          </DeviceMockup>
+        </div>
+      </Section>
+      <Section
+        tone="alt"
         title="See how the app works"
         intro="The same app runs on Android and iOS. Tap through the steps to see what you can do before you sign up."
       >

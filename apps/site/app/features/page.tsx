@@ -12,12 +12,6 @@ export default function Features() {
   return (
     <>
       <PageHero
-        visual={{
-          src: '/brand-kit/features/applications.webp',
-          alt: 'Illustration of a hospitality job application journey in NUA CREW',
-          width: 1448,
-          height: 987,
-        }}
         eyebrow="THE PRODUCT, EXPLAINED"
         title="Less to figure out. More to get on with."
         lede="See the everyday details that make finding work and hiring feel clearer."
@@ -36,8 +30,8 @@ export default function Features() {
         <FeatureExplorer />
       </Section>
       <Section
-        title="Every feature, illustrated"
-        intro="Sixteen visual explanations covering job seeking, employer hiring, documents and shifts. The pictures show concepts, not live screens."
+        title="Search, availability and shifts, illustrated"
+        intro="Six visual explanations of how people find work and keep track of it. Hiring, documents and pay guidance are shown in the interactive previews above. The pictures show concepts, not live screens."
       >
         <VisualShowcase />
       </Section>

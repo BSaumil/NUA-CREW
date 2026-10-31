@@ -1,5 +1,5 @@
 import { FeatureExplorer } from '../feature-explorer';
-import { VisualShowcase } from '../visual-showcase';
+import { HiringDashboardPreview, JourneySteps, PreviewFrame } from '../visuals';
 import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
 import { SITE, toHire } from '@/lib/site';
@@ -15,12 +15,14 @@ export default function Employers() {
   return (
     <>
       <PageHero
-        visual={{
-          src: '/brand-kit/banners/employers.webp',
-          alt: 'NUA CREW employer hiring workspace illustrated with hospitality staff and sample app views',
-          width: 2048,
-          height: 768,
-        }}
+        aside={
+          <PreviewFrame
+            tone="dark"
+            label="Illustration of a hiring dashboard listing three fictional applicants and their stages"
+          >
+            <HiringDashboardPreview />
+          </PreviewFrame>
+        }
         eyebrow="NUA CREW Hire"
         title="Good people. A clearer way to hire."
         lede="Post a role. Find consenting talent. Start a conversation. Your team makes every hiring decision."
@@ -48,10 +50,10 @@ export default function Employers() {
         <FeatureExplorer audience="hire" />
       </Section>
       <Section
-        title="Hiring, from a different perspective"
-        intro="See illustrative examples of posting a role, considering applicants and managing a venue team."
+        title="From a job post to a hire, in five steps"
+        intro="The same journey your applicants see, from your side of the counter."
       >
-        <VisualShowcase audience="hire" limit={7} />
+        <JourneySteps />
       </Section>
       <Section title="What you can do">
         <Cards>

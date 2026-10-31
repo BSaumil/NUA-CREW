@@ -22,9 +22,9 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     images: [
       {
-        url: '/brand-kit/banners/home.webp',
-        width: 2048,
-        height: 768,
+        url: '/illustrations/hospitality-team.webp',
+        width: 1200,
+        height: 900,
         alt: 'NUA CREW — Better Jobs. Stronger Teams.',
       },
     ],
