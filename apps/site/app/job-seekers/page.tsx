@@ -1,6 +1,6 @@
+import { buildMetadata } from '@/lib/seo';
 import { FeatureExplorer } from '../feature-explorer';
 import { VisualShowcase } from '../visual-showcase';
-import type { Metadata } from 'next';
 import {
   AvailabilityScreen,
   Card,
@@ -13,12 +13,7 @@ import {
 } from '../components';
 import { SITE, toApp } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'For job seekers',
-  description:
-    'Free for job seekers across Australia. Clear pay, honest matching, your availability on your terms, and invitations you can accept or decline without giving a reason.',
-  alternates: { canonical: '/job-seekers' },
-};
+export const metadata = buildMetadata('/job-seekers');
 
 export default function JobSeekers() {
   return (

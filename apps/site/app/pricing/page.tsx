@@ -1,15 +1,10 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section } from '../components';
 import { PricePreview } from '../price-preview';
 import { AdOptionsComparison } from '../visuals';
 import { SITE, toHire } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'Pricing',
-  description:
-    'Free for job seekers in every state and territory. Employers pay A$19 for a 14-day advertisement. Nothing renews automatically.',
-  alternates: { canonical: '/pricing' },
-};
+export const metadata = buildMetadata('/pricing');
 
 export default function Pricing() {
   return (

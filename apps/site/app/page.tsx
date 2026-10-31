@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import Image from 'next/image';
 import { ArrowRight, Banknote, CalendarDays, Check, ShieldCheck } from 'lucide-react';
 import { SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
@@ -14,10 +14,7 @@ import {
 } from './visuals';
 import { SITE, toApp, toHire } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: `NUA CREW — ${TAGLINE}`,
-  alternates: { canonical: '/' },
-};
+export const metadata = buildMetadata('/');
 
 export default function Home() {
   return (
