@@ -1,7 +1,7 @@
 import { buildMetadata } from '@/lib/seo';
 import Image from 'next/image';
 import { ArrowRight, Banknote, CalendarDays, Check, ShieldCheck } from 'lucide-react';
-import { SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
+import { SUPPORT_LINE } from '@nua-crew/ui';
 import { Card, Cards, Cta, Faq, Section, Steps } from './components';
 import { JourneyPreview } from './journey-preview';
 import {
