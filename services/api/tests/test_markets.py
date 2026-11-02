@@ -27,7 +27,7 @@ def test_market_registry(country: str, currency: str, ruleset: str) -> None:
     assert market.employment_ruleset == ruleset
 
 
-@pytest.mark.parametrize("country", ["", "US", "GB", "XX", "NZD"])
+@pytest.mark.parametrize("country", ["", "X", "ZZ", "XYZ", "NZD"])
 def test_unconfigured_country_fails_closed(country: str) -> None:
     with pytest.raises(MarketUnavailable):
         market_for(country)

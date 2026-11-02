@@ -19,7 +19,7 @@ def _present(market: Market) -> MarketPublicOut:
         employer_identifier_label=market.business_identifier,
         phone_prefix=market.phone_prefix,
         time_zones=list(market.time_zones),
-        stage=market.stage,  # type: ignore[arg-type]
+        stage=market.stage,
         capabilities=MarketCapabilitiesOut(
             onboarding=Capability.ONBOARDING in market.capabilities,
             job_publishing=Capability.JOB_PUBLISHING in market.capabilities,

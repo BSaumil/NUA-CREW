@@ -6,6 +6,7 @@ module does not assert that New Zealand hiring or wage calculations are live.
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import StrEnum
+from typing import Literal
 
 
 class MarketUnavailable(ValueError):
@@ -30,7 +31,7 @@ class Market:
     region_label: str
     phone_prefix: str
     time_zones: tuple[str, ...]
-    stage: str
+    stage: Literal["prelaunch", "preparing", "open"]
     capabilities: frozenset[Capability] = frozenset()
 
 
