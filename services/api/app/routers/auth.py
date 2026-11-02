@@ -92,7 +92,10 @@ async def register_employer(body: EmployerRegister, session: Session, request: R
         user = await _create_user(session, body.email, body.password, "employer")
         # Starts unverified: an ABN checksum is not verification; publishing needs admin review.
         employer = Employer(
-            name=body.organisation_name, abn=body.abn, verification_status="unverified", country_code="AU"
+            name=body.organisation_name,
+            abn=body.abn,
+            verification_status="unverified",
+            country_code="AU",
         )
         session.add(employer)
         await session.flush()

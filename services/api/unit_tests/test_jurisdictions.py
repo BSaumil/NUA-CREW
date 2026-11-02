@@ -48,6 +48,4 @@ def test_legacy_must_be_explicitly_proven_if_ever_enabled() -> None:
     with pytest.raises(ApiError):
         require_market_capability(None, action="publish")
     # This exception is AU-only and must never be exposed as a public input.
-    assert (
-        require_market_capability(None, action="publish", legacy_au_record=True).code == "AU"
-    )
+    assert require_market_capability(None, action="publish", legacy_au_record=True).code == "AU"

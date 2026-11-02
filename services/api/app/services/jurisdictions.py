@@ -69,4 +69,6 @@ def require_market_capability(
 def require_job_currency(country: str | None, currency: str) -> None:
     market = jurisdiction_for(country)
     if market is None or currency != market.currency:
-        raise ApiError(422, "jurisdiction_currency_mismatch", "Job currency must match its workplace")
+        raise ApiError(
+            422, "jurisdiction_currency_mismatch", "Job currency must match its workplace"
+        )

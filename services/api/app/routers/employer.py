@@ -41,7 +41,6 @@ from app.schemas import (
 )
 from app.services.applications import change_status
 from app.services.hospitality.pay import enforce_on_publish
-from app.services.jurisdictions import require_job_currency, require_market_capability
 from app.services.jobs import (
     apply_job_input,
     record_version,
@@ -49,6 +48,7 @@ from app.services.jobs import (
     to_out,
     validate_hospitality_links,
 )
+from app.services.jurisdictions import require_job_currency, require_market_capability
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 

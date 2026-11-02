@@ -247,9 +247,7 @@ class EmployerMembership(TimestampMixin, Base):
 
 class Location(TimestampMixin, Base):
     __tablename__ = "locations"
-    __table_args__ = (
-        CheckConstraint("country ~ '^[A-Z]{2}$'", name="ck_locations_country_iso"),
-    )
+    __table_args__ = (CheckConstraint("country ~ '^[A-Z]{2}$'", name="ck_locations_country_iso"),)
     id: Mapped[uuid.UUID] = _uuid_pk()
     employer_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("employers.id", ondelete="CASCADE"), nullable=False, index=True

@@ -27,8 +27,8 @@ from app.rls import system_scope
 from app.routers.availability import _flush_commitment
 from app.services.attendance import derive, events_for
 from app.services.hospitality.pay import enforce_shift_rate
-from app.services.jurisdictions import require_job_currency, require_market_capability
 from app.services.jobs import is_open
+from app.services.jurisdictions import require_job_currency, require_market_capability
 from app.services.scheduling import resolve_window, worked_minutes
 from app.shift_schemas import (
     BookingActionIn,
