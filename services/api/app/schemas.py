@@ -173,6 +173,7 @@ class ProfileIn(BaseModel):
     def _legacy_country(cls, value: Any) -> Any:
         return _guard_legacy_au_payload(value)
 
+
 class ProfileOut(Orm):
     id: uuid.UUID
     full_name: str
