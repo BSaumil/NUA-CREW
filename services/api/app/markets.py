@@ -71,7 +71,8 @@ def validate_currency(country_code: str, currency: str) -> None:
     market = market_for(country_code)
     if currency.upper() != market.currency:
         raise ValueError(
-            f"Currency {currency!r} does not match {market.country_code}; expected {market.currency}"
+            f"Currency {currency!r} does not match {market.country_code}; "
+            f"expected {market.currency}"
         )
 
 
