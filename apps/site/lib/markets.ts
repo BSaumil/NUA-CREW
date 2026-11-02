@@ -53,7 +53,7 @@ export const MARKETS: Record<string, MarketConfig> = {
 /** Fail closed for unknown or incomplete country configuration. */
 export function getMarket(code: string): MarketConfig | null {
   const normalised = code.trim().toUpperCase();
-  return Object.hasOwn(MARKETS, normalised) ? MARKETS[normalised] : null;
+  return Object.hasOwn(MARKETS, normalised) ? (MARKETS[normalised] ?? null) : null;
 }
 
 /** A marketing entry is never proof the underlying marketplace is open. */
