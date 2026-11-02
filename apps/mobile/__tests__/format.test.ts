@@ -18,7 +18,7 @@ describe('pay display', () => {
       '$85,000â€“$95,000 / year',
     );
   });
-  it('never labels New Zealand wages as Australian dollars', () => {
+  it('shows New Zealand rates with NZ$ labels', () => {
     expect(payRange({ ...pay, pay_currency: 'NZD' })).toBe('NZ$28â€“NZ$32 / hour');
   });
   it('returns null when nothing was disclosed', () => {
@@ -39,4 +39,36 @@ describe('pay display', () => {
 describe('freshness and distance', () => {
   const now = Date.parse('2026-10-26T00:00:00Z');
   it('flags listings not re-confirmed for two weeks', () => {
-    expect(is¶»§q«^
+    expect(isStale('2026-10-20T00:00:00Z', now)).toBe(false);
+    expect(isStale('2026-10-01T00:00:00Z', now)).toBe(true);
+    expect(isStale(null, now)).toBe(false);
+  });
+  it('words relative dates', () => {
+    expect(postedAgo('2026-10-26T00:00:00Z', now)).toBe('Today');
+    expect(postedAgo('2026-10-25T00:00:00Z', now)).toBe('1 day ago');
+    expect(postedAgo('2026-10-16T00:00:00Z', now)).toBe('10 days ago');
+    expect(postedAgo(null, now)).toBeNull();
+  });
+  it('words distances', () => {
+    expect(distanceLabel(0.4)).toBe('< 1 km away');
+    expect(distanceLabel(3.26)).toBe('3.3 km away');
+    expect(distanceLabel(12.4)).toBe('12 km away');
+    expect(distanceLabel(null)).toBeNull();
+  });
+});
+
+describe('profile strength', () => {
+  it('is plain completeness, with one concrete next step', () => {
+    expect(profileStrength({}, 0)).toEqual({ percent: 0, next: 'Add a headline' });
+    const full = {
+      headline: 'h',
+      summary: 's',
+      suburb: 'x',
+      skills: ['a', 'b', 'c'],
+      preferred_employment_types: ['casual'],
+      min_hourly_pay: '27',
+    };
+    expect(profileStrength(full, 1)).toEqual({ percent: 100, next: null });
+    expect(profileStrength(full, 0).next).toBe('Add a resume');
+  });
+});
