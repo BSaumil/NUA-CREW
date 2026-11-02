@@ -157,10 +157,6 @@ class ProfileIn(BaseModel):
     full_name: Name
     headline: str | None = Field(None, max_length=200)
 
-    @model_validator(mode="before")
-    @classmethod
-    def _legacy_country(cls, value: Any) -> Any:
-        return _guard_legacy_au_payload(value)
     summary: str | None = Field(None, max_length=5000)
     suburb: str | None = Field(None, max_length=100)
     state: State | None = None
@@ -172,6 +168,10 @@ class ProfileIn(BaseModel):
         default=[], max_length=50
     )
 
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
 
 class ProfileOut(Orm):
     id: uuid.UUID
