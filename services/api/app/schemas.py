@@ -69,7 +69,6 @@ class LocationIn(BaseModel):
     suburb: Name
     state: State
     postcode: Postcode
-    country: Literal["AU"] = "AU"
 
     @model_validator(mode="before")
     @classmethod
@@ -101,7 +100,6 @@ class EmployerRegister(BaseModel):
     organisation_name: Name
     abn: str | None = None
     location: LocationIn | None = None
-    country_code: Literal["AU"] = "AU"
     accept_terms: Literal[True]
     client: Client = "web"
     device_label: str | None = Field(None, max_length=100)
@@ -249,7 +247,6 @@ class JobIn(BaseModel):
     employment_type: EmploymentType
     category: str | None = Field(None, max_length=100)
     location_id: uuid.UUID | None = None
-    workplace_country_code: Literal["AU"] | None = None
     pay_min: Decimal | None = Field(None, ge=0)
     pay_max: Decimal | None = Field(None, ge=0)
     pay_period: PayPeriod | None = None

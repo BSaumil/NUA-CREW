@@ -18,8 +18,12 @@ def test_legacy_location_rejects_explicit_nz_country(country_key: str) -> None:
 
 def test_legacy_location_accepts_existing_au_request() -> None:
     result = LocationIn(name="Test Venue", suburb="Fitzroy", state="VIC", postcode="3065")
-    assert result.country == "AU"
-    assert result.model_dump()["country"] == "AU"
+    assert result.model_dump() == {
+        "name": "Test Venue",
+        "suburb": "Fitzroy",
+        "state": "VIC",
+        "postcode": "3065",
+    }
 
 
 def test_employer_registration_does_not_create_au_account_for_nz() -> None:
@@ -30,7 +34,7 @@ def test_employer_registration_does_not_create_au_account_for_nz() -> None:
         "organisation_name": "Test Venue",
         "accept_terms": True,
     }
-    assert EmployerRegister.model_validate(body).country_code == "AU"
+    assert EmployerRegister.model_validate(body).organisation_name == "Test Venue"
 
     for key in ("country_code", "legal_entity_country_code"):
         altered = {**body, key: "NZ"}
@@ -67,7 +71,7 @@ def test_job_input_rejects_nz_on_au_route(field: str, value: str) -> None:
         "description": "Serve customers and make coffee.",
         "employment_type": "casual",
     }
-    assert JobIn.model_validate(body).workplace_country_code is None
+    assert JobIn.model_validate(body).title == "Barista"
     altered = deepcopy(body)
     altered[field] = value
     with pytest.raises(ValidationError, match="only"):
