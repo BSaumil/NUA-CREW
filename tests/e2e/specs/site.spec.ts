@@ -8,6 +8,7 @@ const PAGES = [
   '/job-seekers',
   '/employers',
   '/how-it-works',
+  '/markets',
   '/pricing',
   '/trust',
   '/apps',
