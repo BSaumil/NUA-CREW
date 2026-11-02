@@ -73,8 +73,13 @@ export default function Discover() {
   const jobs = useJobs(filters, plan.searchable.length > 0);
   const { data: savedIds = [] } = useSavedIds();
   const toggle = useToggleSave();
-  const items = useMemo(() => jobs.data?.pages.flatMap((p) => p.items) ?? [], [jobs.data]);
-  const total = jobs.data?.pages[0]?.total ?? 0;
+  const searchable = plan.searchable.length > 0;
+  // Cached Australian results must never appear under a preview-only selection.
+  const items = useMemo(
+    () => (searchable ? (jobs.data?.pages.flatMap((p) => p.items) ?? []) : []),
+    [jobs.data, searchable],
+  );
+  const total = searchable ? (jobs.data?.pages[0]?.total ?? 0) : 0;
   const savedSet = useMemo(() => new Set(savedIds), [savedIds]);
   const n = activeCount(filters);
 
