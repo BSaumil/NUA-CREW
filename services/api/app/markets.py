@@ -26,6 +26,11 @@ class Market:
     currency: str
     employment_ruleset: str
     business_identifier: str
+    label: str
+    region_label: str
+    phone_prefix: str
+    time_zones: tuple[str, ...]
+    stage: str
     capabilities: frozenset[Capability] = frozenset()
 
 
@@ -36,6 +41,19 @@ _MARKETS: dict[str, Market] = {
         currency="AUD",
         employment_ruleset="au-fair-work",
         business_identifier="ABN",
+        label="Australia",
+        region_label="State or territory",
+        phone_prefix="+61",
+        time_zones=(
+            "Australia/Melbourne",
+            "Australia/Sydney",
+            "Australia/Brisbane",
+            "Australia/Perth",
+            "Australia/Adelaide",
+            "Australia/Darwin",
+            "Australia/Hobart",
+        ),
+        stage="prelaunch",
     ),
     "NZ": Market(
         country_code="NZ",
@@ -43,8 +61,18 @@ _MARKETS: dict[str, Market] = {
         currency="NZD",
         employment_ruleset="nz-employment-law",
         business_identifier="NZBN",
+        label="New Zealand",
+        region_label="Region",
+        phone_prefix="+64",
+        time_zones=("Pacific/Auckland", "Pacific/Chatham"),
+        stage="preparing",
     ),
 }
+
+
+def list_markets() -> tuple[Market, ...]:
+    """Return configured markets without making them transactionally available."""
+    return tuple(_MARKETS[key] for key in sorted(_MARKETS))
 
 
 def market_for(country_code: str) -> Market:
