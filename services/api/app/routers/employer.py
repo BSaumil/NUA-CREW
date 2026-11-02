@@ -41,6 +41,7 @@ from app.schemas import (
 )
 from app.services.applications import change_status
 from app.services.hospitality.pay import enforce_on_publish
+from app.services.jurisdictions import require_job_currency, require_market_capability
 from app.services.jobs import (
     apply_job_input,
     record_version,
@@ -248,6 +249,11 @@ async def publish_job(
         raise conflict("job_closed", "Closed jobs cannot be republished")
     if not job.suburb:
         raise ApiError(422, "location_required", "A job location is required to publish")
+    # A locale/currency change never activates an unreviewed labour-law provider.
+    location = await session.get(Location, job.location_id) if job.location_id else None
+    country = job.country_code or (location.country if location is not None else None)
+    require_market_capability(country, action="publish")
+    require_job_currency(country, job.pay_currency)
     now = datetime.now(UTC)
     await enforce_on_publish(session, job, user.id)
     if get_settings().paid_advertising_enabled:

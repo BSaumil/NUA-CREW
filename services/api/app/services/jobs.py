@@ -108,6 +108,7 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.employment_type = data.employment_type
     job.category = data.category
     job.location_id = location.id if location else None
+    job.country_code = location.country if location else None
     job.suburb = location.suburb if location else None
     job.state = location.state if location else None
     job.postcode = location.postcode if location else None
