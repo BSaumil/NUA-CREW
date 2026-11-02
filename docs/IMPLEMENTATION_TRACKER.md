@@ -1,5 +1,23 @@
 # Implementation tracker
 
+## AU / NZ and future-country foundation — 2 November 2026
+
+Branch `feat/au-nz-multi-market-foundation-20261102`. Details: [country plan](markets/AU_NZ_EXPANSION_PLAN_2026-11-02.md).
+
+| Item | State | Evidence / safety boundary |
+| --- | --- | --- |
+| Extensible AU/NZ market registry with currency, timezone, identifiers and capability flags | IN_PROGRESS | `apps/site/lib/markets.ts`, unknown market returns null; no live country enabled |
+| Australia and NZ marketing information and navigation | IN_PROGRESS | `/markets`, updated route metadata/sitemap, browser assertions; verify full CI before DONE |
+| New Zealand legal, tax and privacy assessment | BLOCKED | Counsel/accountant required. No NZ commercial identity or GST registration asserted |
+| Per-country backend job/venue/identity fields and migration | NOT_STARTED | Need country isolation design, migration, OpenAPI/client parity and RLS tests |
+| NZ pay rule engine | NOT_STARTED | NZ legal rule provider independent of AU modern award logic, verified source/effective date required |
+| NZ employer pricing and Stripe | BLOCKED | No NZ price or checkout activation; owner and tax review |
+| NZ Android/iOS country UX and end-to-end pilot | NOT_STARTED | App stores and payment methods not activated |
+| Additional country activation architecture | PLANNED | ISO alpha-2 config + jurisdiction-specific adapters + fail-closed feature flags per market |
+
+**Live status:** marketing site exists; hiring product in pre-launch. `NUA_PRODUCT_LIVE`, `NUA_SITE_INDEXABLE` and all market capability flags remain disabled.
+
+
 ## SEO foundation — 1 November 2026
 
 Branch `feat/site-seo-foundation-20261101`, baseline `d305755`. Handoff: [site SEO audit](HANDOFF_FOR_CHATGPT_SITE_SEO_2026-10-31.md).
