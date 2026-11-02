@@ -222,6 +222,8 @@ export function Chip({
       accessibilityState={
         role === 'radio' || role === 'checkbox' ? { checked: !!selected } : { selected: !!selected }
       }
+      // Web needs aria-checked on checkbox/radio roles (axe: aria-required-attr).
+      {...(role === 'radio' || role === 'checkbox' ? { 'aria-checked': !!selected } : {})}
       accessibilityHint={accessibilityHint}
       style={{
         minHeight: MIN_TOUCH - 4,
