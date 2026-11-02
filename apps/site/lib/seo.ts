@@ -101,10 +101,10 @@ export function buildMetadata(path: SitePath): Metadata {
   const { title, description } = SITE_SEO[path];
   const url = canonicalUrl(path);
   const image = {
-    url: `${SITE.url}/illustrations/hospitality-team.webp`,
+    url: `${SITE.url}/opengraph-image`,
     width: 1200,
-    height: 900,
-    alt: 'Illustration of NUA CREW hospitality recruitment',
+    height: 630,
+    alt: 'NUA CREW — Better Jobs. Stronger Teams. Australia and New Zealand in preparation.',
   };
   return {
     title: path === '/' ? { absolute: title } : title,
