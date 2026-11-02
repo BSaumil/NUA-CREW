@@ -212,14 +212,16 @@ export function Chip({
   onPress?: () => void;
   accessibilityHint?: string;
   /** Use "tab" for chips that switch between panels (inside a tablist). */
-  role?: 'button' | 'tab';
+  role?: 'button' | 'tab' | 'radio' | 'checkbox';
 }) {
   const { colors } = useTheme();
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole={onPress ? role : 'text'}
-      accessibilityState={{ selected: !!selected }}
+      accessibilityState={
+        role === 'radio' || role === 'checkbox' ? { checked: !!selected } : { selected: !!selected }
+      }
       accessibilityHint={accessibilityHint}
       style={{
         minHeight: MIN_TOUCH - 4,

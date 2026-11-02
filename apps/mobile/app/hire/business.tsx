@@ -15,6 +15,7 @@ import {
 import { exportAccount } from '@/features/account-export';
 import { reportSignOut } from '@/features/signout';
 import { emailError, passwordError } from '@/features/validation';
+import { AU_STATES } from '@/features/markets';
 import { useAuth } from '@/state/AuthProvider';
 import { useHireWorkspace } from '@/state/HireWorkspace';
 import { useTheme, type ThemeMode } from '@/theme/ThemeProvider';
@@ -32,7 +33,7 @@ import {
 } from '@/ui';
 import { HireGate, HireHeading, Notice } from '@/ui/hire';
 
-const STATES = ['VIC', 'NSW', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'] as const;
+const STATES = AU_STATES;
 export default function Business() {
   return (
     <HireGate>
@@ -71,7 +72,7 @@ function BusinessContent() {
   const [error, setError] = useState<string | null>(null);
   const [venue, setVenue] = useState('');
   const [suburb, setSuburb] = useState('');
-  const [state, setState] = useState<(typeof STATES)[number]>('VIC');
+  const [state, setState] = useState<string>('VIC');
   const [postcode, setPostcode] = useState('');
   const [email, setEmail] = useState('');
   const [memberRole, setMemberRole] = useState<'recruiter' | 'viewer'>('recruiter');
@@ -113,7 +114,7 @@ function BusinessContent() {
         await addLocation.mutateAsync({
           name: venue.trim(),
           suburb: suburb.trim(),
-          state,
+          state: state as never,
           postcode,
         });
         setVenue('');

@@ -19,6 +19,7 @@ import {
   toSavedParams,
   type EmploymentType,
 } from '@/features/filters';
+import { planSearch, toggleSearchMarket, useSearchMarkets } from '@/features/markets';
 import { getApproximatePosition } from '@/features/location';
 import { useFilters } from '@/state/FiltersProvider';
 import { useTheme } from '@/theme/ThemeProvider';
@@ -37,6 +38,7 @@ import {
   Text,
   Sheet,
 } from '@/ui';
+import { MarketNotice, SearchMarkets } from '@/ui/market';
 
 const QUICK_TYPES: EmploymentType[] = ['casual', 'part_time', 'full_time'];
 const QUICK_LABEL: Record<string, string> = {
@@ -64,7 +66,11 @@ export default function Discover() {
   }, [text, setFilters]);
   useEffect(() => setText(filters.q), [filters.q]);
 
-  const jobs = useJobs(filters);
+  const markets = useSearchMarkets();
+  const plan = planSearch(markets);
+  const mixed = markets.length > 1;
+  // A preview-only market is never queried; with only previews selected nothing is requested.
+  const jobs = useJobs(filters, plan.searchable.length > 0);
   const { data: savedIds = [] } = useSavedIds();
   const toggle = useToggleSave();
   const items = useMemo(() => jobs.data?.pages.flatMap((p) => p.items) ?? [], [jobs.data]);
@@ -123,6 +129,16 @@ export default function Discover() {
         returnKeyType="search"
         autoCorrect={false}
       />
+      <SearchMarkets selected={markets} onToggle={toggleSearchMarket} />
+      {plan.unavailable.map((u) => (
+        <MarketNotice key={u.code} message={u.reason} />
+      ))}
+      {mixed ? (
+        <Text variant="caption" muted>
+          Pay is shown in each job&apos;s own currency and is never added together or compared
+          across countries.
+        </Text>
+      ) : null}
       <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <Row style={{ flexWrap: 'nowrap' }}>
           <Button
@@ -165,9 +181,11 @@ export default function Discover() {
       </ScrollView>
       <Row style={{ justifyContent: 'space-between' }}>
         <Text accessibilityRole="header" accessibilityLiveRegion="polite" variant="label" muted>
-          {jobs.isPending
-            ? 'Searching…'
-            : `${total} ${total === 1 ? 'job' : 'jobs'} · ${describe(filters)}`}
+          {plan.searchable.length === 0
+            ? 'No searchable country selected'
+            : jobs.isPending
+              ? 'Searching…'
+              : `${total} ${total === 1 ? 'job' : 'jobs'} · ${describe(filters)}`}
         </Text>
         {hasAnyFilter(filters) ? (
           <Button
@@ -207,7 +225,12 @@ export default function Discover() {
           />
         )}
         ListEmptyComponent={
-          jobs.isPending ? (
+          plan.searchable.length === 0 ? (
+            <EmptyState
+              title="Nothing to list yet"
+              body="The countries you chose are not enabled yet. Choose Australia to see jobs."
+            />
+          ) : jobs.isPending ? (
             <ListSkeleton />
           ) : jobs.isError ? (
             <ErrorState message={messageOf(jobs.error)} onRetry={() => void jobs.refetch()} />
