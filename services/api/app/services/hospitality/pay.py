@@ -13,7 +13,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.errors import ApiError, conflict, not_found
 from app.hospitality_schemas import PayAssessmentIn, PayAssessmentResult
-from app.models import Employer, HospitalityRole, Job, Location, PayAssessment, PayAssessmentAcknowledgement
+from app.models import (
+    Employer,
+    HospitalityRole,
+    Job,
+    Location,
+    PayAssessment,
+    PayAssessmentAcknowledgement,
+)
 from app.services.hospitality.awards import STATE_ZONES, assess
 from app.services.hospitality.rules import load_ruleset
 
