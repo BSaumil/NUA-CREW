@@ -216,6 +216,8 @@ class Employer(TimestampMixin, Base):
     id: Mapped[uuid.UUID] = _uuid_pk()
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     abn: Mapped[str | None] = mapped_column(String(11), unique=True)
+    # Legal domicile; existing records are unresolved until evidence is reviewed.
+    country_code: Mapped[str | None] = mapped_column(String(2))
     verification_status: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="unverified"
     )
@@ -302,6 +304,8 @@ class Job(TimestampMixin, Base):
         ForeignKey("employers.id", ondelete="CASCADE"), index=True
     )
     location_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("locations.id"))
+    # Workplace jurisdiction, independent of the legal domicile of the employer.
+    country_code: Mapped[str | None] = mapped_column(String(2), index=True)
     origin: Mapped[str] = mapped_column(String(16), nullable=False, server_default="direct")
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
@@ -788,6 +792,7 @@ class Shift(TimestampMixin, Base):
     id: Mapped[uuid.UUID] = _uuid_pk()
     employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
     job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    country_code: Mapped[str | None] = mapped_column(String(2))
     title: Mapped[str] = mapped_column(String(200))
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -1072,6 +1077,8 @@ class PayAssessment(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     effective_on: Mapped[date] = mapped_column(Date)
+    country_code: Mapped[str | None] = mapped_column(String(2))
+    ruleset_code: Mapped[str | None] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(24))
     input_hash: Mapped[str] = mapped_column(String(64))
     input: Mapped[dict[str, Any]] = mapped_column(JSONB)
