@@ -23,9 +23,9 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     images: [
       {
-        url: '/illustrations/hospitality-team.webp',
+        url: '/opengraph-image',
         width: 1200,
-        height: 900,
+        height: 630,
         alt: 'NUA CREW — Better Jobs. Stronger Teams.',
       },
     ],
