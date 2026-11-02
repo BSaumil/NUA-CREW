@@ -24,6 +24,26 @@ class Orm(BaseModel):
 
 
 # ---- auth ----
+class MarketCapabilitiesOut(BaseModel):
+    onboarding: bool = False
+    job_publishing: bool = False
+    shifts: bool = False
+    billing: bool = False
+
+
+class MarketPublicOut(BaseModel):
+    country_code: str
+    label: str
+    locale: str
+    currency: str
+    region_label: str
+    employer_identifier_label: str
+    phone_prefix: str
+    time_zones: list[str]
+    stage: Literal["prelaunch", "preparing", "open"]
+    capabilities: MarketCapabilitiesOut
+
+
 class LocationIn(BaseModel):
     name: Name
     suburb: Name
