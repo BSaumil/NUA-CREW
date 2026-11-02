@@ -17,6 +17,7 @@ from app.models import (
     Employer,
     Invitation,
     Job,
+    Location,
     Shift,
     ShiftBooking,
     ShiftTimesheet,
@@ -140,7 +141,8 @@ async def create_shift(
     if employer.verification_status != "verified":
         raise forbidden("Business verification is required")
     # Only employment-rule providers activated for the workplace may schedule shifts.
-    country = job.country_code
+    location = await session.get(Location, job.location_id) if job.location_id else None
+    country = job.country_code or (location.country if location is not None else None)
     require_market_capability(country, action="shift")
     require_job_currency(country, job.pay_currency)
     if not is_open(job) or job.pay_period != "hour" or job.super_included is None:
