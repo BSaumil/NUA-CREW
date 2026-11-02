@@ -122,3 +122,19 @@ interface MarketAdapter {
 - Website marketing changes may deploy after review and green CI; they do **not** activate registrations, shift bookings, payments or public indexing.
 - Required evidence: full website e2e across both light/dark, SEO metadata for `/markets`, mobile at 360px with no horizontal overflow, country registry unknown-country fail-closed tests, and Vercel READY.
 - Record PR, merge SHA, deployment ID and what is **not** yet live in `docs/IMPLEMENTATION_TRACKER.md`.
+
+---
+
+## 7. Engineering continuation — 3 November 2026
+
+The implementation branch `feat/country-jurisdiction-data-contracts-20261103` starts the *database* foundation. It adds nullable employment-jurisdiction keys to existing RLS-protected employer, job, shift and pay audit tables; no historic data is automatically relabelled.
+
+Existing `locations.country` remains a two-letter country field with the historical AU default, while AU registration writes explicit `employers.country_code = 'AU'`. Job draft jurisdiction derives only from an employer-owned location record. Country and currency are validated at publication/shift creation. New Zealand and other countries are blocked from publishing until their separate providers are verified. Australian award assessments are tagged `au-fair-work` and refuse NZ jobs.
+
+### Before release
+
+1. Obtain green repository API, web, dependency and E2E CI; run Alembic upgrade/downgrade on test DB and review migration SQL. Do not create a new broad backfill.
+2. Verify historical AU published jobs retain publication and shift behaviour using their linked AU location; confirm NZ and unknown country scenarios return `market_not_enabled`.
+3. Test cross-tenant/multi-venue security; country is not a replacement for `employer_id` or row-level security.
+4. Follow with shared public API schema and OpenAPI generator changes, then web, Android and iOS clients in the **same compatibility release**. Country selection is not enabled for direct registration in this phase.
+5. Keep NZ onboarding, NZ wage estimates, public job ads, NZD checkout, site indexing and launch flags disabled until counsel and owner sign off.
