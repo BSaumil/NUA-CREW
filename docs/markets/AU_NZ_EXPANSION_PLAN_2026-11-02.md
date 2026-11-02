@@ -136,5 +136,5 @@ Existing `locations.country` remains a two-letter country field with the histori
 1. Obtain green repository API, web, dependency and E2E CI; run Alembic upgrade/downgrade on test DB and review migration SQL. Do not create a new broad backfill.
 2. Verify historical AU published jobs retain publication and shift behaviour using their linked AU location; confirm NZ and unknown country scenarios return `market_not_enabled`.
 3. Test cross-tenant/multi-venue security; country is not a replacement for `employer_id` or row-level security.
-4. Follow with shared public API schema and OpenAPI generator changes, then web, Android and iOS clients in the **same compatibility release**. Country selection is not enabled for direct registration in this phase.
+4. Read-only public country fields have been added to Employer/Location/Job/Shift responses and OpenAPI + TypeScript clients regenerated together. **Next:** add validated country selection to web, Android and iOS in a separate compatibility release, still gated from NZ registrations.
 5. Keep NZ onboarding, NZ wage estimates, public job ads, NZD checkout, site indexing and launch flags disabled until counsel and owner sign off.

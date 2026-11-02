@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import get_settings
 from app.errors import ApiError, conflict, not_found
 from app.hospitality_schemas import PayAssessmentIn, PayAssessmentResult
-from app.models import Employer, HospitalityRole, Job, PayAssessment, PayAssessmentAcknowledgement
+from app.models import Employer, HospitalityRole, Job, Location, PayAssessment, PayAssessmentAcknowledgement
 from app.services.hospitality.awards import STATE_ZONES, assess
 from app.services.hospitality.rules import load_ruleset
 
@@ -65,6 +65,9 @@ async def run_assessment(
     if inp.job_id is not None:
         job = await session.get(Job, inp.job_id)
         if job is None or job.employer_id != employer_id or job.country_code not in (None, "AU"):
+            raise ApiError(422, "market_not_enabled", "Australian award assessment unavailable")
+        venue = await session.get(Location, job.location_id) if job.location_id else None
+        if venue is not None and (venue.employer_id != employer_id or venue.country != "AU"):
             raise ApiError(422, "market_not_enabled", "Australian award assessment unavailable")
     effective = on or inp.effective_on or today_in(inp.state)
     result = await evaluate(session, inp, effective)

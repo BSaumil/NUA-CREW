@@ -44,8 +44,6 @@ def test_australian_capabilities_do_not_authorise_new_zealand_rules() -> None:
         require_market_capability("AU", action="future")
 
 
-def test_legacy_must_be_explicitly_proven_if_ever_enabled() -> None:
+def test_unclassified_legacy_record_cannot_bypass_country_gate() -> None:
     with pytest.raises(ApiError):
         require_market_capability(None, action="publish")
-    # This exception is AU-only and must never be exposed as a public input.
-    assert require_market_capability(None, action="publish", legacy_au_record=True).code == "AU"

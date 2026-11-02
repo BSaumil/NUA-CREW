@@ -142,7 +142,11 @@ async def create_shift(
         raise forbidden("Business verification is required")
     # Only employment-rule providers activated for the workplace may schedule shifts.
     location = await session.get(Location, job.location_id) if job.location_id else None
-    country = job.country_code or (location.country if location is not None else None)
+    if location is None or location.employer_id != employer_id:
+        raise conflict("workplace_country_unverified", "Use an employer-owned workplace")
+    if job.country_code is not None and job.country_code != location.country:
+        raise conflict("workplace_country_mismatch", "Job and workplace countries disagree")
+    country = location.country
     require_market_capability(country, action="shift")
     require_job_currency(country, job.pay_currency)
     if not is_open(job) or job.pay_period != "hour" or job.super_included is None:

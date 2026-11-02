@@ -43,16 +43,8 @@ def jurisdiction_for(code: str | None) -> Jurisdiction | None:
     return JURISDICTIONS.get(country) if country is not None else None
 
 
-def require_market_capability(
-    country: str | None, *, action: str, legacy_au_record: bool = False
-) -> Jurisdiction:
-    """Fail closed for unknown/unreviewed countries.
-
-    Legacy AU records (created before country was recorded) retain existing behaviour
-    only at existing routes, where an AU venue and pay currency are independently known.
-    """
-    if country is None and legacy_au_record:
-        country = "AU"
+def require_market_capability(country: str | None, *, action: str) -> Jurisdiction:
+    """Fail closed for unknown/unreviewed countries or missing workplace evidence."""
     market = jurisdiction_for(country)
     if market is None or not (
         (action == "publish" and market.publish_enabled)

@@ -11,7 +11,7 @@ Work branch `feat/country-jurisdiction-data-contracts-20261103`. This is backend
 | Publication and shifts hard stops | IN REVIEW | NZ and unknown jurisdictions reject; matches workplace currency; legacy jobs must have a known linked venue |
 | Award pay checks tagged `AU` / `au-fair-work` | IN REVIEW | Reject NZ legal employers or NZ jobs from the AU award engine; evidence retained |
 | Postgres constraint and pure jurisdiction regression tests | IN REVIEW | Unit tests plus migration integration test |
-| Public country fields in OpenAPI and mobile/web clients | NEXT | Do not expose a new write field until all platforms and contracts regenerate together |
+| Read-only jurisdiction fields in OpenAPI and generated web/mobile TypeScript clients | IN REVIEW | Backward-compatible Employer/Location/Job/Shift responses; country write fields and NZ registrations remain disabled |
 | NZ law engine, NZ employer onboarding, billing | BLOCKED | Await separate jurisdiction-specific rule validation and owner release approval |
 | Production migration and NZ launch | NOT AUTHORISED | PR/review/testing required; no merge or deployment as part of this phase |
 
