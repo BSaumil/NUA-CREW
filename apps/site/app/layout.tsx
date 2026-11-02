@@ -13,7 +13,7 @@ import { SiteJsonLd } from './site-json-ld';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: { default: `NUA CREW — ${TAGLINE}`, template: '%s · NUA CREW' },
-  description: `${SUPPORT_LINE} Permanent jobs and temporary work in Australia, starting with hospitality and local services in Melbourne.`,
+  description: `${SUPPORT_LINE} Hospitality recruitment in pre-launch testing for Australia, with New Zealand in preparation.`,
   applicationName: 'NUA CREW',
   openGraph: {
     siteName: 'NUA CREW',
@@ -93,6 +93,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                   </li>
                   <li>
                     <a href="/pricing">Pricing</a>
+                  </li>
+                  <li>
+                    <a href="/markets">Australia &amp; New Zealand</a>
                   </li>
                   <li>
                     <a href="/apps">Android and iOS apps</a>

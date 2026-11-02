@@ -49,7 +49,7 @@ export default function Home() {
             </div>
             <p className="home-hero__note">
               <Check size={17} aria-hidden="true" />
-              Free for job seekers across Australia.
+              Free for Australian job seekers. <a href="/markets">New Zealand is in preparation.</a>
             </p>
           </div>
           <figure className="home-hero__art">

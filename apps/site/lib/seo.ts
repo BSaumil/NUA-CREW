@@ -26,6 +26,11 @@ export const SITE_SEO = {
     description:
       "Learn how NUA CREW's proposed job search, applications, shift availability, invitations and conversations work for hospitality employers and job seekers.",
   },
+  '/markets': {
+    title: 'Australia and New Zealand Hospitality Recruitment',
+    description:
+      'Explore NUA CREW plans for hospitality recruitment in Australia and New Zealand, with separate local currencies, employment rules and pre-launch checks.',
+  },
   '/features': {
     title: 'Explore Hospitality Recruitment Features',
     description:

@@ -8,6 +8,7 @@ const PAGES = [
   '/job-seekers',
   '/employers',
   '/how-it-works',
+  '/markets',
   '/pricing',
   '/trust',
   '/apps',
@@ -116,6 +117,22 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
   expect(sitemap).toContain('https://iksaa.com.au');
   expect((sitemap.match(/<loc>/g) ?? []).length).toBe(PAGES.length);
   expect((sitemap.match(/<lastmod>/g) ?? []).length).toBe(PAGES.length);
+});
+
+test('country guidance lists Australia and New Zealand without enabling recruitment', async ({
+  page,
+}) => {
+  await page.goto(SITE + '/markets');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText(
+    'One platform. Built for local work.',
+  );
+  await expect(page.getByRole('heading', { name: 'Australia', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'New Zealand', exact: true })).toBeVisible();
+  await expect(page.getByText('AUD', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText('NZD', { exact: false }).first()).toBeVisible();
+  await expect(page.getByText(/not publicly available yet/i).first()).toBeVisible();
+  await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
+  await expect(page.locator('a[href*="checkout"], a[href*="stripe.com"]')).toHaveCount(0);
 });
 
 test('claims stay truthful: apps are not in stores, billing is a preview, free for job seekers', async ({

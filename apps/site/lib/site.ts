@@ -32,6 +32,7 @@ export const NAV = [
   { href: '/employers', label: 'Employers' },
   { href: '/features', label: 'Features' },
   { href: '/how-it-works', label: 'How it works' },
+  { href: '/markets', label: 'AU & NZ' },
   { href: '/pricing', label: 'Pricing' },
   { href: '/trust', label: 'Trust & privacy' },
 ] as const;
@@ -41,6 +42,7 @@ export const PAGES = [
   '/job-seekers',
   '/employers',
   '/how-it-works',
+  '/markets',
   '/pricing',
   '/trust',
   '/apps',
