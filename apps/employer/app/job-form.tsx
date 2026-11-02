@@ -1,4 +1,10 @@
-import { Button } from '@nua-crew/ui';
+import {
+  Button,
+  GatedSubmit,
+  MarketPreviewNotice,
+  MarketProvider,
+  MarketRadios,
+} from '@nua-crew/ui';
 import type { Schemas } from '@nua-crew/contracts';
 import { Field } from './components';
 
@@ -39,14 +45,18 @@ export function JobForm({
   locations,
   job,
   submitLabel,
+  chooseCountry = false,
 }: {
   action: (form: FormData) => Promise<void>;
   locations: Location[];
   job?: Job;
   submitLabel: string;
+  /** New jobs only: asks which country the workplace is in. Editing keeps the saved workplace. */
+  chooseCountry?: boolean;
 }) {
-  return (
+  const body = (
     <form action={action} className="nua-card nua-stack">
+      {chooseCountry ? <MarketRadios name="country" legend="Workplace country" /> : null}
       {job ? <input type="hidden" name="job_id" value={job.id} /> : null}
       <Field name="title" label="Job title" required defaultValue={job?.title} />
       <div className="nua-field">
@@ -156,7 +166,9 @@ export function JobForm({
         </div>
       </fieldset>
       <fieldset className="nua-stack" style={{ border: 0, padding: 0 }}>
-        <legend style={{ fontWeight: 700 }}>Pay (AUD)</legend>
+        <legend style={{ fontWeight: 700 }}>
+          Pay ({chooseCountry ? 'AUD for Australian workplaces' : 'AUD'})
+        </legend>
         <p className="nua-hint">
           Listing pay builds candidate trust. It is shown as &ldquo;Disclosed&rdquo;. Leave blank to
           say pay is not disclosed.
@@ -204,9 +216,15 @@ export function JobForm({
         defaultValue={job?.skills.join(', ')}
         hint="Separate with commas, e.g. Barista, RSA"
       />
+      {chooseCountry ? <MarketPreviewNotice /> : null}
       <div>
-        <Button type="submit">{submitLabel}</Button>
+        {chooseCountry ? (
+          <GatedSubmit>{submitLabel}</GatedSubmit>
+        ) : (
+          <Button type="submit">{submitLabel}</Button>
+        )}
       </div>
     </form>
   );
+  return chooseCountry ? <MarketProvider capability="job_publishing">{body}</MarketProvider> : body;
 }

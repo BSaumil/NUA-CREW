@@ -1,3 +1,4 @@
+import { getMarket } from '@nua-crew/markets';
 import { SalaryDisclosure, TrustIndicator, type PayBasis, type VerificationStatus } from './trust';
 
 export type JobCardJob = {
@@ -17,6 +18,10 @@ export type JobCardJob = {
   superIncluded?: boolean | null;
   publishedAt?: string | null;
   roleTitle?: string | null;
+  /** ISO currency of the pay. Absent on legacy records, which the API defines as AUD. */
+  currency?: string | null;
+  /** Only set when the record's country is verified. Never guessed from the suburb or state. */
+  verifiedCountry?: string | null;
 };
 
 const TYPE_LABEL: Record<string, string> = {
@@ -32,11 +37,15 @@ export function JobCard({
   job,
   href,
   headingLevel = 2,
+  showCurrencyCode = false,
 }: {
   job: JobCardJob;
   href: string;
   headingLevel?: 2 | 3;
+  /** Set when results may span countries so every amount carries its ISO currency. */
+  showCurrencyCode?: boolean;
 }) {
+  const country = getMarket(job.verifiedCountry);
   const Heading = `h${headingLevel}` as const;
   return (
     <article className="nua-card nua-stack" aria-labelledby={`job-${job.id}`}>
@@ -59,11 +68,14 @@ export function JobCard({
           </span>
         ) : null}
         <span>{employmentTypeLabel(job.employmentType)}</span>
+        {country ? <span className="nua-badge">{country.label}</span> : null}
       </div>
       <SalaryDisclosure
         min={job.payMin}
         max={job.payMax}
         period={job.payPeriod}
+        currency={job.currency ?? 'AUD'}
+        showCurrencyCode={showCurrencyCode}
         basis={job.payBasis}
         superIncluded={job.superIncluded}
       />

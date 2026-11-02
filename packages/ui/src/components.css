@@ -644,3 +644,18 @@ a {
   white-space: nowrap;
   border: 0;
 }
+
+/* Country choice (employer forms) */
+.nua-market-choice {
+  border: 1px solid var(--nua-border, #d9d2cc);
+  border-radius: 12px;
+  padding: 12px 14px;
+  display: grid;
+  gap: 8px;
+}
+.nua-market-choice__option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+}

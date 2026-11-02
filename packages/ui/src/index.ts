@@ -6,3 +6,4 @@ export * from './cards';
 export * from './nav';
 export * from './pay';
 export * from './onboarding';
+export * from './market';

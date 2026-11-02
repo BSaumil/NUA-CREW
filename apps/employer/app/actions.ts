@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { marketRefusal } from '@/lib/market';
 import { api, COOKIE, errorMessage, requireEmployer, TOKEN_MAX_AGE_S } from '@/lib/api';
 
 const back = (path: string, kind: 'error' | 'notice', msg: string) =>
@@ -38,6 +39,8 @@ export async function login(form: FormData) {
 }
 
 export async function register(form: FormData) {
+  const refusal = marketRefusal(form, 'onboarding');
+  if (refusal) return back('/register', 'error', refusal);
   const { data, error } = await (
     await api()
   ).POST('/v1/auth/register/employer', {
@@ -102,6 +105,8 @@ function jobBody(form: FormData) {
 }
 
 export async function createJob(form: FormData) {
+  const refusal = marketRefusal(form, 'job_publishing');
+  if (refusal) return back('/jobs/new', 'error', refusal);
   const { employerId } = await requireEmployer();
   const { data, error } = await (
     await api()

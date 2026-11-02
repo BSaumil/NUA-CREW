@@ -2,14 +2,31 @@
 
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useFormStatus } from 'react-dom';
+import { useMarketGate } from './market';
 
 type SetupStep = { title: string; description: string; content: ReactNode };
 function ContinueButton({ final, label }: { final: boolean; label: string }) {
   const { pending } = useFormStatus();
+  const gate = useMarketGate();
+  const blocked = final && gate !== null && !gate.allowed;
+  const off = pending || blocked;
   return (
-    <button className="nua-button" type="submit" disabled={pending} aria-disabled={pending}>
-      {pending ? 'Creating your account…' : final ? label : 'Continue'}
-    </button>
+    <>
+      <button
+        className="nua-button"
+        type="submit"
+        disabled={off}
+        aria-disabled={off}
+        aria-describedby={blocked ? 'market-gate-reason' : undefined}
+      >
+        {pending ? 'Creating your account…' : final ? label : 'Continue'}
+      </button>
+      {blocked ? (
+        <p id="market-gate-reason" className="nua-hint">
+          {gate.reason}
+        </p>
+      ) : null}
+    </>
   );
 }
 
