@@ -1,4 +1,4 @@
-/** 
+/**
  * Market configuration is informational until a market passes its own release gates.
  * ISO 3166-1 alpha-2 keys are deliberately open-ended: adding a country should not
  * require branching on AU/NZ in generic application UI.
@@ -26,7 +26,15 @@ export const MARKETS: Record<string, MarketConfig> = {
     locale: 'en-AU',
     currency: 'AUD',
     phonePrefix: '+61',
-    timezoneExamples: ['Australia/Melbourne', 'Australia/Sydney', 'Australia/Brisbane', 'Australia/Perth', 'Australia/Adelaide', 'Australia/Darwin', 'Australia/Hobart'],
+    timezoneExamples: [
+      'Australia/Melbourne',
+      'Australia/Sydney',
+      'Australia/Brisbane',
+      'Australia/Perth',
+      'Australia/Adelaide',
+      'Australia/Darwin',
+      'Australia/Hobart',
+    ],
     regionLabel: 'State or territory',
     employerIdentifier: 'ABN',
     employmentRuleset: 'au-fair-work',
