@@ -1,4 +1,5 @@
 """Old AU-only routes must reject explicit NZ data, not silently ignore it."""
+
 from copy import deepcopy
 
 import pytest
@@ -38,19 +39,28 @@ def test_employer_registration_does_not_create_au_account_for_nz() -> None:
 
     with pytest.raises(ValidationError, match="Australia only"):
         EmployerRegister.model_validate(
-            {**body, "location": {
-                "name": "Test Venue", "suburb": "Auckland",
-                "state": "VIC", "postcode": "1010", "country": "NZ",
-            }}
+            {
+                **body,
+                "location": {
+                    "name": "Test Venue",
+                    "suburb": "Auckland",
+                    "state": "VIC",
+                    "postcode": "1010",
+                    "country": "NZ",
+                },
+            }
         )
 
 
-@pytest.mark.parametrize("field,value", [
-    ("country", "NZ"),
-    ("country_code", "NZ"),
-    ("workplace_country_code", "NZ"),
-    ("pay_currency", "NZD"),
-])
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("country", "NZ"),
+        ("country_code", "NZ"),
+        ("workplace_country_code", "NZ"),
+        ("pay_currency", "NZD"),
+    ],
+)
 def test_job_input_rejects_nz_on_au_route(field: str, value: str) -> None:
     body = {
         "title": "Barista",
@@ -64,16 +74,21 @@ def test_job_input_rejects_nz_on_au_route(field: str, value: str) -> None:
         JobIn.model_validate(altered)
 
 
-@pytest.mark.parametrize("schema,data", [
-    (
-        CandidateRegister,
-        {
-            "email": "applicant@example.com", "password": "correct-horse-battery",
-            "full_name": "Candidate", "accept_terms": True,
-        },
-    ),
-    (ProfileIn, {"full_name": "Candidate"}),
-])
+@pytest.mark.parametrize(
+    "schema,data",
+    [
+        (
+            CandidateRegister,
+            {
+                "email": "applicant@example.com",
+                "password": "correct-horse-battery",
+                "full_name": "Candidate",
+                "accept_terms": True,
+            },
+        ),
+        (ProfileIn, {"full_name": "Candidate"}),
+    ],
+)
 def test_nz_profile_hints_are_not_silently_ignored(schema: type, data: dict) -> None:
     with pytest.raises(ValidationError, match="Australia only"):
         schema.model_validate({**data, "country_code": "NZ"})

@@ -1,4 +1,5 @@
 """Fail-closed AU/NZ jurisdiction checks; independent of live recruitment routes."""
+
 from decimal import Decimal
 
 import pytest
