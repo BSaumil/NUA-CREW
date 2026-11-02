@@ -59,7 +59,8 @@ def _snapshot(job: Job, skills: Sequence[str]) -> dict[str, Any]:
     cols = (
         "title description status employment_type category suburb state postcode pay_min pay_max "
         "pay_period pay_currency super_included pay_basis apply_url expires_at engagement_basis "
-        "duration_type hours_pattern min_weekly_hours max_weekly_hours start_date end_date"
+        "duration_type hours_pattern min_weekly_hours max_weekly_hours start_date end_date "
+        "country_code"
     ).split()
     return {**{c: conv(getattr(job, c)) for c in cols}, "skills": sorted(skills)}
 
@@ -108,6 +109,15 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.employment_type = data.employment_type
     job.category = data.category
     job.location_id = location.id if location else None
+    # Derive jurisdiction from the employer-owned workplace, never the caller's locale.
+    job.country_code = location.country if location else None
+    if location:
+        from app.services.jurisdictions import market_for_country
+
+        market = market_for_country(location.country)
+        if market is None:
+            raise ApiError(422, "unsupported_market", "The workplace country is not configured")
+        job.pay_currency = market.currency
     job.suburb = location.suburb if location else None
     job.state = location.state if location else None
     job.postcode = location.postcode if location else None
@@ -210,6 +220,7 @@ async def to_out(
                 and bool(emp and emp.verification_status == "verified"),
                 id=j.id,
                 origin=j.origin,
+                country_code=j.country_code,
                 title=j.title,
                 description=j.description,
                 status=j.status,

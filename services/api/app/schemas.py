@@ -29,6 +29,8 @@ class LocationIn(BaseModel):
     suburb: Name
     state: State
     postcode: Postcode
+    # AU-only registration until NZ employer and region validation is approved.
+    country: Literal["AU"] = "AU"
 
 
 Client = Literal["web", "mobile"]
@@ -49,6 +51,7 @@ class EmployerRegister(BaseModel):
     full_name: Name
     organisation_name: Name
     abn: str | None = None
+    country_code: Literal["AU"] | None = None
     location: LocationIn | None = None
     accept_terms: Literal[True]
     client: Client = "web"
@@ -158,6 +161,7 @@ class EmployerOut(Orm):
     id: uuid.UUID
     name: str
     abn: str | None
+    country_code: str | None = None
     verification_status: str
 
 
@@ -167,6 +171,7 @@ class LocationOut(Orm):
     suburb: str
     state: str
     postcode: str
+    country: str = "AU"
 
 
 class MemberIn(BaseModel):
@@ -251,6 +256,7 @@ class JobRoleOut(BaseModel):
 
 class JobOut(BaseModel):
     promoted: bool = False
+    country_code: str | None = None
     id: uuid.UUID
     origin: str
     title: str

@@ -138,6 +138,9 @@ async def create_shift(
         raise not_found("job")
     if employer.verification_status != "verified":
         raise forbidden("Business verification is required")
+    from app.services.jurisdictions import assert_job_market_ready
+
+    assert_job_market_ready(job.country_code, job.pay_currency)
     if not is_open(job) or job.pay_period != "hour" or job.super_included is None:
         raise conflict(
             "shift_job_unavailable", "Use an open job with hourly pay and explicit super disclosure"
@@ -167,6 +170,7 @@ async def create_shift(
         starts_at=starts,
         ends_at=ends,
         time_zone=body.time_zone,
+        country_code=job.country_code,
         capacity=body.capacity,
         hourly_rate_minor=body.hourly_rate_minor,
         super_included=job.super_included,

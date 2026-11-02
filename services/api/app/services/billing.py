@@ -108,6 +108,10 @@ async def prepare_order(
         )
         if job is None:
             raise not_found("job")
+        # Never charge an AU catalogue price for an NZ/unknown workplace.
+        from app.services.jurisdictions import assert_job_market_ready
+
+        assert_job_market_ready(job.country_code, job.pay_currency)
         if job.origin != "direct":
             raise conflict("job_not_direct", "Only your own direct advertisements can be purchased")
         if job.status == "closed":
