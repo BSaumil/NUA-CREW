@@ -230,6 +230,7 @@ async def to_out(
                 pay_max=j.pay_max,
                 pay_period=j.pay_period,
                 pay_currency=j.pay_currency,
+                country_code=j.country_code,
                 super_included=j.super_included,
                 pay_basis=j.pay_basis,
                 apply_url=j.apply_url,
