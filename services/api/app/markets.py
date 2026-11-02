@@ -3,6 +3,7 @@
 Fail closed for unknown countries and prohibited transactional operations. This
 module does not assert that New Zealand hiring or wage calculations are live.
 """
+
 from dataclasses import dataclass
 from decimal import Decimal
 from enum import StrEnum

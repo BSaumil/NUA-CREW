@@ -4,6 +4,7 @@ Legacy locations.country has an AU server default, so agreement between
 location country and pay currency alone cannot prove a verified jurisdiction.
 Only a separate reviewed provenance process may authorise a backfill.
 """
+
 from dataclasses import dataclass
 from enum import StrEnum
 
