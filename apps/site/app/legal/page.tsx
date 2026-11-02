@@ -1,10 +1,7 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, PageHero, Section } from '../components';
 import { BUSINESS } from '@/lib/business';
-export const metadata: Metadata = {
-  title: 'Legal and business details',
-  alternates: { canonical: '/legal' },
-};
+export const metadata = buildMetadata('/legal');
 export default function Legal() {
   return (
     <>

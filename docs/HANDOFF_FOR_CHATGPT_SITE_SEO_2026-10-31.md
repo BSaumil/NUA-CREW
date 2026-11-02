@@ -330,3 +330,23 @@ pnpm e2e                               # needs the API, Postgres (pgvector) and 
 ### What was verified in this session and what was not
 **Verified:** repo state and PR history; production deployment READY on `d305755` with `iksaa.com.au` aliased; all 16 pages return 200 with the new visuals; live `robots.txt` is `Disallow: /`; live pages carry `noindex, nofollow`; live sitemap lists 16 URLs; project env vars are empty; project domains are `iksaa.com.au` and `nua-crew-site.vercel.app`; per-page canonical present; no JSON-LD in source; icon set is `icon.svg` only; CI green on all four jobs for PRs #19 and #20; local axe (light and dark), overflow, broken/distorted-image and forbidden-text checks pass on all 16 pages at five widths.
 **Not verified:** Lighthouse and Core Web Vitals; whether `nua-crew-site.vercel.app` is publicly reachable; behaviour of search engines; Terms and Privacy text status; the robots handling of `apps/web` and `apps/employer`; the Vercel plan; real-device behaviour; any real browser run against production (the build environment blocked it).
+
+---
+
+## Implementation status update — 1 November 2026 (ChatGPT)
+
+This section supersedes the original "Current SEO audit" status *only for the items explicitly listed below*. The original handoff remains the baseline and backlog. Source work is on `feat/site-seo-foundation-20261101`; **do not mark these deployed or merged until the corresponding CI/PR and Vercel statuses are confirmed.**
+
+| Package | Status in branch | Notes |
+| --- | --- | --- |
+| WP1 — Metadata | IMPLEMENTED, QA REQUIRED | One `lib/seo.ts` registry covers the 16 existing pages, with unique 120–165 character descriptions, titles, self canonicals, route-aware OG URL/title/description and Twitter cards. The existing 1200×900 illustration is a temporary share image; correct 1200×630 artwork remains outstanding. |
+| WP2 — JSON-LD | PARTIAL | Root layout now emits factual `Organization` (NUA POS operator; ABN, contact and address) and `WebSite` data. Breadcrumb and visible-FAQ-coupled JSON-LD still need their own tested implementation. No `JobPosting`, `Review`, `Offer`, store or hiring outcome claims. |
+| WP3 — Sitemap/crawl | PARTIAL | Sitemap now contains an actual content-revision date, with no `changeFrequency`. Pre-launch `noindex` and robots disallow remain; `X-Robots-Tag` is emitted while indexing is off. Both-mode crawler assertions have been updated in e2e source. A full dual-mode CI run remains required. |
+| WP4 — Icons/manifest/share | PARTIAL | Lightweight manifest references the provisional SVG concept icon. Official identity artwork, favicon/Apple PNG sizes and 1200×630 section share images are still outstanding. |
+| WP6 — Performance | PARTIAL | AVIF and WebP are offered by Next's image optimizer. No Lighthouse score or Core Web Vitals result is claimed. Baseline and budgets remain outstanding. |
+| WP7 — Search verification | IMPLEMENTED, UNCONFIGURED | Google and Bing verification metadata read optional environment variables; no verification value or third-party tracker was committed. No analytics installed. |
+| WP8–WP12 | NOT STARTED / OWNER GATED | No registration form, waitlist, paid tools, published jobs, analytics, store links, legal claims or search indexing were activated. |
+
+**Next owner/counsel decisions:** brand clearance, review of legal policies, official icon, whether to index at launch, commercial Vercel plan, `www` DNS redirect, any analytics, and image rights. Do **not** set `NUA_SITE_INDEXABLE=true` or `NUA_PRODUCT_LIVE=true` as part of this branch.
+
+**Review/verification checklist:** GitHub CI green; Vercel preview READY; page-level metadata visible at 16 URLs; `robots.txt` and `sitemap.xml` still pre-launch; JSON-LD parses with only allowed types; no external origin requests or forbidden claims; the share image resolves. Document exactly which additional launch gates remain.

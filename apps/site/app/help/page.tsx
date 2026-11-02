@@ -1,12 +1,7 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Faq, PageHero, Section } from '../components';
 import { BUSINESS } from '@/lib/business';
-export const metadata: Metadata = {
-  title: 'Help and quick answers',
-  description:
-    'Answers about applications, RSA certificates, shift records, employer awards, team permissions and NUA CREW launch status.',
-  alternates: { canonical: '/help' },
-};
+export const metadata = buildMetadata('/help');
 export default function Help() {
   return (
     <>

@@ -1,12 +1,7 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, PageHero, PrimaryLink, Section } from '../components';
 
-export const metadata: Metadata = {
-  title: 'Trust & privacy',
-  description:
-    'What verified means, how pay and matching are labelled, what employers can and cannot see, and how you control your data.',
-  alternates: { canonical: '/trust' },
-};
+export const metadata = buildMetadata('/trust');
 
 export default function Trust() {
   return (

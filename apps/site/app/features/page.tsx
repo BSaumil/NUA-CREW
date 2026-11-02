@@ -1,13 +1,8 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, Cta, PageHero, Section } from '../components';
 import { FeatureExplorer } from '../feature-explorer';
 import { VisualShowcase } from '../visual-showcase';
-export const metadata: Metadata = {
-  title: 'Explore the features',
-  description:
-    'See how documents, shifts, pay guidance and hiring-team access fit together in NUA CREW.',
-  alternates: { canonical: '/features' },
-};
+export const metadata = buildMetadata('/features');
 export default function Features() {
   return (
     <>

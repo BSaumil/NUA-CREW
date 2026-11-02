@@ -1,12 +1,8 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import { Mail, MapPin, ShieldCheck } from 'lucide-react';
 import { Card, Cards, PageHero, Section } from '../components';
 import { BUSINESS } from '@/lib/business';
-export const metadata: Metadata = {
-  title: 'Contact',
-  description: 'Contact NUA CREW, part of NUA POS, for support, privacy and employer enquiries.',
-  alternates: { canonical: '/contact' },
-};
+export const metadata = buildMetadata('/contact');
 export default function Contact() {
   return (
     <>

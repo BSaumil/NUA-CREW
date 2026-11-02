@@ -1,14 +1,9 @@
-import type { Metadata } from 'next';
+import { buildMetadata } from '@/lib/seo';
 import Image from 'next/image';
 import { FeatureImage, JourneySteps } from '../visuals';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section, Steps } from '../components';
 
-export const metadata: Metadata = {
-  title: 'How it works',
-  description:
-    'Permanent and temporary work, availability that stays private, and invitations that need a yes. How NUA CREW works for job seekers and employers.',
-  alternates: { canonical: '/how-it-works' },
-};
+export const metadata = buildMetadata('/how-it-works');
 
 export default function HowItWorks() {
   return (

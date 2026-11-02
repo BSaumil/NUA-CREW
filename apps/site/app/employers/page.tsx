@@ -1,15 +1,10 @@
+import { buildMetadata } from '@/lib/seo';
 import { FeatureExplorer } from '../feature-explorer';
 import { HiringDashboardPreview, JourneySteps, PreviewFrame } from '../visuals';
-import type { Metadata } from 'next';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
 import { SITE, toHire } from '@/lib/site';
 
-export const metadata: Metadata = {
-  title: 'For employers',
-  description:
-    'Post roles with disclosed pay, find people who chose to be found, check who is free for the time you need, and invite them. A$19 per 14-day advertisement.',
-  alternates: { canonical: '/employers' },
-};
+export const metadata = buildMetadata('/employers');
 
 export default function Employers() {
   return (
