@@ -120,7 +120,11 @@ export async function apply(form: FormData) {
     await api()
   ).POST('/v1/jobs/{job_id}/applications', {
     params: { path: { job_id: jobId } },
-    body: { resume_id: resume || null, cover_note: str(form, 'cover_note') || null },
+    body: {
+      resume_id: resume || null,
+      cover_note: str(form, 'cover_note') || null,
+      document_ids: form.getAll('document_ids').map(String),
+    },
   });
   if (!data) back(`/jobs/${jobId}`, 'error', errorMessage(error));
   else redirect(`/applications/${data.id}?notice=${encodeURIComponent('Application submitted')}`);

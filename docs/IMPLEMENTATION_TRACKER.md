@@ -47,6 +47,13 @@ Branch `feat/site-seo-foundation-20261101`, baseline `d305755`. Handoff: [site S
 | Performance baseline, WCAG review, monitoring | NOT_STARTED | Measure before claiming metrics or introducing tracking. |
 | Legal clearance, site indexing, production app launch | BLOCKED | Explicit owner/counsel review required. `NUA_SITE_INDEXABLE` and `NUA_PRODUCT_LIVE` unchanged. |
 
+## Product enhancements 4–10 — 31 October 2026
+
+Branch `feat/product-pilot-readiness-20261031`, baseline `865845e` (merged PR #9). [Implementation and limits](reports/PRODUCT_PILOT_READINESS_2026-10-31.md).
+
+Document wallet integration, role/pay usability, web/native overviews, web shifts and native attendance/history, notifications/recovery and controlled-pilot evidence tooling are implemented. Local checks: 257 mobile tests, 43 UI tests, 51 Python units, three pilot-gate tests; web builds and Android/iOS exports pass. Fresh PostgreSQL/browser/native CI is required. Real-device and storage/scanner/identity-provider acceptance remain pending; no pilot is opened.
+
+PR #9 completed after the historical section below: all 276 API / 47 browser / 228 mobile tests passed and merged as `865845e`. Its earlier approval/CI blocker is resolved for that PR only.
 
 ## Website source and guided onboarding — 30 October 2026
 

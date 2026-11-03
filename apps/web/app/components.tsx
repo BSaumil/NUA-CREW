@@ -31,6 +31,7 @@ export function Field({
   min,
   max,
   minLength,
+  maxLength,
   step,
 }: {
   name: string;
@@ -43,6 +44,7 @@ export function Field({
   min?: number;
   max?: number;
   minLength?: number;
+  maxLength?: number;
   step?: string;
 }) {
   return (
@@ -58,6 +60,7 @@ export function Field({
         min={min}
         max={max}
         minLength={minLength}
+        maxLength={maxLength}
         step={step}
         aria-describedby={hint ? `${name}-hint` : undefined}
       />

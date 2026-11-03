@@ -20,3 +20,16 @@ describe('notification routing', () => {
     expect(routeFor(undefined, undefined)).toBe('/(app)/alerts');
   });
 });
+
+it('routes attendance and timesheet updates to the correct audience workspace', () => {
+  expect(routeFor('attendance.correction_requested', { booking_id: 'b1' }, true)).toBe(
+    '/hire-shifts',
+  );
+  expect(routeFor('timesheet.reviewed', { booking_id: 'b1' })).toBe('/my-shifts');
+  expect(routeFor('shift.offered', { booking_id: 'b1' })).toBe('/my-shifts');
+  expect(routeFor('message_received', { conversation_id: 'c1' }, true)).toEqual({
+    pathname: '/hire-thread/[id]',
+    params: { id: 'c1' },
+  });
+  expect(routeFor('unknown', { url: 'https://evil.invalid' }, true)).toBe('/hire-alerts');
+});

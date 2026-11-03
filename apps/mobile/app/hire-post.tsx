@@ -84,13 +84,14 @@ function JobForm({ initial }: { initial?: Schemas['JobOut'] }) {
   const acknowledge = useAcknowledgePay();
   const busy = useRef(false);
   const state = locations.data?.find((l) => l.id === location)?.state ?? '';
-  const keyNow = checkKey(check, min, type);
+  const keyNow = checkKey(check, min, type, roleCode ?? '', state);
   const stale = !!assessment && assessedKey !== keyNow;
   const unchangedFromSaved =
     !!initial?.pay_assessment_id &&
     min === (initial.pay_min ?? '') &&
     type === initial.employment_type &&
-    initial.role?.code === roleCode;
+    initial.role?.code === roleCode &&
+    location === (initial.location_id ?? '');
   const body: Schemas['JobIn'] = {
     title: title.trim(),
     description: description.trim(),

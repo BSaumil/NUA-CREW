@@ -60,7 +60,7 @@ export default async function ApplicationPage({
         </ol>
         <p className="nua-hint">
           Only actions recorded in NUA CREW appear here. Decisions are made by people at the
-          employer, not by AI.
+          employer.
         </p>
       </section>
       {!terminal ? (

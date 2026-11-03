@@ -62,6 +62,7 @@ jobs:
       - run: pnpm typecheck
       - run: pnpm lint
       - run: pnpm test
+      - run: pnpm pilot:test
       - run: pnpm build
       - name: Mobile app compiles for Android and iOS (Metro + Hermes)
         run: pnpm --filter @nua-crew/mobile bundle:check

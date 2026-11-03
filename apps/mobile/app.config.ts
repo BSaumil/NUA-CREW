@@ -55,6 +55,8 @@ const config: ExpoConfig = {
       ITSAppUsesNonExemptEncryption: false, // HTTPS only; standard OS crypto
       NSLocationWhenInUseUsageDescription:
         'NUA CREW uses your approximate location to show jobs near you. It is not stored.',
+      NSCameraUsageDescription:
+        'Photograph a certificate you choose to upload to your private NUA CREW document wallet.',
       NSFaceIDUsageDescription: 'Unlock NUA CREW with Face ID to protect your applications.',
     },
   },
@@ -73,7 +75,6 @@ const config: ExpoConfig = {
     blockedPermissions: [
       'ACCESS_FINE_LOCATION',
       'RECORD_AUDIO',
-      'CAMERA',
       'READ_EXTERNAL_STORAGE',
       'WRITE_EXTERNAL_STORAGE',
       'SYSTEM_ALERT_WINDOW',
@@ -82,6 +83,14 @@ const config: ExpoConfig = {
   web: { bundler: 'metro', output: 'single', favicon: './assets/favicon.png' },
   plugins: [
     'expo-router',
+    [
+      'expo-image-picker',
+      {
+        cameraPermission: 'Photograph a certificate for your private document wallet.',
+        photosPermission: 'Choose a certificate image to upload.',
+        microphonePermission: false,
+      },
+    ],
     'expo-secure-store',
     'expo-font',
     [

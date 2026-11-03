@@ -22,10 +22,10 @@ export function createApplyGuard(newKey: () => string = randomUUID) {
   let busy = false;
   return {
     /** Returns the key to send, or null when a submit is already in flight (rapid double tap). */
-    begin(resumeId: string | null, note: string): string | null {
+    begin(resumeId: string | null, note: string, documentIds: string[] = []): string | null {
       if (busy) return null;
       busy = true;
-      const fp = JSON.stringify([resumeId, note.trim()]);
+      const fp = JSON.stringify([resumeId, note.trim(), [...documentIds].sort()]);
       fingerprint = fp;
       let key = keys.get(fp);
       if (!key) {

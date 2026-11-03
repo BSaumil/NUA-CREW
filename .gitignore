@@ -28,3 +28,6 @@ apps/mobile/ios/
 *.rdb
 appendonly.aof
 appendonlydir/
+
+# Private development documents must never enter source history.
+**/.private-documents/

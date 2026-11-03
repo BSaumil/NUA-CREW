@@ -9,7 +9,16 @@ from app.audit import audit
 from app.config import get_settings
 from app.deps import Candidate, CurrentUser, Session
 from app.errors import ApiError, conflict, not_found
-from app.models import Application, ApplicationEvent, Employer, Job, Resume, ResumeVersion
+from app.models import (
+    Application,
+    ApplicationDocument,
+    ApplicationEvent,
+    CandidateDocument,
+    Employer,
+    Job,
+    Resume,
+    ResumeVersion,
+)
 from app.ratelimit import get_limiter
 from app.schemas import (
     ApplicationJobOut,
@@ -100,6 +109,19 @@ async def apply(
         if prior:
             return await _view(session, prior, True)
 
+    attachments = list(dict.fromkeys(body.document_ids))
+    for document_id in attachments:
+        document = await session.scalar(
+            select(CandidateDocument)
+            .where(
+                CandidateDocument.id == document_id, CandidateDocument.candidate_id == candidate.id
+            )
+            .with_for_update()
+        )
+        if document is None or document.status != "ready":
+            raise ApiError(
+                422, "invalid_document", "Choose an available document from your own vault."
+            )
     resume_version_id = None
     if body.resume_id:
         resume = (
@@ -129,6 +151,12 @@ async def apply(
         raise conflict(
             "already_applied", "You already have an active application for this job"
         ) from exc
+    for document_id in attachments:
+        session.add(
+            ApplicationDocument(
+                application_id=app.id, document_id=document_id, candidate_id=candidate.id
+            )
+        )
     session.add(
         ApplicationEvent(
             application_id=app.id,
