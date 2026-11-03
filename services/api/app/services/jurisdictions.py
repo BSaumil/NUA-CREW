@@ -28,6 +28,30 @@ JURISDICTIONS: dict[str, Jurisdiction] = {
 }
 
 
+_AU_STATES = frozenset({"ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"})
+
+
+def verified_workplace_country(
+    country: str | None, state: str | None, postcode: str | None
+) -> str | None:
+    """The workplace country, only when the venue itself corroborates it.
+
+    ``locations.country`` carries a historical ``AU`` default, so on its own it is not evidence.
+    A venue counts as Australian only when its state is an Australian state or territory and its
+    postcode has the Australian four-digit form; anything else is unresolved and the regulated
+    action fails closed. Other countries stay unresolved until their own venue evidence exists.
+    """
+    code = normalise_country_code(country)
+    if (
+        code == "AU"
+        and state in _AU_STATES
+        and postcode is not None
+        and re.fullmatch(r"\d{4}", postcode)
+    ):
+        return "AU"
+    return None
+
+
 def normalise_country_code(value: str | None) -> str | None:
     """Treat missing classifications as unresolved, not as New Zealand or Australia."""
     if value is None:

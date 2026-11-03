@@ -47,3 +47,19 @@ def test_australian_capabilities_do_not_authorise_new_zealand_rules() -> None:
 def test_unclassified_legacy_record_cannot_bypass_country_gate() -> None:
     with pytest.raises(ApiError):
         require_market_capability(None, action="publish")
+
+
+def test_venue_country_needs_corroboration_not_just_the_au_default() -> None:
+    from app.services.jurisdictions import verified_workplace_country
+
+    assert verified_workplace_country("AU", "VIC", "3065") == "AU"
+    # The column default alone is not evidence; odd or incomplete venues stay unresolved.
+    for args in (
+        ("AU", "AKL", "1010"),
+        ("AU", None, "3065"),
+        ("AU", "VIC", "30650"),
+        ("AU", "VIC", None),
+        ("NZ", "VIC", "3065"),
+        (None, "VIC", "3065"),
+    ):
+        assert verified_workplace_country(*args) is None

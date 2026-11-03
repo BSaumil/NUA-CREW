@@ -48,7 +48,11 @@ from app.services.jobs import (
     to_out,
     validate_hospitality_links,
 )
-from app.services.jurisdictions import require_job_currency, require_market_capability
+from app.services.jurisdictions import (
+    require_job_currency,
+    require_market_capability,
+    verified_workplace_country,
+)
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 
@@ -255,7 +259,7 @@ async def publish_job(
         raise ApiError(422, "workplace_country_unverified", "Use an employer-owned workplace")
     if job.country_code is not None and job.country_code != location.country:
         raise ApiError(422, "workplace_country_mismatch", "Job and workplace countries disagree")
-    country = location.country
+    country = verified_workplace_country(location.country, location.state, location.postcode)
     require_market_capability(country, action="publish")
     require_job_currency(country, job.pay_currency)
     now = datetime.now(UTC)
