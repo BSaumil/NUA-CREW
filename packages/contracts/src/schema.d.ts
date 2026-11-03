@@ -3258,12 +3258,6 @@ export interface components {
              * @enum {string}
              */
             client: "web" | "mobile";
-            /**
-             * Country Code
-             * @default AU
-             * @constant
-             */
-            country_code: "AU";
             /** Device Label */
             device_label?: string | null;
             /**
@@ -3567,8 +3561,6 @@ export interface components {
             super_included?: boolean | null;
             /** Title */
             title: string;
-            /** Workplace Country Code */
-            workplace_country_code?: "AU" | null;
         };
         /** JobList */
         JobList: {
@@ -3682,12 +3674,6 @@ export interface components {
         };
         /** LocationIn */
         LocationIn: {
-            /**
-             * Country
-             * @default AU
-             * @constant
-             */
-            country: "AU";
             /** Name */
             name: string;
             /** Postcode */

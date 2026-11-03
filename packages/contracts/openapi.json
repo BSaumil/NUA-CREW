@@ -1988,12 +1988,6 @@
             "title": "Client",
             "type": "string"
           },
-          "country_code": {
-            "const": "AU",
-            "default": "AU",
-            "title": "Country Code",
-            "type": "string"
-          },
           "device_label": {
             "anyOf": [
               {
@@ -2941,18 +2935,6 @@
             "minLength": 1,
             "title": "Title",
             "type": "string"
-          },
-          "workplace_country_code": {
-            "anyOf": [
-              {
-                "const": "AU",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Workplace Country Code"
           }
         },
         "required": [
@@ -3366,12 +3348,6 @@
       },
       "LocationIn": {
         "properties": {
-          "country": {
-            "const": "AU",
-            "default": "AU",
-            "title": "Country",
-            "type": "string"
-          },
           "name": {
             "maxLength": 200,
             "minLength": 1,
