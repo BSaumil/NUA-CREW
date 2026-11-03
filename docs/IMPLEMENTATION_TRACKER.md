@@ -1,5 +1,21 @@
 # Implementation tracker
 
+## Phase 2 — safe jurisdiction storage and hard stops (3 November 2026)
+
+Work branch `feat/country-jurisdiction-data-contracts-20261103`. This is backend *preparation*, not NZ launch.
+
+| Component | State | Safety |
+| --- | --- | --- |
+| Existing protected-table migration for employers, jobs, shifts, and immutable pay assessments | IN REVIEW | Nullable `country_code`, no blanket backfill, ISO uppercase validation, no new RLS tables |
+| Workplace country on new AU job drafts, and AU legal domicile on new registrations | IN REVIEW | Derived from server-owned verified venue link, not client-supplied `businessId` or IP |
+| Publication and shifts hard stops | IN REVIEW | NZ and unknown jurisdictions reject; matches workplace currency; legacy jobs must have a known linked venue |
+| Award pay checks tagged `AU` / `au-fair-work` | IN REVIEW | Reject NZ legal employers or NZ jobs from the AU award engine; evidence retained |
+| Postgres constraint and pure jurisdiction regression tests | IN REVIEW | Unit tests plus migration integration test |
+| Read-only jurisdiction fields in OpenAPI and generated web/mobile TypeScript clients | IN REVIEW | Backward-compatible Employer/Location/Job/Shift responses; country write fields and NZ registrations remain disabled |
+| NZ law engine, NZ employer onboarding, billing | BLOCKED | Await separate jurisdiction-specific rule validation and owner release approval |
+| Production migration and NZ launch | NOT AUTHORISED | PR/review/testing required; no merge or deployment as part of this phase |
+
+
 ## AU / NZ and future-country foundation — 2 November 2026
 
 Branch `feat/au-nz-multi-market-foundation-20261102`. Details: [country plan](markets/AU_NZ_EXPANSION_PLAN_2026-11-02.md).

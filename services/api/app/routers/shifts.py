@@ -17,6 +17,7 @@ from app.models import (
     Employer,
     Invitation,
     Job,
+    Location,
     Shift,
     ShiftBooking,
     ShiftTimesheet,
@@ -27,6 +28,7 @@ from app.routers.availability import _flush_commitment
 from app.services.attendance import derive, events_for
 from app.services.hospitality.pay import enforce_shift_rate
 from app.services.jobs import is_open
+from app.services.jurisdictions import require_job_currency, require_market_capability
 from app.services.scheduling import resolve_window, worked_minutes
 from app.shift_schemas import (
     BookingActionIn,
@@ -138,6 +140,15 @@ async def create_shift(
         raise not_found("job")
     if employer.verification_status != "verified":
         raise forbidden("Business verification is required")
+    # Only employment-rule providers activated for the workplace may schedule shifts.
+    location = await session.get(Location, job.location_id) if job.location_id else None
+    if location is None or location.employer_id != employer_id:
+        raise conflict("workplace_country_unverified", "Use an employer-owned workplace")
+    if job.country_code is not None and job.country_code != location.country:
+        raise conflict("workplace_country_mismatch", "Job and workplace countries disagree")
+    country = location.country
+    require_market_capability(country, action="shift")
+    require_job_currency(country, job.pay_currency)
     if not is_open(job) or job.pay_period != "hour" or job.super_included is None:
         raise conflict(
             "shift_job_unavailable", "Use an open job with hourly pay and explicit super disclosure"
@@ -163,6 +174,7 @@ async def create_shift(
     row = Shift(
         employer_id=employer_id,
         job_id=job.id,
+        country_code=country,
         title=job.title,
         starts_at=starts,
         ends_at=ends,

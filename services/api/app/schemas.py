@@ -219,6 +219,7 @@ class EmployerOut(Orm):
     id: uuid.UUID
     name: str
     abn: str | None
+    country_code: str | None = None
     verification_status: str
 
 
@@ -228,6 +229,7 @@ class LocationOut(Orm):
     suburb: str
     state: str
     postcode: str
+    country: str = "AU"
 
 
 class MemberIn(BaseModel):
@@ -338,6 +340,7 @@ class JobOut(BaseModel):
     pay_max: Decimal | None
     pay_period: str | None
     pay_currency: str
+    country_code: str | None = None
     super_included: bool | None
     pay_basis: str
     apply_url: str | None

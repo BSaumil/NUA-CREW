@@ -212,10 +212,15 @@ class Employer(TimestampMixin, Base):
     __tablename__ = "employers"
     __table_args__ = (
         CheckConstraint(_in("verification_status", VERIFICATION_STATUSES), name="ck_employer_vs"),
+        CheckConstraint(
+            "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'",
+            name="ck_employers_country_code",
+        ),
     )
     id: Mapped[uuid.UUID] = _uuid_pk()
     name: Mapped[str] = mapped_column(String(200), nullable=False)
     abn: Mapped[str | None] = mapped_column(String(11), unique=True)
+    country_code: Mapped[str | None] = mapped_column(String(2))
     verification_status: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="unverified"
     )
@@ -242,6 +247,7 @@ class EmployerMembership(TimestampMixin, Base):
 
 class Location(TimestampMixin, Base):
     __tablename__ = "locations"
+    __table_args__ = (CheckConstraint("country ~ '^[A-Z]{2}$'", name="ck_locations_country_iso"),)
     id: Mapped[uuid.UUID] = _uuid_pk()
     employer_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("employers.id", ondelete="CASCADE"), nullable=False, index=True
@@ -259,6 +265,10 @@ class Job(TimestampMixin, Base):
     __tablename__ = "jobs"
     __table_args__ = (
         CheckConstraint(_in("status", JOB_STATUSES), name="ck_jobs_status"),
+        CheckConstraint(
+            "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'",
+            name="ck_jobs_country_code",
+        ),
         CheckConstraint(_in("employment_type", EMPLOYMENT_TYPES), name="ck_jobs_emp_type"),
         CheckConstraint(_in("origin", ("direct", "ingested")), name="ck_jobs_origin"),
         CheckConstraint(_in("pay_basis", PAY_BASES), name="ck_jobs_pay_basis"),
@@ -302,6 +312,7 @@ class Job(TimestampMixin, Base):
         ForeignKey("employers.id", ondelete="CASCADE"), index=True
     )
     location_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("locations.id"))
+    country_code: Mapped[str | None] = mapped_column(String(2), index=True)
     origin: Mapped[str] = mapped_column(String(16), nullable=False, server_default="direct")
     title: Mapped[str] = mapped_column(String(200), nullable=False)
     description: Mapped[str] = mapped_column(Text, nullable=False)
@@ -781,6 +792,10 @@ class Shift(TimestampMixin, Base):
     __tablename__ = "shifts"
     __table_args__ = (
         CheckConstraint("ends_at > starts_at", name="ck_shift_window"),
+        CheckConstraint(
+            "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'",
+            name="ck_shifts_country_code",
+        ),
         CheckConstraint("capacity BETWEEN 1 AND 50", name="ck_shift_capacity"),
         CheckConstraint("hourly_rate_minor > 0", name="ck_shift_rate"),
         CheckConstraint("status IN ('open', 'cancelled')", name="ck_shift_status"),
@@ -788,6 +803,7 @@ class Shift(TimestampMixin, Base):
     id: Mapped[uuid.UUID] = _uuid_pk()
     employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
     job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
+    country_code: Mapped[str | None] = mapped_column(String(2))
     title: Mapped[str] = mapped_column(String(200))
     starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
@@ -1060,6 +1076,12 @@ class PayAssessment(Base):
     """Immutable record of one pay check: inputs, the rule versions used and the result."""
 
     __tablename__ = "pay_assessments"
+    __table_args__ = (
+        CheckConstraint(
+            "country_code IS NULL OR country_code ~ '^[A-Z]{2}$'",
+            name="ck_pay_assessments_country_code",
+        ),
+    )
     id: Mapped[uuid.UUID] = _uuid_pk()
     employer_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("employers.id", ondelete="CASCADE"), index=True
@@ -1072,6 +1094,8 @@ class PayAssessment(Base):
     )
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     effective_on: Mapped[date] = mapped_column(Date)
+    country_code: Mapped[str | None] = mapped_column(String(2))
+    ruleset_code: Mapped[str | None] = mapped_column(String(64))
     status: Mapped[str] = mapped_column(String(24))
     input_hash: Mapped[str] = mapped_column(String(64))
     input: Mapped[dict[str, Any]] = mapped_column(JSONB)

@@ -108,6 +108,7 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
     job.employment_type = data.employment_type
     job.category = data.category
     job.location_id = location.id if location else None
+    job.country_code = location.country if location else None
     job.suburb = location.suburb if location else None
     job.state = location.state if location else None
     job.postcode = location.postcode if location else None
@@ -229,6 +230,7 @@ async def to_out(
                 pay_max=j.pay_max,
                 pay_period=j.pay_period,
                 pay_currency=j.pay_currency,
+                country_code=j.country_code,
                 super_included=j.super_included,
                 pay_basis=j.pay_basis,
                 apply_url=j.apply_url,

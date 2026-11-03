@@ -1872,6 +1872,17 @@
             ],
             "title": "Abn"
           },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3018,6 +3029,17 @@
             ],
             "title": "Category"
           },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
           "description": {
             "title": "Description",
             "type": "string"
@@ -3393,6 +3415,11 @@
       },
       "LocationOut": {
         "properties": {
+          "country": {
+            "default": "AU",
+            "title": "Country",
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -5999,6 +6026,17 @@
           "capacity": {
             "title": "Capacity",
             "type": "integer"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
           },
           "ends_at": {
             "format": "date-time",

@@ -26,6 +26,7 @@ class ShiftIn(BaseModel):
 class ShiftOut(Orm):
     id: uuid.UUID
     job_id: uuid.UUID
+    country_code: str | None = None
     title: str
     starts_at: datetime
     ends_at: datetime

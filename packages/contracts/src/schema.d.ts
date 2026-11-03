@@ -3201,6 +3201,8 @@ export interface components {
         EmployerOut: {
             /** Abn */
             abn: string | null;
+            /** Country Code */
+            country_code?: string | null;
             /**
              * Id
              * Format: uuid
@@ -3587,6 +3589,8 @@ export interface components {
             attribution: string | null;
             /** Category */
             category: string | null;
+            /** Country Code */
+            country_code?: string | null;
             /** Description */
             description: string;
             /** Distance Km */
@@ -3698,6 +3702,11 @@ export interface components {
         };
         /** LocationOut */
         LocationOut: {
+            /**
+             * Country
+             * @default AU
+             */
+            country: string;
             /**
              * Id
              * Format: uuid
@@ -4680,6 +4689,8 @@ export interface components {
         ShiftOut: {
             /** Capacity */
             capacity: number;
+            /** Country Code */
+            country_code?: string | null;
             /**
              * Ends At
              * Format: date-time
