@@ -112,7 +112,7 @@ function Gate() {
 
   // Tapping a push notification opens the right screen, including from a cold start.
   useEffect(() => {
-    if (status !== 'signedIn' || role !== 'candidate' || Platform.OS === 'web') return;
+    if (status !== 'signedIn' || !role || Platform.OS === 'web') return;
     const open = (r: Notifications.NotificationResponse | null) => {
       const c = r?.notification.request.content;
       if (c)
@@ -120,6 +120,7 @@ function Gate() {
           routeFor(
             (c.data as { kind?: string } | undefined)?.kind,
             c.data as Record<string, unknown>,
+            role === 'employer',
           ),
         );
     };
@@ -215,6 +216,8 @@ function Gate() {
               headerTitleStyle: { color: colors.text },
             }}
           />
+          <Stack.Screen name="dashboard" options={{ headerShown: true, title: 'Your workspace' }} />
+          <Stack.Screen name="documents" options={{ headerShown: true, title: 'Documents' }} />
           <Stack.Screen name="my-shifts" options={{ headerShown: true, title: 'My shifts' }} />
           <Stack.Screen
             name="employer-preferences"
@@ -249,6 +252,10 @@ function Gate() {
         </Stack.Protected>
         <Stack.Protected guard={status === 'signedIn' && role === 'employer'}>
           <Stack.Screen name="hire" />
+          <Stack.Screen
+            name="hire-alerts"
+            options={{ headerShown: true, title: 'Notifications' }}
+          />
           <Stack.Screen
             name="hire-shifts"
             options={{ headerShown: true, title: 'Shifts and hours' }}

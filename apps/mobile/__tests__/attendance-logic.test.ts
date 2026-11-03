@@ -127,3 +127,17 @@ describe('correctionBody', () => {
     });
   });
 });
+
+it('refuses rolled calendar dates and repeated daylight-saving wall times', () => {
+  expect(instantFromLocal('2026-02-30', '12:00', 'Australia/Melbourne')).toBeNull();
+  expect(instantFromLocal('2026-04-05', '02:30', 'Australia/Melbourne')).toBeNull();
+});
+it('does not offer a no-show action while a correction is waiting', () => {
+  expect(
+    canMarkNoShow(
+      shift,
+      att({ pending_corrections: 1 }),
+      new Date(shift.starts_at).getTime() + 60 * 60_000,
+    ),
+  ).toBe(false);
+});

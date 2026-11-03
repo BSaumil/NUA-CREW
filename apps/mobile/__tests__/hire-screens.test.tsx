@@ -31,6 +31,7 @@ jest.mock('../src/api/hire', () => ({
   useHireCreateJob: jest.fn(),
   useHireEditJob: jest.fn(),
   useHireApplicant: jest.fn(),
+  useHireDocuments: () => ({ data: [], isPending: false, isError: false }),
   useHireDecision: jest.fn(),
 }));
 const query = (data: unknown) => ({ data, isPending: false, isError: false, refetch: jest.fn() });

@@ -37,7 +37,12 @@ export function canCheckIn(shift: Shift, attendance: Attendance, now: number): b
 
 /** Employers may mark a no-show only after the grace period and only if nobody checked in. */
 export function canMarkNoShow(shift: Shift, attendance: Attendance, now: number): boolean {
-  if (attendance?.check_in_at || attendance?.status === 'no_show') return false;
+  if (
+    attendance?.check_in_at ||
+    attendance?.status === 'no_show' ||
+    attendance?.pending_corrections
+  )
+    return false;
   return now >= new Date(shift.starts_at).getTime() + NO_SHOW_GRACE_MS;
 }
 
@@ -71,6 +76,13 @@ export function instantFromLocal(date: string, time: string, timeZone: string): 
   const [y, mo, d] = [Number(m[1]), Number(m[2]), Number(m[3])];
   const [h, mi] = [Number(t[1]), Number(t[2])];
   const wall = Date.UTC(y, mo - 1, d, h, mi);
+  const calendar = new Date(wall);
+  if (
+    calendar.getUTCFullYear() !== y ||
+    calendar.getUTCMonth() !== mo - 1 ||
+    calendar.getUTCDate() !== d
+  )
+    return null;
   const asLocal = (ms: number) => {
     const p = new Intl.DateTimeFormat('en-AU', {
       timeZone,
@@ -88,6 +100,11 @@ export function instantFromLocal(date: string, time: string, timeZone: string): 
   let guess = wall;
   for (let i = 0; i < 2; i++) guess = wall - (asLocal(guess) - guess);
   if (asLocal(guess) !== wall) return null; // the clock never showed this time (spring forward)
+  // Australian transitions may repeat 30 or 60 minutes. An ambiguous claim needs review,
+  // so do not silently choose one of the two instants.
+  for (const minutes of [-120, -90, -60, -30, 30, 60, 90, 120]) {
+    if (asLocal(guess + minutes * 60_000) === wall) return null;
+  }
   return new Date(guess).toISOString();
 }
 

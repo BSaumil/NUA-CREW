@@ -63,7 +63,8 @@ export default async function GuidedJob({
     const v = p[k];
     return (Array.isArray(v) ? v[0] : v) || undefined;
   };
-  const step = Math.min(4, Math.max(1, Number(one('step') ?? '1')));
+  const rawStep = Number(one('step') ?? '1');
+  const step = Number.isInteger(rawStep) ? Math.min(4, Math.max(1, rawStep)) : 1;
   const venue = one('venue');
   const roleCode = one('role');
   const inst = one('inst');
@@ -86,6 +87,16 @@ export default async function GuidedJob({
           roleCode={roleCode}
           inst={inst}
           loc={one('loc')}
+          selection={{
+            classification: one('classification'),
+            coverage: one('coverage'),
+            confirmed: one('confirmed'),
+            employment: one('employment'),
+            worker: one('worker'),
+            rate: one('rate'),
+            maximum: one('pay_max'),
+            structure: one('structure'),
+          }}
         />
       ) : null}
       {step === 4 && one('a') ? (
@@ -124,6 +135,7 @@ function Option({
   title,
   hint,
   badge,
+  checked,
 }: {
   id: string;
   type: 'checkbox' | 'radio';
@@ -132,10 +144,11 @@ function Option({
   title: React.ReactNode;
   hint?: string;
   badge?: string;
+  checked?: boolean;
 }) {
   return (
     <div className="nua-option">
-      <input id={id} type={type} name={name} value={value} />
+      <input id={id} type={type} name={name} value={value} defaultChecked={checked} />
       <label htmlFor={id} className="nua-option__body">
         <strong>{title}</strong>
         {hint ? <span className="nua-hint">{hint}</span> : null}
@@ -269,9 +282,11 @@ async function PayStep({
   roleCode,
   inst,
   loc,
+  selection,
 }: {
   client: Client;
   employerId: string;
+  selection: Record<string, string | undefined>;
   venue?: string;
   roleCode: string;
   inst?: string;
@@ -296,6 +311,13 @@ async function PayStep({
     <section className="nua-stack" aria-labelledby="s3">
       <h2 id="s3">{role?.title ?? 'Pay check'}</h2>
       <p className="nua-hint">{guidance?.note}</p>
+      <p className="nua-alert">
+        Choose award → match duties → enter pay → review. Classification amounts below are base
+        references; the server check applies casual loading and available penalties.
+      </p>
+      <p>
+        <Link href={href({ step: '2', venue, role: roleCode, loc })}>Back to roles</Link>
+      </p>
       <h3>1. Which award covers this work?</h3>
       <ul className="nua-tiles">
         {(awards ?? []).map((a) => (
@@ -335,6 +357,7 @@ async function PayStep({
                 id="coverage_confirmed"
                 type="checkbox"
                 name="coverage_confirmed"
+                checked={selection.coverage === 'yes'}
                 title="This award covers my business and this work"
                 hint="Check with the Fair Work Ombudsman if unsure. Don’t tick this on a guess."
               />
@@ -349,6 +372,7 @@ async function PayStep({
                     type="radio"
                     name="classification"
                     value={c.code}
+                    checked={selection.classification === c.code}
                     title={
                       <>
                         {c.label} <span className="nua-money">· {money(c.hourly_minor)}/h</span>
@@ -363,6 +387,7 @@ async function PayStep({
                 id="classification_confirmed"
                 type="checkbox"
                 name="classification_confirmed"
+                checked={selection.confirmed === 'yes'}
                 title="I’ve matched this to the real duties, skills and training"
                 hint="The job title alone doesn’t set the level."
               />
@@ -376,7 +401,11 @@ async function PayStep({
           <div className="nua-grid">
             <div className="nua-field">
               <label htmlFor="employment">Employment</label>
-              <select id="employment" name="employment" defaultValue="casual">
+              <select
+                id="employment"
+                name="employment"
+                defaultValue={selection.employment ?? 'casual'}
+              >
                 <option value="casual">Casual</option>
                 <option value="part_time">Part time</option>
                 <option value="full_time">Full time</option>
@@ -384,7 +413,11 @@ async function PayStep({
             </div>
             <div className="nua-field">
               <label htmlFor="worker_class">Worker</label>
-              <select id="worker_class" name="worker_class" defaultValue="adult">
+              <select
+                id="worker_class"
+                name="worker_class"
+                defaultValue={selection.worker ?? 'adult'}
+              >
                 <option value="adult">Adult</option>
                 <option value="junior">Junior</option>
                 <option value="apprentice">Apprentice</option>
@@ -404,6 +437,7 @@ async function PayStep({
             <Field
               name="pay_min"
               label="Hourly rate (AUD, before super)"
+              defaultValue={selection.rate}
               type="number"
               step="0.01"
               min={0}
@@ -412,13 +446,18 @@ async function PayStep({
             <Field
               name="pay_max"
               label="Top of range (optional)"
+              defaultValue={selection.maximum}
               type="number"
               step="0.01"
               min={0}
             />
             <div className="nua-field">
               <label htmlFor="rate_structure">How do you pay weekends?</label>
-              <select id="rate_structure" name="rate_structure" defaultValue="base_plus_penalties">
+              <select
+                id="rate_structure"
+                name="rate_structure"
+                defaultValue={selection.structure ?? 'base_plus_penalties'}
+              >
                 <option value="base_plus_penalties">Award penalty rates on top</option>
                 <option value="flat_all_hours">One flat rate for all hours</option>
               </select>
@@ -462,8 +501,22 @@ async function ReviewStep({
   ]);
   if (!a) return <p role="alert">That pay check could not be found.</p>;
   const result = a.result as unknown as PayVerdictData & { needs_acknowledgement: boolean };
-  const back = href({ step: '3', venue, role: roleCode, inst, loc });
-  const input = a.input as Record<string, string>;
+  const input = a.input as Record<string, string | boolean>;
+  const back = href({
+    step: '3',
+    venue,
+    role: roleCode,
+    inst,
+    loc,
+    classification: String(input.classification ?? ''),
+    coverage: input.coverage_confirmed ? 'yes' : undefined,
+    confirmed: input.classification_confirmed ? 'yes' : undefined,
+    employment: String(input.employment ?? 'casual'),
+    worker: String(input.worker_class ?? 'adult'),
+    rate: String(input.pay_amount ?? ''),
+    pay_max: payMax,
+    structure: String(input.rate_structure ?? 'base_plus_penalties'),
+  });
   const blocked = result.status === 'below_minimum';
   return (
     <section className="nua-stack" aria-labelledby="s4">
@@ -480,7 +533,7 @@ async function ReviewStep({
           <input type="hidden" name="role" value={roleCode ?? ''} />
           <input type="hidden" name="inst" value={inst ?? ''} />
           <input type="hidden" name="loc" value={loc ?? ''} />
-          <input type="hidden" name="pay_min" value={input.pay_amount} />
+          <input type="hidden" name="pay_min" value={String(input.pay_amount ?? '')} />
           <input type="hidden" name="pay_max" value={payMax ?? ''} />
           <Field
             name="title"

@@ -111,12 +111,12 @@ describe('Applications list', () => {
 });
 
 describe('Application detail', () => {
-  it('shows a timeline of recorded events and never claims AI decided', async () => {
+  it('shows recorded events and identifies people as the decision makers', async () => {
     GET.mockResolvedValue(ok(app()));
     await renderApp(<ApplicationDetail />);
     expect(await screen.findByText('You submitted this application')).toBeOnTheScreen();
     expect(screen.getByText('The employer updated your status')).toBeOnTheScreen();
-    expect(screen.getByText(/not by AI/)).toBeOnTheScreen();
+    expect(screen.getByText(/Decisions are made by people at the employer/)).toBeOnTheScreen();
   });
 
   it('withdraws only after confirmation', async () => {

@@ -1,11 +1,8 @@
 name: native-build-validation
 on:
   workflow_dispatch:
-  push:
-    branches: [feat/hiring-acceptance-shifts-20261028]
-    paths:
-      - 'apps/mobile/**'
-      - '.github/workflows/native-builds.yml'
+  pull_request:
+    paths: ['apps/mobile/**', 'packages/contracts/**', '.github/workflows/native-builds.yml']
 
 permissions:
   contents: read

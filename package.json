@@ -15,7 +15,9 @@
     "contracts": "node scripts/generate-contracts.mjs",
     "dev:web": "pnpm --filter @nua-crew/web dev",
     "dev:employer": "pnpm --filter @nua-crew/employer dev",
-    "e2e": "pnpm --filter @nua-crew/e2e e2e"
+    "e2e": "pnpm --filter @nua-crew/e2e e2e",
+    "pilot:check": "node scripts/check-pilot-readiness.mjs docs/pilot/readiness.json",
+    "pilot:test": "node --test scripts/check-pilot-readiness.test.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

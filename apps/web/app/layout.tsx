@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
 import '@nua-crew/ui/styles.css';
-import { AiDisclosure, Button, ButtonLink, CandidateNav, SUPPORT_LINE } from '@nua-crew/ui';
+import { MatchDisclosure, Button, ButtonLink, CandidateNav, SUPPORT_LINE } from '@nua-crew/ui';
 import { getViewer } from '@/lib/api';
 import { logout } from './actions';
 
@@ -44,9 +44,9 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           {children}
         </main>
         <footer className="nua-container nua-hint" style={{ padding: '0 16px 48px' }}>
-          <AiDisclosure />
+          <MatchDisclosure />
           <p>
-            NUA CREW is a working name pending legal clearance.{' '}
+            NUA CREW is part of NUA POS / NUA AUS. ABN 54 299 131 653.{' '}
             <a href="/trust">How trust signals work</a>
           </p>
         </footer>
