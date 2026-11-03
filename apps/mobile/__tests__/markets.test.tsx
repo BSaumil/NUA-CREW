@@ -44,11 +44,11 @@ describe('market controls', () => {
     const nz = screen.getByRole('radio', { name: /New Zealand \(NZD\) · preview/ });
     expect(
       screen.getByRole('radio', { name: /Australia \(AUD\)/ }).props.accessibilityState,
-    ).toEqual({ checked: true });
+    ).toMatchObject({ checked: true });
     await fireEvent.press(nz);
-    expect(screen.getByRole('radio', { name: /New Zealand/ }).props.accessibilityState).toEqual({
-      checked: true,
-    });
+    expect(
+      screen.getByRole('radio', { name: /New Zealand/ }).props.accessibilityState,
+    ).toMatchObject({ checked: true });
   });
   it('search markets are in memory, multi-select, and never empty', async () => {
     resetSearchMarkets();

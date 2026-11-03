@@ -1,7 +1,7 @@
 """Add nullable employment jurisdictions without relabelling existing data.
 
 Revision ID: c55d06a11005
-Revises: b44c05ef1004
+Revises: a44b95ef1004
 Create Date: 2026-11-03
 
 No data backfill: job postings, source observations and historical pay assessments
@@ -14,7 +14,7 @@ import sqlalchemy as sa
 from alembic import op
 
 revision = "c55d06a11005"
-down_revision = "b44c05ef1004"
+down_revision = "a44b95ef1004"
 branch_labels = None
 depends_on = None
 

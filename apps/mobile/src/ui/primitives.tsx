@@ -223,7 +223,9 @@ export function Chip({
       accessibilityRole={onPress ? role : 'text'}
       disabled={disabled}
       accessibilityState={{
-        ...(role === 'radio' || role === 'checkbox' ? { checked: !!selected } : { selected: !!selected }),
+        ...(role === 'radio' || role === 'checkbox'
+          ? { checked: !!selected }
+          : { selected: !!selected }),
         ...(disabled ? { disabled: true } : {}),
       }}
       // Web needs aria-checked on checkbox/radio roles (axe: aria-required-attr).
