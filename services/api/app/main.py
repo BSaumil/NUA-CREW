@@ -24,6 +24,7 @@ from app.routers import (
     inbox_candidate,
     invites_employer,
     jobs_public,
+    markets,
     moderation,
     notifications,
     pricing,
@@ -64,6 +65,7 @@ def create_app() -> FastAPI:
     install_error_handlers(app)
     for r in (
         health.router,
+        markets.router,
         auth.router,
         candidate.router,
         availability.router,

@@ -48,6 +48,11 @@ from app.services.jobs import (
     to_out,
     validate_hospitality_links,
 )
+from app.services.jurisdictions import (
+    require_job_currency,
+    require_market_capability,
+    verified_workplace_country,
+)
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 
@@ -248,6 +253,15 @@ async def publish_job(
         raise conflict("job_closed", "Closed jobs cannot be republished")
     if not job.suburb:
         raise ApiError(422, "location_required", "A job location is required to publish")
+    # A locale/currency change never activates an unreviewed labour-law provider.
+    location = await session.get(Location, job.location_id) if job.location_id else None
+    if location is None or location.employer_id != employer_id:
+        raise ApiError(422, "workplace_country_unverified", "Use an employer-owned workplace")
+    if job.country_code is not None and job.country_code != location.country:
+        raise ApiError(422, "workplace_country_mismatch", "Job and workplace countries disagree")
+    country = verified_workplace_country(location.country, location.state, location.postcode)
+    require_market_capability(country, action="publish")
+    require_job_currency(country, job.pay_currency)
     now = datetime.now(UTC)
     await enforce_on_publish(session, job, user.id)
     if get_settings().paid_advertising_enabled:

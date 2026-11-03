@@ -1872,6 +1872,17 @@
             ],
             "title": "Abn"
           },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3000,6 +3011,17 @@
             ],
             "title": "Category"
           },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
+          },
           "description": {
             "title": "Description",
             "type": "string"
@@ -3369,6 +3391,11 @@
       },
       "LocationOut": {
         "properties": {
+          "country": {
+            "default": "AU",
+            "title": "Country",
+            "type": "string"
+          },
           "id": {
             "format": "uuid",
             "title": "Id",
@@ -3440,6 +3467,97 @@
           "password"
         ],
         "title": "Login",
+        "type": "object"
+      },
+      "MarketCapabilitiesOut": {
+        "properties": {
+          "billing": {
+            "default": false,
+            "title": "Billing",
+            "type": "boolean"
+          },
+          "job_publishing": {
+            "default": false,
+            "title": "Job Publishing",
+            "type": "boolean"
+          },
+          "onboarding": {
+            "default": false,
+            "title": "Onboarding",
+            "type": "boolean"
+          },
+          "shifts": {
+            "default": false,
+            "title": "Shifts",
+            "type": "boolean"
+          }
+        },
+        "title": "MarketCapabilitiesOut",
+        "type": "object"
+      },
+      "MarketPublicOut": {
+        "properties": {
+          "capabilities": {
+            "$ref": "#/components/schemas/MarketCapabilitiesOut"
+          },
+          "country_code": {
+            "title": "Country Code",
+            "type": "string"
+          },
+          "currency": {
+            "title": "Currency",
+            "type": "string"
+          },
+          "employer_identifier_label": {
+            "title": "Employer Identifier Label",
+            "type": "string"
+          },
+          "label": {
+            "title": "Label",
+            "type": "string"
+          },
+          "locale": {
+            "title": "Locale",
+            "type": "string"
+          },
+          "phone_prefix": {
+            "title": "Phone Prefix",
+            "type": "string"
+          },
+          "region_label": {
+            "title": "Region Label",
+            "type": "string"
+          },
+          "stage": {
+            "enum": [
+              "prelaunch",
+              "preparing",
+              "open"
+            ],
+            "title": "Stage",
+            "type": "string"
+          },
+          "time_zones": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Time Zones",
+            "type": "array"
+          }
+        },
+        "required": [
+          "country_code",
+          "label",
+          "locale",
+          "currency",
+          "region_label",
+          "employer_identifier_label",
+          "phone_prefix",
+          "time_zones",
+          "stage",
+          "capabilities"
+        ],
+        "title": "MarketPublicOut",
         "type": "object"
       },
       "MatchComponent": {
@@ -5884,6 +6002,17 @@
           "capacity": {
             "title": "Capacity",
             "type": "integer"
+          },
+          "country_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Country Code"
           },
           "ends_at": {
             "format": "date-time",
@@ -14928,6 +15057,75 @@
         "summary": "Match",
         "tags": [
           "jobs"
+        ]
+      }
+    },
+    "/v1/markets": {
+      "get": {
+        "description": "Informational country catalogue; public transactions are not implied.",
+        "operationId": "get_markets_v1_markets_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/MarketPublicOut"
+                  },
+                  "title": "Response Get Markets V1 Markets Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Get Markets",
+        "tags": [
+          "markets"
+        ]
+      }
+    },
+    "/v1/markets/{country_code}": {
+      "get": {
+        "description": "Unknown countries produce 404, not a default Australian market.",
+        "operationId": "get_market_v1_markets__country_code__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "country_code",
+            "required": true,
+            "schema": {
+              "title": "Country Code",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MarketPublicOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "Get Market",
+        "tags": [
+          "markets"
         ]
       }
     },

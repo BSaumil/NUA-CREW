@@ -2252,6 +2252,46 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/markets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Markets
+         * @description Informational country catalogue; public transactions are not implied.
+         */
+        get: operations["get_markets_v1_markets_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/markets/{country_code}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get Market
+         * @description Unknown countries produce 404, not a default Australian market.
+         */
+        get: operations["get_market_v1_markets__country_code__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notifications": {
         parameters: {
             query?: never;
@@ -3161,6 +3201,8 @@ export interface components {
         EmployerOut: {
             /** Abn */
             abn: string | null;
+            /** Country Code */
+            country_code?: string | null;
             /**
              * Id
              * Format: uuid
@@ -3539,6 +3581,8 @@ export interface components {
             attribution: string | null;
             /** Category */
             category: string | null;
+            /** Country Code */
+            country_code?: string | null;
             /** Description */
             description: string;
             /** Distance Km */
@@ -3645,6 +3689,11 @@ export interface components {
         /** LocationOut */
         LocationOut: {
             /**
+             * Country
+             * @default AU
+             */
+            country: string;
+            /**
              * Id
              * Format: uuid
              */
@@ -3675,6 +3724,54 @@ export interface components {
             email: string;
             /** Password */
             password: string;
+        };
+        /** MarketCapabilitiesOut */
+        MarketCapabilitiesOut: {
+            /**
+             * Billing
+             * @default false
+             */
+            billing: boolean;
+            /**
+             * Job Publishing
+             * @default false
+             */
+            job_publishing: boolean;
+            /**
+             * Onboarding
+             * @default false
+             */
+            onboarding: boolean;
+            /**
+             * Shifts
+             * @default false
+             */
+            shifts: boolean;
+        };
+        /** MarketPublicOut */
+        MarketPublicOut: {
+            capabilities: components["schemas"]["MarketCapabilitiesOut"];
+            /** Country Code */
+            country_code: string;
+            /** Currency */
+            currency: string;
+            /** Employer Identifier Label */
+            employer_identifier_label: string;
+            /** Label */
+            label: string;
+            /** Locale */
+            locale: string;
+            /** Phone Prefix */
+            phone_prefix: string;
+            /** Region Label */
+            region_label: string;
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "prelaunch" | "preparing" | "open";
+            /** Time Zones */
+            time_zones: string[];
         };
         /** MatchComponent */
         MatchComponent: {
@@ -4578,6 +4675,8 @@ export interface components {
         ShiftOut: {
             /** Capacity */
             capacity: number;
+            /** Country Code */
+            country_code?: string | null;
             /**
              * Ends At
              * Format: date-time
@@ -9537,6 +9636,57 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MatchOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_markets_v1_markets_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketPublicOut"][];
+                };
+            };
+        };
+    };
+    get_market_v1_markets__country_code__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                country_code: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MarketPublicOut"];
                 };
             };
             /** @description Validation Error */

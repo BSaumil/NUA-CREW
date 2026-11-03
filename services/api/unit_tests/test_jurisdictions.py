@@ -1,0 +1,65 @@
+"""Jurisdiction gates must fail closed independently of website country preferences."""
+
+import pytest
+
+from app.errors import ApiError
+from app.services.jurisdictions import (
+    jurisdiction_for,
+    normalise_country_code,
+    require_job_currency,
+    require_market_capability,
+)
+
+
+def test_country_code_normalisation_is_explicit() -> None:
+    assert normalise_country_code(None) is None
+    assert normalise_country_code(" nz ") == "NZ"
+    assert normalise_country_code("au") == "AU"
+    for bad in ("", "A", "AUS", "U1", "A U", "nz;delete"):
+        with pytest.raises(ApiError) as exc:
+            normalise_country_code(bad)
+        assert exc.value.code == "invalid_country_code"
+
+
+def test_nonconfigured_country_never_opens_workflows() -> None:
+    assert jurisdiction_for("GB") is None
+    assert jurisdiction_for("NZ") is not None
+    for country in (None, "NZ", "GB"):
+        for action in ("publish", "shift"):
+            with pytest.raises(ApiError) as exc:
+                require_market_capability(country, action=action)
+            assert exc.value.code == "market_not_enabled"
+
+
+def test_australian_capabilities_do_not_authorise_new_zealand_rules() -> None:
+    assert require_market_capability("AU", action="publish").currency == "AUD"
+    assert require_market_capability("AU", action="shift").pay_ruleset == "au-fair-work"
+    require_job_currency("AU", "AUD")
+    require_job_currency("NZ", "NZD")
+    for country, currency in (("AU", "NZD"), ("NZ", "AUD"), (None, "AUD"), ("GB", "GBP")):
+        with pytest.raises(ApiError) as exc:
+            require_job_currency(country, currency)
+        assert exc.value.code == "jurisdiction_currency_mismatch"
+    with pytest.raises(ApiError):
+        require_market_capability("AU", action="future")
+
+
+def test_unclassified_legacy_record_cannot_bypass_country_gate() -> None:
+    with pytest.raises(ApiError):
+        require_market_capability(None, action="publish")
+
+
+def test_venue_country_needs_corroboration_not_just_the_au_default() -> None:
+    from app.services.jurisdictions import verified_workplace_country
+
+    assert verified_workplace_country("AU", "VIC", "3065") == "AU"
+    # The column default alone is not evidence; odd or incomplete venues stay unresolved.
+    for args in (
+        ("AU", "AKL", "1010"),
+        ("AU", None, "3065"),
+        ("AU", "VIC", "30650"),
+        ("AU", "VIC", None),
+        ("NZ", "VIC", "3065"),
+        (None, "VIC", "3065"),
+    ):
+        assert verified_workplace_country(*args) is None
