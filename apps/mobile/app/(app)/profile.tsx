@@ -12,6 +12,7 @@ import {
 import { TYPE_LABEL, type EmploymentType } from '@/features/filters';
 import { profileStrength } from '@/features/format';
 import { reportSignOut } from '@/features/signout';
+import { AU_STATES } from '@/features/markets';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { radius, space } from '@/theme/tokens';
@@ -29,7 +30,7 @@ import {
   Sheet,
 } from '@/ui';
 
-const STATES = ['VIC', 'NSW', 'QLD', 'SA', 'WA', 'TAS', 'ACT', 'NT'] as const;
+const STATES = AU_STATES;
 
 export default function Profile() {
   const router = useRouter();

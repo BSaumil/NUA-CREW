@@ -41,8 +41,9 @@ export const keys = {
 
 const PAGE = 15;
 
-export function useJobs(filters: JobFilters) {
+export function useJobs(filters: JobFilters, enabled = true) {
   return useInfiniteQuery({
+    enabled,
     queryKey: keys.jobs(filters),
     initialPageParam: 1,
     queryFn: async ({ pageParam }) =>

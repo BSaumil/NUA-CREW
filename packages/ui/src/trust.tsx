@@ -48,11 +48,12 @@ const PERIOD: Record<string, string> = {
   year: 'year',
 };
 
-function money(v: string | number, currency: string) {
+function money(v: string | number, currency: string, locale: string, showCode: boolean) {
   const n = Number(v);
-  const f = new Intl.NumberFormat('en-AU', {
+  const f = new Intl.NumberFormat(locale, {
     style: 'currency',
     currency,
+    currencyDisplay: showCode ? 'code' : 'symbol',
     minimumFractionDigits: Number.isInteger(n) ? 0 : 2,
     maximumFractionDigits: 2,
   });
@@ -64,6 +65,8 @@ export function SalaryDisclosure({
   max,
   period,
   currency = 'AUD',
+  locale = 'en-AU',
+  showCurrencyCode = false,
   basis,
   superIncluded,
 }: {
@@ -71,6 +74,10 @@ export function SalaryDisclosure({
   max?: string | number | null;
   period?: string | null;
   currency?: string;
+  /** Number formatting only; it never changes the currency. */
+  locale?: string;
+  /** Label amounts with the ISO code (e.g. "NZD 30"). Use whenever markets can be mixed. */
+  showCurrencyCode?: boolean;
   basis: PayBasis;
   superIncluded?: boolean | null;
 }) {
@@ -79,8 +86,8 @@ export function SalaryDisclosure({
   }
   const range =
     min != null && max != null && String(min) !== String(max)
-      ? `${money(min, currency)}–${money(max, currency)}`
-      : money((min ?? max) as string | number, currency);
+      ? `${money(min, currency, locale, showCurrencyCode)}–${money(max, currency, locale, showCurrencyCode)}`
+      : money((min ?? max) as string | number, currency, locale, showCurrencyCode);
   const superText =
     superIncluded == null
       ? 'super treatment not stated'

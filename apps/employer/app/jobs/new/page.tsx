@@ -33,7 +33,12 @@ export default async function NewJob({
         </div>
         <ButtonLink href="/jobs/new/guided">Guided pay check</ButtonLink>
       </div>
-      <JobForm action={createJob} locations={locations ?? []} submitLabel="Save draft" />
+      <JobForm
+        action={createJob}
+        locations={locations ?? []}
+        submitLabel="Save draft"
+        chooseCountry
+      />
     </div>
   );
 }

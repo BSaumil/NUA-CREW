@@ -1,6 +1,7 @@
 import { fireEvent, screen, waitFor } from '@testing-library/react-native';
 import Discover from '../app/(app)/discover';
 import { api } from '../src/api/client';
+import { resetSearchMarkets } from '../src/features/markets';
 import { fail, job, ok, renderApp } from './helpers';
 
 jest.mock('../src/api/client', () => ({
@@ -142,5 +143,20 @@ describe('Discover', () => {
     expect(DELETE).toHaveBeenCalledWith('/v1/candidate/saved-jobs/{job_id}', {
       params: { path: { job_id: 'job-1' } },
     });
+  });
+
+  it('NZ-only search never lists or requests jobs, and says why', async () => {
+    resetSearchMarkets();
+    route({ jobs: () => page([job()]) });
+    await renderApp(<Discover />);
+    await screen.findByText('Barista');
+    await fireEvent.press(screen.getByRole('checkbox', { name: /New Zealand/ }));
+    await fireEvent.press(screen.getByRole('checkbox', { name: /Australia/ }));
+    expect(
+      await screen.findByText(/New Zealand jobs and applications are not enabled yet/),
+    ).toBeOnTheScreen();
+    expect(screen.queryByText('Barista')).toBeNull();
+    expect(screen.getByText('No searchable country selected')).toBeOnTheScreen();
+    resetSearchMarkets();
   });
 });

@@ -1,7 +1,12 @@
 import type { NextConfig } from 'next';
 
 const config: NextConfig = {
-  transpilePackages: ['@nua-crew/ui', '@nua-crew/api-client', '@nua-crew/contracts'],
+  transpilePackages: [
+    '@nua-crew/ui',
+    '@nua-crew/markets',
+    '@nua-crew/api-client',
+    '@nua-crew/contracts',
+  ],
   poweredByHeader: false,
   async headers() {
     return [

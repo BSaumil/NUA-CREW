@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
+import { listMarkets } from '@nua-crew/markets';
 import { EmptyState, JobCard } from '@nua-crew/ui';
 import { api, toCard } from '@/lib/api';
+import { planSearch } from '@/lib/search-markets';
 import { flashFrom } from '../components';
 
 export const metadata: Metadata = { title: 'Find jobs' };
@@ -22,6 +24,9 @@ export default async function Jobs({
   const { p } = await flashFrom(searchParams);
   const one = (k: string) =>
     (Array.isArray(p[k]) ? p[k]![0] : (p[k] as string | undefined)) || undefined;
+  const rawMarkets = p['markets'];
+  const plan = planSearch(rawMarkets);
+  const mixed = plan.markets.length > 1;
   const page = Math.max(1, Number(one('page') ?? 1) || 1);
   const query = {
     q: one('q'),
@@ -30,7 +35,11 @@ export default async function Jobs({
     page,
     page_size: 12,
   };
-  const { data } = await (await api()).GET('/v1/jobs', { params: { query } });
+  // Only markets with an existing flow are queried; a preview-only market is never requested.
+  const { data } =
+    plan.searchable.length > 0
+      ? await (await api()).GET('/v1/jobs', { params: { query } })
+      : { data: undefined };
   const jobs = data?.items ?? [];
   const total = data?.total ?? 0;
   const qs = (n: number) =>
@@ -39,6 +48,7 @@ export default async function Jobs({
         q: query.q,
         suburb: query.suburb,
         type: query.employment_type,
+        markets: plan.markets.join(','),
         page: String(n),
       }).filter((e): e is [string, string] => Boolean(e[1])),
     ).toString();
@@ -67,12 +77,42 @@ export default async function Jobs({
             </select>
           </div>
         </div>
+        <fieldset className="nua-market-choice">
+          <legend>Search in</legend>
+          {listMarkets().map((m) => (
+            <label key={m.code} className="nua-market-choice__option">
+              <input
+                type="checkbox"
+                name="markets"
+                value={m.code}
+                defaultChecked={plan.markets.includes(m.code)}
+              />
+              <span>
+                {m.label} <span className="nua-hint">({m.currency})</span>
+              </span>
+            </label>
+          ))}
+          <p className="nua-hint">
+            This only chooses what to show. It does not decide pay rules for any workplace.
+          </p>
+        </fieldset>
         <p>
           <button className="nua-button" type="submit">
             Search
           </button>
         </p>
       </form>
+      {plan.unavailable.map((u) => (
+        <p key={u.code} role="status" className="nua-alert" data-testid={`market-notice-${u.code}`}>
+          {u.reason}
+        </p>
+      ))}
+      {mixed ? (
+        <p className="nua-hint">
+          Pay is shown in each job&rsquo;s own currency and is never added together or compared
+          across countries.
+        </p>
+      ) : null}
       <p role="status" className="nua-muted">
         {total} {total === 1 ? 'job' : 'jobs'} found
       </p>
@@ -81,7 +121,7 @@ export default async function Jobs({
       ) : (
         <div className="nua-grid">
           {jobs.map((j) => (
-            <JobCard key={j.id} job={toCard(j)} href={`/jobs/${j.id}`} />
+            <JobCard key={j.id} job={toCard(j)} href={`/jobs/${j.id}`} showCurrencyCode={mixed} />
           ))}
         </div>
       )}

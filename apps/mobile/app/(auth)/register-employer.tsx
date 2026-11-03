@@ -2,10 +2,12 @@ import { Link } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Switch } from 'react-native';
 import { messageOf } from '@/api/client';
+import { gateFor } from '@/features/markets';
 import { emailError, nameError, passwordError } from '@/features/validation';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { BrandLockup, Button, Field, Row, Screen, Text } from '@/ui';
+import { MarketChoice } from '@/ui/market';
 import { Notice } from '@/ui/hire';
 import { SetupPolicies, SetupProgress } from '@/ui/setup';
 export default function RegisterEmployer() {
@@ -16,6 +18,8 @@ export default function RegisterEmployer() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agree, setAgree] = useState(false);
+  const [country, setCountry] = useState('AU');
+  const gate = gateFor(country, 'onboarding');
   const [step, setStep] = useState(0);
   const [busy, setBusy] = useState(false);
   const lock = useRef(false);
@@ -28,7 +32,7 @@ export default function RegisterEmployer() {
     if (!validation) setStep((s) => s + 1);
   };
   const submit = async () => {
-    if (lock.current) return;
+    if (lock.current || !gate.allowed) return;
     const validation =
       identityError() ||
       (!business.trim() ? 'Enter your business name' : null) ||
@@ -99,12 +103,20 @@ export default function RegisterEmployer() {
           <Text variant="title" accessibilityRole="header">
             Which business do you represent?
           </Text>
+          <MarketChoice legend="Business country" value={country} onChange={setCountry} />
           <Field
             label="Business name"
             value={business}
             onChangeText={setBusiness}
             maxLength={150}
           />
+          {!gate.allowed ? (
+            <Text accessibilityRole="alert" muted>
+              {gate.reason} Pay in{' '}
+              {gate.state.kind === 'blocked' ? 'this country' : gate.state.market.currency} is not
+              assessed, and no wage or eligibility is stated.
+            </Text>
+          ) : null}
           <Text muted>
             Add your venue details and draft a role after setup. Business verification is required
             before publishing.
@@ -153,7 +165,12 @@ export default function RegisterEmployer() {
         {step < 2 ? (
           <Button title="Continue" onPress={next} />
         ) : (
-          <Button title="Create employer account" loading={busy} onPress={() => void submit()} />
+          <Button
+            title="Create employer account"
+            loading={busy}
+            disabled={!gate.allowed}
+            onPress={() => void submit()}
+          />
         )}
       </Row>
       <Text muted>Your answers are not saved to device storage.</Text>
