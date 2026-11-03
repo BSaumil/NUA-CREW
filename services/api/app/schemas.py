@@ -1,7 +1,7 @@
 import uuid
 from datetime import date, datetime, time
 from decimal import Decimal
-from typing import Annotated, Literal
+from typing import Annotated, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, model_validator
 
@@ -19,16 +19,61 @@ State = Literal["ACT", "NSW", "NT", "QLD", "SA", "TAS", "VIC", "WA"]
 Postcode = Annotated[str, StringConstraints(pattern=r"^\d{4}$")]
 
 
+def _guard_legacy_au_payload(value: Any) -> Any:
+    """Reject explicit non-AU jurisdiction on old AU-only write endpoints.
+
+    This is a compatibility guard, not a country-aware validator or NZ launch.
+    An omitted country preserves the existing Australian-only request shape.
+    """
+    if isinstance(value, dict):
+        for key in (
+            "country",
+            "country_code",
+            "workplace_country_code",
+            "legal_entity_country_code",
+        ):
+            if key in value and value[key] != "AU":
+                raise ValueError(f"{key}: this endpoint currently accepts Australia only")
+        if "pay_currency" in value and value["pay_currency"] != "AUD":
+            raise ValueError("pay_currency: this endpoint currently accepts AUD only")
+    return value
+
+
 class Orm(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
 # ---- auth ----
+class MarketCapabilitiesOut(BaseModel):
+    onboarding: bool = False
+    job_publishing: bool = False
+    shifts: bool = False
+    billing: bool = False
+
+
+class MarketPublicOut(BaseModel):
+    country_code: str
+    label: str
+    locale: str
+    currency: str
+    region_label: str
+    employer_identifier_label: str
+    phone_prefix: str
+    time_zones: list[str]
+    stage: Literal["prelaunch", "preparing", "open"]
+    capabilities: MarketCapabilitiesOut
+
+
 class LocationIn(BaseModel):
     name: Name
     suburb: Name
     state: State
     postcode: Postcode
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
 
 
 Client = Literal["web", "mobile"]
@@ -42,6 +87,11 @@ class CandidateRegister(BaseModel):
     client: Client = "web"  # mobile clients receive a refresh token
     device_label: str | None = Field(None, max_length=100)
 
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
+
 
 class EmployerRegister(BaseModel):
     email: EmailStr
@@ -53,6 +103,11 @@ class EmployerRegister(BaseModel):
     accept_terms: Literal[True]
     client: Client = "web"
     device_label: str | None = Field(None, max_length=100)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
 
     @model_validator(mode="after")
     def _abn(self) -> "EmployerRegister":
@@ -99,6 +154,7 @@ class MeOut(BaseModel):
 class ProfileIn(BaseModel):
     full_name: Name
     headline: str | None = Field(None, max_length=200)
+
     summary: str | None = Field(None, max_length=5000)
     suburb: str | None = Field(None, max_length=100)
     state: State | None = None
@@ -109,6 +165,11 @@ class ProfileIn(BaseModel):
     skills: list[Annotated[str, StringConstraints(min_length=1, max_length=100)]] = Field(
         default=[], max_length=50
     )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
 
 
 class ProfileOut(Orm):
@@ -207,6 +268,11 @@ class JobIn(BaseModel):
     # enforced server-side at publish; a role never decides an award classification.
     role_code: str | None = Field(None, max_length=12)
     pay_assessment_id: uuid.UUID | None = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def _legacy_country(cls, value: Any) -> Any:
+        return _guard_legacy_au_payload(value)
 
     @model_validator(mode="after")
     def _facets(self) -> "JobIn":
