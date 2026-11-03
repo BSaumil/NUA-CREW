@@ -1,7 +1,7 @@
 # NUA CREW — Read-only Market API Contract
 **Date:** 3 November 2026 · **Owner:** ChatGPT backend workstream  
 **Branch:** `feat/jurisdiction-backend-foundation-20261103`  
-**Status:** Implemented in PR #26; consume **only after merge and generated-client verification**.
+**Status (historical source):** Implemented in PR #26, integrated with PR #25 by merged PR #28 on 3 November 2026. Consume the actual regenerated OpenAPI/TypeScript contracts from the integrated `main` and validate against the release candidate. This document describes the read-only catalogue only; the integrated country storage and publication safety gates are documented separately.
 
 ## Endpoints
 
@@ -73,6 +73,6 @@ OpenAPI type: `MarketPublicOut` composed with `MarketCapabilitiesOut`. **Import 
 
 CI runs `test_markets.py`, `test_markets_api.py`, `test_jurisdiction_audit.py`, plus existing API RLS tests. Verify /openapi.json and no regression in AU registration/job flows. Confirm `GET /v1/markets/ZZ` returns 404. DO NOT claim CI passed until it has actually passed.
 
-## Next migration gate
+## Integrated migration status (updated 4 November 2026)
 
-`services/api/app/models.py` already has `Location.country` and `Job.pay_currency`; employer/legal-country and job/workplace-country authoritative columns are still missing. `Location.country` has AU default, so automatic AU provenance backfill is unsafe. Read the separate [backfill audit](JURISDICTION_PROVENANCE_AUDIT_2026-11-03.md) before proposing any Alembic revision; inspect the actual Alembic HEAD from a checked-out repository and database. No migration is part of this PR.
+PR #28 integrated the additive jurisdiction migration `c55d06a11005` and PR #29 re-parented it after document-vault revision `a44b95ef1004`, retaining one intended Alembic head. The columns were added **without a blanket legacy backfill**. An existing `Location.country='AU'` default is not sufficient proof of verified country provenance. Before any migration in a new environment, inspect the *current release SHA*, actual Alembic head, migration SQL, RLS policies, backups, and verified workplace evidence. No production migration or AU/NZ activation is authorised by this documentation. See [provenance audit](JURISDICTION_PROVENANCE_AUDIT_2026-11-03.md) and [launch stabilisation directive](../launch/LAUNCH_STABILISATION_EXECUTION_2026-11-04.md).
