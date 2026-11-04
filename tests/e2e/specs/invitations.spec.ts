@@ -145,6 +145,18 @@ test('employer invites, candidate accepts, they message, candidate blocks', asyn
   await page.getByRole('button', { name: /^Block / }).click();
   await expect(page.getByText(/They cannot find, invite or message you/)).toBeVisible();
   await page.getByRole('button', { name: 'Block', exact: true }).click();
+  // The block is a request the phone screen sends; wait until the server has applied it before
+  // loading the employer page, otherwise a slow machine loads the list first and never re-fetches.
+  await expect
+    .poll(
+      async () =>
+        (
+          await (
+            await request.get(`${API}/v1/employers/${eid}/conversations`, { headers: owner })
+          ).json()
+        ).length,
+    )
+    .toBe(0);
   await ep.goto(`${EMPLOYER}/messages`);
   await expect(ep.getByText('No conversations yet.')).toBeVisible();
   // the employer's API access to that thread is gone as well
