@@ -145,7 +145,9 @@ test('claims stay truthful: apps are not in stores, billing is a preview, free f
   );
   await page.goto(SITE + '/pricing');
   await expect(page.getByText(/Payments are not switched on/)).toBeVisible();
-  await expect(page.getByText('A$19').first()).toBeVisible();
+  await expect(page.getByText('A$49').first()).toBeVisible();
+  await expect(page.getByText('A$79').first()).toBeVisible();
+  await expect(page.getByText('A$19')).toHaveCount(0);
   await expect(page.getByText('A$30').first()).toBeVisible();
   await expect(page.getByText('A$10')).toHaveCount(0); // no employee price exists
   await page.goto(SITE + '/legal');
