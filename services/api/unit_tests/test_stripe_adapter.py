@@ -93,7 +93,7 @@ async def test_checkout_uses_server_amount_stable_key_and_fixed_return_urls(
     monkeypatch.setattr(payments, "client", provider)
     row = BillingOrder(
         id=uuid.uuid4(),
-        amount_minor=1900,
+        amount_minor=4900,
         action="new_ad",
         checkout_session_id=None,
         expires_at=datetime.now(UTC) + timedelta(minutes=35),
@@ -101,7 +101,7 @@ async def test_checkout_uses_server_amount_stable_key_and_fixed_return_urls(
     result = await payments.create_checkout(row)
     assert result[1] == "cs_test_fixture"
     params = create.call_args.args[0]
-    assert params["line_items"][0]["price_data"]["unit_amount"] == 1900
+    assert params["line_items"][0]["price_data"]["unit_amount"] == 4900
     assert params["allowed_payment_method_types"] == ["card"]
     assert params["metadata"]["order_id"] == str(row.id)
     assert params["success_url"].startswith("http://localhost:3001/billing?order=")
