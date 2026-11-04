@@ -29,7 +29,31 @@ TEMP = {
     "min_hourly_pay": "30.00",
     "max_travel_km": 15,
 }
-TUE = (2026, 11, 3)  # a Tuesday in Melbourne
+
+
+def _upcoming_tuesday(min_days: int = 8) -> tuple[int, int, int]:
+    """A Tuesday in Melbourne at least ``min_days`` ahead.
+
+    The API ignores commitments that ended more than a day ago, so a hard-coded date goes stale and
+    the "busy" assertions silently stop seeing the commitment.
+    """
+    from zoneinfo import ZoneInfo
+
+    day = datetime.now(ZoneInfo("Australia/Melbourne")).date() + timedelta(days=min_days)
+    day += timedelta(days=(1 - day.weekday()) % 7)  # Monday is 0, so Tuesday is 1
+    return (day.year, day.month, day.day)
+
+
+TUE = _upcoming_tuesday()  # a Tuesday in Melbourne, always in the future
+
+
+def _plus(days: int) -> tuple[int, int, int]:
+    d = datetime(*TUE).date() + timedelta(days=days)
+    return (d.year, d.month, d.day)
+
+
+WED, SAT, SUN = _plus(1), _plus(4), _plus(5)
+TUE_ISO, WED_ISO = (f"{y:04d}-{m:02d}-{d:02d}" for y, m, d in (TUE, WED))
 
 
 def mel(y, m, d, hh, mm=0):
@@ -171,12 +195,12 @@ async def test_weekly_windows_exceptions_and_unknown(client):
     )
     assert (await q(mel(*TUE, 9), mel(*TUE, 12))).json()["state"] == "available"
     assert (await q(mel(*TUE, 11), mel(*TUE, 15))).json()["state"] == "unavailable"  # the break
-    assert (await q(mel(2026, 11, 7, 23), mel(2026, 11, 8, 5))).json()["state"] == "available"
+    assert (await q(mel(*SAT, 23), mel(*SUN, 5))).json()["state"] == "available"
 
     # an explicit unavailable exception beats the recurring window
     r = await client.post(
         "/v1/candidate/availability/exceptions",
-        json={"state": "unavailable", "start_date": "2026-11-03", "end_date": "2026-11-03"},
+        json={"state": "unavailable", "start_date": TUE_ISO, "end_date": TUE_ISO},
         headers=h,
     )
     assert r.status_code == 201
@@ -190,12 +214,12 @@ async def test_weekly_windows_exceptions_and_unknown(client):
     # a temporary available exception on a day with no rule
     await client.post(
         "/v1/candidate/availability/exceptions",
-        json={"state": "available", "start_date": "2026-11-04", "end_date": "2026-11-04",
+        json={"state": "available", "start_date": WED_ISO, "end_date": WED_ISO,
               "start_time": "10:00", "end_time": "14:00"},
         headers=h,
     )  # fmt: skip
-    assert (await q(mel(2026, 11, 4, 10), mel(2026, 11, 4, 14))).json()["state"] == "available"
-    assert (await q(mel(2026, 11, 4, 9), mel(2026, 11, 4, 14))).json()["state"] == "unavailable"
+    assert (await q(mel(*WED, 10), mel(*WED, 14))).json()["state"] == "available"
+    assert (await q(mel(*WED, 9), mel(*WED, 14))).json()["state"] == "unavailable"
 
 
 async def test_overlapping_windows_and_bad_zone_rejected(client):
