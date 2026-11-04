@@ -31,9 +31,11 @@ export default async function Documents({
       <p role="status">
         {String(status.data?.message ?? 'Document storage is currently unavailable.')}
       </p>
-      <section className="nua-card">
-        <UploadForm enabled={ready} />
-      </section>
+      {ready ? (
+        <section className="nua-card">
+          <UploadForm enabled />
+        </section>
+      ) : null}
       <section className="nua-stack">
         <h2>Saved documents</h2>
         {docs.error ? (

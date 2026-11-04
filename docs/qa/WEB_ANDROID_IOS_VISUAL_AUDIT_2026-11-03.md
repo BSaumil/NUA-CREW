@@ -16,11 +16,12 @@ All screenshots are from the running apps on the local stack built from `main` (
 | 10 | `10-app-inbox-phone.png` | Mobile app, inbox |
 | 11 | `11-app-documents-phone.png` | Mobile app, documents |
 | 12 | `12-app-my-shifts-phone.png` | Mobile app, my shifts |
+| 13 | `13-candidate-documents-after-phone.png` | Candidate web, document wallet **after** the fix below |
 
 ## Findings (P0 blocks release, P3 polish)
 | Priority | Finding | Where |
 | --- | --- | --- |
-| P2 | The document wallet shows the full upload form (type, name, file picker, button) while uploads are disabled. The notice "Document uploads are not connected yet" is accurate, but the form invites an action that cannot work. Hide or collapse the form until storage is connected | #06, #11 |
+| P2 — **fixed** | The document wallet showed the full upload form (type, name, file picker, button) while uploads are disabled. The notice "Document uploads are not connected yet" is accurate, but the form invites an action that cannot work. The form is now hidden until storage is connected; only the notice shows (web and mobile). Before: #06, #11. After: #13 |
 | P2 | The footer prints a business identifier ("NUA POS / NUA AUS. ABN …") that came in with #11. The handoff requires the confirmed entity and ABN to be verified against owner records before use; Claude has not verified it | #06 and every candidate page |
 | P3 | The employer dashboard is clear and shows live jobs, drafts, timesheets, updates and a "Post a job" action; nothing blocks a first job post | #01 |
 | — | No horizontal overflow was measured on the Expo web export at 360, 390 and 820 px in the earlier country work; this audit did not re-measure overflow on every screen | — |
