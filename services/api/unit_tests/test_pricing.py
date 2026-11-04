@@ -30,6 +30,7 @@ from app.services.pricing import (
 def test_prices_are_draft_aud_and_do_not_grant_access(action, total, lines):
     result = estimate(action)
     assert result.currency == "AUD"
+    assert result.catalog_version == "2026-11-05-ad-49"
     assert result.total_minor == total
     assert len(result.products) == lines
     assert result.purchasable is False
