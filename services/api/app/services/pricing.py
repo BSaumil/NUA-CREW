@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from enum import StrEnum
 
-CATALOG_VERSION = "2026-10-27-draft-2"
+CATALOG_VERSION = "2026-11-05-ad-49"
 
 
 class ProductCode(StrEnum):
@@ -26,7 +26,7 @@ class Product:
 
 
 PRODUCTS = (
-    Product(ProductCode.JOB_AD, "Job advertisement — 14 days", 1900, 14 * 24),
+    Product(ProductCode.JOB_AD, "Job advertisement — 14 days", 4900, 14 * 24),
     Product(ProductCode.PROMOTION, "Promoted placement — 5 days", 3000, 5 * 24),
 )
 
