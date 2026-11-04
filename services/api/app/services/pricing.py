@@ -131,7 +131,7 @@ CATALOGUE = {
     "billing_enabled": False,
     "currency": CURRENCY,
     "assumptions": [
-        "A$30 promotion is an add-on, not an inclusive A$30 premium advertisement (unconfirmed).",
+        "A$30 promotion is an optional add-on to a A$49 advertisement, totaling A$79 (owner decision, 5 November 2026).",
         "Tax treatment (GST) and store/channel product setup are unresolved; these are estimates.",
     ],
 }
