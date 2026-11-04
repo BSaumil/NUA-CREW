@@ -211,7 +211,7 @@ export function JourneySteps() {
 /** Employer advertising options compared in real HTML (planned pricing, billing not live). */
 export function AdOptionsComparison() {
   const rows: [string, string, string][] = [
-    ['Planned price', 'A$19', 'A$49 (A$19 + A$30)'],
+    ['Planned price', 'A$49', 'A$79 (A$49 + A$30)'],
     ['Runs for', '14 days', '14-day advertisement, with a 5-day promotion within it'],
     [
       'Where it appears',
