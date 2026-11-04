@@ -81,8 +81,8 @@ export default function EmployerTerms() {
           body: (
             <>
               <p>
-                The current plan is A$19 for a 14-day advertisement and an optional A$30 for a
-                five-day promotion, making A$49 for a new ad plus a promotion. These are previews,
+                The current plan is A$49 for a 14-day advertisement and an optional A$30 for a
+                five-day promotion, making A$79 for a new ad plus a promotion. These are previews,
                 not offers currently available for purchase. Final tax treatment and payable totals
                 will be shown before checkout. There is no automatic renewal or fee for a successful
                 hire.
