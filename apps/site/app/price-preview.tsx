@@ -22,7 +22,7 @@ export function PricePreview() {
       <div className="price-preview__total" role="status" aria-live="polite">
         <Banknote size={24} aria-hidden="true" />
         <span>Planned total</span>
-        <strong>A${promote ? 49 : 19}</strong>
+        <strong>A${promote ? 79 : 49}</strong>
         <p>
           <Check size={16} aria-hidden="true" />
           14-day advertisement{promote ? ' + 5-day promotion' : ''}
