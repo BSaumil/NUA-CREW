@@ -2,7 +2,7 @@
 search. Real Postgres with RLS enforced for the runtime role."""
 
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, date, datetime, timedelta
 
 from sqlalchemy import text
 
@@ -620,18 +620,103 @@ async def test_commitment_in_local_time_resolves_in_the_candidates_zone(client):
         assert r.status_code == 422, bad
 
 
+def _next_dst_start_saturday() -> date:
+    """The Saturday night before Melbourne's daylight-saving start (first Sunday of October)."""
+    today = datetime.now(UTC).date()
+    for year in (today.year, today.year + 1):
+        first = date(year, 10, 1)
+        saturday = first + timedelta(days=(5 - first.weekday()) % 7)
+        if saturday > today + timedelta(days=1):
+            return saturday
+    raise AssertionError("unreachable")
+
+
+def test_local_search_window_resolves_across_the_2026_dst_start_night():
+    """Fixed on purpose and independent of today's date: it only exercises the schema."""
+    from app.schemas import TalentSearchIn
+
+    t = TalentSearchIn(
+        kind="temporary", window_date="2026-10-03", window_start="22:00", window_end="06:00"
+    )
+    assert t.starts_at is not None and t.ends_at is not None
+    assert t.starts_at.astimezone(UTC).isoformat().startswith("2026-10-03T12:00")  # 22:00 AEST
+    assert t.ends_at - t.starts_at == timedelta(hours=7)  # real elapsed time across the change
+
+
 async def test_search_window_can_be_given_in_the_venues_local_time(client):
     eh, eid = await verified_employer(client, "lw@nua-crew.example.com", "Local Cafe")
     h = await discoverable_candidate(client, "lwc@nua-crew.example.com", "Lia Wu")
     await set_weekly(client, h, [window(5, "22:00", "06:00")])  # Saturday night into Sunday
-    body = {"window_date": "2026-10-03", "window_start": "22:00", "window_end": "06:00"}
+    night = _next_dst_start_saturday().isoformat()  # always upcoming: past windows are refused
+    body = {"window_date": night, "window_start": "22:00", "window_end": "06:00"}
     got = await search(client, eh, eid, **body)  # the Melbourne DST-start night
     assert got.status_code == 200, got.text
     assert got.json()["items"][0]["availability"]["state"] == "available"
     for bad in (
-        {"window_date": "2026-10-03"},
-        {**body, "starts_at": "2026-10-03T22:00:00+10:00", "ends_at": "2026-10-04T06:00:00+11:00"},
+        {"window_date": night},
+        {**body, "starts_at": f"{night}T22:00:00+10:00", "ends_at": f"{night}T06:00:00+11:00"},
         {**body, "window_time_zone": "Mars/Olympus"},
         {**body, "window_end": "22:00"},
     ):
         assert (await search(client, eh, eid, **bad)).status_code == 422, bad
+
+
+# ---- Past windows must not depend on today's date ------------------------------------------
+PAST_TUE = (2020, 1, 7)  # a Tuesday in Melbourne, long past; fixed on purpose
+
+
+async def test_check_answers_a_past_window_from_the_commitment_that_covered_it(client):
+    h = await register_candidate(client, "pastcheck@nua-crew.example.com")
+    await set_weekly(client, h, [window(1, "09:00", "18:00")])
+    body = {
+        "starts_at": iso(mel(*PAST_TUE, 10)),
+        "ends_at": iso(mel(*PAST_TUE, 12)),
+        "status": "confirmed",
+    }
+    assert (
+        await client.post("/v1/candidate/availability/commitments", json=body, headers=h)
+    ).status_code == 201
+    busy = await client.get(
+        "/v1/candidate/availability/check",
+        params={"starts_at": iso(mel(*PAST_TUE, 10)), "ends_at": iso(mel(*PAST_TUE, 11))},
+        headers=h,
+    )
+    # Before the fix an old commitment was trimmed from the calendar, so this said "available".
+    assert busy.json()["state"] == "confirmed"
+    free = await client.get(
+        "/v1/candidate/availability/check",
+        params={"starts_at": iso(mel(*PAST_TUE, 13)), "ends_at": iso(mel(*PAST_TUE, 14))},
+        headers=h,
+    )
+    assert free.json()["state"] == "available"  # the window outside the commitment is unaffected
+
+
+async def test_buffer_pulls_in_a_commitment_just_outside_the_window(client):
+    h = await register_candidate(client, "pastbuffer@nua-crew.example.com")
+    await set_weekly(client, h, [window(1, "09:00", "18:00")])
+    body = {
+        "starts_at": iso(mel(*PAST_TUE, 12)),
+        "ends_at": iso(mel(*PAST_TUE, 13)),
+        "status": "confirmed",
+    }
+    await client.post("/v1/candidate/availability/commitments", json=body, headers=h)
+    params = {"starts_at": iso(mel(*PAST_TUE, 13, 15)), "ends_at": iso(mel(*PAST_TUE, 14))}
+    plain = await client.get("/v1/candidate/availability/check", params=params, headers=h)
+    padded = await client.get(
+        "/v1/candidate/availability/check", params={**params, "buffer_minutes": 30}, headers=h
+    )
+    assert plain.json()["state"] == "available"
+    assert padded.json()["state"] != "available"
+
+
+async def test_talent_search_refuses_a_window_that_has_already_ended(client):
+    eh, eid = await verified_employer(client, "pastsearch@nua-crew.example.com", "Past Cafe")
+    r = await search(
+        client,
+        eh,
+        eid,
+        starts_at=iso(mel(*PAST_TUE, 9)),
+        ends_at=iso(mel(*PAST_TUE, 10)),
+    )
+    assert r.status_code == 422
+    assert r.json()["error"]["code"] == "window_in_past"

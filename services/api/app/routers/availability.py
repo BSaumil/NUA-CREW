@@ -155,8 +155,17 @@ def _exc(x: AvailabilityException) -> av.DayException:
 
 
 async def load_availability(
-    session: Session, candidate_id: uuid.UUID
+    session: Session,
+    candidate_id: uuid.UUID,
+    window: tuple[datetime, datetime] | None = None,
 ) -> tuple[list[AvailabilityRule], list[AvailabilityException], list[Commitment]]:
+    """A person's rules, exceptions and commitments.
+
+    Without ``window`` this is the calendar overview, so only commitments that are upcoming or just
+    ended are returned. When a specific window is being answered (``window`` is given), every
+    commitment overlapping it is loaded, even a past one: the answer for that window must not
+    depend on today's date.
+    """
     rules = list(
         await session.scalars(
             select(AvailabilityRule)
@@ -171,13 +180,15 @@ async def load_availability(
             .order_by(AvailabilityException.start_date)
         )
     )
+    wanted = (
+        (Commitment.ends_at > window[0], Commitment.starts_at < window[1])
+        if window is not None
+        else (Commitment.ends_at > datetime.now(UTC) - timedelta(days=1),)
+    )
     commitments = list(
         await session.scalars(
             select(Commitment)
-            .where(
-                Commitment.candidate_id == candidate_id,
-                Commitment.ends_at > datetime.now(UTC) - timedelta(days=1),
-            )
+            .where(Commitment.candidate_id == candidate_id, *wanted)
             .order_by(Commitment.starts_at)
         )
     )
@@ -369,7 +380,10 @@ async def check(
     """The person's own view of how their calendar answers a question (also used by tests)."""
     if starts_at.tzinfo is None or ends_at.tzinfo is None or ends_at <= starts_at:
         raise ApiError(422, "bad_interval", "Provide timezone-aware starts_at before ends_at")
-    rules, exceptions, commitments = await load_availability(session, profile.id)
+    pad = timedelta(minutes=buffer_minutes)
+    rules, exceptions, commitments = await load_availability(
+        session, profile.id, window=(starts_at - pad, ends_at + pad)
+    )
     r = av.evaluate(
         time_zone=profile.time_zone,
         rules=[_rule(x) for x in rules],
