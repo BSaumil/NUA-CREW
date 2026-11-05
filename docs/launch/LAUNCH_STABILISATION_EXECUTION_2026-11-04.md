@@ -4,6 +4,10 @@
 **Coordination branch:** `chore/launch-stabilisation-20261104` (documentation only; do not base product changes on an unreviewed documentation PR).
 **Release candidate baseline:** `main` at `f10a55e817a0af2681fd8cccb73ba3c105d8ad01`.
 
+## Commercial addendum (5 November 2026)
+
+The owner revised the draft employer advertisement price to A$49 for 14 days; the A$30 five-day promotion is unchanged, so the bundle is A$79. Draft PR #33 implements the catalogue, DB constraint and tests. This directive does not enable billing and must not be treated as evidence that PR #33 is merged or live.
+
 ## Verified repository state — do not repeat completed work
 - PR #27 cross-platform AU/NZ preview UI merged.
 - PR #28 merged the previously overlapping backend PRs #25 and #26: read-only market endpoints, conservative AU/NZ contracts, nullable jurisdiction migration and verified-workplace gate. Merge commit `bb930e829500fd567dc9fc1bcbd32329f84ca9e5`. Its PR head `6444d3a9350942fe70f7e83215d3af6efde535df` passed GitHub CI run `41600879999`.
@@ -14,7 +18,7 @@
 - Australia is the first controlled-pilot market. New Zealand remains **preview-only / disabled for transactions**. Country capabilities, price displays, terms and launch status must remain honest.
 
 ## Mission and working rules
-Deliver a fully integrated, **testable** NUA CREW release candidate for an invitation-only, Melbourne-led Australian pilot. Employees remain free. Employer products are A$19 / 14-day advertisement, A$30 / 5-day promotion add-on and A$49 combined **in Stripe sandbox only** until separate commercial approval. Maintain NUA CREW under NUA POS business identity without inventing ABN/NZBN details; do not expose a founder's personal name in the public site. Retain NUA CREW brand, accessible ivory/burgundy identity and a clean, image-led site without old banner artwork. Do not resurrect deprecated AI marketing copy.
+Deliver a fully integrated, **testable** NUA CREW release candidate for an invitation-only, Melbourne-led Australian pilot. Employees remain free. Employer products are A$49 / 14-day advertisement, A$30 / 5-day promotion add-on and A$79 combined **in Stripe sandbox only** until separate commercial approval. Maintain NUA CREW under NUA POS business identity without inventing ABN/NZBN details; do not expose a founder's personal name in the public site. Retain NUA CREW brand, accessible ivory/burgundy identity and a clean, image-led site without old banner artwork. Do not resurrect deprecated AI marketing copy.
 
 **Ownership split:** Claude Code owns ~90–95% of implementation, defect remediation, automation, manual setup documentation, test evidence, and PR delivery. ChatGPT owns independent final review, UX/copy refinement and release-gate assessment. Avoid duplicate parallel edits.
 
@@ -57,7 +61,7 @@ Implement and exercise the **full cross-platform hiring journey** against real i
 **Done when:** provider-backed staging tests, permissions, deletion, restore and failure-mode evidence are recorded; pending external access is explicitly BLOCKED, never DONE.
 
 ## Phase S3 — Stripe sandbox and Australian commercial checks (P0 before paid pilot)
-- Preserve employee-free policy and fixed A$19 / A$30 / A$49 catalogue. Verify tax display/terms with business owner; no silent subscriptions.
+- Preserve employee-free policy and fixed A$49 / A$30 / A$79 catalogue. Verify tax display/terms with business owner; no silent subscriptions.
 - Test real Stripe **test account** Checkout and signed webhooks; fulfilment idempotence, five-slot reservation and concurrency, expiry, refund, chargeback/error display, retry/out-of-order events, role permissions, reconciliation, queue worker.
 - Verify no entitlement from return URL, no paid post on failed/unverified payment, and no client-calculated price authority.
 - For iOS/Android assess store purchase rules for any in-app ad upgrade before enabling commerce.
