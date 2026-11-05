@@ -1,6 +1,7 @@
 """Employer talent search over consenting candidates (ADR-009). Verified employers only."""
 
 import uuid
+from datetime import UTC, datetime
 
 from fastapi import APIRouter
 from sqlalchemy import select
@@ -8,7 +9,7 @@ from sqlalchemy import select
 from app.audit import audit
 from app.config import get_settings
 from app.deps import CurrentUser, Recruiter, Session
-from app.errors import forbidden, not_found
+from app.errors import ApiError, forbidden, not_found
 from app.models import Employer, Job
 from app.ratelimit import get_limiter
 from app.schemas import TalentSearchIn, TalentSearchOut
@@ -25,6 +26,10 @@ async def search_talent(
     user: CurrentUser,
     session: Session,
 ) -> TalentSearchOut:
+    # Hiring is forward-looking: a window that has already ended is never a meaningful question, and
+    # answering it from a trimmed calendar could show a busy person as available.
+    if body.ends_at is not None and body.ends_at <= datetime.now(UTC):
+        raise ApiError(422, "window_in_past", "Search for a time that has not already ended")
     employer = await session.get(Employer, employer_id)
     if employer is None:
         raise not_found("employer")
