@@ -4,6 +4,10 @@
 **Ownership:** Claude Code = implementation, tests, 8 reports, staging preparation, screenshots and PRs. ChatGPT = independent release audit and final UI/security review.  
 **Safety:** release approval is NOT granted for production migrations, public user activation, production API deployment, live payments, app store distribution or New Zealand hiring.
 
+## Update (5 November 2026)
+
+PR #32 has now merged into main at `5112b601452b4302d633562f517d6581f63ea290`, including the availability/privacy fix and 12 browser screenshots. Do not redo that work. A$49/14-day employer advertising and A$79 combined (A$30 boost) are in draft PR #33 pending validation. Historical baseline SHA references below are for audit only; fetch latest main before new tasks.
+
 ## Read before coding
 1. Read `docs/launch/LAUNCH_STABILISATION_EXECUTION_2026-11-04.md`, issue #31 and `docs/pilot/readiness.json`.
 2. Fetch remote refs and record SHA. **Do not rely on GitHub's default branch** `claude/new-session-kszaxl`: it is stale. Use `origin/main`.
@@ -42,7 +46,7 @@ First search `docs/` for prior reports. Update an existing authoritative report 
 2. `docs/reports/THREAT_MODEL_2026-11-04.md`: STRIDE, tenant/RLS, access tokens, documents, Stripe, worker trust boundary, attack tests and owners.
 3. `docs/reports/AWARD_GOVERNANCE_2026-11-04.md`: Fair Work modern award/source/effective-date provenance, rates not verified until approved, classifications, penalty hours, zero NZ mapping, publish gates.
 4. `docs/reports/NZ_ACTIVATION_GATES_2026-11-04.md`: NZBN, immigration, privacy, labour hire, independent wages/holidays, GST and merchant account; all transactional NZ flags OFF.
-5. `docs/reports/STRIPE_TEST_ACCEPTANCE_2026-11-04.md`: checkout A$19 / A$30 / A$49, idempotency, signed webhooks, refund, five placement slots, order expiry, mock vs real test evidence.
+5. `docs/reports/STRIPE_TEST_ACCEPTANCE_2026-11-04.md`: checkout A$49 / A$30 / A$79, idempotency, signed webhooks, refund, five placement slots, order expiry, mock vs real test evidence.
 6. `docs/reports/INTEGRATED_HIRING_E2E_2026-11-04.md`: happy and unhappy paths, timings, reproducibility, screenshot file inventory and CI links.
 7. `docs/reports/CROSS_PLATFORM_VISUAL_AUDIT_2026-11-04.md`: employer/candidate/site/mobile, accessibility, navigation, screenshot comparison and fixes; no misleading screenshot labels.
 8. `docs/reports/GO_NO_GO_GATE_REVIEW_2026-11-04.md`: exact-commit 11-gate pilot registry, blockers, mitigations, external approvals and final recommendation.
