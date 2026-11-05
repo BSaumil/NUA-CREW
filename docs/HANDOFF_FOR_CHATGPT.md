@@ -1,3 +1,5 @@
+**Pricing update (5 November 2026):** The current proposed employer price is A$49 per 14-day advertisement or renewal; A$30 per five-day promotion, A$79 combined. Earlier A$19/A$49-bundle references below are historical and superseded; do not implement them. Employees remain free.
+
 # NUA CREW — Project handoff (paste into ChatGPT as context)
 
 ## Latest hiring and shift handoff — 28 October 2026

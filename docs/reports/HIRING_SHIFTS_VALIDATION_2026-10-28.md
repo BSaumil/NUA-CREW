@@ -1,3 +1,5 @@
+**Historical report (28 October 2026).** The employer pricing quoted below reflects the previous catalogue. As of 5 November 2026, the owner-directed draft prices are A$49 per 14-day advertisement/renewal, A$30 for a five-day promotion add-on, or A$79 combined. This notice preserves the historical test report while preventing obsolete prices being mistaken for current pricing. Neither billing nor production migration is activated by this note.
+
 > Updated Stripe status: the interrupted billing work was restored and implemented in PR #2. See `../STRIPE_SETUP.md` and the newest implementation-tracker entry. Statements below about unpublished billing describe the earlier checkpoint, not the current source. No account-backed Stripe transaction or production activation has occurred.
 
 # NUA CREW — hiring validation and shift delivery

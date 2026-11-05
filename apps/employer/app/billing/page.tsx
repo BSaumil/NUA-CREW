@@ -67,7 +67,7 @@ export default async function Billing({
       >
         {[
           [
-            'A$19',
+            'A$49',
             '14-day advertisement',
             'Publish a reviewed role or renew the same advertisement for another 14 days.',
           ],
@@ -77,7 +77,7 @@ export default async function Billing({
             'Add-on placement in the top five of the matching state, suburb and category relevance search.',
           ],
           [
-            'A$49',
+            'A$79',
             'Advertisement + promotion',
             'A new 14-day advertisement with a five-day promoted placement.',
           ],
@@ -123,9 +123,9 @@ export default async function Billing({
             <div className="nua-field">
               <label htmlFor="billing-action">Advertising option</label>
               <select id="billing-action" name="action" required disabled={!ready}>
-                <option value="new_ad">14-day advertisement — A$19</option>
-                <option value="readvertise">Renew this advertisement for 14 days — A$19</option>
-                <option value="new_promoted_ad">Advertisement + five-day promotion — A$49</option>
+                <option value="new_ad">14-day advertisement — A$49</option>
+                <option value="readvertise">Renew this advertisement for 14 days — A$49</option>
+                <option value="new_promoted_ad">Advertisement + five-day promotion — A$79</option>
                 <option value="promote_existing">Five-day promotion add-on — A$30</option>
               </select>
             </div>

@@ -144,7 +144,7 @@ export default function Help() {
               q: 'What will advertisements and promotions cost?',
               a: (
                 <p>
-                  The plan is A$19 for a 14-day advertisement and an optional A$30 for five days of
+                  The plan is A$49 for a 14-day advertisement and an optional A$30 for five days of
                   promotion, subject to placement capacity. Nothing renews automatically. Billing is
                   not live; final totals and tax treatment will be shown before checkout. Try the{' '}
                   <a href="/pricing">price preview</a>.

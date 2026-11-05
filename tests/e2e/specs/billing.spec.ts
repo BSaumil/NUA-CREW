@@ -12,7 +12,7 @@ test('billing shows fixed prices and prevents checkout without Stripe configurat
   await page.waitForURL((u) => !u.pathname.startsWith('/login'));
   await page.goto('http://localhost:3001/billing');
   await expect(page.getByRole('heading', { name: 'Payments are not connected yet' })).toBeVisible();
-  for (const price of ['A$19', 'A$30', 'A$49']) {
+  for (const price of ['A$49', 'A$30', 'A$79']) {
     await expect(page.getByText(price, { exact: true })).toBeVisible();
   }
   await expect(

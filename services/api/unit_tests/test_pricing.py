@@ -21,15 +21,16 @@ from app.services.pricing import (
 @pytest.mark.parametrize(
     ("action", "total", "lines"),
     [
-        (EstimateAction.NEW_AD, 1900, 1),
-        (EstimateAction.READVERTISE, 1900, 1),
-        (EstimateAction.NEW_PROMOTED_AD, 4900, 2),
+        (EstimateAction.NEW_AD, 4900, 1),
+        (EstimateAction.READVERTISE, 4900, 1),
+        (EstimateAction.NEW_PROMOTED_AD, 7900, 2),
         (EstimateAction.PROMOTE_EXISTING, 3000, 1),
     ],
 )
 def test_prices_are_draft_aud_and_do_not_grant_access(action, total, lines):
     result = estimate(action)
     assert result.currency == "AUD"
+    assert result.catalog_version == "2026-11-05-ad-49"
     assert result.total_minor == total
     assert len(result.products) == lines
     assert result.purchasable is False
@@ -93,6 +94,6 @@ async def test_draft_catalog_is_readable_without_database_or_payment_credentials
         assert body["employee_access"] == "free"
         assert body["employee_charging_enabled"] is False
         assert body["employee_access_scope"] == "all_australian_states_and_territories"
-        assert [p["amount_minor"] for p in body["products"]] == [1900, 3000]
+        assert [p["amount_minor"] for p in body["products"]] == [4900, 3000]
         assert all(p["purchasable"] is False for p in body["products"])
         assert (await client.post("/v1/pricing")).status_code == 405

@@ -1,3 +1,7 @@
+## Current owner pricing decision — 5 November 2026
+
+14-day employer advertisement and renewal: **A$49**. Optional five-day promotion: **A$30**. New ad plus promotion: **A$79**. Employees remain free. Backend pricing catalogue, checkout validation, DB constraint migration and UI/tests are coordinated in `feat/advertising-49-14days-20261105`. Existing historic pricing entries below are prior snapshots, not current decisions. No live billing or production migration is authorised by this note.
+
 # Implementation tracker
 
 ## Phase 2 — safe jurisdiction storage and hard stops (3 November 2026)

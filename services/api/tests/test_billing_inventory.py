@@ -40,7 +40,7 @@ async def prepare(eid, jid, key, action=EstimateAction.NEW_PROMOTED_AD):
         return row.id
 
 
-async def fixture_receipt(oid, key="fixture-settlement", amount=4900, kind="settled"):
+async def fixture_receipt(oid, key="fixture-settlement", amount=7900, kind="settled"):
     async with db_as("system") as s:
         row = await record_verified_event(
             s,
@@ -98,7 +98,7 @@ async def test_prices_idempotent_receipts_refunds_and_immutable_ledger(client):
         await prepare(eid, job["id"], "original-quote", EstimateAction.NEW_AD)
     assert reused.value.code == "retry_key_reused"
     with pytest.raises(ApiError) as wrong:
-        await fixture_receipt(oid, amount=1900)
+        await fixture_receipt(oid, amount=3000)
     assert wrong.value.code == "payment_mismatch"
     assert await fixture_receipt(oid) == "settled"
     assert await fixture_receipt(oid) == "settled"
@@ -110,7 +110,7 @@ async def test_prices_idempotent_receipts_refunds_and_immutable_ledger(client):
         assert promo.ends_at - promo.starts_at == timedelta(days=5)
         assert (await s.scalars(select(PublishedPromotion))).one().active
     assert await fixture_receipt(oid, "partial-refund", 1900, "partial_refund") == "settled"
-    assert await fixture_receipt(oid, "full-refund", 4900, "refunded") == "refunded"
+    assert await fixture_receipt(oid, "full-refund", 7900, "refunded") == "refunded"
     async with db_as("system") as s:
         assert not (await s.scalars(select(AdEntitlement))).one().active
         assert not (await s.scalars(select(PublishedPromotion))).one().active
@@ -125,11 +125,11 @@ async def test_renewal_repeat_promotion_and_search_scope(client, monkeypatch):
     emp, eid = await verified_employer(client, "billing-renew@nua-crew.example.com")
     job = await published_job(client, emp, eid)
     oid = await prepare(eid, job["id"], "first-advertisement", EstimateAction.NEW_AD)
-    await fixture_receipt(oid, "ad-payment", 1900)
+    await fixture_receipt(oid, "ad-payment", 4900)
     async with db_as("system") as s:
         original = (await s.get(Job, uuid.UUID(job["id"]))).expires_at
     renewal = await prepare(eid, job["id"], "renew-advertisement", EstimateAction.READVERTISE)
-    await fixture_receipt(renewal, "renew-payment", 1900)
+    await fixture_receipt(renewal, "renew-payment", 4900)
     async with db_as("system") as s:
         assert (await s.get(Job, uuid.UUID(job["id"]))).expires_at == original + timedelta(days=14)
     first = await prepare(eid, job["id"], "first-promotion", EstimateAction.PROMOTE_EXISTING)
@@ -281,7 +281,7 @@ async def test_checkout_signed_fulfilment_and_cross_tenant_permissions(client, s
         )
         assert result.status_code == 200, result.text
     orders = (await client.get(f"/v1/employers/{eid}/billing/orders", headers=emp)).json()
-    assert orders[0]["status"] == "settled" and orders[0]["amount_minor"] == 4900
+    assert orders[0]["status"] == "settled" and orders[0]["amount_minor"] == 7900
     async with db_as("system") as s:
         assert await s.scalar(select(func.count()).select_from(AdEntitlement)) == 1
         assert await s.scalar(select(func.count()).select_from(BillingLedger)) == 1

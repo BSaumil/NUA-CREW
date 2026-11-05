@@ -31,19 +31,19 @@ export default function Pricing() {
             </ul>
           </Card>
           <Card title="Advertisement">
-            <p className="site-price">A$19</p>
+            <p className="site-price">A$49</p>
             <p>for 14 days</p>
             <ul className="site-list">
               <li>Disclosed pay, location and arrangement</li>
               <li>Applicant pipeline and invitations</li>
-              <li>Re-advertise for A$19 for another 14 days, keeping the history</li>
+              <li>Re-advertise for A$49 for another 14 days, keeping the history</li>
             </ul>
           </Card>
           <Card title="Promotion">
             <p className="site-price">A$30</p>
             <p>extra, for 5 days</p>
             <ul className="site-list">
-              <li>An add-on to an advertisement, so a new ad plus a promotion is A$49</li>
+              <li>An add-on to an advertisement, so a new ad plus a promotion is A$79</li>
               <li>Another A$30 for another 5-day campaign</li>
               <li>Always labelled as promoted</li>
             </ul>

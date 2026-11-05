@@ -4,11 +4,13 @@ Stripe Checkout is implemented for the employer web portal. Employee access rema
 
 ## Products
 
+**Updated owner pricing decision (5 November 2026):** A$49 per 14-day listing or renewal; optional A$30 / 5-day promotion; combined A$79. Existing settled and pending quotes retain their original recorded price until expiration or lawful resolution. The billing environment remains disabled pending provider and tax acceptance.
+
 | Choice | Fixed AUD total | Coverage |
 | --- | --- | --- |
-| Advertisement or renewal | A$19 | 14 elapsed days |
+| Advertisement or renewal | A$49 | 14 elapsed days |
 | Promotion add-on | A$30 | Five elapsed days |
-| New advertisement plus promotion | A$49 | 14-day ad, five-day promotion |
+| New advertisement plus promotion | A$79 | 14-day ad, five-day promotion |
 
 A$30 is implemented as an add-on, following the documented pricing assumption. Nothing automatically renews. The promotion audience is the matching state, suburb and category in relevance search. There are five reserved placements per audience. Candidate filters and manually chosen sorts still apply. Repeat promotions queue after existing coverage. Paid ad coverage must span the full promotion.
 

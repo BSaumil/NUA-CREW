@@ -1,23 +1,23 @@
 # NUA CREW — Accounts, advertisements and promotion billing
-**Owner:** Sam / Saumil Bhatt  
-**Date:** 27 October 2026, Melbourne  
-**Status:** Implementation brief plus a tested pricing foundation. Android and iOS first. AI deferred.
+**Owner:** NUA CREW product owner  
+**Updated pricing decision:** 5 November 2026, Melbourne (original plan 27 October 2026)  
+**Status:** Pricing specification; existing implementation and provider acceptance are tracked separately.
 
 ## 1. Pricing direction and explicit assumptions
 
-Current owner decision: employee access is free across all Australian states and territories. Employee charging is deferred with no activation date. Employer amounts are preserved below. Currency is assumed to be Australian dollars. This brief replaces the earlier speculative Starter/Growth/Business subscriptions as the initial commercial model. Do not add a recurring subscription or a placement commission.
+Current owner decision: employee access is free across all Australian states and territories. Employee charging is deferred with no activation date. Employer amounts have been revised effective 5 November 2026 in the draft catalogue; historical paid orders are never repriced. Currency is assumed to be Australian dollars. The current launch model is pay per advertisement, without employee fees or hiring commissions. Employer subscription tiers are a separate optional proposal requiring a new decision and implementation, not part of this price update.
 
 | Item | Proposed charge | Service | Repeat purchase |
 | --- | --- | --- | --- |
 | Employee / job seeker access | Free | All Australian states and territories; permanent and temporary job seeking | No employee checkout or payment requirement |
 | Employer account | No separate account fee proposed | Organisation, team and drafts | Ad charges are per listing, not per team member |
-| Standard advertisement | A$19 | One approved listing for 14 days | Re-advertise for A$19 for another 14 days |
+| Standard advertisement | A$49 | One approved listing for 14 days | Re-advertise for A$49 for another 14 days |
 | Promotion add-on | A$30 | One listing in the relevant top-five promoted section for five days, subject to reserved inventory | Each additional five-day promotion costs A$30 |
-| New standard ad plus promotion | A$49 | 14-day listing, first five days promoted | No automatic renewal |
+| New standard ad plus promotion | A$79 | 14-day listing, first five days promoted | No automatic renewal |
 
-**Draft assumption:** A$30 is an add-on to the A$19 listing. If the owner intended A$30 as an inclusive premium listing, change the versioned catalogue and examples before checkout implementation. Do not silently implement two conflicting price interpretations.
+**Confirmed pricing structure:** A$30 is an optional add-on to the A$49 advertisement, so a new advertisement plus a five-day promotion is A$79. The service periods are unchanged.
 
-**Tax decision outstanding:** Determine GST registration and applicable tax treatment. Recommended commercial approach: keep the displayed totals at A$19 / A$30, inclusive of any applicable GST after accounting review, with a clear breakdown. Do not assert GST is collected or issue a tax invoice before this is established. Do not add unexpected platform fees at the final step. Show the actual store checkout currency and total; reconcile store price tiers before promising identical prices across channels.
+**Tax decision outstanding:** Determine GST registration and applicable tax treatment. Recommended commercial approach: keep the displayed totals at A$49 / A$30, inclusive of any applicable GST after accounting review, with a clear breakdown. Do not assert GST is collected or issue a tax invoice before this is established. Do not add unexpected platform fees at the final step. Show the actual store checkout currency and total; reconcile store price tiers before promising identical prices across channels.
 
 **Future option only:** The earlier A$10 one-time concept is retained solely as a roadmap possibility. It is removed from the current catalogue and estimate actions. No employee paywall, store products, payment prompts or state-based exceptions. No automatic activation or promised future price. Revisit only after a fresh owner decision, legal assessment and store-policy review. Keep the generic billing architecture extensible without an active employee product. No paid candidate ranking, paid hiring priority or wage deductions.
 
@@ -27,7 +27,7 @@ Existing app already has candidate and employer registration, employer owner/rec
 
 This change adds:
 - A versioned draft AUD catalogue, returned by GET /v1/pricing with explicit draft status, tax review pending and every product non-purchasable.
-- Integer-cent estimates: new ad A$19, re-advertisement A$19, new promoted ad A$49, repeat promotion A$30. Employee access is explicitly free nationally and charging is disabled.
+- Integer-cent estimates: new ad A$49, re-advertisement A$49, new promoted ad A$79, repeat promotion A$30. Employee access is explicitly free nationally and charging is disabled.
 - UTC elapsed-duration helpers: 336 hours for a listing and 120 hours for a promotion, avoiding ambiguous daylight-saving arithmetic.
 - A rule rejecting a full five-day promotion when listing coverage is too short.
 - Thirteen isolated tests covering pricing, unavailable checkout status, duration boundaries, Melbourne DST and the read-only endpoint.
@@ -85,7 +85,7 @@ Show listing state, live-until date, promotion start/end, renewal eligibility an
 ### Advertisement scope
 One ad covers one genuine role at one named venue/location or one clearly disclosed remote arrangement. An employer can disclose multiple vacancies for the same role; disclose the vacancy count. Distinct roles or venues normally require distinct ads. Approve exceptions before commercial release.
 
-Use the same initial A$19 listing model for permanent and temporary opportunities. A temporary shift ending earlier closes at its actual end or when filled, even if 14-day coverage remains. Disclose this before purchase. Do not charge another per-worker or per-hire commission without a separate owner decision.
+Use the same initial A$49 listing model for permanent and temporary opportunities. A temporary shift ending earlier closes at its actual end or when filled, even if 14-day coverage remains. Disclose this before purchase. Do not charge another per-worker or per-hire commission without a separate owner decision.
 
 ## 5. Advertisement lifecycle
 
@@ -97,7 +97,7 @@ Payment and content approval are independent state machines. A funded listing is
 - Store instants in UTC; show date, time and employer timezone. Draft convention is exactly 336 elapsed hours; display the actual expiry before confirmation.
 - Editing title, description and pay does not reset expiry or create free extra days. Material changes trigger review.
 - Closing early stops applications and promotion serving. Keep received applications available according to retention and privacy rules.
-- Re-advertising costs A$19 for new 14-day coverage, with new purchase and publication-cycle history linked to the original job.
+- Re-advertising costs A$49 for new 14-day coverage, with new purchase and publication-cycle history linked to the original job.
 - Renew an active unchanged ad from its existing expiry, so buying early does not discard unused days; after expiry, restart from actual republication.
 - Renewed funding does not revive a filled or withdrawn role without explicit employer confirmation and any required review.
 - Keep applications and messages linked to their original cycle. Do not send all previous candidates a new application or bulk message.
@@ -128,7 +128,7 @@ Unlimited sales cannot guarantee that every purchaser stays among five positions
 - Recheck and lock inventory atomically at fulfilment; concurrent purchase attempts cannot oversell the fifth slot.
 - Additional A$30 campaigns require fresh inventory confirmation. They may be back-to-back, never overlapping for the same ad/bucket.
 - A repeat promotion does not renew the standard listing.
-- Full listing coverage must extend through the campaign end. If only four listing days remain, require the A$19 renewal before booking five promoted days; show both line items rather than quietly truncating delivery.
+- Full listing coverage must extend through the campaign end. If only four listing days remain, require the A$49 renewal before booking five promoted days; show both line items rather than quietly truncating delivery.
 - Changes to category or locality cannot move paid inventory to another bucket without rebooking and availability checks.
 - Limit a duplicated role/employer from monopolising the section; initial recommendation one promotion per employer in a bucket at a time, subject to owner review.
 
@@ -206,7 +206,7 @@ Enforce RLS on every tenant/customer table and narrow service privileges. Financ
 Inspect the existing auth and settings screens; integrate the current local resilience fixes before rewriting them. Resolve the single-role versus role-switching migration, implement employer account settings and safe ownership transfer, and align all pricing copy with this brief. Keep employee access free across all states and territories; employee monetisation is a future option only. Preserve native-first priorities.
 
 ### B — Sandbox standard advertisement purchase
-Create order/ledger schema and RLS; wire approved provider sandbox; support A$19 purchase, verified receipt and 14-day publication coverage. Add native billing adapters after policy/product setup. Implement expiry enforcement, explicit renewal, receipts and recovery without manual database edits.
+Create order/ledger schema and RLS; wire approved provider sandbox; support A$49 purchase, verified receipt and 14-day publication coverage. Add native billing adapters after policy/product setup. Implement expiry enforcement, explicit renewal, receipts and recovery without manual database edits.
 
 ### C — Reserved promotion inventory
 Build the exact bucket/search display contract, five-slot booking calendar, checkout holds and overlap constraints. Implement A$30 promotion and repeat promotion with coverage validation, concurrency tests and failed-inventory refunds. No public top-five promise before this is verified.
@@ -227,7 +227,7 @@ Availability/preferences from the earlier master plan remain a parallel product 
 4. Tenant A cannot access tenant B's order, receipt, slot booking or applicants, including by guessing UUIDs.
 5. A standard purchase starts 14-day coverage only at actual publication.
 6. Repeat webhook and checkout retries cannot double-charge through our request handling or double-extend coverage.
-7. An ad plus one promotion totals A$49 under the add-on interpretation; existing-ad repeat promotion is A$30.
+7. An ad plus one promotion totals A$79 under the add-on interpretation; existing-ad repeat promotion is A$30.
 8. More than five simultaneous booking attempts cannot allocate more than five matching slots.
 9. A promotion ending at ad expiry is allowed; one ending a microsecond later is rejected or explicitly paired with a renewal.
 10. Re-promoting never silently renews an ad or extends unrelated listings.
@@ -244,7 +244,7 @@ Availability/preferences from the earlier master plan remain a parallel product 
 
 ## 12. Ready-to-paste task for Claude
 
-Implement NUA CREW account management and sandbox advertisement billing using docs/ACCOUNT_BILLING_PLAN.md as the current commercial brief. Android/iOS first, AI deferred. Employee access is free in every Australian state and territory. Remove employee fees from current catalogues and estimates. Retain monetisation only as a future roadmap option requiring a fresh owner decision; do not build employee checkout or payment gates. Build A$19/14-day ads and A$30/5-day promotion as separate products; assumed new promoted ad total A$49. Start by reconciling local-only fixes, current account settings, role schema and billing policies. Implement Phase A then B as a tested vertical slice; do not claim the pricing catalogue alone is working checkout. Preserve tenant RLS and verified business approval. Do not sell top-five inventory until bucket/display semantics and database concurrency controls are implemented. No recurring charges, live payments, production deployment, main merge or GitHub publication without the required separate authorisation. Report implemented screens/APIs, migrations, exact test evidence and remaining external decisions.
+Implement NUA CREW account management and sandbox advertisement billing using docs/ACCOUNT_BILLING_PLAN.md as the current commercial brief. Android/iOS first. Keep employee access free. Employee access is free in every Australian state and territory. Remove employee fees from current catalogues and estimates. Retain monetisation only as a future roadmap option requiring a fresh owner decision; do not build employee checkout or payment gates. Build A$49/14-day ads and A$30/5-day promotion as separate products; assumed new promoted ad total A$79. Start by reconciling local-only fixes, current account settings, role schema and billing policies. Implement Phase A then B as a tested vertical slice; do not claim the pricing catalogue alone is working checkout. Preserve tenant RLS and verified business approval. Do not sell top-five inventory until bucket/display semantics and database concurrency controls are implemented. No recurring charges, live payments, production deployment, main merge or GitHub publication without the required separate authorisation. Report implemented screens/APIs, migrations, exact test evidence and remaining external decisions.
 
 ## 13. Sources checked on 27 October 2026
 

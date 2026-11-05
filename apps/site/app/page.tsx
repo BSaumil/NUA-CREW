@@ -247,7 +247,7 @@ export default function Home() {
           </div>
           <div className="price-feature">
             <span>PLANNED ADVERTISEMENT</span>
-            <p>A$19</p>
+            <p>A$49</p>
             <strong>14 days. No automatic renewal.</strong>
             <small>
               Billing is not live. Promotion is a separate A$30 / 5-day add-on, subject to capacity.

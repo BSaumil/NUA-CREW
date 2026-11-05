@@ -1139,7 +1139,7 @@ class BillingOrder(TimestampMixin, Base):
     __tablename__ = "billing_orders"
     __table_args__ = (
         UniqueConstraint("employer_id", "client_key", name="uq_billing_order_retry"),
-        CheckConstraint("amount_minor IN (1900, 3000, 4900)", name="ck_order_amount"),
+        CheckConstraint("amount_minor IN (1900, 3000, 4900, 7900)", name="ck_order_amount"),
         CheckConstraint(
             "status IN ('pending', 'settled', 'expired', 'refund_required', 'refunded')",
             name="ck_order_status",

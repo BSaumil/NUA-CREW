@@ -12,16 +12,16 @@ async def test_employee_access_is_free_nationally_and_has_no_sku(client):
     assert body["employer"]["top_five"]["purchasable"] is False
 
 
-async def test_employer_estimates_are_19_30_49(client):
+async def test_employer_estimates_are_49_30_79(client):
     async def total(**q):
         r = await client.get("/v1/pricing/estimate", params=q)
         assert r.json()["billing_enabled"] is False
         return r.json()["total_cents"]
 
-    assert await total(new_ad="true") == 1900
-    assert await total(readvertise="true") == 1900
+    assert await total(new_ad="true") == 4900
+    assert await total(readvertise="true") == 4900
     assert await total(promotions=1) == 3000
-    assert await total(new_ad="true", promotions=1) == 4900
+    assert await total(new_ad="true", promotions=1) == 7900
     assert await total(promotions=2) == 6000
     assert (await client.get("/v1/pricing/estimate", params={"promotions": -1})).status_code == 422
     assert pricing.total_cents(pricing.estimate()) == 0
