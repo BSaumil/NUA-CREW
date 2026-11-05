@@ -620,6 +620,38 @@ class RefreshToken(Base):
     )
 
 
+AUTH_TOKEN_PURPOSES = ("password_reset", "email_verification")
+
+
+class AuthToken(Base):
+    """One-time tokens emailed to a person: password reset and email verification.
+
+    Only the SHA-256 of a token is stored, so a database read cannot be used to reset a password.
+    A token works once, expires, and belongs to a single purpose. Rows are touched only by the
+    recovery endpoints, in system scope (the same boundary as refresh tokens).
+    """
+
+    __tablename__ = "auth_tokens"
+    __table_args__ = (
+        CheckConstraint(_in("purpose", AUTH_TOKEN_PURPOSES), name="ck_auth_tokens_purpose"),
+        UniqueConstraint("token_hash", name="uq_auth_tokens_token_hash"),
+        Index("ix_auth_tokens_user_purpose", "user_id", "purpose"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    purpose: Mapped[str] = mapped_column(String(32), nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    # The address a verification token was sent to, so it cannot verify a different address later.
+    email: Mapped[str | None] = mapped_column(String(320))
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+
+
 class SavedJob(Base):
     __tablename__ = "saved_jobs"
     candidate_id: Mapped[uuid.UUID] = mapped_column(

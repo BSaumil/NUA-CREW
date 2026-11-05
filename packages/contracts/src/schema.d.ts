@@ -441,6 +441,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/auth/email/verify/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm Email */
+        post: operations["confirm_email_v1_auth_email_verify_confirm_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/email/verify/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Request Verification */
+        post: operations["request_verification_v1_auth_email_verify_request_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/auth/login": {
         parameters: {
             query?: never;
@@ -506,6 +540,44 @@ export interface paths {
         get: operations["me_v1_auth_me_get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Forgot Password
+         * @description Always answers the same way. If an account exists and email can be sent, a reset link is
+         *     emailed; otherwise nothing happens.
+         */
+        post: operations["forgot_password_v1_auth_password_forgot_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset Password */
+        post: operations["reset_password_v1_auth_password_reset_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -3279,6 +3351,20 @@ export interface components {
              */
             verification: "not_verified";
         };
+        /** EmailTokenIn */
+        EmailTokenIn: {
+            /** Token */
+            token: string;
+        };
+        /** EmailVerifiedOut */
+        EmailVerifiedOut: {
+            /**
+             * Status
+             * @default verified
+             * @constant
+             */
+            status: "verified";
+        };
         /** EmployerApplicationOut */
         EmployerApplicationOut: {
             /**
@@ -3477,6 +3563,14 @@ export interface components {
             note: string | null;
             /** To Status */
             to_status: string | null;
+        };
+        /** ForgotPasswordIn */
+        ForgotPasswordIn: {
+            /**
+             * Email
+             * Format: email
+             */
+            email: string;
         };
         /** HTTPValidationError */
         HTTPValidationError: {
@@ -3995,6 +4089,11 @@ export interface components {
         MeOut: {
             /** Email */
             email: string;
+            /**
+             * Email Verified
+             * @default false
+             */
+            email_verified: boolean;
             /**
              * Id
              * Format: uuid
@@ -4522,6 +4621,21 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /**
+         * RecoveryAcceptedOut
+         * @description Always the same shape, whether or not an account exists. `email_delivery` reports whether
+         *     this deployment can send email at all, so no screen claims a message was sent when it cannot.
+         */
+        RecoveryAcceptedOut: {
+            /** Email Delivery */
+            email_delivery: boolean;
+            /**
+             * Status
+             * @default accepted
+             * @enum {string}
+             */
+            status: "accepted" | "already_verified";
+        };
         /** RefreshIn */
         RefreshIn: {
             /** Refresh Token */
@@ -4551,6 +4665,13 @@ export interface components {
             id: string;
             /** Status */
             status: string;
+        };
+        /** ResetPasswordIn */
+        ResetPasswordIn: {
+            /** New Password */
+            new_password: string;
+            /** Token */
+            token: string;
         };
         /** ResumeIn */
         ResumeIn: {
@@ -6131,6 +6252,59 @@ export interface operations {
             };
         };
     };
+    confirm_email_v1_auth_email_verify_confirm_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EmailTokenIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EmailVerifiedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    request_verification_v1_auth_email_verify_request_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryAcceptedOut"];
+                };
+            };
+        };
+    };
     login_v1_auth_login_post: {
         parameters: {
             query?: never;
@@ -6229,6 +6403,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["MeOut"];
+                };
+            };
+        };
+    };
+    forgot_password_v1_auth_password_forgot_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RecoveryAcceptedOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    reset_password_v1_auth_password_reset_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetPasswordIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

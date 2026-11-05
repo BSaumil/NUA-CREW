@@ -138,6 +138,32 @@ class RefreshIn(BaseModel):
     refresh_token: str = Field(min_length=20, max_length=200)
 
 
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordIn(BaseModel):
+    # Raw tokens are url-safe base64 of 32 bytes (43 characters); the bounds reject junk early.
+    token: str = Field(min_length=20, max_length=200)
+    new_password: Password
+
+
+class EmailTokenIn(BaseModel):
+    token: str = Field(min_length=20, max_length=200)
+
+
+class RecoveryAcceptedOut(BaseModel):
+    """Always the same shape, whether or not an account exists. `email_delivery` reports whether
+    this deployment can send email at all, so no screen claims a message was sent when it cannot."""
+
+    status: Literal["accepted", "already_verified"] = "accepted"
+    email_delivery: bool
+
+
+class EmailVerifiedOut(BaseModel):
+    status: Literal["verified"] = "verified"
+
+
 class MembershipOut(Orm):
     employer_id: uuid.UUID
     role: str
@@ -146,6 +172,7 @@ class MembershipOut(Orm):
 class MeOut(BaseModel):
     id: uuid.UUID
     email: str
+    email_verified: bool = False
     role: str
     memberships: list[MembershipOut] = []
 
