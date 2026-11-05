@@ -1,0 +1,13 @@
+# Never check in infrastructure state, plans, providers, secrets or cloud credentials.
+.terraform/
+terraform.tfstate
+terraform.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json

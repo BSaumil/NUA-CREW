@@ -1,0 +1,29 @@
+name: aws-staging-terraform-validate
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'infra/aws/staging/**'
+      - '.github/workflows/aws-staging-terraform-validate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-no-cloud-access:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aws/staging
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Terraform (validation only, no credentials)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.11.4'
+      - name: Verify format
+        run: terraform fmt -check -recursive -diff
+      - name: Initialise AWS provider without remote state or AWS account
+        run: terraform init -backend=false -input=false
+      - name: Validate resource graph without AWS reads, plan or apply
+        run: terraform validate -no-color

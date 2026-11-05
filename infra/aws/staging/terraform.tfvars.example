@@ -1,0 +1,22 @@
+# Copy to a private, ignored terraform.tfvars OUTSIDE the repository. No real secrets here.
+# Use a controlled S3+KMS remote state before any plan/apply.
+aws_region        = "ap-southeast-2"
+project_name      = "nua-crew-staging"
+vpc_cidr          = "10.76.0.0/16"
+db_instance_class = "db.t4g.small"
+redis_node_type   = "cache.t4g.small"
+monthly_budget_usd = 300
+budget_alert_email = "REPLACE-WITH-APPROVED-BUDGET-INBOX@example.invalid"
+
+# A password is required for Redis; it will be present in the encrypted
+# Terraform STATE. Inject via secure TF_VAR_redis_auth_token; do not commit it.
+# redis_auth_token = "INJECT-VIA-A-SECURE-INPUT"
+
+# Closed by default. Configure only approved corporate/VPN/test-runner CIDRs.
+allowed_https_cidrs = []
+
+# SERVICES OFF until an exact digest, ACM cert, secret JSON values and
+# approved ingress are all verified. These are intentionally blank.
+enable_services    = false
+acm_certificate_arn = ""
+image_uri           = ""
