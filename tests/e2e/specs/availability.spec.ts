@@ -39,6 +39,23 @@ async function freshContext(browser: Browser) {
   return { ctx, page: await ctx.newPage() };
 }
 
+/**
+ * A Tuesday in Melbourne at least a week ahead, and the Wednesday after it, as YYYY-MM-DD.
+ * Employers can only search for windows that have not ended, so fixed dates go stale.
+ */
+function upcomingTuesdayAndWednesday(): readonly [string, string] {
+  const melbourne = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'Australia/Melbourne' }),
+  );
+  melbourne.setDate(melbourne.getDate() + 8);
+  melbourne.setDate(melbourne.getDate() + ((2 - melbourne.getDay() + 7) % 7)); // 2 is Tuesday
+  const wednesday = new Date(melbourne);
+  wednesday.setDate(wednesday.getDate() + 1);
+  const iso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return [iso(melbourne), iso(wednesday)];
+}
+
 test('candidate sets work preferences, availability and consent; employer finds only the consenting person', async ({
   browser,
   page,
@@ -126,12 +143,13 @@ test('candidate sets work preferences, availability and consent; employer finds 
 
   // A time Bao shared (Tuesday 10:00-11:00 Melbourne) is free; a Wednesday is not; unknown stays unknown.
   await emp.page.getByLabel('Kind of work').selectOption('temporary');
-  await emp.page.getByLabel('Date').fill('2026-11-03');
+  const [tuesday, wednesday] = upcomingTuesdayAndWednesday();
+  await emp.page.getByLabel('Date').fill(tuesday);
   await emp.page.getByLabel('From').fill('10:00');
   await emp.page.getByLabel('Until').fill('11:00');
   await emp.page.getByRole('button', { name: 'Search' }).click();
   await expect(results.getByText('Free for this time')).toBeVisible();
-  await emp.page.getByLabel('Date').fill('2026-11-04');
+  await emp.page.getByLabel('Date').fill(wednesday);
   await emp.page.getByRole('button', { name: 'Search' }).click();
   await expect(results.getByRole('heading', { name: 'No one found' })).toBeVisible();
 
