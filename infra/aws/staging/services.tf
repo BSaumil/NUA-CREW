@@ -235,13 +235,13 @@ resource "aws_ecs_service" "api" {
 }
 
 resource "aws_ecs_service" "worker" {
-  count                   = var.enable_services ? 1 : 0
-  name                    = "${var.project_name}-worker"
-  cluster                 = aws_ecs_cluster.staging.id
-  task_definition         = aws_ecs_task_definition.worker[0].arn
-  desired_count           = 1
-  launch_type             = "FARGATE"
-  enable_execute_command  = false
+  count                  = var.enable_services ? 1 : 0
+  name                   = "${var.project_name}-worker"
+  cluster                = aws_ecs_cluster.staging.id
+  task_definition        = aws_ecs_task_definition.worker[0].arn
+  desired_count          = 1
+  launch_type            = "FARGATE"
+  enable_execute_command = false
 
   network_configuration {
     subnets          = aws_subnet.private[*].id
