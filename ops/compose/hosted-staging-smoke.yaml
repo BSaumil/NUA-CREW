@@ -1,0 +1,47 @@
+# Opt-in internal smoke harness only: points at provisioned private staging Postgres+Redis.
+# It does NOT create AWS services, migrate DBs, or expose a public API.
+# Example: NUA_IMAGE=nua-crew-api:<immutable-sha> docker compose -f ops/compose/hosted-staging-smoke.yaml up
+name: nua-crew-hosted-staging-smoke
+x-shared-env: &shared-env
+  NUA_ENV: staging
+  NUA_DATABASE_URL: ${NUA_DATABASE_URL:?provide_staging_runtime_database_url}
+  NUA_REDIS_URL: ${NUA_REDIS_URL:?provide_private_staging_redis_url}
+  NUA_JWT_SECRET: ${NUA_JWT_SECRET:?provide_a_unique_staging_secret}
+  NUA_CORS_ORIGINS: ${NUA_CORS_ORIGINS:?provide_exact_allowed_https_origins_as_json}
+  NUA_REQUIRE_RLS_SAFE_ROLE: "true"
+  NUA_DOCUMENT_STORAGE: disabled
+  NUA_PUSH_PROVIDER: none
+  NUA_STRIPE_MODE: disabled
+  NUA_PAID_ADVERTISING_ENABLED: "false"
+  NUA_BILLING_TERMS_APPROVED: "false"
+services:
+  api:
+    image: ${NUA_IMAGE:?supply_reviewed_immutable_image}
+    user: "10001:10001"
+    environment: *shared-env
+    ports:
+      - "127.0.0.1:8000:8000"
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    init: true
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz',timeout=3)"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+  worker:
+    image: ${NUA_IMAGE:?supply_reviewed_immutable_image}
+    user: "10001:10001"
+    command: ["python", "-m", "app.worker", "--poll", "10"]
+    environment: *shared-env
+    read_only: true
+    tmpfs: ["/tmp:rw,noexec,nosuid,size=64m"]
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 45s
+    # Worker has no HTTP endpoint: monitor task restarts and durable last-pass evidence.
