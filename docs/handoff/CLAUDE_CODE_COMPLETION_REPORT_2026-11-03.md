@@ -6,12 +6,12 @@ Baseline: `main` at `414f483`. Status words are used strictly: *authored*, *PR o
 
 | Item | Status | Evidence |
 | --- | --- | --- |
-| #26 + #25 combined into one contract and one migration | PR open (draft) [#28](https://github.com/BSaumil/NUA-CREW/pull/28) | CI green: `api`, `web`, `e2e`, `dependency-audit` on `6444d3a` |
+| #26 + #25 combined into one contract and one migration | merged [#28](https://github.com/BSaumil/NUA-CREW/pull/28) | CI green: `api`, `web`, `e2e`, `dependency-audit` on `6444d3a` |
 | Venue corroboration before treating a workplace as Australian | in #28 | Unit tests; `locations.country` AU default no longer counts as evidence |
-| #11 salvaged onto that baseline (3 conflicts, 2 Alembic heads fixed) | PR open (draft) [#29](https://github.com/BSaumil/NUA-CREW/pull/29), stacked on #28 | CI green: `api`, `web`, `e2e`, `dependency-audit`, `android-debug`. `ios-simulator` was still running when this was written |
+| #11 salvaged onto that baseline (3 conflicts, 2 Alembic heads fixed) | merged [#29](https://github.com/BSaumil/NUA-CREW/pull/29), stacked on #28 | CI green: `api`, `web`, `e2e`, `dependency-audit`, `android-debug`, `ios-simulator`. Merged as `f10a55e` |
 | Baseline audit | authored | `docs/release/BASELINE_AUDIT_2026-11-03.md` |
 
-Superseded once #28 and #29 are merged: #25, #26, #11. They were not closed in this batch.
+#25, #26 and #11 were closed as superseded.
 
 ## Local verification (real Postgres, least-privilege roles)
 
@@ -41,3 +41,9 @@ Nothing was deployed from this batch. The marketing site from `414f483` is live 
 3. `docs/IMPLEMENTATION_TRACKER.md`: reconcile the merged sections against actual verification (both sides were kept as a union).
 4. Copy review of the NZ preview notices in `packages/ui/src/market.tsx` and `apps/mobile/src/features/markets.ts`.
 5. Confirm the AU `prelaunch` informational flag in `/v1/markets` is not read by any client as a reason to disable existing AU routes.
+
+## Update, 4 November 2026
+- Merged: #28 (`bb930e8`), #29 (`f10a55e`). Marketing site build for `f10a55e` was READY at `iksaa.com.au`. Nothing else is deployed.
+- Journey run on the local stack, 12 real screenshots, and the reports are in `docs/qa/`, `docs/release/LAUNCH_GATE_AU_NZ.md`, `docs/architecture/`, `docs/compliance/`, `docs/security/`.
+- The migration go/no-go and deployment-target decisions are packaged for ChatGPT in `docs/handoff/CHATGPT_DECISION_PACKET_2026-11-04.md`.
+- Stripe test mode was skipped by the owner for now; its document and tests are not written.

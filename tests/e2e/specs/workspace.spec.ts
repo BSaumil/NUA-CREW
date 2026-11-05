@@ -29,13 +29,11 @@ for (const colorScheme of ['light', 'dark'] as const) {
       await expect(page.getByRole('heading', { level: 1, name: title, exact: true })).toBeVisible();
       await expect(page.locator('body')).not.toContainText(/\bAI\b|artificial intelligence/);
       if (route === '/documents') {
-        await expect(
-          page.getByRole('group', { name: 'Upload a private document' }),
-        ).toHaveAttribute('disabled', '');
-        await expect(page.getByLabel('Choose a file, up to 4 MB')).toBeDisabled();
+        // While storage is not connected there is no upload form to tempt anyone, only the notice.
+        await expect(page.getByRole('group', { name: 'Upload a private document' })).toHaveCount(0);
         await expect(
           page.getByRole('button', { name: 'Upload document', exact: true }),
-        ).toBeDisabled();
+        ).toHaveCount(0);
         await expect(
           page.getByText('Document uploads are not connected yet.', { exact: false }),
         ).toBeVisible();

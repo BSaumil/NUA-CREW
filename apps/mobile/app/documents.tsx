@@ -211,98 +211,101 @@ export default function Documents() {
       <Text accessibilityRole="status">
         {String(status.data?.message ?? 'Checking upload availability…')}
       </Text>
-      <Card>
-        <Text variant="heading">Upload a document</Text>
-        <Row>
-          {KINDS.map(([value, label]) => (
-            <Chip
-              key={value}
-              label={label}
-              selected={kind === value}
-              disabled={upload.isPending}
-              onPress={() => {
-                cleanup(current.current);
-                current.current = null;
-                setSelected(null);
-                setKind(value);
-              }}
-            />
-          ))}
-        </Row>
-        <Field
-          label="Document name"
-          value={title}
-          onChangeText={setTitle}
-          maxLength={160}
-          editable={!upload.isPending}
-        />
-        {kind !== 'resume' ? (
-          <>
-            <Field
-              label="Issuer (optional)"
-              value={issuer}
-              onChangeText={setIssuer}
-              maxLength={160}
-              editable={!upload.isPending}
-            />
-            <Text variant="label">State or territory</Text>
-            <Row>
-              {(['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] as const).map((s) => (
-                <Chip
-                  key={s}
-                  label={s}
-                  selected={state === s}
-                  onPress={() => setState(state === s ? null : s)}
-                  disabled={upload.isPending}
-                />
-              ))}
-            </Row>
-            <Field
-              label="Completed on (YYYY-MM-DD, optional)"
-              value={completed}
-              onChangeText={setCompleted}
-              editable={!upload.isPending}
-            />
-            <Field
-              label="Refresher / review due (YYYY-MM-DD, optional)"
-              value={due}
-              onChangeText={setDue}
-              editable={!upload.isPending}
-            />
-          </>
-        ) : null}
-        <Button
-          title={selected ? 'Choose a different file' : 'Choose file'}
-          variant="secondary"
-          disabled={!enabled || upload.isPending}
-          onPress={() => void pick(false)}
-        />
-        {kind !== 'resume' && Platform.OS !== 'web' ? (
+      {/* Hidden until storage and scanning are connected; the status message above says why. */}
+      {enabled ? (
+        <Card>
+          <Text variant="heading">Upload a document</Text>
+          <Row>
+            {KINDS.map(([value, label]) => (
+              <Chip
+                key={value}
+                label={label}
+                selected={kind === value}
+                disabled={upload.isPending}
+                onPress={() => {
+                  cleanup(current.current);
+                  current.current = null;
+                  setSelected(null);
+                  setKind(value);
+                }}
+              />
+            ))}
+          </Row>
+          <Field
+            label="Document name"
+            value={title}
+            onChangeText={setTitle}
+            maxLength={160}
+            editable={!upload.isPending}
+          />
+          {kind !== 'resume' ? (
+            <>
+              <Field
+                label="Issuer (optional)"
+                value={issuer}
+                onChangeText={setIssuer}
+                maxLength={160}
+                editable={!upload.isPending}
+              />
+              <Text variant="label">State or territory</Text>
+              <Row>
+                {(['ACT', 'NSW', 'NT', 'QLD', 'SA', 'TAS', 'VIC', 'WA'] as const).map((s) => (
+                  <Chip
+                    key={s}
+                    label={s}
+                    selected={state === s}
+                    onPress={() => setState(state === s ? null : s)}
+                    disabled={upload.isPending}
+                  />
+                ))}
+              </Row>
+              <Field
+                label="Completed on (YYYY-MM-DD, optional)"
+                value={completed}
+                onChangeText={setCompleted}
+                editable={!upload.isPending}
+              />
+              <Field
+                label="Refresher / review due (YYYY-MM-DD, optional)"
+                value={due}
+                onChangeText={setDue}
+                editable={!upload.isPending}
+              />
+            </>
+          ) : null}
           <Button
-            title="Photograph certificate"
+            title={selected ? 'Choose a different file' : 'Choose file'}
             variant="secondary"
             disabled={!enabled || upload.isPending}
-            onPress={() => void pick(true)}
+            onPress={() => void pick(false)}
           />
-        ) : null}
-        {selected ? (
-          <Text>
-            {selected.name} · {(selected.size / 1024 / 1024).toFixed(1)} MB
-          </Text>
-        ) : null}
-        <Button
-          title="Upload and scan"
-          disabled={!enabled || !selected}
-          loading={upload.isPending}
-          onPress={() => void save()}
-        />
-        {error ? (
-          <Text accessibilityRole="alert" color={colors.danger}>
-            {error}
-          </Text>
-        ) : null}
-        {notice ? <Text accessibilityRole="status">{notice}</Text> : null}
-      </Card>
+          {kind !== 'resume' && Platform.OS !== 'web' ? (
+            <Button
+              title="Photograph certificate"
+              variant="secondary"
+              disabled={!enabled || upload.isPending}
+              onPress={() => void pick(true)}
+            />
+          ) : null}
+          {selected ? (
+            <Text>
+              {selected.name} · {(selected.size / 1024 / 1024).toFixed(1)} MB
+            </Text>
+          ) : null}
+          <Button
+            title="Upload and scan"
+            disabled={!enabled || !selected}
+            loading={upload.isPending}
+            onPress={() => void save()}
+          />
+          {error ? (
+            <Text accessibilityRole="alert" color={colors.danger}>
+              {error}
+            </Text>
+          ) : null}
+          {notice ? <Text accessibilityRole="status">{notice}</Text> : null}
+        </Card>
+      ) : null}
       <Text variant="heading">Saved documents</Text>
       {docs.isError ? (
         <ErrorState message={messageOf(docs.error)} onRetry={() => void docs.refetch()} />
