@@ -1,4 +1,8 @@
 terraform {
+  # Enforce remote, encrypted, access-controlled state when applying. Configure an
+  # owner-managed S3 backend at terraform init; CI validates with -backend=false.
+  backend "s3" {}
+
   required_version = ">= 1.7.0"
 
   required_providers {
