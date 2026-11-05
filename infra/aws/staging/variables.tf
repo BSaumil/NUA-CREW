@@ -23,6 +23,10 @@ variable "allowed_https_cidrs" {
   description = "Explicit IP ranges allowed to reach the staging API HTTPS load balancer; empty means CLOSED."
   type        = list(string)
   default     = []
+  validation {
+    condition     = alltrue([for cidr in var.allowed_https_cidrs : cidr != "0.0.0.0/0" && cidr != "::/0"])
+    error_message = "Staging HTTPS may never accept an internet-wide CIDR; approve narrow source ranges."
+  }
 }
 
 variable "acm_certificate_arn" {
