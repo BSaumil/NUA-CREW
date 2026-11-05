@@ -1,0 +1,40 @@
+name: staging-container
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'services/api/Dockerfile'
+      - 'services/api/.dockerignore'
+      - 'services/api/app/**'
+      - 'services/api/alembic/**'
+      - 'services/api/alembic.ini'
+      - 'services/api/pyproject.toml'
+      - 'services/api/uv.lock'
+      - '.github/workflows/staging-container.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'services/api/Dockerfile'
+      - 'services/api/.dockerignore'
+      - 'services/api/app/**'
+      - 'services/api/alembic/**'
+      - 'services/api/alembic.ini'
+      - 'services/api/pyproject.toml'
+      - 'services/api/uv.lock'
+      - '.github/workflows/staging-container.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  image-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build the locked, non-root API and worker image
+        run: docker build --pull --tag nua-crew-api:test services/api
+      - name: Validate runtime identity and Python imports (no service credentials)
+        run: |
+          docker run --rm --entrypoint id nua-crew-api:test -u
+          test "$(docker run --rm --entrypoint id nua-crew-api:test -u)" = 10001
+          docker run --rm --entrypoint python nua-crew-api:test -c "from app.main import create_app; from app.worker import run_once; assert create_app().title == 'NUA CREW API'; print('packaging ok')"
