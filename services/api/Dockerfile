@@ -17,6 +17,6 @@ COPY --chown=nua:nua alembic ./alembic
 COPY --chown=nua:nua alembic.ini ./alembic.ini
 USER nua
 EXPOSE 8000
-# Liveness only; the orchestrator separately checks /readyz for database readiness.
-HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/healthz', timeout=4)" || exit 1
+# Set API liveness (/healthz) and readiness (/readyz) in ECS, not in this shared
+# image: a worker container does not listen on 8000 and needs different health checks.
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers"]
