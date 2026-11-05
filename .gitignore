@@ -31,3 +31,11 @@ appendonlydir/
 
 # Private development documents must never enter source history.
 **/.private-documents/
+
+# Terraform
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfvars
+!*.tfvars.example

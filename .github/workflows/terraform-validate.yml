@@ -1,0 +1,46 @@
+name: terraform-validate
+# Static checks only. This workflow has no cloud credentials and never runs plan or apply.
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'infra/terraform/**'
+      - 'scripts/staging-smoke.sh'
+      - '.github/workflows/terraform-validate.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'infra/terraform/**'
+      - 'scripts/staging-smoke.sh'
+      - '.github/workflows/terraform-validate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/terraform/staging
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.17.1
+          terraform_wrapper: false
+      - name: Formatting
+        run: terraform fmt -check -recursive
+      - name: Initialise providers (no backend, no credentials)
+        run: terraform init -backend=false -input=false
+      - name: Validate
+        run: terraform validate
+
+  smoke-script:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Shell syntax and lint
+        run: |
+          bash -n scripts/staging-smoke.sh
+          shellcheck scripts/staging-smoke.sh

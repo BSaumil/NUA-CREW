@@ -1,0 +1,22 @@
+# Copy to terraform.tfvars (which is git-ignored) and fill in. No secrets belong in this file.
+# Secret VALUES (JWT secret, database URLs) are entered directly in AWS Secrets Manager.
+
+environment = "nua-crew-staging"
+
+# Pinned by digest. Take it from the ECR push result or `aws ecr describe-images`.
+image_uri = "123456789012.dkr.ecr.ap-southeast-2.amazonaws.com/nua-crew-api@sha256:REPLACE_WITH_64_HEX_CHARS"
+
+# Certificate for the approved API hostname, issued and validated by the owner in ACM (ap-southeast-2).
+acm_certificate_arn = "arn:aws:acm:ap-southeast-2:123456789012:certificate/REPLACE"
+
+# Exact HTTPS origins of the candidate and employer web apps (and exact preview origins once assigned).
+cors_origins = [
+  # "https://jobs.crew.example.com.au",
+  # "https://hire.crew.example.com.au",
+]
+
+# Who may reach the load balancer. Empty keeps it closed.
+alb_ingress_cidrs = []
+
+alert_emails       = ["owner@example.com"]
+monthly_budget_usd = 0 # the owner sets this; a value of 0 is rejected
