@@ -1,0 +1,63 @@
+name: staging-preflight
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'db/preflight/**'
+      - 'ops/compose/hosted-staging-smoke.yaml'
+      - '.github/workflows/staging-preflight.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  preflight-dry-run:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres_ci
+          POSTGRES_DB: nua_crew_preflight
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
+    defaults:
+      run:
+        working-directory: services/api
+    env:
+      NUA_DATABASE_URL: postgresql+asyncpg://nua_runtime:nua_runtime_ci@localhost:5432/nua_crew_preflight
+      NUA_MIGRATION_DATABASE_URL: postgresql+asyncpg://nua_migrator:nua_migrator_ci@localhost:5432/nua_crew_preflight
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - name: Prepare isolated roles and database
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends postgresql-client >/dev/null
+          PGPASSWORD=postgres_ci psql -h localhost -U postgres -d nua_crew_preflight -v ON_ERROR_STOP=1 \
+            -v migrator_password=nua_migrator_ci -v runtime_password=nua_runtime_ci \
+            -f ../../db/roles/bootstrap.sql
+      - run: uv sync --frozen
+      - name: Rehearse all existing revisions on clean isolated Postgres
+        run: uv run alembic upgrade head
+      - name: Execute read-only country and pricing preflight
+        run: |
+          PGPASSWORD=nua_migrator_ci psql -X -h localhost -U nua_migrator \
+            -d nua_crew_preflight -v ON_ERROR_STOP=1 \
+            -f ../../db/preflight/20261105_country_pricing_readonly.sql
+      - name: Confirm no migration was applied by the preflight
+        run: |
+          PGPASSWORD=nua_migrator_ci psql -X -h localhost -U nua_migrator \
+            -d nua_crew_preflight -v ON_ERROR_STOP=1 -Atc \
+            "SELECT version_num FROM alembic_version" | grep -Fx 'd66e11cc1006'
+      - name: Check protected staging Compose syntax without actual credentials
+        working-directory: .
+        env:
+          NUA_IMAGE: nua-crew-api:CI-only
+          NUA_DATABASE_URL: postgresql+asyncpg://ci:ci@localhost:5432/nua
+          NUA_REDIS_URL: redis://localhost:6379/0
+          NUA_JWT_SECRET: ci-only-no-real-secret-with-32chars!
+          NUA_CORS_ORIGINS: '["https://example.invalid"]'
+        run: docker compose -f ops/compose/hosted-staging-smoke.yaml config --quiet
