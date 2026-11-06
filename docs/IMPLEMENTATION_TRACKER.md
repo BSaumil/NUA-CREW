@@ -130,6 +130,8 @@ See `ACCOUNT_BILLING_PLAN.md` for the owner's prices and delivery phases. Draft 
 | Requirement                                        | Status      | Evidence                                                                                    |
 | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
 | Employer registration + roles (owner/recruiter/viewer) | DONE    | `test_roles_and_decision_rules`                                                             |
+| Duplicate / repost a job as a new draft            | DONE        | `tests/test_job_duplicate.py` (7), employer web e2e `reposts a closed job`, mobile `hire-job-duplicate.test.tsx`. Copy never carries the pay check, closing date, past dates or applicants; role-based copies must be re-checked before publish |
+| Saved searches and job alerts on candidate web      | DONE        | API and mobile existed. Web: save from `/jobs`, list/toggle/delete at `/saved-searches`; `saved-searches.spec.ts`, `notificationHref` unit test. Web saves keyword, suburb and type only; phone-only filters are listed, not dropped. Alerts stay in-app/push, no email |
 | Employer verification gate before publishing       | DONE        | `test_unverified_employer_cannot_publish`; admin review endpoint audited                    |
 | ABN checksum                                       | DONE        | unit test. **Checksum ≠ verification**; no ABR lookup (needs approved source/credentials)   |
 | Job CRUD, pay fields, versions, unpublish          | DONE        | API tests + e2e `employer edits a live job…`                                                |
@@ -279,6 +281,8 @@ Design: ADR-010. Migration `d04d303111e7`. Pricing/billing foundation: `docs/ACC
 | Require a role to publish (`NUA_REQUIRE_ROLE_ON_PUBLISH`, default off) | DONE, flag off | `test_hospitality_api.py::test_role_can_be_required_to_publish`; turn on only after existing adverts are reconciled |
 | Require a hospitality role to publish             | PARTIAL     | Setting exists and stays OFF (owner decision). Reconciliation built: employer gap list + guided add-role flow, operator `role-coverage` count; `test_role_reconciliation.py`, `role-reconciliation.spec.ts`. Not done: mobile add-role flow; actually enabling the setting |
 | Admin verification of rates against Fair Work | PARTIAL | verify endpoints exist; no one has verified any rate; needs a person with the official pay guide |
+
+| Admin verification of rates against Fair Work | PARTIAL | Workflow built: operator page `/admin/rates` (employer app), list/verify/withdraw for hourly rates and penalty rules, verification bound to the checked figure (stale figure = 409), no silent re-verify, audited with figure and reason; `test_rate_verification.py`, `rate-verification.spec.ts`. **Still no rate is verified**: that needs a person with the official pay guide. Tracker stays PARTIAL until they do |
 | Clubs weekend/PH, overtime, allowances, junior/apprentice rates, holiday calendars | BLOCKED | no source data supplied; engine reports them as not assessed |
 | Attendance screens, qualifications, discovery by availability, device testing, real sign-in, legal text, hosting | NOT_STARTED | see the final message of this session for what each needs |
 | e2e: one CI retry plus JSON report so flaky specs are named | DONE | `tests/e2e/playwright.config.ts` |

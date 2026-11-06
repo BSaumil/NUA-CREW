@@ -5,6 +5,7 @@ import {
   useHireApplicants,
   useHireBusiness,
   useHireJob,
+  useHireDuplicate,
   useHireJobAction,
 } from '@/api/hire';
 import { messageOf } from '@/api/client';
@@ -42,6 +43,7 @@ function JobContent({ id }: { id: string }) {
   const business = useHireBusiness();
   const applicants = useHireApplicants(id);
   const action = useHireJobAction(id);
+  const duplicate = useHireDuplicate(id);
   const [stage, setStage] = useState('all');
   const [error, setError] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<'publish' | 'unpublish' | 'close' | null>(null);
@@ -94,6 +96,24 @@ function JobContent({ id }: { id: string }) {
         <Text accessibilityRole="alert" color={colors.danger}>
           {error}
         </Text>
+      ) : null}
+      {canRecruit(role) ? (
+        <Row>
+          <Button
+            title="Duplicate as new draft"
+            variant="secondary"
+            loading={duplicate.isPending}
+            onPress={async () => {
+              setError(null);
+              try {
+                const copy = await duplicate.mutateAsync(undefined);
+                router.replace({ pathname: '/hire-job/[id]', params: { id: copy.id } });
+              } catch (e) {
+                setError(messageOf(e));
+              }
+            }}
+          />
+        </Row>
       ) : null}
       {canRecruit(role) && editable ? (
         <Row>

@@ -4873,6 +4873,116 @@
         "title": "PayAssessmentResult",
         "type": "object"
       },
+      "PenaltyRuleAdminOut": {
+        "properties": {
+          "classification_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Classification Codes",
+            "type": "array"
+          },
+          "data_status": {
+            "enum": [
+              "supplied_unverified",
+              "verified"
+            ],
+            "title": "Data Status",
+            "type": "string"
+          },
+          "day_kind": {
+            "title": "Day Kind",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
+          "employment": {
+            "enum": [
+              "permanent",
+              "casual"
+            ],
+            "title": "Employment",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "multiplier_bp": {
+            "title": "Multiplier Bp",
+            "type": "integer"
+          },
+          "source_note": {
+            "title": "Source Note",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At"
+          },
+          "verified_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified By"
+          }
+        },
+        "required": [
+          "id",
+          "instrument",
+          "employment",
+          "day_kind",
+          "classification_codes",
+          "multiplier_bp",
+          "effective_from",
+          "effective_to",
+          "source_url",
+          "source_note",
+          "data_status",
+          "verified_at",
+          "verified_by"
+        ],
+        "title": "PenaltyRuleAdminOut",
+        "type": "object"
+      },
       "PenaltyRuleIn": {
         "properties": {
           "classification_codes": {
@@ -5374,6 +5484,104 @@
         "title": "RateSourceOut",
         "type": "object"
       },
+      "RateVersionAdminOut": {
+        "properties": {
+          "classification": {
+            "title": "Classification",
+            "type": "string"
+          },
+          "data_status": {
+            "enum": [
+              "supplied_unverified",
+              "verified"
+            ],
+            "title": "Data Status",
+            "type": "string"
+          },
+          "effective_from": {
+            "format": "date",
+            "title": "Effective From",
+            "type": "string"
+          },
+          "effective_to": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Effective To"
+          },
+          "hourly_minor": {
+            "title": "Hourly Minor",
+            "type": "integer"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "instrument": {
+            "title": "Instrument",
+            "type": "string"
+          },
+          "source_note": {
+            "title": "Source Note",
+            "type": "string"
+          },
+          "source_url": {
+            "title": "Source Url",
+            "type": "string"
+          },
+          "verified_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified At"
+          },
+          "verified_by": {
+            "anyOf": [
+              {
+                "format": "uuid",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verified By"
+          },
+          "weekly_minor": {
+            "title": "Weekly Minor",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "id",
+          "instrument",
+          "classification",
+          "effective_from",
+          "effective_to",
+          "hourly_minor",
+          "weekly_minor",
+          "source_url",
+          "source_note",
+          "data_status",
+          "verified_at",
+          "verified_by"
+        ],
+        "title": "RateVersionAdminOut",
+        "type": "object"
+      },
       "RateVersionIn": {
         "description": "A new effective-dated rate. It is stored as supplied_unverified until someone verifies it.",
         "properties": {
@@ -5719,6 +5927,21 @@
           "reason_code"
         ],
         "title": "ReviewReportIn",
+        "type": "object"
+      },
+      "RevokeIn": {
+        "properties": {
+          "reason": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reason"
+        ],
+        "title": "RevokeIn",
         "type": "object"
       },
       "RoleCoverageOut": {
@@ -7597,8 +7820,14 @@
         "title": "VerifyEmployerIn",
         "type": "object"
       },
-      "VerifyIn": {
+      "VerifyPenaltyIn": {
         "properties": {
+          "confirm_multiplier_bp": {
+            "maximum": 40000.0,
+            "minimum": 5000.0,
+            "title": "Confirm Multiplier Bp",
+            "type": "integer"
+          },
           "source_note": {
             "maxLength": 2000,
             "minLength": 10,
@@ -7607,9 +7836,32 @@
           }
         },
         "required": [
-          "source_note"
+          "source_note",
+          "confirm_multiplier_bp"
         ],
-        "title": "VerifyIn",
+        "title": "VerifyPenaltyIn",
+        "type": "object"
+      },
+      "VerifyRateIn": {
+        "properties": {
+          "confirm_hourly_minor": {
+            "exclusiveMinimum": 0.0,
+            "maximum": 100000.0,
+            "title": "Confirm Hourly Minor",
+            "type": "integer"
+          },
+          "source_note": {
+            "maxLength": 2000,
+            "minLength": 10,
+            "title": "Source Note",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_note",
+          "confirm_hourly_minor"
+        ],
+        "title": "VerifyRateIn",
         "type": "object"
       },
       "WorkPreferenceIn": {
@@ -8051,6 +8303,88 @@
       }
     },
     "/v1/admin/awards/penalty-rules": {
+      "get": {
+        "operationId": "list_penalty_rules_v1_admin_awards_penalty_rules_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "instrument",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "MA000119",
+                    "MA000009",
+                    "MA000003",
+                    "MA000058"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Instrument"
+            }
+          },
+          {
+            "in": "query",
+            "name": "data_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "supplied_unverified",
+                    "verified"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Data Status"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/PenaltyRuleAdminOut"
+                  },
+                  "title": "Response List Penalty Rules V1 Admin Awards Penalty Rules Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List Penalty Rules",
+        "tags": [
+          "admin"
+        ]
+      },
       "post": {
         "description": "Load a weekend, holiday or other multiplier. It replaces an identical-scope rule from its\nstart date; a partly overlapping rule is refused so a lookup is never ambiguous.",
         "operationId": "add_penalty_rule_v1_admin_awards_penalty_rules_post",
@@ -8101,6 +8435,68 @@
         ]
       }
     },
+    "/v1/admin/awards/penalty-rules/{rule_id}/revoke": {
+      "post": {
+        "operationId": "revoke_penalty_v1_admin_awards_penalty_rules__rule_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "rule_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Rule Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Revoke Penalty V1 Admin Awards Penalty Rules  Rule Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Revoke Penalty",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/awards/penalty-rules/{rule_id}/verify": {
       "post": {
         "operationId": "verify_penalty_v1_admin_awards_penalty_rules__rule_id__verify_post",
@@ -8120,7 +8516,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VerifyIn"
+                "$ref": "#/components/schemas/VerifyPenaltyIn"
               }
             }
           },
@@ -8238,6 +8634,26 @@
               ],
               "title": "Instrument"
             }
+          },
+          {
+            "in": "query",
+            "name": "data_status",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "supplied_unverified",
+                    "verified"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Data Status"
+            }
           }
         ],
         "responses": {
@@ -8246,8 +8662,7 @@
               "application/json": {
                 "schema": {
                   "items": {
-                    "additionalProperties": true,
-                    "type": "object"
+                    "$ref": "#/components/schemas/RateVersionAdminOut"
                   },
                   "title": "Response List Rate Versions V1 Admin Awards Rate Versions Get",
                   "type": "array"
@@ -8327,6 +8742,69 @@
         ]
       }
     },
+    "/v1/admin/awards/rate-versions/{version_id}/revoke": {
+      "post": {
+        "description": "Withdraw a verification (found to be wrong, or the guide changed). The figures stay.",
+        "operationId": "revoke_rate_v1_admin_awards_rate_versions__version_id__revoke_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "version_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Version Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RevokeIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "title": "Response Revoke Rate V1 Admin Awards Rate Versions  Version Id  Revoke Post",
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Revoke Rate",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
     "/v1/admin/awards/rate-versions/{version_id}/verify": {
       "post": {
         "operationId": "verify_rate_v1_admin_awards_rate_versions__version_id__verify_post",
@@ -8346,7 +8824,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/VerifyIn"
+                "$ref": "#/components/schemas/VerifyRateIn"
               }
             }
           },
@@ -14363,6 +14841,65 @@
           }
         ],
         "summary": "Close Job",
+        "tags": [
+          "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/jobs/{job_id}/duplicate": {
+      "post": {
+        "description": "Start a new draft from an existing job (repost a role, or one ad for a second venue).\n\nCopies what describes the work. Deliberately not copied: the pay check (it describes a past\nassessment, so a role-based copy must be re-checked before it can publish), the closing date,\nand start/end dates that have already passed. Applications, promotions and status are never\ncarried over. The copy is a draft and must go through the normal publish gate.",
+        "operationId": "duplicate_job_v1_employers__employer_id__jobs__job_id__duplicate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Duplicate Job",
         "tags": [
           "employer"
         ]

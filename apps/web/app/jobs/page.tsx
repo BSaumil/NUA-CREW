@@ -1,9 +1,10 @@
 import type { Metadata } from 'next';
 import { listMarkets } from '@nua-crew/markets';
 import { EmptyState, JobCard } from '@nua-crew/ui';
-import { api, toCard } from '@/lib/api';
+import { api, getViewer, toCard } from '@/lib/api';
 import { planSearch } from '@/lib/search-markets';
-import { flashFrom } from '../components';
+import { saveSearch } from '../actions';
+import { Flash, flashFrom } from '../components';
 
 export const metadata: Metadata = { title: 'Find jobs' };
 
@@ -21,7 +22,8 @@ export default async function Jobs({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { p } = await flashFrom(searchParams);
+  const { p, error, notice } = await flashFrom(searchParams);
+  const viewer = await getViewer();
   const one = (k: string) =>
     (Array.isArray(p[k]) ? p[k]![0] : (p[k] as string | undefined)) || undefined;
   const rawMarkets = p['markets'];
@@ -56,6 +58,7 @@ export default async function Jobs({
   return (
     <div className="nua-stack">
       <h1>Find jobs</h1>
+      <Flash error={error} notice={notice} />
       <form method="get" role="search" aria-label="Filter jobs" className="nua-card">
         <div className="nua-grid">
           <div className="nua-field">
@@ -116,6 +119,30 @@ export default async function Jobs({
       <p role="status" className="nua-muted">
         {total} {total === 1 ? 'job' : 'jobs'} found
       </p>
+      {viewer?.role === 'candidate' ? (
+        <form action={saveSearch} className="nua-card nua-stack" aria-label="Save this search">
+          <input type="hidden" name="q" value={query.q ?? ''} />
+          <input type="hidden" name="suburb" value={query.suburb ?? ''} />
+          <input type="hidden" name="type" value={query.employment_type ?? ''} />
+          <div className="nua-field">
+            <label htmlFor="search-name">Name this search</label>
+            <input id="search-name" name="name" maxLength={200} />
+          </div>
+          <label className="nua-market-choice__option">
+            <input type="checkbox" name="alerts" defaultChecked />
+            <span>Tell me when new jobs match</span>
+          </label>
+          <p className="nua-hint">
+            Saves keywords, suburb and employment type.{' '}
+            <a href="/saved-searches">Your saved searches</a>
+          </p>
+          <p>
+            <button className="nua-button nua-button--secondary" type="submit">
+              Save this search
+            </button>
+          </p>
+        </form>
+      ) : null}
       {jobs.length === 0 ? (
         <EmptyState title="No jobs match yet" description="Try fewer filters or a nearby suburb." />
       ) : (

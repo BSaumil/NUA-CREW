@@ -46,3 +46,11 @@ it('notification payloads cannot supply an open redirect or another tenant path'
     '/messages/c-1',
   );
 });
+
+it('job alerts open the saved-searches page for candidates and never follow payload urls', () => {
+  expect(
+    notificationHref('job.alert', { saved_search_id: 'x', url: 'https://evil.invalid' }, false),
+  ).toBe('/saved-searches');
+  // Employers never receive job alerts; a stray one must not open a candidate-only page.
+  expect(notificationHref('job.alert', {}, true)).toBe('/');
+});

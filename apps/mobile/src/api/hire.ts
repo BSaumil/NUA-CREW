@@ -110,6 +110,15 @@ export const useHireJobAction = (jobId: string) =>
       await api.POST(paths[action], { params: { path: { employer_id: id, job_id: jobId } } }),
     );
   });
+/** Copies a job into a new draft (never its pay check, closing date or applicants). */
+export const useHireDuplicate = (jobId: string) =>
+  useHireMutation(async (id) =>
+    unwrap(
+      await api.POST('/v1/employers/{employer_id}/jobs/{job_id}/duplicate', {
+        params: { path: { employer_id: id, job_id: jobId } },
+      }),
+    ),
+  );
 export const useHireDecision = (applicationId: string) =>
   useHireMutation(async (id, input: Schemas['StatusChangeIn']) =>
     unwrap(

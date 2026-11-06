@@ -3,7 +3,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { api, COOKIE, errorMessage, TOKEN_MAX_AGE_S } from '@/lib/api';
+import { api, COOKIE, errorMessage, requireCandidate, TOKEN_MAX_AGE_S } from '@/lib/api';
 
 const back = (path: string, kind: 'error' | 'notice', msg: string) =>
   redirect(`${path}${path.includes('?') ? '&' : '?'}${kind}=${encodeURIComponent(msg)}`);
@@ -242,4 +242,64 @@ export async function resendVerification() {
   if (!data.email_delivery)
     return back('/verify-email', 'error', 'Email is not switched on in this environment yet.');
   return back('/verify-email', 'notice', 'We have emailed you a new confirmation link.');
+}
+
+// ---- saved searches and job alerts ----
+const SEARCH_TYPES = ['full_time', 'part_time', 'casual', 'contract', 'shift'] as const;
+type SearchType = (typeof SEARCH_TYPES)[number];
+
+export async function saveSearch(form: FormData) {
+  await requireCandidate();
+  const q = str(form, 'q');
+  const suburb = str(form, 'suburb');
+  const type = str(form, 'type');
+  const back_to = `/jobs?${new URLSearchParams(
+    Object.entries({ q, suburb, type }).filter((e) => e[1]),
+  ).toString()}`;
+  if (!q && !suburb && !type)
+    back(back_to, 'error', 'Choose at least one filter before saving a search.');
+  const name = str(form, 'name') || [q, suburb].filter(Boolean).join(' in ') || 'My search';
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/saved-searches', {
+    body: {
+      name: name.slice(0, 200),
+      params: {
+        q: q || null,
+        suburb: suburb || null,
+        employment_type: (SEARCH_TYPES as readonly string[]).includes(type)
+          ? (type as SearchType)
+          : null,
+      },
+      alerts_enabled: form.get('alerts') === 'on',
+    },
+  });
+  if (error) back(back_to, 'error', errorMessage(error));
+  revalidatePath('/saved-searches');
+  back('/saved-searches', 'notice', 'Search saved.');
+}
+
+export async function setSearchAlerts(form: FormData) {
+  await requireCandidate();
+  const id = str(form, 'search_id');
+  const on = str(form, 'alerts') === 'on';
+  const { error } = await (
+    await api()
+  ).PATCH('/v1/candidate/saved-searches/{search_id}', {
+    params: { path: { search_id: id } },
+    body: { alerts_enabled: on },
+  });
+  if (error) back('/saved-searches', 'error', errorMessage(error));
+  back('/saved-searches', 'notice', on ? 'Alerts turned on.' : 'Alerts turned off.');
+}
+
+export async function deleteSearch(form: FormData) {
+  await requireCandidate();
+  const { error } = await (
+    await api()
+  ).DELETE('/v1/candidate/saved-searches/{search_id}', {
+    params: { path: { search_id: str(form, 'search_id') } },
+  });
+  if (error) back('/saved-searches', 'error', errorMessage(error));
+  back('/saved-searches', 'notice', 'Search deleted.');
 }
