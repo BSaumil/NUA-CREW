@@ -27,6 +27,9 @@ export default async function Login({
         <div>
           <Button type="submit">Log in</Button>
         </div>
+        <p className="nua-hint">
+          <a href="/forgot-password">Forgot your password?</a>
+        </p>
       </form>
       <p>
         New business? <a href="/register">Register your business</a>

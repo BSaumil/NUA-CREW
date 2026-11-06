@@ -3988,6 +3988,11 @@
             "title": "Email",
             "type": "string"
           },
+          "email_delivery": {
+            "default": false,
+            "title": "Email Delivery",
+            "type": "boolean"
+          },
           "email_verified": {
             "default": false,
             "title": "Email Verified",

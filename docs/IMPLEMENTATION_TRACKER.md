@@ -149,7 +149,8 @@ See `ACCOUNT_BILLING_PLAN.md` for the owner's prices and delivery phases. Draft 
 | Saved jobs, saved searches + alerts, push registry/delivery adapter | DONE | `tests/test_mobile_api.py`. Push provider disabled by default; **no real push sent in any test** |
 | Near-me search, pay floor, sort                    | DONE        | `test_near_me_pay_floor_and_sorting`. Coordinates come from an approximate suburb table, not a licensed gazetteer |
 | Rate limiting                                      | DONE        | Redis sliding window (atomic Lua) with in-process fallback; auth, application and job-create limits; `tests/test_ratelimit.py` against real Redis. Bot challenges/risk tiers NOT_STARTED |
-| Email/phone verification                           | NOT_STARTED |                                                                                             |
+| Password reset and email verification              | IN_PROGRESS | API, web (both apps) and mobile built; `test_account_recovery.py`, `account-recovery.spec.ts`, mobile `account-recovery.test.tsx`. No email provider chosen (ADR-012): nothing is sent unless `NUA_EMAIL_PROVIDER` is set; DONE only once a provider is approved and verified |
+| Phone verification                                 | NOT_STARTED |                                                                                             |
 
 ## P2 — ingestion and search
 

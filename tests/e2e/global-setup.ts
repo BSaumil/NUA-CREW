@@ -1,4 +1,5 @@
 import { execFileSync } from 'node:child_process';
+import { rmSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const api = resolve(__dirname, '../../services/api');
@@ -14,6 +15,7 @@ export const E2E_MIGRATION_DB =
 
 /** Rebuilds the e2e database from migrations and loads development-only fixture data. */
 export default function globalSetup() {
+  rmSync(resolve(__dirname, '.mail'), { recursive: true, force: true }); // start with an empty mailbox
   const env = {
     ...process.env,
     NUA_DATABASE_URL: E2E_DB,

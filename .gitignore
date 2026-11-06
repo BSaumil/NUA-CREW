@@ -31,3 +31,6 @@ appendonlydir/
 
 # Private development documents must never enter source history.
 **/.private-documents/
+
+# Development mail written by the e2e API
+tests/e2e/.mail/

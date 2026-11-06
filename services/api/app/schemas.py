@@ -173,6 +173,8 @@ class MeOut(BaseModel):
     id: uuid.UUID
     email: str
     email_verified: bool = False
+    # Whether this deployment can send email at all, so screens only offer what can work.
+    email_delivery: bool = False
     role: str
     memberships: list[MembershipOut] = []
 

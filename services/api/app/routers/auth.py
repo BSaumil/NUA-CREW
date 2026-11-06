@@ -26,7 +26,7 @@ from app.schemas import (
     TokenOut,
 )
 from app.security import create_access_token, hash_password, verify_password
-from app.services import recovery, tokens
+from app.services import email, recovery, tokens
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -159,6 +159,7 @@ async def me(user: CurrentUser, session: Session) -> MeOut:
         id=user.id,
         email=user.email,
         email_verified=user.email_verified_at is not None,
+        email_delivery=email.delivery_enabled(),
         role=user.role,
         memberships=[MembershipOut.model_validate(m) for m in members],
     )

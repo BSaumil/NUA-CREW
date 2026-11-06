@@ -189,3 +189,57 @@ export async function saveMyRoles(form: FormData) {
   });
   await putRoles(roles, 'Roles saved. Your job matches now use them.');
 }
+
+// ---- password reset and email verification ----
+const LINK_PROBLEM = 'This link is no longer valid. Please request a new one.';
+
+export async function requestPasswordReset(form: FormData) {
+  const { data, error } = await (
+    await api()
+  ).POST('/v1/auth/password/forgot', { body: { email: str(form, 'email') } });
+  if (!data) return back('/forgot-password', 'error', errorMessage(error));
+  // Never claim an email was sent when this deployment cannot send one.
+  if (!data.email_delivery)
+    return back(
+      '/forgot-password',
+      'error',
+      'Password reset by email is not switched on in this environment yet.',
+    );
+  return back(
+    '/forgot-password',
+    'notice',
+    'If an account exists for that address, we have emailed a link to choose a new password. It works once and expires in 30 minutes.',
+  );
+}
+
+export async function resetPassword(form: FormData) {
+  const token = str(form, 'token');
+  const password = String(form.get('new_password') ?? '');
+  const here = `/reset-password?token=${encodeURIComponent(token)}`;
+  if (password !== String(form.get('confirm_password') ?? ''))
+    return back(here, 'error', 'The two passwords do not match.');
+  const { error, response } = await (
+    await api()
+  ).POST('/v1/auth/password/reset', { body: { token, new_password: password } });
+  if (error || !response.ok)
+    return back(here, 'error', response?.status === 400 ? LINK_PROBLEM : errorMessage(error));
+  return back('/login', 'notice', 'Your password has been changed. Log in with your new password.');
+}
+
+export async function confirmEmail(form: FormData) {
+  const token = str(form, 'token');
+  const here = `/verify-email?token=${encodeURIComponent(token)}`;
+  const { error } = await (await api()).POST('/v1/auth/email/verify/confirm', { body: { token } });
+  if (error) return back(here, 'error', errorMessage(error));
+  return back('/login', 'notice', 'Your email address is confirmed.');
+}
+
+export async function resendVerification() {
+  const { data, error } = await (await api()).POST('/v1/auth/email/verify/request');
+  if (!data) return back('/verify-email', 'error', errorMessage(error));
+  if (data.status === 'already_verified')
+    return back('/verify-email', 'notice', 'Your email address is already confirmed.');
+  if (!data.email_delivery)
+    return back('/verify-email', 'error', 'Email is not switched on in this environment yet.');
+  return back('/verify-email', 'notice', 'We have emailed you a new confirmation link.');
+}

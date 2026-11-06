@@ -40,6 +40,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           }
         />
         <div className="nua-container">
+          {viewer && viewer.email_verified === false && viewer.email_delivery ? (
+            <p className="nua-alert">
+              Your email address is not confirmed yet. <a href="/verify-email">Confirm it</a> so you
+              can recover your account if you forget your password.
+            </p>
+          ) : null}
           {isEmployer ? (
             <div className="nua-shell">
               <EmployerSidebar current="" />

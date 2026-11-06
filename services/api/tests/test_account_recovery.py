@@ -416,3 +416,11 @@ def test_the_development_mail_folder_is_refused_outside_development():
         Settings(env="staging", email_provider="file", **base)
     assert Settings(env="staging", email_provider="none", **base).email_provider == "none"
     assert Settings(env="development", email_provider="file").email_provider == "file"
+
+
+async def test_me_reports_whether_email_can_be_sent(client, monkeypatch):
+    headers = await register_candidate(client, "status@nua-crew.example.com")
+    monkeypatch.setattr(get_settings(), "email_provider", "none")
+    assert (await client.get("/v1/auth/me", headers=headers)).json()["email_delivery"] is False
+    monkeypatch.setattr(get_settings(), "email_provider", "file")
+    assert (await client.get("/v1/auth/me", headers=headers)).json()["email_delivery"] is True

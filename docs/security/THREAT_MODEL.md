@@ -4,12 +4,12 @@
 | ------------------------------ | -------------------------------------------------------------------------------- | ------------------------------------------------ |
 | IDOR / cross-tenant access     | Membership dependency, scoped queries, 404 on miss, Postgres RLS (forced), unfiltered-SQL tests, route guard test | App must connect as non-owner in prod |
 | Candidate data leakage         | Candidate-only endpoints; employers see data only via applications               | Talent discovery not built (consent flag only)   |
-| Credential attacks             | Argon2id, uniform login error, decoy hash, per-IP and per-identity Redis limiter (in-process fallback) | No MFA; no lockout/breach check |
+| Credential attacks             | Argon2id, uniform login error, decoy hash, per-IP and per-identity Redis limiter (in-process fallback) | No MFA; no lockout/breach check. Password reset (ADR-012): hashed single-use 30-minute tokens, identical responses for unknown accounts, rate-limited, revokes all refresh tokens; a stolen access token still lives up to 30 minutes |
 | Mobile token theft/replay      | Refresh tokens rotate, are hashed at rest, stored in Keychain/Keystore; reuse revokes the family; password change/logout-all revoke everything | Cannot detect a stolen device before first reuse; no device attestation |
 | Token theft                    | httpOnly cookie, 30 min expiry, no tokens in JS                                   | No refresh/revocation list                       |
 | SSRF / hostile feeds           | `assert_safe_url`; no network connector exists; fixtures path-confined            | Size/decompression/timeouts untested (no fetcher)|
 | Prompt injection via listings  | No LLM in pipeline; text inert; test proves no trust change                       | Re-test when LLM added                           |
 | XSS                            | React escaping; descriptions rendered as text; markup stripped on ingest          | No CSP yet                                       |
 | Tampering with history         | DB triggers block UPDATE/DELETE on events and audit                               | DB owner can disable triggers                    |
-| Fake employers / spam          | Admin verification required to publish; per-candidate application and per-employer job-create limits | No ABR lookup, no email/phone verification |
+| Fake employers / spam          | Admin verification required to publish; per-candidate application and per-employer job-create limits | No ABR lookup, no phone verification; email verification exists (ADR-012) but gates nothing yet |
 | Dependency risk                | `pnpm audit`, `pip-audit` clean at time of writing; CI runs both                  | No SBOM, no secret scanning in CI                |

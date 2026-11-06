@@ -4090,6 +4090,11 @@ export interface components {
             /** Email */
             email: string;
             /**
+             * Email Delivery
+             * @default false
+             */
+            email_delivery: boolean;
+            /**
              * Email Verified
              * @default false
              */
