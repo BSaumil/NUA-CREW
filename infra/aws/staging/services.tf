@@ -89,7 +89,7 @@ resource "aws_lb_target_group" "api" {
   deregistration_delay = 30
 
   health_check {
-    path                = "/readyz"
+    path                = "/healthz"
     matcher             = "200"
     healthy_threshold   = 2
     unhealthy_threshold = 3
