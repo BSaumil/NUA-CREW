@@ -30,6 +30,10 @@ export default async function AdminPage({
         Operator access only. Report views and decisions are audited. Only the reported excerpt is
         shown.
       </p>
+      <p>
+        <Link href="/admin/rates">Award rate verification</Link>: check supplied pay rates against
+        the official guide.
+      </p>
       <section className="nua-stack" aria-labelledby="reports-title">
         <h2 id="reports-title">Open message reports</h2>
         {!reports.response.ok ? <Flash error={errorMessage(reports.error)} /> : null}

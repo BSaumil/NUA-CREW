@@ -107,7 +107,8 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /** List Penalty Rules */
+        get: operations["list_penalty_rules_v1_admin_awards_penalty_rules_get"];
         put?: never;
         /**
          * Add Penalty Rule
@@ -115,6 +116,23 @@ export interface paths {
          *     start date; a partly overlapping rule is refused so a lookup is never ambiguous.
          */
         post: operations["add_penalty_rule_v1_admin_awards_penalty_rules_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/awards/penalty-rules/{rule_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke Penalty */
+        post: operations["revoke_penalty_v1_admin_awards_penalty_rules__rule_id__revoke_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -171,6 +189,26 @@ export interface paths {
          *     the new one starts; two versions never overlap. Nothing is verified automatically.
          */
         post: operations["add_rate_version_v1_admin_awards_rate_versions_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/awards/rate-versions/{version_id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Revoke Rate
+         * @description Withdraw a verification (found to be wrong, or the guide changed). The figures stay.
+         */
+        post: operations["revoke_rate_v1_admin_awards_rate_versions__version_id__revoke_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -4432,6 +4470,47 @@ export interface components {
                 [key: string]: number | null;
             };
         };
+        /** PenaltyRuleAdminOut */
+        PenaltyRuleAdminOut: {
+            /** Classification Codes */
+            classification_codes: string[];
+            /**
+             * Data Status
+             * @enum {string}
+             */
+            data_status: "supplied_unverified" | "verified";
+            /** Day Kind */
+            day_kind: string;
+            /**
+             * Effective From
+             * Format: date
+             */
+            effective_from: string;
+            /** Effective To */
+            effective_to: string | null;
+            /**
+             * Employment
+             * @enum {string}
+             */
+            employment: "permanent" | "casual";
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Instrument */
+            instrument: string;
+            /** Multiplier Bp */
+            multiplier_bp: number;
+            /** Source Note */
+            source_note: string;
+            /** Source Url */
+            source_url: string;
+            /** Verified At */
+            verified_at: string | null;
+            /** Verified By */
+            verified_by: string | null;
+        };
         /** PenaltyRuleIn */
         PenaltyRuleIn: {
             /** Classification Codes */
@@ -4591,6 +4670,42 @@ export interface components {
             /** Weekly Minor */
             weekly_minor: number;
         };
+        /** RateVersionAdminOut */
+        RateVersionAdminOut: {
+            /** Classification */
+            classification: string;
+            /**
+             * Data Status
+             * @enum {string}
+             */
+            data_status: "supplied_unverified" | "verified";
+            /**
+             * Effective From
+             * Format: date
+             */
+            effective_from: string;
+            /** Effective To */
+            effective_to: string | null;
+            /** Hourly Minor */
+            hourly_minor: number;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Instrument */
+            instrument: string;
+            /** Source Note */
+            source_note: string;
+            /** Source Url */
+            source_url: string;
+            /** Verified At */
+            verified_at: string | null;
+            /** Verified By */
+            verified_by: string | null;
+            /** Weekly Minor */
+            weekly_minor: number;
+        };
         /**
          * RateVersionIn
          * @description A new effective-dated rate. It is stored as supplied_unverified until someone verifies it.
@@ -4731,6 +4846,11 @@ export interface components {
              * @enum {string}
              */
             reason_code: "harassment" | "spam" | "scam" | "other" | "no_violation";
+        };
+        /** RevokeIn */
+        RevokeIn: {
+            /** Reason */
+            reason: string;
         };
         /** RoleOut */
         RoleOut: {
@@ -5392,8 +5512,17 @@ export interface components {
              */
             status: "pending" | "verified" | "rejected";
         };
-        /** VerifyIn */
-        VerifyIn: {
+        /** VerifyPenaltyIn */
+        VerifyPenaltyIn: {
+            /** Confirm Multiplier Bp */
+            confirm_multiplier_bp: number;
+            /** Source Note */
+            source_note: string;
+        };
+        /** VerifyRateIn */
+        VerifyRateIn: {
+            /** Confirm Hourly Minor */
+            confirm_hourly_minor: number;
             /** Source Note */
             source_note: string;
         };
@@ -5596,6 +5725,38 @@ export interface operations {
             };
         };
     };
+    list_penalty_rules_v1_admin_awards_penalty_rules_get: {
+        parameters: {
+            query?: {
+                instrument?: ("MA000119" | "MA000009" | "MA000003" | "MA000058") | null;
+                data_status?: ("supplied_unverified" | "verified") | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PenaltyRuleAdminOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     add_penalty_rule_v1_admin_awards_penalty_rules_post: {
         parameters: {
             query?: never;
@@ -5631,6 +5792,43 @@ export interface operations {
             };
         };
     };
+    revoke_penalty_v1_admin_awards_penalty_rules__rule_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                rule_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     verify_penalty_v1_admin_awards_penalty_rules__rule_id__verify_post: {
         parameters: {
             query?: never;
@@ -5642,7 +5840,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["VerifyIn"];
+                "application/json": components["schemas"]["VerifyPenaltyIn"];
             };
         };
         responses: {
@@ -5707,6 +5905,7 @@ export interface operations {
         parameters: {
             query?: {
                 instrument?: ("MA000119" | "MA000009" | "MA000003" | "MA000058") | null;
+                data_status?: ("supplied_unverified" | "verified") | null;
             };
             header?: never;
             path?: never;
@@ -5720,9 +5919,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": {
-                        [key: string]: unknown;
-                    }[];
+                    "application/json": components["schemas"]["RateVersionAdminOut"][];
                 };
             };
             /** @description Validation Error */
@@ -5771,6 +5968,43 @@ export interface operations {
             };
         };
     };
+    revoke_rate_v1_admin_awards_rate_versions__version_id__revoke_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                version_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RevokeIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        [key: string]: string;
+                    };
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     verify_rate_v1_admin_awards_rate_versions__version_id__verify_post: {
         parameters: {
             query?: never;
@@ -5782,7 +6016,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["VerifyIn"];
+                "application/json": components["schemas"]["VerifyRateIn"];
             };
         };
         responses: {

@@ -408,8 +408,53 @@ async def set_my_roles(
 admin = APIRouter(prefix="/v1/admin/awards", tags=["admin"])
 
 
+class RateVersionAdminOut(BaseModel):
+    id: uuid.UUID
+    instrument: str
+    classification: str
+    effective_from: date
+    effective_to: date | None
+    hourly_minor: int
+    weekly_minor: int
+    source_url: str
+    source_note: str
+    data_status: Literal["supplied_unverified", "verified"]
+    verified_at: datetime | None
+    verified_by: uuid.UUID | None
+
+
+class PenaltyRuleAdminOut(BaseModel):
+    id: uuid.UUID
+    instrument: str
+    employment: Literal["permanent", "casual"]
+    day_kind: str
+    classification_codes: list[str]
+    multiplier_bp: int
+    effective_from: date
+    effective_to: date | None
+    source_url: str
+    source_note: str
+    data_status: Literal["supplied_unverified", "verified"]
+    verified_at: datetime | None
+    verified_by: uuid.UUID | None
+
+
 class VerifyIn(BaseModel):
     source_note: str = Field(min_length=10, max_length=2000)
+
+
+class VerifyRateIn(VerifyIn):
+    # The figure the administrator actually checked. If the stored figure has since changed (a
+    # re-import, a correction) the verification is refused rather than attached to new numbers.
+    confirm_hourly_minor: int = Field(gt=0, le=100_000)
+
+
+class VerifyPenaltyIn(VerifyIn):
+    confirm_multiplier_bp: int = Field(ge=5_000, le=40_000)
+
+
+class RevokeIn(BaseModel):
+    reason: str = Field(min_length=10, max_length=2000)
 
 
 class HolidayIn(BaseModel):
@@ -421,51 +466,156 @@ class HolidayIn(BaseModel):
 
 @admin.post("/rate-versions/{version_id}/verify")
 async def verify_rate(
-    version_id: uuid.UUID, body: VerifyIn, user: AdminUser, session: Session
+    version_id: uuid.UUID, body: VerifyRateIn, user: AdminUser, session: Session
 ) -> dict[str, str]:
-    row = await session.get(AwardRateVersion, version_id)
+    row = await session.get(AwardRateVersion, version_id, with_for_update=True)
     if row is None:
         raise not_found("rate version")
+    if row.data_status == "verified":
+        raise conflict("already_verified", "This rate is already verified; revoke it to re-check")
+    if row.hourly_minor != body.confirm_hourly_minor:
+        raise conflict(
+            "figures_changed", "The stored rate is not the figure you checked; reload and re-check"
+        )
     row.data_status, row.verified_by = "verified", user.id
     row.verified_at, row.source_note = datetime.now(UTC), body.source_note
-    await audit(session, user.id, "award.rate_verified", "rate_version", row.id)
+    await audit(
+        session, user.id, "award.rate_verified", "rate_version", row.id,
+        hourly_minor=row.hourly_minor,
+    )  # fmt: skip
     return {"id": str(row.id), "data_status": row.data_status}
 
 
 @admin.post("/penalty-rules/{rule_id}/verify")
 async def verify_penalty(
-    rule_id: uuid.UUID, body: VerifyIn, user: AdminUser, session: Session
+    rule_id: uuid.UUID, body: VerifyPenaltyIn, user: AdminUser, session: Session
 ) -> dict[str, str]:
-    row = await session.get(PenaltyRuleVersion, rule_id)
+    row = await session.get(PenaltyRuleVersion, rule_id, with_for_update=True)
     if row is None:
         raise not_found("penalty rule")
+    if row.data_status == "verified":
+        raise conflict("already_verified", "This rule is already verified; revoke it to re-check")
+    if row.multiplier_bp != body.confirm_multiplier_bp:
+        raise conflict(
+            "figures_changed", "The stored rule is not the figure you checked; reload and re-check"
+        )
     row.data_status, row.verified_by = "verified", user.id
     row.verified_at, row.source_note = datetime.now(UTC), body.source_note
-    await audit(session, user.id, "award.penalty_verified", "penalty_rule", row.id)
+    await audit(
+        session, user.id, "award.penalty_verified", "penalty_rule", row.id,
+        multiplier_bp=row.multiplier_bp,
+    )  # fmt: skip
     return {"id": str(row.id), "data_status": row.data_status}
 
 
-@admin.get("/rate-versions")
+@admin.post("/rate-versions/{version_id}/revoke")
+async def revoke_rate(
+    version_id: uuid.UUID, body: RevokeIn, user: AdminUser, session: Session
+) -> dict[str, str]:
+    """Withdraw a verification (found to be wrong, or the guide changed). The figures stay."""
+    row = await session.get(AwardRateVersion, version_id, with_for_update=True)
+    if row is None:
+        raise not_found("rate version")
+    if row.data_status != "verified":
+        raise conflict("not_verified", "Only a verified rate can be revoked")
+    row.data_status, row.verified_by, row.verified_at = "supplied_unverified", None, None
+    await audit(
+        session, user.id, "award.rate_verification_revoked", "rate_version", row.id,
+        reason=body.reason,
+    )  # fmt: skip
+    return {"id": str(row.id), "data_status": row.data_status}
+
+
+@admin.post("/penalty-rules/{rule_id}/revoke")
+async def revoke_penalty(
+    rule_id: uuid.UUID, body: RevokeIn, user: AdminUser, session: Session
+) -> dict[str, str]:
+    row = await session.get(PenaltyRuleVersion, rule_id, with_for_update=True)
+    if row is None:
+        raise not_found("penalty rule")
+    if row.data_status != "verified":
+        raise conflict("not_verified", "Only a verified rule can be revoked")
+    row.data_status, row.verified_by, row.verified_at = "supplied_unverified", None, None
+    await audit(
+        session, user.id, "award.penalty_verification_revoked", "penalty_rule", row.id,
+        reason=body.reason,
+    )  # fmt: skip
+    return {"id": str(row.id), "data_status": row.data_status}
+
+
+@admin.get("/rate-versions", response_model=list[RateVersionAdminOut])
 async def list_rate_versions(
-    _: AdminUser, session: Session, instrument: AwardCode | None = None
-) -> list[dict[str, object]]:
+    _: AdminUser,
+    session: Session,
+    instrument: AwardCode | None = None,
+    data_status: Literal["supplied_unverified", "verified"] | None = None,
+) -> list[RateVersionAdminOut]:
     stmt = (
         select(AwardRateVersion, AwardClassification)
         .join(AwardClassification, AwardClassification.id == AwardRateVersion.classification_id)
-        .order_by(AwardClassification.instrument_code, AwardClassification.sort_order)
+        .order_by(
+            AwardClassification.instrument_code,
+            AwardClassification.sort_order,
+            AwardRateVersion.effective_from,
+        )
     )
     if instrument:
         stmt = stmt.where(AwardClassification.instrument_code == instrument)
+    if data_status:
+        stmt = stmt.where(AwardRateVersion.data_status == data_status)
     return [
-        {
-            "id": str(rv.id),
-            "instrument": c.instrument_code,
-            "classification": c.code,
-            "effective_from": rv.effective_from.isoformat(),
-            "hourly_minor": rv.hourly_minor,
-            "data_status": rv.data_status,
-        }
+        RateVersionAdminOut(
+            id=rv.id,
+            instrument=c.instrument_code,
+            classification=c.code,
+            effective_from=rv.effective_from,
+            effective_to=rv.effective_to,
+            hourly_minor=rv.hourly_minor,
+            weekly_minor=rv.weekly_minor,
+            source_url=rv.source_url,
+            source_note=rv.source_note,
+            data_status=rv.data_status,
+            verified_at=rv.verified_at,
+            verified_by=rv.verified_by,
+        )
         for rv, c in (await session.execute(stmt)).all()
+    ]
+
+
+@admin.get("/penalty-rules", response_model=list[PenaltyRuleAdminOut])
+async def list_penalty_rules(
+    _: AdminUser,
+    session: Session,
+    instrument: AwardCode | None = None,
+    data_status: Literal["supplied_unverified", "verified"] | None = None,
+) -> list[PenaltyRuleAdminOut]:
+    stmt = select(PenaltyRuleVersion).order_by(
+        PenaltyRuleVersion.instrument_code,
+        PenaltyRuleVersion.employment,
+        PenaltyRuleVersion.day_kind,
+        PenaltyRuleVersion.effective_from,
+    )
+    if instrument:
+        stmt = stmt.where(PenaltyRuleVersion.instrument_code == instrument)
+    if data_status:
+        stmt = stmt.where(PenaltyRuleVersion.data_status == data_status)
+    return [
+        PenaltyRuleAdminOut(
+            id=r.id,
+            instrument=r.instrument_code,
+            employment=r.employment,
+            day_kind=r.day_kind,
+            classification_codes=list(r.classification_codes),
+            multiplier_bp=r.multiplier_bp,
+            effective_from=r.effective_from,
+            effective_to=r.effective_to,
+            source_url=r.source_url,
+            source_note=r.source_note,
+            data_status=r.data_status,
+            verified_at=r.verified_at,
+            verified_by=r.verified_by,
+        )
+        for r in await session.scalars(stmt)
     ]
 
 
