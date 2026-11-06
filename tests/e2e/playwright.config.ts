@@ -7,6 +7,9 @@ const apiEnv = {
   NUA_DATABASE_URL: E2E_DB,
   NUA_ENV: 'development',
   NUA_AUTH_RATE_LIMIT_PER_MINUTE: '1000',
+  // Email goes to a local folder the specs read; nothing is sent anywhere (development only).
+  NUA_EMAIL_PROVIDER: 'file',
+  NUA_EMAIL_FILE_DIR: resolve(__dirname, '.mail'),
 };
 
 export default defineConfig({

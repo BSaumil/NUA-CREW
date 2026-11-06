@@ -3,7 +3,7 @@
 import json
 from typing import Any
 
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, BackgroundTasks, Response
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy import delete, select, text
 
@@ -42,7 +42,7 @@ from app.models import (
 from app.rls import system_scope
 from app.schemas import DeleteAccountIn, PasswordChangeIn
 from app.security import hash_password, verify_password
-from app.services import tokens
+from app.services import email, tokens
 
 router = APIRouter(prefix="/v1/account", tags=["account"])
 
@@ -292,13 +292,17 @@ async def export_account(user: CurrentUser, session: Session) -> Response:
 
 
 @router.post("/password", status_code=204)
-async def change_password(body: PasswordChangeIn, user: CurrentUser, session: Session) -> Response:
+async def change_password(
+    body: PasswordChangeIn, user: CurrentUser, session: Session, background: BackgroundTasks
+) -> Response:
     if not verify_password(body.current_password, user.password_hash):
         raise ApiError(403, "wrong_password", "Your current password is incorrect")
     user.password_hash = hash_password(body.new_password)
     async with system_scope(session):
         await tokens.revoke_all(session, user.id)  # every other device must sign in again
     await audit(session, user.id, "account.password_changed", "user", user.id)
+    if email.delivery_enabled():
+        background.add_task(email.deliver, email.password_changed_message(user.email))
     return Response(status_code=204)
 
 

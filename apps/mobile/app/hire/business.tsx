@@ -31,6 +31,7 @@ import {
   Sheet,
   Text,
 } from '@/ui';
+import { EmailVerificationCard } from '@/ui/email-card';
 import { HireGate, HireHeading, Notice } from '@/ui/hire';
 
 const STATES = AU_STATES;
@@ -166,6 +167,7 @@ function BusinessContent() {
         title="Your business, organised."
         body={business.data?.name ?? 'Business settings'}
       />
+      <EmailVerificationCard />
       {role !== 'viewer' && !!locations.data?.length ? (
         <Button title="Post a job" onPress={() => router.push('/hire-post')} />
       ) : null}

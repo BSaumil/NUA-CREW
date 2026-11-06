@@ -79,6 +79,15 @@ export default function Login() {
         />
         <Button title="Log in" full loading={busy} onPress={() => void submit()} />
         <Text muted style={{ textAlign: 'center' }}>
+          <Link
+            href="/forgot-password"
+            style={{ color: colors.primary, fontWeight: '700' }}
+            accessibilityRole="link"
+          >
+            Forgot your password?
+          </Link>
+        </Text>
+        <Text muted style={{ textAlign: 'center' }}>
           New to NUA CREW?{' '}
           <Link
             href="/register"

@@ -41,6 +41,12 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           }
         />
         <main id="main" className="nua-container" style={{ padding: '32px 16px 64px' }}>
+          {viewer && viewer.email_verified === false && viewer.email_delivery ? (
+            <p className="nua-alert">
+              Your email address is not confirmed yet. <a href="/verify-email">Confirm it</a> so you
+              can recover your account if you forget your password.
+            </p>
+          ) : null}
           {children}
         </main>
         <footer className="nua-container nua-hint" style={{ padding: '0 16px 48px' }}>

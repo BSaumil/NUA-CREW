@@ -44,6 +44,14 @@ class Settings(BaseSettings):
     message_limit_per_minute: int = 30
     redis_url: str | None = None
     push_provider: str = "none"  # "expo" enables real push delivery
+    # Outbound email (password reset, email verification). "none" sends nothing. "file" writes each
+    # message to a local folder for development and browser tests only; it is refused elsewhere.
+    # A real provider is an owner decision and is not wired yet.
+    email_provider: Literal["none", "file"] = "none"
+    email_file_dir: str = ".dev-mail"
+    # Where the links in emails point. Candidates and employers use separate web apps.
+    candidate_web_url: str = "http://localhost:3000"
+    employer_web_url: str = "http://localhost:3001"
     ingestion_stale_after_seconds: int = 7 * 24 * 3600
     fixtures_dir: str = "fixtures"
     document_storage: Literal["disabled", "local", "s3"] = "disabled"
@@ -67,6 +75,14 @@ class Settings(BaseSettings):
             key = self.stripe_secret_key.get_secret_value()
             if not key.startswith(("sk_test_", "rk_test_")):
                 raise ValueError("Only Stripe test keys are supported; live charging is disabled")
+        if self.email_provider == "file" and self.env != "development":
+            raise ValueError("NUA_EMAIL_PROVIDER=file is for development only")
+        if self.email_provider != "none" and self.env != "development":
+            for name in ("candidate_web_url", "employer_web_url"):
+                if not getattr(self, name).startswith("https://"):
+                    raise ValueError(
+                        f"NUA_{name.upper()} must be an https:// URL when email is sent"
+                    )
         return self
 
 

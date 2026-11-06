@@ -10,6 +10,7 @@ import { useAuth } from '@/state/AuthProvider';
 import { useTheme, type ThemeMode } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
 import { MATCH_DISCLOSURE, Button, Card, Chip, Field, Row, Screen, Sheet, Text } from '@/ui';
+import { EmailVerificationCard } from '@/ui/email-card';
 
 function SwitchRow({
   title,
@@ -117,6 +118,8 @@ export default function Settings() {
           {notice}
         </Text>
       ) : null}
+
+      <EmailVerificationCard />
 
       <Card>
         <Text variant="heading" accessibilityRole="header">

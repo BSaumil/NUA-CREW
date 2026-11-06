@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, BackgroundTasks, Request
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 
@@ -26,7 +26,7 @@ from app.schemas import (
     TokenOut,
 )
 from app.security import create_access_token, hash_password, verify_password
-from app.services import tokens
+from app.services import email, recovery, tokens
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -73,18 +73,21 @@ async def _token(
 
 @router.post("/register/candidate", response_model=TokenOut, status_code=201)
 async def register_candidate(
-    body: CandidateRegister, session: Session, request: Request
+    body: CandidateRegister, session: Session, request: Request, background: BackgroundTasks
 ) -> TokenOut:
     async with system_scope(session):
         await _throttle(request, "register", body.email)
         user = await _create_user(session, body.email, body.password, "candidate")
         session.add(CandidateProfile(user_id=user.id, full_name=body.full_name))
         await audit(session, user.id, "user.registered", "user", user.id, role="candidate")
+        await recovery.start_verification(session, background, user)
         return await _token(session, user, body.client, body.device_label)
 
 
 @router.post("/register/employer", response_model=TokenOut, status_code=201)
-async def register_employer(body: EmployerRegister, session: Session, request: Request) -> TokenOut:
+async def register_employer(
+    body: EmployerRegister, session: Session, request: Request, background: BackgroundTasks
+) -> TokenOut:
     async with system_scope(session):
         await _throttle(request, "register", body.email)
         if body.abn and await session.scalar(select(Employer.id).where(Employer.abn == body.abn)):
@@ -103,6 +106,7 @@ async def register_employer(body: EmployerRegister, session: Session, request: R
         if body.location:
             session.add(Location(employer_id=employer.id, **body.location.model_dump()))
         await audit(session, user.id, "employer.registered", "employer", employer.id)
+        await recovery.start_verification(session, background, user)
         return await _token(session, user, body.client, body.device_label)
 
 
@@ -154,6 +158,8 @@ async def me(user: CurrentUser, session: Session) -> MeOut:
     return MeOut(
         id=user.id,
         email=user.email,
+        email_verified=user.email_verified_at is not None,
+        email_delivery=email.delivery_enabled(),
         role=user.role,
         memberships=[MembershipOut.model_validate(m) for m in members],
     )
