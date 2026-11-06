@@ -141,7 +141,7 @@ locals {
     { name = "NUA_PUSH_PROVIDER", value = "none" },
     { name = "NUA_STRIPE_MODE", value = "disabled" },
     { name = "NUA_PAID_ADVERTISING_ENABLED", value = "false" },
-    { name = "NUA_BILLING_TERMS_APPROVED", value = "false" }
+    { name = "NUA_BILLING_TERMS_APPROVED", value = "false" },
     # Uvicorn trusts X-Forwarded-For only from the ALB public subnet CIDRs.
     # ECS task ingress is further restricted to the ALB security group; never use "*".
     # A staged spoofing/unique-client rate-limit test is required before API exposure.
