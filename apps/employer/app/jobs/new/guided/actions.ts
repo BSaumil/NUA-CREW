@@ -8,6 +8,7 @@ const back = (path: string, kind: 'error' | 'notice', msg: string) =>
   redirect(`${path}${path.includes('?') ? '&' : '?'}${kind}=${encodeURIComponent(msg)}`);
 
 const KEEP = [
+  'job',
   'venue',
   'role',
   'inst',
@@ -126,5 +127,41 @@ export async function createGuidedJob(form: FormData) {
   if (!data) return back(here, 'error', errorMessage(error));
   redirect(
     `/jobs/${data.id}?notice=${encodeURIComponent('Draft saved with its pay check. Publish when ready.')}`,
+  );
+}
+
+/** Attaches the role and the stored pay check to an existing job. Publishing re-checks. */
+export async function attachRoleToJob(form: FormData) {
+  const { employerId } = await requireEmployer();
+  const client = await api();
+  const jobId = str(form, 'job');
+  const assessmentId = str(form, 'a');
+  const here = carry(form, 4, { a: assessmentId, pay_min: str(form, 'pay_min') });
+  const { data: a } = await client.GET(
+    '/v1/employers/{employer_id}/pay-assessments/{assessment_id}',
+    { params: { path: { employer_id: employerId, assessment_id: assessmentId } } },
+  );
+  if (!a) return back(here, 'error', 'That pay check could not be found. Run it again.');
+  if (a.result.status === 'below_minimum')
+    return back(here, 'error', 'Raise the rate to at least the award minimum first.');
+  if (a.result.needs_acknowledgement) {
+    if (form.get('acknowledge') !== 'on')
+      return back(here, 'error', 'Confirm that you have reviewed this pay before continuing.');
+    const ack = await client.POST(
+      '/v1/employers/{employer_id}/pay-assessments/{assessment_id}/acknowledge',
+      {
+        params: { path: { employer_id: employerId, assessment_id: assessmentId } },
+        body: { note: 'Reviewed when adding a role to an existing job' },
+      },
+    );
+    if (ack.error) return back(here, 'error', errorMessage(ack.error));
+  }
+  const { error } = await client.POST('/v1/employers/{employer_id}/jobs/{job_id}/role', {
+    params: { path: { employer_id: employerId, job_id: jobId } },
+    body: { pay_assessment_id: assessmentId },
+  });
+  if (error) return back(here, 'error', errorMessage(error));
+  redirect(
+    `/jobs/${jobId}?notice=${encodeURIComponent('Role and pay check added. Publishing checks the pay again.')}`,
   );
 }

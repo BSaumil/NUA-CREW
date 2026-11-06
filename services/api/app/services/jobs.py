@@ -137,6 +137,37 @@ def apply_job_input(job: Job, data: JobIn, location: Location | None) -> None:
         job.pay_assessment_id = data.pay_assessment_id
 
 
+def job_to_input(job: Job, skills: list[str], **over: Any) -> JobIn:
+    """The editable fields of a stored job as a JobIn, with explicit overrides.
+
+    Used to change one thing about a job through the same validated update path as the edit form.
+    """
+    fields: dict[str, Any] = {
+        "title": job.title,
+        "description": job.description,
+        "employment_type": job.employment_type,
+        "category": job.category,
+        "location_id": job.location_id,
+        "pay_min": job.pay_min,
+        "pay_max": job.pay_max,
+        "pay_period": job.pay_period,
+        "super_included": job.super_included,
+        "expires_at": job.expires_at,
+        "engagement_basis": job.engagement_basis,
+        "duration_type": job.duration_type,
+        "hours_pattern": job.hours_pattern,
+        "min_weekly_hours": job.min_weekly_hours,
+        "max_weekly_hours": job.max_weekly_hours,
+        "start_date": job.start_date,
+        "end_date": job.end_date,
+        "skills": skills,
+        "role_code": job.role_code,
+        "pay_assessment_id": job.pay_assessment_id,
+    }
+    fields.update(over)
+    return JobIn(**fields)
+
+
 def is_open(job: Job, now: datetime | None = None) -> bool:
     now = now or datetime.now(UTC)
     return job.status == "published" and (job.expires_at is None or job.expires_at > now)

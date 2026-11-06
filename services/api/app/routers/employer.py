@@ -1,5 +1,6 @@
 import uuid
 from datetime import UTC, datetime
+from decimal import Decimal
 
 from fastapi import APIRouter
 from sqlalchemy import func, select
@@ -19,6 +20,7 @@ from app.models import (
     EmployerMembership,
     Job,
     Location,
+    PayAssessment,
     PromotionReservation,
     ResumeVersion,
     Skill,
@@ -27,6 +29,7 @@ from app.models import (
 from app.ratelimit import get_limiter
 from app.schemas import (
     ApplicantOut,
+    AttachRoleIn,
     EmployerApplicationOut,
     EmployerOut,
     EventOut,
@@ -37,12 +40,15 @@ from app.schemas import (
     MemberIn,
     MemberOut,
     NoteIn,
+    RoleGapJobOut,
+    RoleGapsOut,
     StatusChangeIn,
 )
 from app.services.applications import change_status
-from app.services.hospitality.pay import enforce_on_publish
+from app.services.hospitality.pay import JOB_TO_EMPLOYMENT, enforce_on_publish
 from app.services.jobs import (
     apply_job_input,
+    job_to_input,
     record_version,
     set_job_skills,
     to_out,
@@ -178,6 +184,84 @@ async def create_job(
     await record_version(session, job, names, user.id)
     await audit(session, user.id, "job.created", "job", job.id, employer_id=str(employer_id))
     return (await to_out(session, [job]))[0]
+
+
+@router.get("/{employer_id}/jobs-missing-role", response_model=RoleGapsOut)
+async def jobs_missing_role(employer_id: uuid.UUID, _: Viewer, session: Session) -> RoleGapsOut:
+    """Own jobs that have no hospitality role yet, so no pay check can run for them."""
+    rows = await session.scalars(
+        select(Job)
+        .where(
+            Job.employer_id == employer_id,
+            Job.origin == "direct",
+            Job.role_code.is_(None),
+            Job.status.in_(("draft", "published", "unpublished")),
+        )
+        .order_by(Job.created_at.desc())
+        .limit(200)
+    )
+    return RoleGapsOut(
+        required=get_settings().require_role_on_publish,
+        jobs=[
+            RoleGapJobOut(id=j.id, title=j.title, status=j.status, created_at=j.created_at)
+            for j in rows
+        ],
+    )
+
+
+@router.post("/{employer_id}/jobs/{job_id}/role", response_model=JobOut)
+async def attach_role(
+    employer_id: uuid.UUID,
+    job_id: uuid.UUID,
+    body: AttachRoleIn,
+    m: Recruiter,
+    user: CurrentUser,
+    session: Session,
+) -> JobOut:
+    """Give an existing job a hospitality role by attaching a pay check made for that role.
+
+    The role comes from the pay check, never from the job title. The advertised minimum becomes the
+    hourly rate that was checked, so the advertisement and the check describe the same pay; the
+    maximum is kept only if it is an hourly figure at or above that rate. Publishing still
+    re-checks against the rates in force that day.
+    """
+    job = await _own_job(session, employer_id, job_id)
+    if job.status in ("closed", "expired"):
+        raise conflict("job_closed", "Closed jobs cannot be edited")
+    stored = await session.get(PayAssessment, body.pay_assessment_id)
+    if stored is None or stored.employer_id != employer_id:
+        raise not_found("pay check")
+    code = stored.input.get("role_code")
+    if not isinstance(code, str) or not code:
+        raise ApiError(422, "no_role_in_pay_check", "That pay check was not made for a role")
+    if stored.input.get("pay_period") != "hour":
+        raise ApiError(422, "pay_check_not_hourly", "Use a pay check that uses an hourly rate")
+    wanted = JOB_TO_EMPLOYMENT.get(job.employment_type)
+    if wanted is None or stored.input.get("employment") != wanted:
+        raise ApiError(
+            422,
+            "employment_mismatch",
+            "The pay check was made for a different type of work than this job",
+        )
+    rate = Decimal(str(stored.input["pay_amount"]))
+    keep_max = job.pay_period == "hour" and job.pay_max is not None and job.pay_max >= rate
+    before = {"pay_min": str(job.pay_min), "pay_max": str(job.pay_max), "period": job.pay_period}
+    names = (await to_out(session, [job]))[0].skills
+    data = job_to_input(
+        job,
+        names,
+        role_code=code,
+        pay_assessment_id=stored.id,
+        pay_min=rate,
+        pay_max=job.pay_max if keep_max else rate,
+        pay_period="hour",
+    )
+    out = await update_job(employer_id, job_id, data, m, user, session)
+    await audit(
+        session, user.id, "job.role_attached", "job", job.id,
+        role_code=code, pay_assessment_id=str(stored.id), before=before,
+    )  # fmt: skip
+    return out
 
 
 @router.get("/{employer_id}/jobs/{job_id}", response_model=JobOut)

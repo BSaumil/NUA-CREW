@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { Button, ButtonLink, PayVerdict, type PayVerdictData } from '@nua-crew/ui';
 import { api, canWrite, requireEmployer } from '@/lib/api';
 import { Field, Flash, flashFrom } from '../../../components';
-import { createGuidedJob, runPayCheck } from './actions';
+import { attachRoleToJob, createGuidedJob, runPayCheck } from './actions';
 
 export const metadata: Metadata = { title: 'Post a hospitality job' };
 
@@ -67,17 +67,25 @@ export default async function GuidedJob({
   const step = Number.isInteger(rawStep) ? Math.min(4, Math.max(1, rawStep)) : 1;
   const venue = one('venue');
   const roleCode = one('role');
+  const job = one('job');
   const inst = one('inst');
   const client = await api();
 
   return (
     <div className="nua-stack" style={{ maxWidth: 820 }}>
-      <h1>Post a hospitality job</h1>
+      <h1>{job ? 'Add a role and pay check to your job' : 'Post a hospitality job'}</h1>
       <Progress step={step} />
       <Flash error={error} notice={notice} />
       {step === 1 ? <VenueStep client={client} /> : null}
       {step === 2 ? (
-        <RoleStep client={client} venue={venue} q={one('q')} dept={one('dept')} loc={one('loc')} />
+        <RoleStep
+          client={client}
+          venue={venue}
+          q={one('q')}
+          dept={one('dept')}
+          loc={one('loc')}
+          job={job}
+        />
       ) : null}
       {step === 3 && roleCode ? (
         <PayStep
@@ -87,6 +95,7 @@ export default async function GuidedJob({
           roleCode={roleCode}
           inst={inst}
           loc={one('loc')}
+          job={job}
           selection={{
             classification: one('classification'),
             coverage: one('coverage'),
@@ -106,6 +115,7 @@ export default async function GuidedJob({
           assessmentId={one('a')!}
           venue={venue}
           loc={one('loc')}
+          job={job}
           inst={inst}
           roleCode={roleCode}
           payMax={one('pay_max')}
@@ -194,12 +204,14 @@ async function RoleStep({
   q,
   dept,
   loc,
+  job,
 }: {
   client: Client;
   venue?: string;
   q?: string;
   dept?: string;
   loc?: string;
+  job?: string;
 }) {
   const [{ data: departments }, { data: roles }] = await Promise.all([
     client.GET('/v1/taxonomy/departments'),
@@ -213,6 +225,7 @@ async function RoleStep({
       <form method="get" action="/jobs/new/guided" className="nua-row" role="search">
         <input type="hidden" name="step" value="2" />
         {venue ? <input type="hidden" name="venue" value={venue} /> : null}
+        {job ? <input type="hidden" name="job" value={job} /> : null}
         {dept ? <input type="hidden" name="dept" value={dept} /> : null}
         {loc ? <input type="hidden" name="loc" value={loc} /> : null}
         <div className="nua-field" style={{ flex: 1, minWidth: 220 }}>
@@ -228,7 +241,11 @@ async function RoleStep({
         </summary>
         <ul className="nua-chips" aria-label="Departments">
           <li>
-            <Link className="nua-chip" aria-current={!dept} href={href({ step: '2', venue, q })}>
+            <Link
+              className="nua-chip"
+              aria-current={!dept}
+              href={href({ step: '2', venue, q, loc, job })}
+            >
               All
             </Link>
           </li>
@@ -237,7 +254,7 @@ async function RoleStep({
               <Link
                 className="nua-chip"
                 aria-current={dept === d.code}
-                href={href({ step: '2', venue, q, dept: d.code })}
+                href={href({ step: '2', venue, q, dept: d.code, loc, job })}
               >
                 {d.name}
               </Link>
@@ -253,7 +270,7 @@ async function RoleStep({
             <li key={r.code}>
               <Link
                 className="nua-role"
-                href={href({ step: '3', venue, role: r.code, loc })}
+                href={href({ step: '3', venue, role: r.code, loc, job })}
                 aria-label={`${r.title}, ${r.department_name}`}
               >
                 <span>
@@ -282,6 +299,7 @@ async function PayStep({
   roleCode,
   inst,
   loc,
+  job,
   selection,
 }: {
   client: Client;
@@ -291,6 +309,7 @@ async function PayStep({
   roleCode: string;
   inst?: string;
   loc?: string;
+  job?: string;
 }) {
   const [{ data: role }, { data: guidance }, { data: awards }, { data: locations }] =
     await Promise.all([
@@ -316,7 +335,7 @@ async function PayStep({
         references; the server check applies casual loading and available penalties.
       </p>
       <p>
-        <Link href={href({ step: '2', venue, role: roleCode, loc })}>Back to roles</Link>
+        <Link href={href({ step: '2', venue, role: roleCode, loc, job })}>Back to roles</Link>
       </p>
       <h3>1. Which award covers this work?</h3>
       <ul className="nua-tiles">
@@ -325,7 +344,7 @@ async function PayStep({
             <Link
               className="nua-tile"
               aria-current={inst === a.code}
-              href={href({ step: '3', venue, role: roleCode, inst: a.code, loc })}
+              href={href({ step: '3', venue, role: roleCode, inst: a.code, loc, job })}
             >
               {AWARD_NAME[a.code] ?? a.title}
               <small>{a.code}</small>
@@ -339,7 +358,7 @@ async function PayStep({
           <Link
             className="nua-tile"
             aria-current={inst === 'unknown'}
-            href={href({ step: '3', venue, role: roleCode, inst: 'unknown', loc })}
+            href={href({ step: '3', venue, role: roleCode, inst: 'unknown', loc, job })}
           >
             Enterprise agreement / not sure
             <small>We&rsquo;ll flag it for review</small>
@@ -349,6 +368,7 @@ async function PayStep({
       {inst ? (
         <form action={runPayCheck} className="nua-card nua-stack">
           <input type="hidden" name="venue" value={venue ?? ''} />
+          {job ? <input type="hidden" name="job" value={job} /> : null}
           <input type="hidden" name="role" value={roleCode} />
           <input type="hidden" name="inst" value={inst} />
           {picked ? (
@@ -478,6 +498,7 @@ async function ReviewStep({
   assessmentId,
   venue,
   loc,
+  job,
   inst,
   roleCode,
   payMax,
@@ -487,6 +508,7 @@ async function ReviewStep({
   assessmentId: string;
   venue?: string;
   loc?: string;
+  job?: string;
   inst?: string;
   roleCode?: string;
   payMax?: string;
@@ -508,6 +530,7 @@ async function ReviewStep({
     role: roleCode,
     inst,
     loc,
+    job,
     classification: String(input.classification ?? ''),
     coverage: input.coverage_confirmed ? 'yes' : undefined,
     confirmed: input.classification_confirmed ? 'yes' : undefined,
@@ -526,6 +549,40 @@ async function ReviewStep({
         <div className="nua-row">
           <ButtonLink href={back}>Change the rate</ButtonLink>
         </div>
+      ) : job ? (
+        <form action={attachRoleToJob} className="nua-card nua-stack">
+          <input type="hidden" name="a" value={assessmentId} />
+          <input type="hidden" name="job" value={job} />
+          <input type="hidden" name="venue" value={venue ?? ''} />
+          <input type="hidden" name="role" value={roleCode ?? ''} />
+          <input type="hidden" name="inst" value={inst ?? ''} />
+          <input type="hidden" name="loc" value={loc ?? ''} />
+          <input type="hidden" name="pay_min" value={String(input.pay_amount ?? '')} />
+          <input type="hidden" name="pay_max" value={payMax ?? ''} />
+          <p>
+            <strong>{role?.title ?? roleCode}</strong> will be added to this job. Its advertised
+            minimum pay becomes <strong>${String(input.pay_amount ?? '')} an hour</strong>, the rate
+            you just checked. The title, description and other details stay as they are.
+          </p>
+          {result.needs_acknowledgement ? (
+            <Option
+              id="acknowledge"
+              type="checkbox"
+              name="acknowledge"
+              title="I’ve reviewed the award coverage and classification myself"
+              hint="We’ll record this. You can’t publish below an award minimum."
+            />
+          ) : null}
+          <div className="nua-row">
+            <Button type="submit">Add role and pay check to this job</Button>
+            <ButtonLink href={back} variant="secondary">
+              Change the pay
+            </ButtonLink>
+          </div>
+          <p className="nua-hint">
+            Publishing checks the pay again on the server using today&rsquo;s rates.
+          </p>
+        </form>
       ) : (
         <form action={createGuidedJob} className="nua-card nua-stack">
           <input type="hidden" name="a" value={assessmentId} />
