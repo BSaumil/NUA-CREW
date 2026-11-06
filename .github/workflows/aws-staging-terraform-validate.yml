@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'infra/aws/staging/**'
+      - 'scripts/aws_staging_cost_floor.py'
+      - 'scripts/staging-smoke.sh'
       - '.github/workflows/aws-staging-terraform-validate.yml'
 
 permissions:
@@ -27,3 +29,11 @@ jobs:
         run: terraform init -backend=false -input=false
       - name: Validate resource graph without AWS reads, plan or apply
         run: terraform validate -no-color
+      - name: Recheck owner US$300 staging public-rate cost model
+        working-directory: .
+        run: python3 scripts/aws_staging_cost_floor.py --check
+      - name: Validate read-only API smoke script syntax and ShellCheck
+        working-directory: .
+        run: |
+          bash -n scripts/staging-smoke.sh
+          shellcheck scripts/staging-smoke.sh

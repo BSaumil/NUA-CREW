@@ -1,0 +1,63 @@
+name: aws-staging-readonly-preflight
+
+# Never auto-run on pull requests or pushes. Requires owner-created GitHub
+# Environment and an AWS OIDC role scoped to this repository + environment.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  verify-aws-account-and-region:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment: nua-crew-staging-readonly
+    env:
+      EXPECTED_AWS_ACCOUNT_ID: ${{ vars.AWS_STAGING_ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_STAGING_READ_ROLE_ARN }}
+    steps:
+      - name: Fail closed if target account and read-only role are missing
+        run: |
+          set -euo pipefail
+          if [[ ! "$EXPECTED_AWS_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]; then
+            echo "::error::Set AWS_STAGING_ACCOUNT_ID (12 digits) in the protected staging-readonly Environment."
+            exit 1
+          fi
+          if [[ ! "$AWS_ROLE_ARN" =~ ^arn:aws:iam::[0-9]{12}:role/.+ ]]; then
+            echo "::error::Set AWS_STAGING_READ_ROLE_ARN to a restricted OIDC read-only role."
+            exit 1
+          fi
+          role_account="$(printf '%s' "$AWS_ROLE_ARN" | cut -d: -f5)"
+          if [[ "$role_account" != "$EXPECTED_AWS_ACCOUNT_ID" ]]; then
+            echo "::error::OIDC role account does not match expected staging account."
+            exit 1
+          fi
+      - name: Assume the staging read-only role via ephemeral GitHub OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_STAGING_READ_ROLE_ARN }}
+          role-session-name: nua-crew-staging-readonly
+          aws-region: ap-southeast-2
+      - name: Validate exact account ID and region capabilities (read-only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(aws sts get-caller-identity --query Account --output text)"
+          if [[ "$actual" != "$EXPECTED_AWS_ACCOUNT_ID" ]]; then
+            echo "::error::Assumed role is in the wrong AWS account."
+            exit 1
+          fi
+          export AWS_DEFAULT_REGION=ap-southeast-2
+          zones="$(aws ec2 describe-availability-zones --filters Name=region-name,Values=ap-southeast-2 --query 'length(AvailabilityZones)' --output text)"
+          rds="$(aws rds describe-orderable-db-instance-options --engine postgres --db-instance-class db.t4g.small --query 'length(OrderableDBInstanceOptions)' --output text)"
+          redis="$(aws elasticache describe-cache-engine-versions --engine redis --query 'length(CacheEngineVersions)' --output text)"
+          if [[ "$zones" -lt 2 || "$rds" -lt 1 || "$redis" -lt 1 ]]; then
+            echo "::error::Expected Sydney AWS availability or service options were not verified."
+            exit 1
+          fi
+          echo "Verified staging AWS account ending in ${actual: -4} (full account ID suppressed)."
+          echo "Sydney AZ count=$zones; RDS db.t4g.small options=$rds; Redis engine versions=$redis."
+          echo "READ-ONLY PREFLIGHT PASS. No Terraform plan/apply or provisioning occurred."

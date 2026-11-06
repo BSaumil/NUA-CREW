@@ -1,6 +1,8 @@
 # Copy to a private, ignored terraform.tfvars OUTSIDE the repository. No real secrets here.
 # Use a controlled S3+KMS remote state before any plan/apply.
 aws_region        = "ap-southeast-2"
+# REQUIRED before a real plan/apply. Use the 12-digit ID verified by OIDC read-only preflight.
+expected_aws_account_id = "REPLACE_WITH_APPROVED_12_DIGIT_ACCOUNT_ID"
 project_name      = "nua-crew-staging"
 vpc_cidr          = "10.76.0.0/16"
 db_instance_class = "db.t4g.small"

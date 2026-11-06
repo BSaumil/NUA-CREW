@@ -1,3 +1,5 @@
+> **Update, 6 November 2026:** The owner approved a **US$300/month staging spending target**, conditional on the account-specific AWS quote and safe account access before provisioning. No infrastructure has been applied. See [cost envelope](AWS_STAGING_300_USD_COST_ENVELOPE_2026-11-06.md) and [OIDC read-only access](AWS_STAGING_SECURE_ACCESS_2026-11-06.md). Budget monitoring now includes 50% actual, 80% forecasted and actual, and 100% actual alerts; it is **not** a hard billing cap. The ALB target health check uses `/healthz` (liveness); `/readyz` remains the independent database-readiness probe.
+
 # NUA CREW — Australia/Sydney isolated staging IaC
 
 **5 November 2026 — review-only module. NO INFRASTRUCTURE APPLIED.**
