@@ -29,6 +29,7 @@ def read_config(root: Path) -> tuple[str, str]:
     variables = (root / "infra/aws/staging/variables.tf").read_text()
     services = (root / "infra/aws/staging/services.tf").read_text()
     data = (root / "infra/aws/staging/data.tf").read_text()
+    versions = (root / "infra/aws/staging/versions.tf").read_text()
 
     # Fail closed on resource-family or task-size changes. Refresh price estimates
     # and these assertions together before changing the staging architecture.
@@ -43,6 +44,8 @@ def read_config(root: Path) -> tuple[str, str]:
     for label, token in required.items():
         if token not in variables + services:
             raise ValueError(f"Staging assumptions changed ({label}); refresh quote first")
+    if "allowed_account_ids = [var.expected_aws_account_id]" not in versions:
+        raise ValueError("AWS provider must reject the wrong account before plan/apply")
     if 'max_allocated_storage           = 40' not in data:
         raise ValueError("RDS storage cap changed: requires new cost review")
     if 'var.monthly_budget_usd >= 20 && var.monthly_budget_usd <= 300' not in variables:
