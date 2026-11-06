@@ -10,7 +10,7 @@ import {
   type PayVerdictData,
 } from '@nua-crew/ui';
 import { api, canWrite, requireEmployer } from '@/lib/api';
-import { closeJob, publishJob, unpublishJob } from '../../actions';
+import { closeJob, duplicateJob, publishJob, unpublishJob } from '../../actions';
 import { Flash, flashFrom } from '../../components';
 
 export const metadata: Metadata = { title: 'Manage job' };
@@ -67,6 +67,12 @@ export default async function ManageJob({
               Edit
             </ButtonLink>
           ) : null}
+          <form action={duplicateJob}>
+            <input type="hidden" name="job_id" value={job.id} />
+            <Button type="submit" variant="secondary">
+              Duplicate as new draft
+            </Button>
+          </form>
           {job.status === 'draft' || job.status === 'unpublished' ? (
             <form action={publishJob}>
               <input type="hidden" name="job_id" value={job.id} />

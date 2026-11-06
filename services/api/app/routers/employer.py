@@ -185,6 +185,65 @@ async def get_job(employer_id: uuid.UUID, job_id: uuid.UUID, _: Viewer, session:
     return (await to_out(session, [await _own_job(session, employer_id, job_id)]))[0]
 
 
+@router.post("/{employer_id}/jobs/{job_id}/duplicate", response_model=JobOut, status_code=201)
+async def duplicate_job(
+    employer_id: uuid.UUID, job_id: uuid.UUID, m: Recruiter, user: CurrentUser, session: Session
+) -> JobOut:
+    """Start a new draft from an existing job (repost a role, or one ad for a second venue).
+
+    Copies what describes the work. Deliberately not copied: the pay check (it describes a past
+    assessment, so a role-based copy must be re-checked before it can publish), the closing date,
+    and start/end dates that have already passed. Applications, promotions and status are never
+    carried over. The copy is a draft and must go through the normal publish gate.
+    """
+    await get_limiter().check(
+        f"job-create:{employer_id}", get_settings().job_create_limit_per_hour, 3600
+    )
+    src = await _own_job(session, employer_id, job_id)
+    today = datetime.now(UTC).date()
+    keep_dates = src.start_date is not None and src.start_date >= today
+    skills = (await to_out(session, [src]))[0].skills
+    # A deleted or foreign workplace is dropped rather than copied (validated like any input).
+    location = await _location(session, employer_id, src.location_id) if src.location_id else None
+    job = Job(employer_id=employer_id, origin="direct", status="draft", created_by=user.id)
+    data = JobIn(
+        title=src.title,
+        description=src.description,
+        employment_type=src.employment_type,
+        category=src.category,
+        location_id=location.id if location else None,
+        pay_min=src.pay_min,
+        pay_max=src.pay_max,
+        pay_period=src.pay_period,
+        super_included=src.super_included,
+        engagement_basis=src.engagement_basis,
+        duration_type=src.duration_type,
+        hours_pattern=src.hours_pattern,
+        min_weekly_hours=src.min_weekly_hours,
+        max_weekly_hours=src.max_weekly_hours,
+        start_date=src.start_date if keep_dates else None,
+        end_date=src.end_date if keep_dates else None,
+        skills=skills,
+        role_code=src.role_code,
+    )
+    await validate_hospitality_links(session, employer_id, data)
+    apply_job_input(job, data, location)
+    session.add(job)
+    await session.flush()
+    names = await set_job_skills(session, job, data.skills)
+    await record_version(session, job, names, user.id)
+    await audit(
+        session,
+        user.id,
+        "job.duplicated",
+        "job",
+        job.id,
+        employer_id=str(employer_id),
+        source_job_id=str(src.id),
+    )
+    return (await to_out(session, [job]))[0]
+
+
 @router.put("/{employer_id}/jobs/{job_id}", response_model=JobOut)
 async def update_job(
     employer_id: uuid.UUID,

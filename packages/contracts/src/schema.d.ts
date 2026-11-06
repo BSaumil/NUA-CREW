@@ -2098,6 +2098,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/jobs/{job_id}/duplicate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Duplicate Job
+         * @description Start a new draft from an existing job (repost a role, or one ad for a second venue).
+         *
+         *     Copies what describes the work. Deliberately not copied: the pay check (it describes a past
+         *     assessment, so a role-based copy must be re-checked before it can publish), the closing date,
+         *     and start/end dates that have already passed. Applications, promotions and status are never
+         *     carried over. The copy is a draft and must go through the normal publish gate.
+         */
+        post: operations["duplicate_job_v1_employers__employer_id__jobs__job_id__duplicate_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/jobs/{job_id}/publish": {
         parameters: {
             query?: never;
@@ -9688,6 +9713,38 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    duplicate_job_v1_employers__employer_id__jobs__job_id__duplicate_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            201: {
                 headers: {
                     [name: string]: unknown;
                 };
