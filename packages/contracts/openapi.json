@@ -14200,6 +14200,65 @@
         ]
       }
     },
+    "/v1/employers/{employer_id}/jobs/{job_id}/duplicate": {
+      "post": {
+        "description": "Start a new draft from an existing job (repost a role, or one ad for a second venue).\n\nCopies what describes the work. Deliberately not copied: the pay check (it describes a past\nassessment, so a role-based copy must be re-checked before it can publish), the closing date,\nand start/end dates that have already passed. Applications, promotions and status are never\ncarried over. The copy is a draft and must go through the normal publish gate.",
+        "operationId": "duplicate_job_v1_employers__employer_id__jobs__job_id__duplicate_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Duplicate Job",
+        "tags": [
+          "employer"
+        ]
+      }
+    },
     "/v1/employers/{employer_id}/jobs/{job_id}/publish": {
       "post": {
         "operationId": "publish_job_v1_employers__employer_id__jobs__job_id__publish_post",

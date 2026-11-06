@@ -130,6 +130,7 @@ See `ACCOUNT_BILLING_PLAN.md` for the owner's prices and delivery phases. Draft 
 | Requirement                                        | Status      | Evidence                                                                                    |
 | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
 | Employer registration + roles (owner/recruiter/viewer) | DONE    | `test_roles_and_decision_rules`                                                             |
+| Duplicate / repost a job as a new draft            | DONE        | `tests/test_job_duplicate.py` (7), employer web e2e `reposts a closed job`, mobile `hire-job-duplicate.test.tsx`. Copy never carries the pay check, closing date, past dates or applicants; role-based copies must be re-checked before publish |
 | Employer verification gate before publishing       | DONE        | `test_unverified_employer_cannot_publish`; admin review endpoint audited                    |
 | ABN checksum                                       | DONE        | unit test. **Checksum ≠ verification**; no ABR lookup (needs approved source/credentials)   |
 | Job CRUD, pay fields, versions, unpublish          | DONE        | API tests + e2e `employer edits a live job…`                                                |

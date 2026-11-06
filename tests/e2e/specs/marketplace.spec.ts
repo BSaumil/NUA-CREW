@@ -145,3 +145,32 @@ test('employer edits a live job, unpublishes it, then republishes; viewers canno
   await expect(viewer.getByRole('link', { name: 'Edit' })).toHaveCount(0);
   await expect(viewer.getByRole('button', { name: 'Unpublish' })).toHaveCount(0);
 });
+
+test('employer reposts a closed job as a new draft; the original stays closed; viewers cannot', async ({
+  browser,
+}) => {
+  const title = `E2E Repost ${Date.now()}`;
+  const owner = await as(browser, HIRE, 'owner-a@nua-crew.example.com');
+  await owner.goto(`${HIRE}/jobs/new`);
+  await owner.getByLabel('Job title').fill(title);
+  await owner.getByLabel('Description').fill('Weekend shifts on the machine.');
+  await owner.getByRole('button', { name: 'Save draft' }).click();
+  await owner.getByRole('button', { name: 'Publish' }).click();
+  await expect(owner.getByRole('status')).toContainText('Job published');
+  const originalUrl = owner.url().split('?')[0]!;
+  await owner.getByRole('button', { name: 'Close job' }).click();
+  await expect(owner.getByRole('status')).toContainText('Job closed');
+
+  await owner.getByRole('button', { name: 'Duplicate as new draft' }).click();
+  await expect(owner.getByRole('status')).toContainText('Copied as a new draft');
+  await expect(owner.getByRole('heading', { name: title })).toBeVisible();
+  expect(owner.url().split('?')[0]).not.toBe(originalUrl);
+  await expect(owner.getByRole('button', { name: 'Publish' })).toBeVisible();
+
+  await owner.goto(originalUrl);
+  await expect(owner.getByRole('button', { name: 'Publish' })).toHaveCount(0);
+
+  const viewer = await as(browser, HIRE, 'viewer-a@nua-crew.example.com');
+  await viewer.goto(originalUrl);
+  await expect(viewer.getByRole('button', { name: 'Duplicate as new draft' })).toHaveCount(0);
+});

@@ -167,6 +167,23 @@ export async function closeJob(form: FormData) {
   back(`/jobs/${id}`, 'notice', 'Job closed');
 }
 
+export async function duplicateJob(form: FormData) {
+  const { employerId } = await requireEmployer();
+  const id = str(form, 'job_id');
+  const { data, error } = await (
+    await api()
+  ).POST('/v1/employers/{employer_id}/jobs/{job_id}/duplicate', {
+    params: { path: { employer_id: employerId, job_id: id } },
+  });
+  if (!data) back(`/jobs/${id}`, 'error', errorMessage(error));
+  else
+    back(
+      `/jobs/${data.id}`,
+      'notice',
+      'Copied as a new draft. Check the dates and the pay check, then publish.',
+    );
+}
+
 export async function changeStatus(form: FormData) {
   const { employerId } = await requireEmployer();
   const id = str(form, 'application_id');
