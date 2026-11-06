@@ -140,7 +140,10 @@ async def test_import_is_idempotent_and_keeps_only_unchanged_verifications(clien
     verified = await client.post(
         f"/v1/admin/awards/rate-versions/{target['id']}/verify",
         headers=admin,
-        json={"source_note": "Checked against the official pay guide on test day"},
+        json={
+            "source_note": "Checked against the official pay guide on test day",
+            "confirm_hourly_minor": target["hourly_minor"],
+        },
     )
     assert verified.status_code == 200 and verified.json()["data_status"] == "verified"
 
@@ -464,7 +467,10 @@ async def test_only_admin_verifies_rates_and_loads_holidays(client):
     admin = await admin_headers(client)
     rates = (await client.get("/v1/admin/awards/rate-versions", headers=admin)).json()
     assert len(rates) == 33
-    body = {"source_note": "Verified against the official pay guide"}
+    body = {
+        "source_note": "Verified against the official pay guide",
+        "confirm_hourly_minor": rates[0]["hourly_minor"],
+    }
     assert (
         await client.post(
             f"/v1/admin/awards/rate-versions/{rates[0]['id']}/verify", headers=emp, json=body
@@ -481,7 +487,7 @@ async def test_only_admin_verifies_rates_and_loads_holidays(client):
         await client.post(
             f"/v1/admin/awards/rate-versions/{rates[0]['id']}/verify",
             headers=admin,
-            json={"source_note": "short"},
+            json={"source_note": "short", "confirm_hourly_minor": rates[0]["hourly_minor"]},
         )
     ).status_code == 422
     holiday = {
