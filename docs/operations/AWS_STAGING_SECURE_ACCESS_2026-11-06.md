@@ -6,6 +6,12 @@ The product owner approved a target of **US$300 per month** for AWS staging, *co
 
 Our first connection needs **read-only**, short-lived access, not administrator permissions or a copied access key. GitHub Actions can assume a dedicated AWS IAM role using **OIDC** after owner setup. The manual workflow `.github/workflows/aws-staging-readonly-preflight.yml` only reads account identity, Sydney availability zones and RDS/Redis offerings. It cannot provision, deploy, run migrations or bill Stripe.
 
+## Critical GitHub default-branch prerequisite
+
+**Verified on 6 November 2026:** the repository's default branch is still `claude/new-session-kszaxl`, while the correct integrated/released development branch is `main`. GitHub only enables the manual `workflow_dispatch` workflow when its YAML exists on the default branch. A repository administrator must change **Settings → General → Default branch** to `main` after checking branch-protection, Vercel Git integration and contributor automation effects. **Do not** mirror the workflow into the stale branch, force-push, delete that branch or bypass environment reviewers. The currently connected GitHub actions do not provide the repository-settings write operation, so this admin change is an external owner action.
+
+See GitHub's documentation: https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+
 ## Owner setup — perform only in your AWS and GitHub consoles
 1. Decide which dedicated AWS account (preferably a separate staging account) will own NUA CREW. Verify its payer/billing owner and whether the existing AWS account already has chargeable resources. **Do not share passwords, access keys or session tokens in chat.**
 2. In AWS IAM, create/verify the GitHub OIDC identity provider `https://token.actions.githubusercontent.com`, audience `sts.amazonaws.com`. If it exists, **reuse** the provider; do not create a duplicate.
