@@ -77,7 +77,7 @@ variable "monthly_budget_usd" {
   type        = number
   default     = 300
   validation {
-    condition     = var.monthly_budget_usd >= 20
-    error_message = "Provide a meaningful positive staging budget in USD."
+    condition     = var.monthly_budget_usd >= 20 && var.monthly_budget_usd <= 300
+    error_message = "Owner-approved NUA CREW staging budget alert target is at most USD 300/month. Any increase requires separately reviewed code and owner approval."
   }
 }
