@@ -41,7 +41,7 @@
 1. Owner confirms AWS account ownership and approved staging account ID, **without revealing credentials in chat**.
 2. AWS read-only role via GitHub OIDC, restricted to `repo:BSaumil/NUA-CREW:environment:nua-crew-staging-readonly`; audit the target identity. See `docs/operations/AWS_STAGING_SECURE_ACCESS_2026-11-06.md`.
 3. Verify all selected AWS resource SKUs in `ap-southeast-2`, build a calculator estimate including 730h, 20 GiB gp3, logging, two public IPv4 addresses where applicable, 20–100 GiB monthly transfer sensitivity, and backups. Record estimate date/identifier, exact Terraform SHA, account and tax handling in a private approval record.
-4. Approve backend S3 state bucket/KMS/locking and its small additional spend; create only with a separate authorised bootstrap.
+4. Enforce the Terraform AWS provider `allowed_account_ids` against the same approved staging account, then approve backend S3 state bucket/KMS/locking and its small additional spend; create only with a separate authorised bootstrap.
 5. The operator presents a **real** `terraform plan` from AWS read/plan role showing exact resource counts and forecast; review the plan JSON for secrets and file permissions before anyone applies it. No plan has run yet.
 6. Only then authorise a scoped, time-bounded **deployment role** and `terraform apply` in a separately approved workflow. First apply remains closed (`enable_services=false` and empty `allowed_https_cidrs`), but **will incur expenses** including NAT, ALB, RDS and Redis. No actual apply until all above gates are evidenced.
 
