@@ -10,6 +10,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
 from app.audit import audit
+from app.config import get_settings
 from app.deps import AdminUser, Candidate, CurrentUser, Recruiter, Session, Viewer
 from app.errors import ApiError, conflict, not_found
 from app.hospitality_schemas import (
@@ -753,6 +754,36 @@ async def add_penalty_rule(
     await session.flush()
     await audit(session, user.id, "award.penalty_added", "penalty_rule", row.id)
     return {"id": str(row.id), "data_status": row.data_status}
+
+
+class RoleCoverageOut(BaseModel):
+    require_role_on_publish: bool
+    employers_affected: int
+    jobs_missing_role: dict[str, int]
+
+
+@admin.get("/role-coverage", response_model=RoleCoverageOut)
+async def role_coverage(_: AdminUser, session: Session) -> RoleCoverageOut:
+    """How many live or draft ads have no hospitality role. Read this before switching on
+    `require_role_on_publish`: every one of these would be unable to publish until it has one."""
+    scope = (
+        Job.origin == "direct",
+        Job.role_code.is_(None),
+        Job.status.in_(("draft", "published", "unpublished")),
+    )
+    rows = (
+        await session.execute(
+            select(Job.status, func.count(Job.id)).where(*scope).group_by(Job.status)
+        )
+    ).all()
+    employers = await session.scalar(
+        select(func.count(func.distinct(Job.employer_id))).where(*scope)
+    )
+    return RoleCoverageOut(
+        require_role_on_publish=get_settings().require_role_on_publish,
+        employers_affected=employers or 0,
+        jobs_missing_role={status: n for status, n in rows},
+    )
 
 
 @admin.post("/public-holidays", status_code=201)

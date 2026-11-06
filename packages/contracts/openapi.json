@@ -168,6 +168,20 @@
         "title": "ApplyIn",
         "type": "object"
       },
+      "AttachRoleIn": {
+        "properties": {
+          "pay_assessment_id": {
+            "format": "uuid",
+            "title": "Pay Assessment Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "pay_assessment_id"
+        ],
+        "title": "AttachRoleIn",
+        "type": "object"
+      },
       "AttendanceEventOut": {
         "properties": {
           "actor_role": {
@@ -5930,6 +5944,84 @@
         "title": "RevokeIn",
         "type": "object"
       },
+      "RoleCoverageOut": {
+        "properties": {
+          "employers_affected": {
+            "title": "Employers Affected",
+            "type": "integer"
+          },
+          "jobs_missing_role": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "title": "Jobs Missing Role",
+            "type": "object"
+          },
+          "require_role_on_publish": {
+            "title": "Require Role On Publish",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "require_role_on_publish",
+          "employers_affected",
+          "jobs_missing_role"
+        ],
+        "title": "RoleCoverageOut",
+        "type": "object"
+      },
+      "RoleGapJobOut": {
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "id": {
+            "format": "uuid",
+            "title": "Id",
+            "type": "string"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "status",
+          "created_at"
+        ],
+        "title": "RoleGapJobOut",
+        "type": "object"
+      },
+      "RoleGapsOut": {
+        "description": "Own jobs with no hospitality role, so no pay check. `required` says whether publishing is\nalready refused for them (the server setting), or whether this is only a prompt.",
+        "properties": {
+          "jobs": {
+            "items": {
+              "$ref": "#/components/schemas/RoleGapJobOut"
+            },
+            "title": "Jobs",
+            "type": "array"
+          },
+          "required": {
+            "title": "Required",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "required",
+          "jobs"
+        ],
+        "title": "RoleGapsOut",
+        "type": "object"
+      },
       "RoleOut": {
         "properties": {
           "aliases": {
@@ -8770,6 +8862,33 @@
           }
         ],
         "summary": "Verify Rate",
+        "tags": [
+          "admin"
+        ]
+      }
+    },
+    "/v1/admin/awards/role-coverage": {
+      "get": {
+        "description": "How many live or draft ads have no hospitality role. Read this before switching on\n`require_role_on_publish`: every one of these would be unable to publish until it has one.",
+        "operationId": "role_coverage_v1_admin_awards_role_coverage_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleCoverageOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Role Coverage",
         "tags": [
           "admin"
         ]
@@ -14434,6 +14553,55 @@
         ]
       }
     },
+    "/v1/employers/{employer_id}/jobs-missing-role": {
+      "get": {
+        "description": "Own jobs that have no hospitality role yet, so no pay check can run for them.",
+        "operationId": "jobs_missing_role_v1_employers__employer_id__jobs_missing_role_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RoleGapsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Jobs Missing Role",
+        "tags": [
+          "employer"
+        ]
+      }
+    },
     "/v1/employers/{employer_id}/jobs/{job_id}": {
       "get": {
         "operationId": "get_job_v1_employers__employer_id__jobs__job_id__get",
@@ -14790,6 +14958,75 @@
           }
         ],
         "summary": "Publish Job",
+        "tags": [
+          "employer"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/jobs/{job_id}/role": {
+      "post": {
+        "description": "Give an existing job a hospitality role by attaching a pay check made for that role.\n\nThe role comes from the pay check, never from the job title. The advertised minimum becomes the\nhourly rate that was checked, so the advertisement and the check describe the same pay; the\nmaximum is kept only if it is an hourly figure at or above that rate. Publishing still\nre-checks against the rates in force that day.",
+        "operationId": "attach_role_v1_employers__employer_id__jobs__job_id__role_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AttachRoleIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JobOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Attach Role",
         "tags": [
           "employer"
         ]

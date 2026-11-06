@@ -232,6 +232,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/awards/role-coverage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Role Coverage
+         * @description How many live or draft ads have no hospitality role. Read this before switching on
+         *     `require_role_on_publish`: every one of these would be unable to publish until it has one.
+         */
+        get: operations["role_coverage_v1_admin_awards_role_coverage_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/employers": {
         parameters: {
             query?: never;
@@ -2046,6 +2067,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/jobs-missing-role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Jobs Missing Role
+         * @description Own jobs that have no hospitality role yet, so no pay check can run for them.
+         */
+        get: operations["jobs_missing_role_v1_employers__employer_id__jobs_missing_role_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -2134,6 +2175,31 @@ export interface paths {
         put?: never;
         /** Publish Job */
         post: operations["publish_job_v1_employers__employer_id__jobs__job_id__publish_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/employers/{employer_id}/jobs/{job_id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Attach Role
+         * @description Give an existing job a hospitality role by attaching a pay check made for that role.
+         *
+         *     The role comes from the pay check, never from the job title. The advertised minimum becomes the
+         *     hourly rate that was checked, so the advertisement and the check describe the same pay; the
+         *     maximum is kept only if it is an hourly figure at or above that rate. Publishing still
+         *     re-checks against the rates in force that day.
+         */
+        post: operations["attach_role_v1_employers__employer_id__jobs__job_id__role_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -2740,6 +2806,14 @@ export interface components {
             document_ids?: string[];
             /** Resume Id */
             resume_id?: string | null;
+        };
+        /** AttachRoleIn */
+        AttachRoleIn: {
+            /**
+             * Pay Assessment Id
+             * Format: uuid
+             */
+            pay_assessment_id: string;
         };
         /** AttendanceEventOut */
         AttendanceEventOut: {
@@ -4877,6 +4951,45 @@ export interface components {
             /** Reason */
             reason: string;
         };
+        /** RoleCoverageOut */
+        RoleCoverageOut: {
+            /** Employers Affected */
+            employers_affected: number;
+            /** Jobs Missing Role */
+            jobs_missing_role: {
+                [key: string]: number;
+            };
+            /** Require Role On Publish */
+            require_role_on_publish: boolean;
+        };
+        /** RoleGapJobOut */
+        RoleGapJobOut: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /**
+             * Id
+             * Format: uuid
+             */
+            id: string;
+            /** Status */
+            status: string;
+            /** Title */
+            title: string;
+        };
+        /**
+         * RoleGapsOut
+         * @description Own jobs with no hospitality role, so no pay check. `required` says whether publishing is
+         *     already refused for them (the server setting), or whether this is only a prompt.
+         */
+        RoleGapsOut: {
+            /** Jobs */
+            jobs: components["schemas"]["RoleGapJobOut"][];
+            /** Required */
+            required: boolean;
+        };
         /** RoleOut */
         RoleOut: {
             /**
@@ -6063,6 +6176,26 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    role_coverage_v1_admin_awards_role_coverage_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleCoverageOut"];
                 };
             };
         };
@@ -9599,6 +9732,37 @@ export interface operations {
             };
         };
     };
+    jobs_missing_role_v1_employers__employer_id__jobs_missing_role_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RoleGapsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     get_job_v1_employers__employer_id__jobs__job_id__get: {
         parameters: {
             query?: never;
@@ -9774,6 +9938,42 @@ export interface operations {
             cookie?: never;
         };
         requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["JobOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    attach_role_v1_employers__employer_id__jobs__job_id__role_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AttachRoleIn"];
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

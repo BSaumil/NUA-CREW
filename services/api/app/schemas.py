@@ -327,6 +327,25 @@ class JobIn(BaseModel):
         return self
 
 
+class RoleGapJobOut(BaseModel):
+    id: uuid.UUID
+    title: str
+    status: str
+    created_at: datetime
+
+
+class RoleGapsOut(BaseModel):
+    """Own jobs with no hospitality role, so no pay check. `required` says whether publishing is
+    already refused for them (the server setting), or whether this is only a prompt."""
+
+    required: bool
+    jobs: list[RoleGapJobOut]
+
+
+class AttachRoleIn(BaseModel):
+    pay_assessment_id: uuid.UUID
+
+
 class JobPatch(BaseModel):
     """Full replacement of editable fields (PUT semantics keep pay invariants simple)."""
 

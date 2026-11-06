@@ -62,6 +62,11 @@ export default async function ManageJob({
           <ButtonLink href="/billing" variant="secondary">
             Advertising and promotion
           </ButtonLink>
+          {job.status !== 'closed' && job.status !== 'expired' && !job.role ? (
+            <ButtonLink href={`/jobs/new/guided?step=2&job=${job.id}`} variant="secondary">
+              Add role and pay check
+            </ButtonLink>
+          ) : null}
           {job.status !== 'closed' && job.status !== 'expired' ? (
             <ButtonLink href={`/jobs/${job.id}/edit`} variant="secondary">
               Edit

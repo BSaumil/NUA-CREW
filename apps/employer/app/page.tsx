@@ -10,7 +10,7 @@ export default async function Dashboard({
   const { employerId, role } = await requireEmployer();
   const { error, notice } = await flashFrom(searchParams);
   const client = await api();
-  const [{ data: employer }, { data: jobs }, bookings, updates] = await Promise.all([
+  const [{ data: employer }, { data: jobs }, bookings, updates, gaps] = await Promise.all([
     client.GET('/v1/employers/{employer_id}', { params: { path: { employer_id: employerId } } }),
     client.GET('/v1/employers/{employer_id}/jobs', {
       params: { path: { employer_id: employerId } },
@@ -19,6 +19,9 @@ export default async function Dashboard({
       params: { path: { employer_id: employerId } },
     }),
     client.GET('/v1/notifications'),
+    client.GET('/v1/employers/{employer_id}/jobs-missing-role', {
+      params: { path: { employer_id: employerId } },
+    }),
   ]);
   const verified = employer?.verification_status === 'verified';
   return (
@@ -31,6 +34,35 @@ export default async function Dashboard({
           You can draft jobs now, but they cannot be published until NUA CREW has reviewed your
           business and authorised representative. We never publish on an ABN number alone.
         </p>
+      ) : null}
+      {gaps.data && gaps.data.jobs.length > 0 ? (
+        <section className="nua-card nua-stack" aria-labelledby="gaps-title">
+          <h2 id="gaps-title">
+            {gaps.data.jobs.length} {gaps.data.jobs.length === 1 ? 'job has' : 'jobs have'} no role
+            or pay check
+          </h2>
+          <p>
+            {gaps.data.required
+              ? 'These cannot be published until a role and pay check are added.'
+              : 'Adding a role lets us check your pay against the award minimum before you publish.'}
+          </p>
+          <ul>
+            {gaps.data.jobs.map((j) => (
+              <li key={j.id}>
+                <a href={`/jobs/${j.id}`}>{j.title}</a> ({j.status})
+                {canWrite(role) ? (
+                  <>
+                    {' '}
+                    <a href={`/jobs/new/guided?step=2&job=${j.id}`}>
+                      Add role
+                      <span className="nua-sr-only"> to {j.title}</span>
+                    </a>
+                  </>
+                ) : null}
+              </li>
+            ))}
+          </ul>
+        </section>
       ) : null}
       <div className="nua-grid">
         <WorkspaceSteps title="Your hiring at a glance">
