@@ -8,6 +8,16 @@ variable "aws_region" {
   }
 }
 
+# Required for every AWS plan/apply. A wrong account must be rejected by the provider.
+variable "expected_aws_account_id" {
+  description = "Approved AWS staging account ID, configured securely by the owner, never inferred from caller credentials."
+  type        = string
+  validation {
+    condition     = can(regex("^[0-9]{12}$", var.expected_aws_account_id))
+    error_message = "The approved staging account ID must be exactly 12 digits."
+  }
+}
+
 variable "project_name" {
   type        = string
   description = "Stable resource prefix; changing requires a new reviewed state."
