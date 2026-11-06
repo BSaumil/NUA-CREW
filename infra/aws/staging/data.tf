@@ -9,7 +9,7 @@ resource "aws_db_instance" "postgres" {
   engine_version                  = "16"
   instance_class                  = var.db_instance_class
   allocated_storage               = 20
-  max_allocated_storage           = 100
+  max_allocated_storage           = 40
   storage_type                    = "gp3"
   storage_encrypted               = true
   db_name                         = "nua_crew_staging"
@@ -117,9 +117,35 @@ resource "aws_budgets_budget" "staging" {
   limit_unit   = "USD"
   time_unit    = "MONTHLY"
 
+  # Budgets are delayed notifications, not a hard spending cap. Keep forecast and
+  # actual alerts so the owner can intervene before large cost overruns.
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 50
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = [var.budget_alert_email]
+  }
+
   notification {
     comparison_operator        = "GREATER_THAN"
     threshold                  = 80
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "FORECASTED"
+    subscriber_email_addresses = [var.budget_alert_email]
+  }
+
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 80
+    threshold_type             = "PERCENTAGE"
+    notification_type          = "ACTUAL"
+    subscriber_email_addresses = [var.budget_alert_email]
+  }
+
+  notification {
+    comparison_operator        = "GREATER_THAN"
+    threshold                  = 100
     threshold_type             = "PERCENTAGE"
     notification_type          = "ACTUAL"
     subscriber_email_addresses = [var.budget_alert_email]
