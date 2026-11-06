@@ -135,6 +135,7 @@ export function notificationHref(
       : null;
   if (kind.startsWith('shift.') || kind.startsWith('attendance.') || kind.startsWith('timesheet.'))
     return '/shifts';
+  if (kind === 'job.alert' && !employer) return '/saved-searches';
   if (kind.startsWith('application.') && id('application_id'))
     return `/applications/${id('application_id')}`;
   if (employer) {

@@ -130,6 +130,7 @@ See `ACCOUNT_BILLING_PLAN.md` for the owner's prices and delivery phases. Draft 
 | Requirement                                        | Status      | Evidence                                                                                    |
 | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
 | Employer registration + roles (owner/recruiter/viewer) | DONE    | `test_roles_and_decision_rules`                                                             |
+| Saved searches and job alerts on candidate web      | DONE        | API and mobile existed. Web: save from `/jobs`, list/toggle/delete at `/saved-searches`; `saved-searches.spec.ts`, `notificationHref` unit test. Web saves keyword, suburb and type only; phone-only filters are listed, not dropped. Alerts stay in-app/push, no email |
 | Employer verification gate before publishing       | DONE        | `test_unverified_employer_cannot_publish`; admin review endpoint audited                    |
 | ABN checksum                                       | DONE        | unit test. **Checksum ≠ verification**; no ABR lookup (needs approved source/credentials)   |
 | Job CRUD, pay fields, versions, unpublish          | DONE        | API tests + e2e `employer edits a live job…`                                                |
