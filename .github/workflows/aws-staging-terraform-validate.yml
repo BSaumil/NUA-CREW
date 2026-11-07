@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - 'infra/aws/staging/**'
+      - 'infra/aws/state-bootstrap/**'
       - 'scripts/aws_staging_cost_floor.py'
       - 'scripts/staging-smoke.sh'
       - '.github/workflows/aws-staging-terraform-validate.yml'
@@ -37,3 +38,35 @@ jobs:
         run: |
           bash -n scripts/staging-smoke.sh
           shellcheck scripts/staging-smoke.sh
+
+  validate-state-bootstrap-no-cloud-access:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infra/aws/state-bootstrap
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Terraform (validation only, no credentials)
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: '1.11.4'
+      - name: Verify format
+        run: terraform fmt -check -recursive -diff
+      - name: Initialise AWS provider without any AWS account
+        run: terraform init -backend=false -input=false
+      - name: Validate without AWS reads, plan or apply
+        run: terraform validate -no-color
+      - name: Refuse wildcard or unscoped trust in the plan-only role
+        run: |
+          if grep -nE 'sub".*\*|environment:\*|repo:[^"]*:\*' plan_role.tf; then
+            echo "Plan role trust must name one exact repository and environment." >&2
+            exit 1
+          fi
+      - name: Refuse any write or secret-value permission in the plan-only role
+        run: |
+          allow_block=$(awk '/data "aws_iam_policy_document" "plan" \{/,/^}/' plan_role.tf)
+          if printf '%s\n' "$allow_block" | grep -nE '"[a-z0-9]+:(Create|Put|Update|Delete|Modify|Attach|Detach|Run|Start|Stop|Terminate|Tag|Untag|Register|Deregister)[A-Za-z*]*"' \
+            | grep -vE 'UseStateLockOnly|s3:(Put|Delete)Object'; then
+            echo "The plan-only role must not grant write actions." >&2
+            exit 1
+          fi

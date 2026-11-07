@@ -1,0 +1,12 @@
+# Copy to a private, ignored terraform.tfvars OUTSIDE the repository. No secrets belong here.
+aws_region = "ap-southeast-2"
+
+# REQUIRED. The 12-digit ID of the approved staging account (never inferred from credentials).
+expected_aws_account_id = "REPLACE_WITH_APPROVED_12_DIGIT_ACCOUNT_ID"
+
+project_name          = "nua-crew-staging"
+github_repository     = "BSaumil/NUA-CREW"
+plan_environment_name = "nua-crew-staging-plan"
+state_key             = "staging/terraform.tfstate"
+
+noncurrent_state_retention_days = 90
