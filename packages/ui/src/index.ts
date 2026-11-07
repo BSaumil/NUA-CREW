@@ -9,3 +9,4 @@ export * from './onboarding';
 export * from './market';
 export * from './workspace';
 export * from './shifts';
+export * from './invitation-terms';
