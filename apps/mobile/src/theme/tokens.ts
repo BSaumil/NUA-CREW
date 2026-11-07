@@ -5,8 +5,9 @@
 export const brand = {
   burgundy: '#6b1738',
   deepWine: '#3c0b21',
-  obsidian: '#0b0b0c',
-  ivory: '#f7f3ef',
+  obsidian: '#111113',
+  ivory: '#f6f0e5',
+  artworkBurgundy: '#890a31',
   gold: '#c9a96e',
   teal: '#0fa3b1',
 } as const;
@@ -36,14 +37,14 @@ export type Palette = {
 export const light: Palette = {
   bg: brand.ivory,
   surface: '#ffffff',
-  surface2: '#efe9e2',
+  surface2: '#eee6db',
   text: brand.obsidian,
   muted: '#55504b',
   border: '#d9d0c6',
   primary: brand.burgundy,
   primaryHover: '#55122d',
   onPrimary: '#ffffff',
-  focus: '#0b0b0c',
+  focus: '#111113',
   liveTint: '#d7f1f3',
   onLiveTint: '#07424a',
   warnTint: '#fdeccf',
