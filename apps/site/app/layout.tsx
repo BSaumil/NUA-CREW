@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Image from 'next/image';
 import type { ReactNode } from 'react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
