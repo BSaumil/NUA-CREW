@@ -303,3 +303,106 @@ export async function deleteSearch(form: FormData) {
   if (error) back('/saved-searches', 'error', errorMessage(error));
   back('/saved-searches', 'notice', 'Search deleted.');
 }
+
+// ---- availability and employer preferences (candidate-private) ----
+const TIME = /^([01]\d|2[0-3]):[0-5]\d$/;
+const DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+export async function saveAvailability(form: FormData) {
+  await requireCandidate();
+  const rules: { weekday: number; start_time: string; end_time: string }[] = [];
+  const day = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  for (let weekday = 0; weekday < 7; weekday++) {
+    for (let i = 0; i < 12; i++) {
+      const s = str(form, `win_${weekday}_${i}_s`);
+      const e = str(form, `win_${weekday}_${i}_e`);
+      if (!s && !e) continue;
+      if (!TIME.test(s) || !TIME.test(e))
+        return back(
+          '/availability',
+          'error',
+          `${day[weekday]}: enter both a start and an end time, or clear the row. Nothing was saved.`,
+        );
+      rules.push({ weekday, start_time: s, end_time: e });
+    }
+  }
+  const { error } = await (
+    await api()
+  ).PUT('/v1/candidate/availability/rules', {
+    body: { time_zone: str(form, 'time_zone'), rules },
+  });
+  if (error) return back('/availability', 'error', errorMessage(error));
+  back(
+    '/availability',
+    'notice',
+    rules.length ? 'Weekly availability saved.' : 'Weekly availability cleared.',
+  );
+}
+
+export async function addAvailabilityException(form: FormData) {
+  await requireCandidate();
+  const state = str(form, 'state') === 'available' ? 'available' : 'unavailable';
+  const start = str(form, 'start_date');
+  const end = str(form, 'end_date') || start;
+  const st = str(form, 'start_time');
+  const et = str(form, 'end_time');
+  if (!DATE.test(start) || !DATE.test(end))
+    return back('/availability', 'error', 'Choose the date or dates.');
+  if ((st && !TIME.test(st)) || (et && !TIME.test(et)) || !!st !== !!et)
+    return back('/availability', 'error', 'Give both times, or neither for the whole day.');
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/availability/exceptions', {
+    body: { state, start_date: start, end_date: end, start_time: st || null, end_time: et || null },
+  });
+  if (error) return back('/availability', 'error', errorMessage(error));
+  back('/availability', 'notice', 'Exception added.');
+}
+
+export async function deleteAvailabilityException(form: FormData) {
+  await requireCandidate();
+  const id = str(form, 'id');
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return back('/availability', 'error', 'Not found.');
+  const { error } = await (
+    await api()
+  ).DELETE('/v1/candidate/availability/exceptions/{exception_id}', {
+    params: { path: { exception_id: id } },
+  });
+  if (error) return back('/availability', 'error', errorMessage(error));
+  back('/availability', 'notice', 'Exception removed.');
+}
+
+const PREF_KINDS = ['follow', 'hide_from', 'mute', 'block'] as const;
+export async function addEmployerPreference(form: FormData) {
+  await requireCandidate();
+  const kind = str(form, 'kind');
+  const employer = str(form, 'employer_id');
+  if (!(PREF_KINDS as readonly string[]).includes(kind) || !/^[0-9a-f-]{36}$/i.test(employer))
+    return back('/employer-preferences', 'error', 'Choose an employer first.');
+  if (kind === 'block' && form.get('understand') !== 'on')
+    return back(
+      '/employer-preferences',
+      'error',
+      'Tick the box to confirm you want to block this employer.',
+    );
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/employer-preferences', {
+    body: { employer_id: employer, kind: kind as (typeof PREF_KINDS)[number] },
+  });
+  if (error) return back('/employer-preferences', 'error', errorMessage(error));
+  back('/employer-preferences', 'notice', 'Saved.');
+}
+
+export async function removeEmployerPreference(form: FormData) {
+  await requireCandidate();
+  const id = str(form, 'id');
+  if (!/^[0-9a-f-]{36}$/i.test(id)) return back('/employer-preferences', 'error', 'Not found.');
+  const { error } = await (
+    await api()
+  ).DELETE('/v1/candidate/employer-preferences/{pref_id}', {
+    params: { path: { pref_id: id } },
+  });
+  if (error) return back('/employer-preferences', 'error', errorMessage(error));
+  back('/employer-preferences', 'notice', 'Removed.');
+}
