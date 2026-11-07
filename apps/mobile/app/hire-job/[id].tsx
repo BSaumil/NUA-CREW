@@ -122,6 +122,13 @@ function JobContent({ id }: { id: string }) {
             variant="secondary"
             onPress={() => router.push({ pathname: '/hire-post', params: { id } })}
           />
+          {!j.role ? (
+            <Button
+              title="Add role and pay check"
+              variant="secondary"
+              onPress={() => router.push({ pathname: '/hire-post', params: { id } })}
+            />
+          ) : null}
           {j.status === 'published' ? (
             <Button
               title="Pause advertisement"

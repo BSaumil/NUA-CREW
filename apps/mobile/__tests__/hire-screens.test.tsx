@@ -27,6 +27,7 @@ jest.mock('../src/api/hire', () => ({
   canRecruit: (role: string) => role === 'owner' || role === 'recruiter',
   useHireBusiness: jest.fn(),
   useHireJobs: jest.fn(),
+  useHireMissingRole: jest.fn(),
   useHireLocations: jest.fn(),
   useHireCreateJob: jest.fn(),
   useHireEditJob: jest.fn(),
@@ -44,6 +45,7 @@ beforeEach(() => {
   (hire.useHireBusiness as jest.Mock).mockReturnValue(
     query({ name: 'Fictional Cafe', verification_status: 'verified' }),
   );
+  (hire.useHireMissingRole as jest.Mock).mockReturnValue(query({ required: false, jobs: [] }));
   (hire.useHireJobs as jest.Mock).mockReturnValue(
     query([job(), job({ id: 'draft-1', status: 'draft', title: 'Chef' })]),
   );

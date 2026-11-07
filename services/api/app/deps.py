@@ -14,7 +14,10 @@ from app.security import decode_access_token
 
 _bearer = HTTPBearer(auto_error=False)
 
-Session = Annotated[AsyncSession, Depends(get_session)]
+# scope="function": commit when the endpoint returns, BEFORE the response is sent. With the default
+# request scope FastAPI runs the cleanup after the response, so a fast follow-up request could miss
+# the write (see tests/test_commit_before_response.py).
+Session = Annotated[AsyncSession, Depends(get_session, scope="function")]
 
 
 async def current_user(
