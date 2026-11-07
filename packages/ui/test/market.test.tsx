@@ -39,6 +39,9 @@ describe('country selection (employer)', () => {
   it('AU regression: existing field names, AUD, state codes, enabled submit', () => {
     const { container } = setup();
     expect(container.querySelector('input[name="abn"]')).not.toBeNull();
+    // Owner decision 2026-11-07: an Australian ABN is required at employer sign-up.
+    expect((container.querySelector('input[name="abn"]') as HTMLInputElement).required).toBe(true);
+    expect(screen.getByLabelText('ABN')).not.toBeNull();
     expect(container.querySelector('input[name="suburb"]')).not.toBeNull();
     expect(container.querySelector('input[name="postcode"]')).not.toBeNull();
     const options = [...container.querySelectorAll('select[name="state"] option')].map(

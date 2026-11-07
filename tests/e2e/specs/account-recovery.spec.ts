@@ -156,6 +156,7 @@ test('an employer resets a forgotten password on the employer app', async ({ pag
       password: OLD,
       full_name: 'Recovery Boss',
       organisation_name: 'Fictional Recovery Cafe',
+      abn: '28012345678',
       accept_terms: true,
       location: { name: 'Main', suburb: 'Fitzroy', state: 'VIC', postcode: '3065' },
     },

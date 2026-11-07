@@ -99,12 +99,13 @@ export function MarketLocationFields() {
       <div className="nua-field">
         <label htmlFor={idId}>
           {market.identifier.label}
-          {market.code === 'AU' ? ' (optional at setup)' : ' (optional)'}
+          {live ? '' : ' (optional)'}
         </label>
         <input
           id={idId}
           name={live ? 'abn' : `${p}identifier`}
           inputMode="numeric"
+          required={live}
           aria-describedby={`${idId}-hint`}
         />
         <p id={`${idId}-hint`} className="nua-hint">
