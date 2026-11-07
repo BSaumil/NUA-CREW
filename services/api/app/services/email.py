@@ -21,6 +21,8 @@ from app.config import get_settings
 
 log = logging.getLogger("nua.email")
 
+BRAND_SIGN_OFF = "\\n\\nNUA CREW — Where Talent Meets Opportunity\\n"
+
 
 @dataclass(frozen=True)
 class EmailMessage:
@@ -96,7 +98,7 @@ def verification_message(to: str, link: str) -> EmailMessage:
             f"{link}\n\n"
             "The link works once and expires in 24 hours. If you did not create a NUA CREW "
             "account, you can ignore this email.\n"
-        ),
+        ) + BRAND_SIGN_OFF,
     )
 
 
@@ -110,7 +112,7 @@ def reset_message(to: str, link: str) -> EmailMessage:
             f"{link}\n\n"
             "The link works once and expires in 30 minutes. If you did not ask for this, ignore "
             "this email: your password has not changed.\n"
-        ),
+        ) + BRAND_SIGN_OFF,
     )
 
 
@@ -123,5 +125,5 @@ def password_changed_message(to: str) -> EmailMessage:
             "your other devices.\n\n"
             "If this was not you, reset your password again from the sign-in page and check your "
             "account.\n"
-        ),
+        ) + BRAND_SIGN_OFF,
     )
