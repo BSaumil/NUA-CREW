@@ -26,7 +26,7 @@ export default function Home() {
               <span aria-hidden="true" />
               {SITE.productLive ? 'Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
             </span>
-            <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
+            <p className="section-kicker">WHERE TALENT MEETS OPPORTUNITY</p>
             <h1>
               Better Jobs.
               <br />
