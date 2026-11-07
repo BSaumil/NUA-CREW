@@ -59,6 +59,7 @@ from app.services.jurisdictions import (
     require_market_capability,
     verified_workplace_country,
 )
+from app.services.verified_email import require_verified_email
 
 router = APIRouter(prefix="/v1/employers", tags=["employer"])
 
@@ -171,6 +172,7 @@ async def list_jobs(employer_id: uuid.UUID, _: Viewer, session: Session) -> list
 async def create_job(
     employer_id: uuid.UUID, body: JobIn, m: Recruiter, user: CurrentUser, session: Session
 ) -> JobOut:
+    require_verified_email(user)
     await get_limiter().check(
         f"job-create:{employer_id}", get_settings().job_create_limit_per_hour, 3600
     )
@@ -387,6 +389,7 @@ async def update_job(
 async def publish_job(
     employer_id: uuid.UUID, job_id: uuid.UUID, _: Recruiter, user: CurrentUser, session: Session
 ) -> JobOut:
+    require_verified_email(user)
     job = await _own_job(session, employer_id, job_id)
     employer = await session.get(Employer, employer_id)
     assert employer is not None  # noqa: S101

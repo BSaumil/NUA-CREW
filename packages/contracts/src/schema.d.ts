@@ -3646,7 +3646,7 @@ export interface components {
         /** EmployerRegister */
         EmployerRegister: {
             /** Abn */
-            abn?: string | null;
+            abn: string;
             /**
              * Accept Terms
              * @constant

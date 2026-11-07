@@ -18,9 +18,10 @@ test('employer AU registration keeps ABN, State and Postcode, and submit is enab
 }) => {
   await toBusinessStep(page);
   await expect(page.getByRole('radio', { name: /Australia/ })).toBeChecked();
-  await expect(page.getByLabel('ABN (optional at setup)')).toBeVisible();
+  await expect(page.getByLabel('ABN', { exact: true })).toBeVisible();
   await expect(page.getByLabel('State', { exact: true })).toHaveValue('VIC');
   await page.getByLabel('Business name', { exact: true }).fill('Fictional Country Cafe');
+  await page.getByLabel('ABN', { exact: true }).fill('51 824 753 556');
   await page.getByLabel('Suburb', { exact: true }).fill('Fitzroy');
   await page.getByLabel('Postcode', { exact: true }).fill('3065');
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
@@ -35,7 +36,7 @@ test('employer NZ registration is preview-only: NZD, NZ regions, submit disabled
 }) => {
   await toBusinessStep(page);
   await page.getByRole('radio', { name: /New Zealand/ }).check();
-  await expect(page.getByLabel('ABN (optional at setup)')).toHaveCount(0);
+  await expect(page.getByLabel('ABN', { exact: true })).toHaveCount(0);
   await expect(page.getByText('NZBN (optional)')).toBeVisible();
   await expect(page.getByTestId('market-preview-notice')).toContainText('NZD');
   await expect(page.getByTestId('market-preview-notice')).toContainText('not assessed');

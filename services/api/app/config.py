@@ -12,8 +12,11 @@ class Settings(BaseSettings):
 
     env: str = "development"
     # When on, a direct employer job cannot be published without a hospitality role (and so
-    # without a pay check). Off by default until existing adverts have been reconciled.
-    require_role_on_publish: bool = False
+    # without a pay check). On by default (owner decision, 2026-11-07) after the gap list was built.
+    require_role_on_publish: bool = True
+    # Owner decision: posting and applying need a verified email. Enforced only while email can be
+    # delivered (see services/verified_email.py), so it cannot lock everyone out without a provider.
+    require_verified_email: bool = True
     database_url: str = "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew"
     # Alembic connects with this schema-owning role when set; the API never does (ADR-008).
     migration_database_url: str | None = None

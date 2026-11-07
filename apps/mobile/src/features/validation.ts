@@ -23,3 +23,16 @@ export function venueError(v: { suburb: string; state: string; postcode: string 
   if (!/^\d{4}$/.test(v.postcode.trim())) return 'Enter a four-digit postcode';
   return null;
 }
+
+/** ABN shape check mirroring the API (modulus 89). Well formed is not verified. */
+const ABN_WEIGHTS = [10, 1, 3, 5, 7, 9, 11, 13, 15, 17, 19];
+export const normaliseAbn = (v: string) => v.replace(/\D/g, '');
+export function abnError(v: string): string | null {
+  if (!v.trim()) return 'Enter your ABN';
+  const digits = normaliseAbn(v);
+  if (digits.length !== 11) return 'An ABN has 11 digits';
+  const nums = [...digits].map(Number);
+  nums[0] = (nums[0] ?? 0) - 1;
+  const sum = nums.reduce((a, n, i) => a + n * (ABN_WEIGHTS[i] ?? 0), 0);
+  return sum % 89 === 0 ? null : 'That ABN does not look right. Check the digits and try again.';
+}

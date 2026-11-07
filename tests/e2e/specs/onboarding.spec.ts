@@ -32,6 +32,7 @@ test('employer registers with a location, then sees verification required before
   await page.getByLabel('Password', { exact: true }).fill(password);
   await page.getByRole('button', { name: 'Continue', exact: true }).click();
   await page.getByLabel('Business name', { exact: true }).fill('Fictional Setup Cafe');
+  await page.getByLabel('ABN', { exact: true }).fill('80 987 654 321');
   await page.getByLabel('Suburb', { exact: true }).fill('Fitzroy');
   await page.getByLabel('Postcode', { exact: true }).fill('3065');
   await page.getByRole('button', { name: 'Continue', exact: true }).click();

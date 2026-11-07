@@ -28,6 +28,7 @@ from app.schemas import (
 )
 from app.services.applications import TERMINAL, notify_employer_team
 from app.services.jobs import is_open
+from app.services.verified_email import require_verified_email
 
 router = APIRouter(tags=["applications"])
 
@@ -87,6 +88,7 @@ async def apply(
     session: Session,
     idempotency_key: Annotated[str | None, Header(max_length=100)] = None,
 ) -> CandidateApplicationOut:
+    require_verified_email(user)
     await get_limiter().check(f"apply:{user.id}", get_settings().application_limit_per_hour, 3600)
     job = await session.get(Job, job_id)
     if job is None or not is_open(job):

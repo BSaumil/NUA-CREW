@@ -25,10 +25,17 @@ it('requires identity, business details and explicit terms consent before creati
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   expect(screen.getByRole('alert')).toHaveTextContent('Enter your business name');
   await fireEvent.changeText(screen.getByLabelText('Business name'), 'Fictional Cafe');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByRole('alert')).toHaveTextContent('Enter your ABN');
+  await fireEvent.changeText(screen.getByLabelText('ABN'), '12345678901');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  expect(screen.getByRole('alert')).toHaveTextContent(/does not look right/);
+  await fireEvent.changeText(screen.getByLabelText('ABN'), '51 824 753 556');
   await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
   expect(screen.getByLabelText('Work email')).toHaveProp('value', ' owner@example.invalid ');
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   expect(screen.getByLabelText('Business name')).toHaveProp('value', 'Fictional Cafe');
+  expect(screen.getByLabelText('ABN')).toHaveProp('value', '51 824 753 556');
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Create employer account' }));
   expect(screen.getByRole('alert')).toHaveTextContent(/Accept the terms/);
@@ -41,6 +48,7 @@ it('requires identity, business details and explicit terms consent before creati
       expect.objectContaining({
         full_name: 'Sam Example',
         organisation_name: 'Fictional Cafe',
+        abn: '51824753556',
         email: 'owner@example.invalid',
         client: 'mobile',
         accept_terms: true,
@@ -56,6 +64,7 @@ async function reachBusinessStep() {
   await fireEvent.changeText(screen.getByLabelText('Password'), 'a-long-password-123');
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
   await fireEvent.changeText(screen.getByLabelText('Business name'), 'Fictional Cafe');
+  await fireEvent.changeText(screen.getByLabelText('ABN'), '51824753556');
 }
 async function finish() {
   await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));

@@ -2,6 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { abnError, normaliseAbn } from '@nua-crew/ui';
 import { marketRefusal } from '@/lib/market';
 import { api, COOKIE, errorMessage, requireEmployer, TOKEN_MAX_AGE_S } from '@/lib/api';
 
@@ -41,6 +42,8 @@ export async function login(form: FormData) {
 export async function register(form: FormData) {
   const refusal = marketRefusal(form, 'onboarding');
   if (refusal) return back('/register', 'error', refusal);
+  const abnProblem = abnError(str(form, 'abn'));
+  if (abnProblem) return back('/register', 'error', abnProblem);
   const { data, error } = await (
     await api()
   ).POST('/v1/auth/register/employer', {
@@ -49,7 +52,7 @@ export async function register(form: FormData) {
       password: String(form.get('password') ?? ''),
       full_name: str(form, 'full_name'),
       organisation_name: str(form, 'organisation_name'),
-      abn: str(form, 'abn') || null,
+      abn: normaliseAbn(str(form, 'abn')),
       location: {
         name: str(form, 'location_name') || 'Main location',
         suburb: str(form, 'suburb'),

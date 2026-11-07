@@ -15,6 +15,8 @@ os.environ.pop("NUA_REDIS_URL", None)
 os.environ["NUA_AUTH_RATE_LIMIT_PER_MINUTE"] = "1000"
 os.environ["NUA_ENV"] = "development"
 
+import itertools  # noqa: E402
+import random  # noqa: E402
 import uuid  # noqa: E402
 from collections.abc import AsyncIterator  # noqa: E402
 from contextlib import asynccontextmanager  # noqa: E402
@@ -27,6 +29,7 @@ from sqlalchemy import text  # noqa: E402
 from sqlalchemy.ext.asyncio import AsyncSession  # noqa: E402
 
 from alembic import command  # noqa: E402
+from app.abn import is_valid_abn_checksum  # noqa: E402
 from app.db import dispose_engine, get_engine, get_sessionmaker  # noqa: E402
 from app.main import app  # noqa: E402
 from app.models import User  # noqa: E402
@@ -104,6 +107,16 @@ def _migrated(_rls_safe_role: None) -> None:
     command.upgrade(cfg, "head")
 
 
+@pytest.fixture(autouse=True)
+def _legacy_publish_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Most tests publish plain jobs and register without a mail transport. The shipped defaults
+    (role required, verified email required while mail can be delivered) are covered by tests that
+    switch them on explicitly (test_signup_and_gates.py)."""
+    from app.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "require_role_on_publish", False)
+
+
 @pytest_asyncio.fixture(autouse=True)
 async def _clean_db() -> AsyncIterator[None]:
     set_limiter(MemoryLimiter())
@@ -154,10 +167,24 @@ async def register_candidate(client: httpx.AsyncClient, email: str, name: str = 
     return auth(r.json()["access_token"])
 
 
+_abn_counter = itertools.count(100_000_000 + random.randrange(0, 800_000_000))  # noqa: S311 - test data
+
+
+def next_abn() -> str:
+    """A unique, well-formed ABN (valid checksum). Well-formed does not mean it belongs to anyone."""
+    body = f"{next(_abn_counter) % 1_000_000_000:09d}"
+    for prefix in range(10, 100):
+        candidate = f"{prefix}{body}"
+        if is_valid_abn_checksum(candidate):
+            return candidate
+    raise AssertionError("no check digits found")  # pragma: no cover
+
+
 async def register_employer(client: httpx.AsyncClient, email: str, org: str = "Fictional Cafe"):
     r = await client.post(
         "/v1/auth/register/employer",
         json={
+            "abn": next_abn(),
             "email": email,
             "password": PASSWORD,
             "full_name": "Owner Person",

@@ -520,3 +520,28 @@ async def test_mark_all_notifications_read_only_affects_the_caller(client):
     assert any(
         n["read_at"] is None for n in (await client.get("/v1/notifications", headers=emp)).json()
     )
+
+
+async def test_employer_registration_requires_an_abn(client):
+    body = {
+        "email": "noabn@x.example.com",
+        "password": PASSWORD,
+        "full_name": "x",
+        "organisation_name": "x",
+        "accept_terms": True,
+    }
+    missing = await client.post("/v1/auth/register/employer", json=body)
+    assert missing.status_code == 422
+    assert any("abn" in str(e["loc"]) for e in missing.json()["detail"])
+    ok = await client.post("/v1/auth/register/employer", json={**body, "abn": "51 824 753 556"})
+    assert ok.status_code == 201
+    # Well-formed is not verified: the organisation still waits for admin review.
+    headers = {"Authorization": f"Bearer {ok.json()['access_token']}"}
+    me = (await client.get("/v1/auth/me", headers=headers)).json()
+    eid = me["memberships"][0]["employer_id"]
+    again = await client.post(
+        "/v1/auth/register/employer",
+        json={**body, "email": "noabn2@x.example.com", "abn": "51824753556"},
+    )
+    assert again.status_code == 409 and again.json()["error"]["code"] == "abn_taken"
+    assert eid

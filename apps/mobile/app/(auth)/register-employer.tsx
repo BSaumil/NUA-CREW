@@ -3,7 +3,14 @@ import { useRef, useState } from 'react';
 import { Switch } from 'react-native';
 import { messageOf } from '@/api/client';
 import { AU_STATES, gateFor } from '@/features/markets';
-import { emailError, nameError, passwordError, venueError } from '@/features/validation';
+import {
+  abnError,
+  emailError,
+  nameError,
+  normaliseAbn,
+  passwordError,
+  venueError,
+} from '@/features/validation';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { BrandLockup, Button, Chip, Field, Row, Screen, Text } from '@/ui';
@@ -15,6 +22,7 @@ export default function RegisterEmployer() {
   const { colors } = useTheme();
   const [name, setName] = useState('');
   const [business, setBusiness] = useState('');
+  const [abn, setAbn] = useState('');
   const [venue, setVenue] = useState('');
   const [suburb, setSuburb] = useState('');
   const [state, setState] = useState('');
@@ -33,9 +41,9 @@ export default function RegisterEmployer() {
     const validation =
       step === 0
         ? identityError()
-        : business.trim()
-          ? venueError({ suburb, state, postcode })
-          : 'Enter your business name';
+        : !business.trim()
+          ? 'Enter your business name'
+          : abnError(abn) || venueError({ suburb, state, postcode });
     setError(validation);
     if (!validation) setStep((s) => s + 1);
   };
@@ -44,6 +52,7 @@ export default function RegisterEmployer() {
     const validation =
       identityError() ||
       (!business.trim() ? 'Enter your business name' : null) ||
+      abnError(abn) ||
       venueError({ suburb, state, postcode }) ||
       (!agree ? 'Accept the terms and privacy notice to continue.' : null);
     setError(validation);
@@ -54,6 +63,7 @@ export default function RegisterEmployer() {
       await registerEmployer({
         full_name: name.trim(),
         organisation_name: business.trim(),
+        abn: normaliseAbn(abn),
         email: email.trim(),
         password,
         // The first venue is optional; when given it is sent whole (the API needs all of it).
@@ -130,6 +140,17 @@ export default function RegisterEmployer() {
             onChangeText={setBusiness}
             maxLength={150}
           />
+          <Field
+            label="ABN"
+            value={abn}
+            onChangeText={setAbn}
+            keyboardType="number-pad"
+            maxLength={14}
+          />
+          <Text muted>
+            11 digits. We check the number is well formed. We do not verify the business at sign-up:
+            that happens before you can publish.
+          </Text>
           {!gate.allowed ? (
             <Text accessibilityRole="alert" muted>
               {gate.reason} Pay in{' '}
