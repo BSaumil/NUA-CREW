@@ -9,7 +9,7 @@ import { logout } from './actions';
 
 export const metadata: Metadata = {
   title: { default: 'NUA CREW Hire', template: '%s · NUA CREW Hire' },
-  description: 'Meet qualified people without unnecessary noise.',
+  description: 'NUA CREW — Where Talent Meets Opportunity. Employer hiring workspace.',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
