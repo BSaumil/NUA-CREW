@@ -2054,3 +2054,7 @@ main {
     padding: 18px;
   }
 }
+
+/* Approved full master artwork for the marketing footer: maintain its aspect ratio. */
+.site-footer__master-logo { display: inline-flex; width: min(100%, 280px); height: auto; }
+.site-footer__master-logo img { display: block; width: 100%; height: auto; object-fit: contain; }
