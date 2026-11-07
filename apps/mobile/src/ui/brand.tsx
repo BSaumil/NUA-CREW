@@ -1,43 +1,58 @@
-import Svg, { Circle, Path, Rect } from 'react-native-svg';
-import { View } from 'react-native';
+import { Image, useColorScheme, View } from 'react-native';
+import symbolSource from '../../assets/brand/symbol.png';
+import logoSource from '../../assets/brand/logo.png';
 import { Text } from './primitives';
 
-export const TAGLINE = 'Better Jobs. Stronger Teams.';
+/** Approved tagline (brand kit, 2026-11-07). */
+export const TAGLINE = 'Where Talent Meets Opportunity';
 export const SUPPORT_LINE = 'Real work. Real people. Better matches.';
 export const MATCH_DISCLOSURE =
   'Match scores are explainable estimates, not promises of employment. People at the employer make every hiring decision.';
 
-/** Icon-only glyph; use this at small sizes rather than the full lockup. */
+// Approved artwork from the brand kit (see scripts/make-icons.mjs). Never redrawn or recoloured.
+const SYMBOL_RATIO = 392 / 343;
+const LOGO_RATIO = 1030 / 604;
+
+/** Approved symbol; use this at small sizes rather than the full logo. */
 export function BrandMark({ size = 40, label }: { size?: number; label?: string }) {
   return (
-    <Svg
-      width={size}
-      height={size}
-      viewBox="0 0 1024 1024"
+    <Image
+      source={symbolSource}
+      style={{ width: Math.round(size * SYMBOL_RATIO), height: size }}
+      resizeMode="contain"
+      accessible={!!label}
       accessibilityRole={label ? 'image' : undefined}
       accessibilityLabel={label}
-      accessible={!!label}
       importantForAccessibility={label ? 'yes' : 'no-hide-descendants'}
+    />
+  );
+}
+
+/**
+ * The approved full logo, tagline built in, so do not print the tagline again beside it. Use it on
+ * the light surfaces of sign-in screens; small navigation uses the compact BrandLockup.
+ */
+export function BrandLogo({ width = 240 }: { width?: number }) {
+  // The artwork is never recoloured: on a dark screen it sits on warm ivory so "CREW" stays legible.
+  const dark = useColorScheme() === 'dark';
+  const image = (
+    <Image
+      source={logoSource}
+      style={{ width, height: Math.round(width / LOGO_RATIO) }}
+      resizeMode="contain"
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel={`NUA CREW. ${TAGLINE}`}
+    />
+  );
+  return dark ? (
+    <View
+      style={{ alignSelf: 'flex-start', backgroundColor: '#F6F0E5', padding: 12, borderRadius: 12 }}
     >
-      <Rect width={1024} height={1024} rx={220} fill="#3C0B21" />
-      <Path
-        d="M288 776V248L736 776V248"
-        fill="none"
-        stroke="#F7F3EF"
-        strokeWidth={112}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <Path
-        d="M288 776V224L736 776"
-        fill="none"
-        stroke="#C9A96E"
-        strokeWidth={28}
-        strokeLinecap="round"
-      />
-      <Circle cx={288} cy={776} r={28} fill="#0FA3B1" />
-      <Circle cx={736} cy={248} r={56} fill="#0FA3B1" />
-    </Svg>
+      {image}
+    </View>
+  ) : (
+    image
   );
 }
 

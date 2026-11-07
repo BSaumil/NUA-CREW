@@ -1,7 +1,7 @@
 # PRD (summary)
 
 **Personas:** hospitality job seeker (Melbourne), small-venue owner/manager, recruiter/team member, NUA CREW operator.
-**Promise:** find worthwhile work faster; hire with clarity and dignity. Tagline: *Better Jobs. Stronger Teams.*
+**Promise:** find worthwhile work faster; hire with clarity and dignity. Tagline: *Where Talent Meets Opportunity* (brand kit, 2026-11-07).
 
 | Epic                                 | Status in repo                                   |
 | ------------------------------------ | ------------------------------------------------ |

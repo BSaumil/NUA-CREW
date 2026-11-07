@@ -83,6 +83,25 @@ a {
   text-decoration: none;
   color: var(--text);
 }
+.nua-mark {
+  display: block;
+  width: auto;
+  flex: none;
+}
+.nua-logo {
+  display: inline-block;
+  line-height: 0;
+}
+.nua-logo img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+.nua-logo--tile {
+  background: #f6f0e5; /* warm ivory from the brand kit: the logo is never recoloured for dark surfaces */
+  padding: calc(var(--space) * 1.5) calc(var(--space) * 2);
+  border-radius: 12px;
+}
 .nua-wordmark {
   font-family: var(--font-display);
   font-weight: 800;
@@ -209,7 +228,8 @@ a {
   align-items: center;
   justify-content: space-between;
   gap: calc(var(--space) * 2);
-  padding: calc(var(--space) * 1.5) 0;
+  /* Vertical only: the .nua-container it shares an element with supplies the side padding. */
+  padding-block: calc(var(--space) * 1.5);
 }
 .nua-nav {
   display: flex;

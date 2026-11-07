@@ -1,46 +1,86 @@
-// Renders store/launcher icons from the brand glyph geometry (brand/svg/glyph.svg).
+/* global document -- used inside page.waitForFunction, which runs in the browser */
+// Builds the app's icon and splash assets from the APPROVED brand kit in brand/kit (never redrawn).
 // Usage: node scripts/make-icons.mjs   (needs Playwright's Chromium; see tests/e2e)
+//
+//  icon.png               iOS/App Store: the kit's ivory app icon, flattened to opaque RGB.
+//  adaptive-icon.png      Android adaptive foreground: symbol alone on transparent, inside the 66% safe zone.
+//                         Its background colour is set in app.config.ts (warm ivory, same as the iOS icon).
+//  notification-icon.png  Android notification icon: alpha mask, white silhouette of the symbol.
+//  splash-icon.png        Splash: the approved full logo (tagline built in) on transparent; ivory is set in config.
+//  favicon.png            Web favicon from the kit's 64px icon.
+//  brand/symbol.png, brand/logo.png   In-app artwork (see src/ui/brand.tsx).
 import { createRequire } from 'node:module';
-import { mkdirSync } from 'node:fs';
+import { copyFileSync, mkdirSync, readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
+const kit = resolve(here, '../../../brand/kit');
+const assets = resolve(here, '../assets');
 const require = createRequire(resolve(here, '../../../tests/e2e/package.json'));
 const { chromium } = require('@playwright/test');
 
-const GLYPH = (ivory, gold, teal) => `
-  <path d="M288 776V248L736 776V248" fill="none" stroke="${ivory}" stroke-width="112" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M288 776V224L736 776" fill="none" stroke="${gold}" stroke-width="28" stroke-linecap="round"/>
-  <circle cx="288" cy="776" r="28" fill="${teal}"/><circle cx="736" cy="248" r="56" fill="${teal}"/>`;
+// Data URIs: Chromium will not load file:// images into a page made with setContent().
+const url = (rel) => `data:image/png;base64,${readFileSync(resolve(kit, rel)).toString('base64')}`;
+mkdirSync(resolve(assets, 'brand'), { recursive: true });
 
-// The glyph occupies x/y 176..848 of a 1024 box; scale it about the centre to fit a safe zone.
-const svg = ({ size, bg, scale, colors }) => `
-<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 1024 1024">
-  ${bg ? `<rect width="1024" height="1024" fill="${bg}"/>` : ''}
-  <g transform="translate(512 512) scale(${scale}) translate(-512 -512)">${GLYPH(...colors)}</g>
-</svg>`;
+// Straight copies of approved artwork.
+copyFileSync(
+  resolve(kit, 'logos/NUA_CREW_symbol_transparent.png'),
+  resolve(assets, 'brand/symbol.png'),
+);
+copyFileSync(
+  resolve(kit, 'logos/NUA_CREW_primary_transparent.png'),
+  resolve(assets, 'brand/logo.png'),
+);
+copyFileSync(resolve(kit, 'icons/NUA_CREW_icon_64.png'), resolve(assets, 'favicon.png'));
 
-const BRAND = ['#F7F3EF', '#C9A96E', '#0FA3B1'];
-const WHITE = ['#FFFFFF', '#FFFFFF', '#FFFFFF'];
+const page_ = (size, inner, bg = 'transparent') =>
+  `<body style="margin:0;background:${bg}"><div style="width:${size}px;height:${size}px;display:flex;align-items:center;justify-content:center">${inner}</div></body>`;
+
 const targets = [
-  // iOS icons must be opaque squares; the OS applies the rounded mask.
-  ['icon.png', { size: 1024, bg: '#3C0B21', scale: 1.0, colors: BRAND }],
-  // Android adaptive foreground: keep the glyph inside the central 66% safe zone.
-  ['adaptive-icon.png', { size: 1024, bg: null, scale: 0.82, colors: BRAND }],
-  ['splash-icon.png', { size: 1024, bg: null, scale: 0.6, colors: BRAND }],
-  // Android notification icons are alpha masks: white on transparent.
-  ['notification-icon.png', { size: 256, bg: null, scale: 0.9, colors: WHITE }],
-  ['favicon.png', { size: 64, bg: '#3C0B21', scale: 1.0, colors: BRAND }],
+  // Opaque square: the OS applies the rounded mask, and the App Store rejects icons with alpha.
+  [
+    'icon.png',
+    1024,
+    `<img src="${url('icons/NUA_CREW_app_icon_ivory_1024.png')}" width="1024" height="1024">`,
+    '#F6F0E5',
+    false,
+  ],
+  // Symbol is 392x343; 500px wide keeps its diagonal inside the 676px (66%) safe circle.
+  [
+    'adaptive-icon.png',
+    1024,
+    `<img src="${url('logos/NUA_CREW_symbol_transparent.png')}" width="500">`,
+    'transparent',
+    true,
+  ],
+  // Alpha mask: invert(1) after brightness(0) turns every visible pixel white and keeps alpha.
+  [
+    'notification-icon.png',
+    256,
+    `<img src="${url('logos/NUA_CREW_symbol_transparent.png')}" width="200" style="filter:brightness(0) invert(1)">`,
+    'transparent',
+    true,
+  ],
+  [
+    'splash-icon.png',
+    1024,
+    `<img src="${url('logos/NUA_CREW_primary_transparent.png')}" width="960">`,
+    'transparent',
+    true,
+  ],
 ];
 
-mkdirSync(resolve(here, '../assets'), { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage();
-for (const [name, opts] of targets) {
-  await page.setViewportSize({ width: opts.size, height: opts.size });
-  await page.setContent(`<body style="margin:0;background:transparent">${svg(opts)}</body>`);
-  await page.screenshot({ path: resolve(here, '../assets', name), omitBackground: true });
+for (const [name, size, inner, bg, transparent] of targets) {
+  await page.setViewportSize({ width: size, height: size });
+  await page.setContent(page_(size, inner, bg));
+  await page.waitForFunction(() =>
+    [...document.images].every((i) => i.complete && i.naturalWidth > 0),
+  );
+  await page.screenshot({ path: resolve(assets, name), omitBackground: transparent });
   console.log('wrote', name);
 }
 await browser.close();

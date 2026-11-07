@@ -28,9 +28,9 @@ export default function Home() {
             </span>
             <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
             <h1>
-              Better Jobs.
+              Where Talent
               <br />
-              <span>Stronger Teams.</span>
+              <span>Meets Opportunity.</span>
             </h1>
             <p className="home-hero__lede">
               Find your next role. Meet your next teammate. Hospitality and local work, built around

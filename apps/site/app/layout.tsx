@@ -4,7 +4,7 @@ import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
 import '@nua-crew/ui/styles.css';
 import './site.css';
-import { BrandLockup, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
+import { BrandLockup, BrandLogo, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { MainNav } from './nav';
 import { BUSINESS } from '@/lib/business';
 import { SITE } from '@/lib/site';
@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     images: [
       {
-        url: '/opengraph-image',
+        url: '/opengraph-image.png',
         width: 1200,
         height: 630,
-        alt: 'NUA CREW — Better Jobs. Stronger Teams.',
+        alt: `NUA CREW — ${TAGLINE}`,
       },
     ],
   },
@@ -72,8 +72,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="nua-container" style={{ padding: '0 16px' }}>
             <div className="site-footer__grid">
               <div>
-                <BrandLockup />
-                <p style={{ marginTop: 16 }}>{TAGLINE}</p>
+                <a href="/" aria-label="NUA CREW home" className="site-footer__logo">
+                  <BrandLogo width={240} tile decorative />
+                </a>
                 <p>{SUPPORT_LINE}</p>
                 <p className="parent-brand">
                   A recruitment product from <a href={BUSINESS.parentUrl}>NUA POS</a>.

@@ -824,6 +824,11 @@ main {
 .site-footer .nua-lockup {
   margin-bottom: 16px;
 }
+.site-footer__logo {
+  display: inline-block;
+  margin-bottom: 16px;
+  border-radius: 12px;
+}
 @media (max-width: 1050px) {
   .site-nav a {
     padding: 10px 8px;

@@ -6,7 +6,7 @@ import { EMAIL_UNAVAILABLE, RESET_SENT, requestPasswordReset } from '@/features/
 import { emailError } from '@/features/validation';
 import { useTheme } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
-import { BrandLockup, Button, Field, Screen, Text } from '@/ui';
+import { BrandLogo, Button, Field, Screen, Text } from '@/ui';
 
 export default function ForgotPassword() {
   const { colors } = useTheme();
@@ -40,7 +40,7 @@ export default function ForgotPassword() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         style={{ gap: space(2.5) }}
       >
-        <BrandLockup size={44} />
+        <BrandLogo width={220} />
         <Text variant="title" accessibilityRole="header">
           Reset your password
         </Text>
