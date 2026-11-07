@@ -303,3 +303,131 @@ export async function deleteSearch(form: FormData) {
   if (error) back('/saved-searches', 'error', errorMessage(error));
   back('/saved-searches', 'notice', 'Search deleted.');
 }
+
+// ---- account settings (candidate): password, devices, deletion ----
+export async function changePassword(form: FormData) {
+  await requireCandidate();
+  const next = String(form.get('new_password') ?? '');
+  if (next !== String(form.get('confirm_password') ?? ''))
+    back('/account', 'error', 'The new passwords do not match.');
+  const { error, response } = await (
+    await api()
+  ).POST('/v1/account/password', {
+    body: { current_password: String(form.get('current_password') ?? ''), new_password: next },
+  });
+  if (!response.ok) back('/account', 'error', errorMessage(error));
+  back('/account', 'notice', 'Password changed. Your other devices have been signed out.');
+}
+
+export async function signOutEverywhere() {
+  await requireCandidate();
+  const { error, response } = await (await api()).POST('/v1/auth/logout-all');
+  if (!response.ok) back('/account', 'error', errorMessage(error));
+  (await cookies()).delete(COOKIE);
+  redirect(
+    '/login?notice=' +
+      encodeURIComponent(
+        'Signed out of all devices. A phone or browser that was already open can keep working for up to 30 minutes.',
+      ),
+  );
+}
+
+export async function deleteAccount(form: FormData) {
+  await requireCandidate();
+  if (form.get('understand') !== 'on')
+    back('/account', 'error', 'Tick the box to confirm you understand this cannot be undone.');
+  const { error, response } = await (
+    await api()
+  ).DELETE('/v1/account', { body: { password: String(form.get('password') ?? '') } });
+  if (!response.ok) back('/account', 'error', errorMessage(error));
+  (await cookies()).delete(COOKIE);
+  redirect('/login?notice=' + encodeURIComponent('Your account and its data have been deleted.'));
+}
+
+// ---- work preferences (candidate-private) ----
+const WORK_KINDS = ['permanent', 'temporary'] as const;
+const WORK_LABEL = { permanent: 'Permanent work', temporary: 'Temporary work' } as const;
+const DECIMAL = /^\d+(\.\d{1,2})?$/;
+
+export async function saveWorkPreferences(form: FormData) {
+  await requireCandidate();
+  const client = await api();
+  const saved: string[] = [];
+  const stop = (message: string): never =>
+    back(
+      '/work-preferences',
+      'error',
+      (saved.length ? `${saved.join(' and ')} saved. ` : 'Nothing was saved. ') + message,
+    );
+  for (const kind of WORK_KINDS) {
+    const enabled = form.get(`${kind}_enabled`) === 'on';
+    // A kind that was never set and is still off has nothing to store.
+    if (!enabled && str(form, `${kind}_exists`) !== '1') continue;
+    const label = WORK_LABEL[kind];
+    const decimal = (key: string, what: string) => {
+      const v = str(form, `${kind}_${key}`);
+      if (v === '') return null;
+      if (!DECIMAL.test(v)) return stop(`${label}: ${what} must be a number.`);
+      return v;
+    };
+    const whole = (key: string, what: string) => {
+      const v = str(form, `${kind}_${key}`);
+      if (v === '') return null;
+      if (!/^\d+$/.test(v)) return stop(`${label}: ${what} must be a whole number.`);
+      return Number(v);
+    };
+    const { error } = await client.PUT('/v1/candidate/work-preferences/{kind}', {
+      params: { path: { kind } },
+      body: {
+        enabled,
+        engagement_bases: form
+          .getAll(`${kind}_engagement`)
+          .map(String)
+          .filter((v): v is 'employee' | 'contractor' => v === 'employee' || v === 'contractor'),
+        hours_patterns: form
+          .getAll(`${kind}_hours`)
+          .map(String)
+          .filter(
+            (v): v is 'full_time' | 'part_time' | 'casual' =>
+              v === 'full_time' || v === 'part_time' || v === 'casual',
+          ),
+        min_weekly_hours: decimal('min_weekly', 'The fewest hours a week'),
+        max_weekly_hours: decimal('max_weekly', 'The most hours a week'),
+        min_hourly_pay: decimal('min_pay', 'The lowest hourly pay'),
+        max_travel_km:
+          kind === 'temporary' ? whole('travel', 'The furthest you will travel') : null,
+        notice_period_days: kind === 'permanent' ? whole('notice', 'The notice period') : null,
+        available_from: kind === 'permanent' ? str(form, 'permanent_available_from') || null : null,
+      },
+    });
+    if (error) stop(`${label} was not saved: ${errorMessage(error)}`);
+    saved.push(label);
+  }
+  back(
+    '/work-preferences',
+    saved.length ? 'notice' : 'error',
+    saved.length ? 'Saved to your account.' : 'Choose a kind of work to save.',
+  );
+}
+
+export async function setKindDiscovery(form: FormData) {
+  await requireCandidate();
+  const kind = str(form, 'kind');
+  if (kind !== 'permanent' && kind !== 'temporary')
+    back('/work-preferences', 'error', 'Unknown kind of work.');
+  const granted = str(form, 'granted') === '1';
+  const { error } = await (
+    await api()
+  ).PUT('/v1/candidate/consents/discovery/{kind}', {
+    params: { path: { kind: kind as 'permanent' | 'temporary' } },
+    body: { granted },
+  });
+  if (error) back('/work-preferences', 'error', errorMessage(error));
+  back(
+    '/work-preferences',
+    'notice',
+    granted
+      ? 'Employers can now find you for this kind of work.'
+      : 'Employers can no longer find you for this kind of work.',
+  );
+}

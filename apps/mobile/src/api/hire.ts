@@ -41,6 +41,15 @@ export const useHireJobs = () =>
       await api.GET('/v1/employers/{employer_id}/jobs', { params: { path: { employer_id: id } } }),
     ),
   );
+/** Own jobs that have no hospitality role yet, and whether publishing already requires one. */
+export const useHireMissingRole = () =>
+  useHireQuery(['jobs-missing-role'], async (id) =>
+    unwrap(
+      await api.GET('/v1/employers/{employer_id}/jobs-missing-role', {
+        params: { path: { employer_id: id } },
+      }),
+    ),
+  );
 export const useHireLocations = () =>
   useHireQuery(['locations'], async (id) =>
     unwrap(
