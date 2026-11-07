@@ -219,3 +219,29 @@ test('the walkthrough fits a small phone with no sideways scrolling', async ({ b
   );
   expect(overflow).toBeLessThanOrEqual(0);
 });
+
+test('approved NUA CREW symbol, master artwork and tagline load on public site', async ({
+  page,
+  request,
+}) => {
+  await page.goto(SITE + '/');
+  await expect(page.locator('header .nua-brand-tagline')).toHaveText(
+    'Where Talent Meets Opportunity',
+  );
+  await expect(
+    page.locator('footer img[alt="NUA CREW — Where Talent Meets Opportunity"]'),
+  ).toBeVisible();
+  await expect(page.locator('header .nua-lockup svg path')).toHaveAttribute('fill', '#890A31');
+  for (const path of ['/brand/nua-crew-symbol.svg', '/brand/nua-crew-logo.svg', '/icon.svg']) {
+    const response = await request.get(SITE + path);
+    expect(response.status(), path).toBe(200);
+    expect(response.headers()['content-type']).toContain('image/svg+xml');
+    expect(await response.text()).toContain('#890A31');
+  }
+  const apple = await request.get(SITE + '/apple-icon.png');
+  expect(apple.status()).toBe(200);
+  expect(apple.headers()['content-type']).toContain('image/png');
+  const og = await request.get(SITE + '/opengraph-image');
+  expect(og.status()).toBe(200);
+  expect(og.headers()['content-type']).toContain('image/png');
+});
