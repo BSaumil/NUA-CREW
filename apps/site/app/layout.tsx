@@ -23,10 +23,10 @@ export const metadata: Metadata = {
     locale: 'en_AU',
     images: [
       {
-        url: '/opengraph-image',
+        url: '/brand/nua-crew-open-graph.png',
         width: 1200,
         height: 630,
-        alt: 'NUA CREW — Better Jobs. Stronger Teams.',
+        alt: 'NUA CREW — Where Talent Meets Opportunity',
       },
     ],
   },
@@ -73,7 +73,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <div className="site-footer__grid">
               <div>
                 <BrandLockup />
-                <p style={{ marginTop: 16 }}>{TAGLINE}</p>
+                
                 <p>{SUPPORT_LINE}</p>
                 <p className="parent-brand">
                   A recruitment product from <a href={BUSINESS.parentUrl}>NUA POS</a>.
