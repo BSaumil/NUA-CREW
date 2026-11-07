@@ -10,6 +10,14 @@ const apiEnv = {
   // Email goes to a local folder the specs read; nothing is sent anywhere (development only).
   NUA_EMAIL_PROVIDER: 'file',
   NUA_EMAIL_FILE_DIR: resolve(__dirname, '.mail'),
+  // The verified-email gate for posting and applying applies whenever mail can be delivered, and
+  // these specs register fresh unverified users all the time. It is covered where it belongs, in
+  // services/api/tests/test_signup_and_gates.py, so the browser servers run without it.
+  NUA_REQUIRE_VERIFIED_EMAIL: 'false',
+  // Likewise the role-required-to-publish default: the marketplace specs publish plain jobs. The
+  // requirement itself is covered in services/api/tests (test_hospitality_api.py,
+  // test_role_reconciliation.py), and hospitality.spec.ts walks the role and pay-check path.
+  NUA_REQUIRE_ROLE_ON_PUBLISH: 'false',
 };
 
 export default defineConfig({
