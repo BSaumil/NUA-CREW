@@ -1,22 +1,23 @@
-/* NUA CREW design tokens. Source: brand/tokens/tokens.json. Working identity; clearance pending. */
+/* NUA CREW approved identity: official brand kit, 8 November 2026. */
 :root {
   --nua-burgundy: #6b1738;
   --nua-deep-wine: #3c0b21;
-  --nua-obsidian: #0b0b0c;
-  --nua-ivory: #f7f3ef;
+  --nua-obsidian: #111113;
+  --nua-ivory: #f6f0e5;
+  --nua-artwork-burgundy: #890a31;
   --nua-gold: #c9a96e;
   --nua-teal: #0fa3b1;
 
   --bg: var(--nua-ivory);
   --surface: #ffffff;
-  --surface-2: #efe9e2;
+  --surface-2: #eee6db;
   --text: var(--nua-obsidian);
   --muted: #55504b; /* 7.0:1 on ivory */
   --border: #d9d0c6;
   --primary: var(--nua-burgundy);
   --primary-hover: #55122d;
   --on-primary: #ffffff;
-  --focus: #0b0b0c;
+  --focus: #111113;
   --accent-live: var(--nua-teal);
   --live-tint: #d7f1f3;
   --on-live-tint: #07424a;
