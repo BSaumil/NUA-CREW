@@ -21,7 +21,7 @@ from app.config import get_settings
 
 log = logging.getLogger("nua.email")
 
-BRAND_SIGN_OFF = "\\n\\nNUA CREW — Where Talent Meets Opportunity\\n"
+BRAND_SIGN_OFF = "\n\nNUA CREW — Where Talent Meets Opportunity\n"
 
 
 @dataclass(frozen=True)
