@@ -98,7 +98,8 @@ def verification_message(to: str, link: str) -> EmailMessage:
             f"{link}\n\n"
             "The link works once and expires in 24 hours. If you did not create a NUA CREW "
             "account, you can ignore this email.\n"
-        ) + BRAND_SIGN_OFF,
+        )
+        + BRAND_SIGN_OFF,
     )
 
 
