@@ -68,10 +68,11 @@ describe('brand palette matches tokens.json', () => {
   it('uses the specified brand hex values', () => {
     expect(light['nua-burgundy']).toBe('#6b1738');
     expect(light['nua-deep-wine']).toBe('#3c0b21');
-    expect(light['nua-ivory']).toBe('#f7f3ef');
+    expect(light['nua-ivory']).toBe('#f6f0e5');
+    expect(light['nua-artwork-burgundy']).toBe('#890a31');
     expect(light['nua-gold']).toBe('#c9a96e');
     expect(light['nua-teal']).toBe('#0fa3b1');
-    expect(light['nua-obsidian']).toBe('#0b0b0c');
+    expect(light['nua-obsidian']).toBe('#111113');
   });
   it('documents why teal/gold are never used as small text on ivory', () => {
     expect(ratio(light['nua-teal']!, light['nua-ivory']!)).toBeLessThan(4.5);
