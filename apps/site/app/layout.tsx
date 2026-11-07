@@ -73,8 +73,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="nua-container" style={{ padding: '0 16px' }}>
             <div className="site-footer__grid">
               <div>
-                <BrandLockup />
-                <p style={{ marginTop: 16 }}>{TAGLINE}</p>
+                <a href="/" aria-label="NUA CREW home" className="site-footer__master-logo">
+                  <Image
+                    src="/brand/nua-crew-logo.svg"
+                    alt="NUA CREW — Where Talent Meets Opportunity"
+                    width={340}
+                    height={199}
+                  />
+                </a>
                 <p>{SUPPORT_LINE}</p>
                 <p className="parent-brand">
                   A recruitment product from <a href={BUSINESS.parentUrl}>NUA POS</a>.
