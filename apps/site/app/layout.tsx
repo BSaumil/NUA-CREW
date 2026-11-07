@@ -26,7 +26,7 @@ export const metadata: Metadata = {
         url: '/opengraph-image',
         width: 1200,
         height: 630,
-        alt: 'NUA CREW — Better Jobs. Stronger Teams.',
+        alt: 'NUA CREW — Where Talent Meets Opportunity',
       },
     ],
   },
@@ -39,7 +39,7 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = { themeColor: '#3C0B21' };
+export const viewport: Viewport = { themeColor: '#6B1738' };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
