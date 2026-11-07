@@ -304,6 +304,107 @@ export async function deleteSearch(form: FormData) {
   back('/saved-searches', 'notice', 'Search deleted.');
 }
 
+// ---- invitations and messages (candidate) ----
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+/** Ids come from a form, so they are checked before they are put into a redirect path. */
+const idOf = (form: FormData, key: string) => {
+  const v = str(form, key);
+  return UUID.test(v) ? v : null;
+};
+
+export async function acceptInvitation(form: FormData) {
+  await requireCandidate();
+  const id = idOf(form, 'id');
+  if (!id) return back('/inbox', 'error', 'That invitation could not be found.');
+  const { data, error } = await (
+    await api()
+  ).POST('/v1/candidate/invitations/{invitation_id}/accept', {
+    params: { path: { invitation_id: id } },
+    body: { terms_hash: str(form, 'terms_hash') },
+  });
+  if (!data) return back(`/inbox/invitations/${id}`, 'error', errorMessage(error));
+  if (data.conversation_id)
+    redirect(
+      `/inbox/conversations/${data.conversation_id}?notice=${encodeURIComponent('Accepted. You can now message the employer.')}`,
+    );
+  back('/inbox', 'notice', 'Accepted.');
+}
+
+export async function declineInvitation(form: FormData) {
+  await requireCandidate();
+  const id = idOf(form, 'id');
+  if (!id) return back('/inbox', 'error', 'That invitation could not be found.');
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/invitations/{invitation_id}/decline', {
+    params: { path: { invitation_id: id } },
+  });
+  if (error) return back(`/inbox/invitations/${id}`, 'error', errorMessage(error));
+  back('/inbox', 'notice', 'Invitation declined. You did not need to give a reason.');
+}
+
+export async function setInvitationsEnabled(form: FormData) {
+  await requireCandidate();
+  const enabled = str(form, 'enabled') === '1';
+  const { error } = await (
+    await api()
+  ).PUT('/v1/candidate/invitation-settings', { body: { enabled } });
+  if (error) return back('/inbox', 'error', errorMessage(error));
+  back(
+    '/inbox',
+    'notice',
+    enabled
+      ? 'Employers can invite you again.'
+      : 'New invitations are paused. Existing ones and open conversations are unchanged.',
+  );
+}
+
+export async function sendCandidateMessage(form: FormData) {
+  await requireCandidate();
+  const id = idOf(form, 'conversation_id');
+  if (!id) return back('/inbox', 'error', 'That conversation could not be found.');
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/conversations/{conversation_id}/messages', {
+    params: { path: { conversation_id: id } },
+    // The key makes a double-submit or a back-button resend create one message, not two.
+    body: { body: String(form.get('body') ?? '').trim(), client_key: str(form, 'client_key') },
+  });
+  if (error) return back(`/inbox/conversations/${id}`, 'error', errorMessage(error));
+  redirect(`/inbox/conversations/${id}`);
+}
+
+export async function closeConversation(form: FormData) {
+  await requireCandidate();
+  const id = idOf(form, 'conversation_id');
+  if (!id) return back('/inbox', 'error', 'That conversation could not be found.');
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/conversations/{conversation_id}/close', {
+    params: { path: { conversation_id: id } },
+  });
+  if (error) return back(`/inbox/conversations/${id}`, 'error', errorMessage(error));
+  back(`/inbox/conversations/${id}`, 'notice', 'Conversation ended.');
+}
+
+export async function reportConversation(form: FormData) {
+  await requireCandidate();
+  const id = idOf(form, 'conversation_id');
+  if (!id) return back('/inbox', 'error', 'That conversation could not be found.');
+  const { error } = await (
+    await api()
+  ).POST('/v1/candidate/conversations/{conversation_id}/report', {
+    params: { path: { conversation_id: id } },
+    body: { reason: str(form, 'reason'), message_id: idOf(form, 'message_id') },
+  });
+  if (error) return back(`/inbox/conversations/${id}`, 'error', errorMessage(error));
+  back(
+    `/inbox/conversations/${id}`,
+    'notice',
+    'Thank you. Our team will review this report. Only the reported message is shared with them.',
+  );
+}
+
 // ---- account settings (candidate): password, devices, deletion ----
 export async function changePassword(form: FormData) {
   await requireCandidate();
