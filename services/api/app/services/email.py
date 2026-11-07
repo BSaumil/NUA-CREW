@@ -113,7 +113,8 @@ def reset_message(to: str, link: str) -> EmailMessage:
             f"{link}\n\n"
             "The link works once and expires in 30 minutes. If you did not ask for this, ignore "
             "this email: your password has not changed.\n"
-        ) + BRAND_SIGN_OFF,
+        )
+        + BRAND_SIGN_OFF,
     )
 
 
@@ -126,5 +127,6 @@ def password_changed_message(to: str) -> EmailMessage:
             "your other devices.\n\n"
             "If this was not you, reset your password again from the sign-in page and check your "
             "account.\n"
-        ) + BRAND_SIGN_OFF,
+        )
+        + BRAND_SIGN_OFF,
     )
