@@ -98,7 +98,9 @@ class EmployerRegister(BaseModel):
     password: Password
     full_name: Name
     organisation_name: Name
-    abn: str | None = None
+    # Required at sign-up. A valid checksum only means the number is well formed: it is not
+    # verification of the business, which stays `unverified` until an admin reviews it.
+    abn: str
     location: LocationIn | None = None
     accept_terms: Literal[True]
     client: Client = "web"
@@ -111,10 +113,9 @@ class EmployerRegister(BaseModel):
 
     @model_validator(mode="after")
     def _abn(self) -> "EmployerRegister":
-        if self.abn is not None:
-            self.abn = normalise_abn(self.abn)
-            if not is_valid_abn_checksum(self.abn):
-                raise ValueError("ABN failed checksum validation")
+        self.abn = normalise_abn(self.abn)
+        if not is_valid_abn_checksum(self.abn):
+            raise ValueError("ABN failed checksum validation")
         return self
 
 

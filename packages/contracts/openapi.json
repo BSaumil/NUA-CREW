@@ -2279,15 +2279,8 @@
       "EmployerRegister": {
         "properties": {
           "abn": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Abn"
+            "title": "Abn",
+            "type": "string"
           },
           "accept_terms": {
             "const": true,
@@ -2354,6 +2347,7 @@
           "password",
           "full_name",
           "organisation_name",
+          "abn",
           "accept_terms"
         ],
         "title": "EmployerRegister",

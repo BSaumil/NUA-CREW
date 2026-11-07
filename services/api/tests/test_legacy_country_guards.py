@@ -32,6 +32,7 @@ def test_employer_registration_does_not_create_au_account_for_nz() -> None:
         "password": "correct-horse-battery",
         "full_name": "Owner",
         "organisation_name": "Test Venue",
+        "abn": "51824753556",
         "accept_terms": True,
     }
     assert EmployerRegister.model_validate(body).organisation_name == "Test Venue"

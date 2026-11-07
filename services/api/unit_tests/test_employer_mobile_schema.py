@@ -10,6 +10,7 @@ def body(**extra):
         "password": "long-testing-value-123",
         "full_name": "Example Owner",
         "organisation_name": "Example Cafe",
+        "abn": "51824753556",
         "accept_terms": True,
         **extra,
     }
