@@ -1,7 +1,13 @@
 import { useState } from 'react';
 import { RefreshControl, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { canRecruit, useHireBusiness, useHireJobs, useHireLocations } from '@/api/hire';
+import {
+  canRecruit,
+  useHireBusiness,
+  useHireJobs,
+  useHireLocations,
+  useHireMissingRole,
+} from '@/api/hire';
 import { messageOf } from '@/api/client';
 import { payRange } from '@/features/format';
 import { useHireWorkspace } from '@/state/HireWorkspace';
@@ -24,6 +30,7 @@ function Jobs() {
   const business = useHireBusiness();
   const jobs = useHireJobs();
   const locations = useHireLocations();
+  const gaps = useHireMissingRole();
   const [filter, setFilter] = useState<'all' | 'published' | 'draft' | 'closed'>('all');
   const items = jobs.data ?? [];
   const liveCount = items.filter((j) => j.status === 'published').length;
@@ -66,6 +73,39 @@ function Jobs() {
             : `${items.filter((j) => j.status === 'draft').length} drafts ready for your next step`}
         </Text>
       </Card>
+      {gaps.data && gaps.data.jobs.length > 0 ? (
+        <Card>
+          <Text variant="heading" accessibilityRole="header">
+            {gaps.data.jobs.length} {gaps.data.jobs.length === 1 ? 'job has' : 'jobs have'} no role
+            or pay check
+          </Text>
+          <Text muted>
+            {gaps.data.required
+              ? 'These cannot be published until a role and pay check are added.'
+              : 'Adding a role lets us check your pay against the award minimum before you publish.'}
+          </Text>
+          {gaps.data.jobs.slice(0, 5).map((j) => (
+            <Row key={j.id} style={{ justifyContent: 'space-between' }}>
+              <Text style={{ flex: 1 }}>
+                {j.title} ({j.status})
+              </Text>
+              {canRecruit(role) ? (
+                <Button
+                  title="Add role"
+                  variant="secondary"
+                  accessibilityLabel={`Add a role and pay check to ${j.title}`}
+                  onPress={() => router.push({ pathname: '/hire-post', params: { id: j.id } })}
+                />
+              ) : null}
+            </Row>
+          ))}
+          {gaps.data.jobs.length > 5 ? (
+            <Text variant="caption" muted>
+              and {gaps.data.jobs.length - 5} more in your job list.
+            </Text>
+          ) : null}
+        </Card>
+      ) : null}
       <Row style={{ alignItems: 'stretch' }}>
         {canRecruit(role) ? (
           <ActionTile
