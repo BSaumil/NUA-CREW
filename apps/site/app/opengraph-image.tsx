@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const alt =
-  'NUA CREW — Better Jobs. Stronger Teams. Australia and New Zealand in preparation.';
+  'NUA CREW — Where Talent Meets Opportunity Australia and New Zealand in preparation.';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -18,8 +18,8 @@ export default function OpenGraphImage() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        background: '#F7F3EF',
-        color: '#3C0B21',
+        background: '#F6F0E5',
+        color: '#111113',
         padding: '74px 92px',
         fontFamily: 'Arial, sans-serif',
       }}
@@ -37,8 +37,8 @@ export default function OpenGraphImage() {
             display: 'flex',
             padding: '16px 22px',
             borderRadius: 15,
-            background: '#3C0B21',
-            color: '#F7F3EF',
+            background: '#6B1738',
+            color: '#F6F0E5',
             fontSize: 38,
             fontWeight: 800,
           }}
@@ -48,17 +48,17 @@ export default function OpenGraphImage() {
         <span style={{ fontSize: 38, fontWeight: 700, letterSpacing: 5 }}>CREW</span>
       </div>
       <div style={{ display: 'flex', fontSize: 77, fontWeight: 800, lineHeight: 1.08 }}>
-        Better Jobs.
+        Where Talent Meets
       </div>
       <div style={{ display: 'flex', fontSize: 77, fontWeight: 800, lineHeight: 1.08 }}>
-        Stronger Teams.
+        Opportunity
       </div>
       <div
         style={{
           display: 'flex',
           fontSize: 25,
           marginTop: 38,
-          color: '#6B1738',
+          color: '#890A31',
           fontWeight: 600,
         }}
       >
