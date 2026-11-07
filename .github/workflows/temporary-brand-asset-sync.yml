@@ -1,0 +1,46 @@
+name: temporary-brand-asset-sync
+# Temporary branch-only helper. Must be deleted before merging into main.
+on:
+  push:
+    branches: [feat/approved-brand-kit-rollout-20261108]
+    paths:
+      - 'scripts/brand/sync_brand_assets.py'
+      - 'packages/ui/assets/nua-crew-logo.svg'
+      - 'packages/ui/assets/nua-crew-symbol.svg'
+      - '.github/workflows/temporary-brand-asset-sync.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  generate-assets:
+    if: github.ref == 'refs/heads/feat/approved-brand-kit-rollout-20261108'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: feat/approved-brand-kit-rollout-20261108
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Render approved glyph and master logo to app assets
+        run: |
+          python -m pip install --disable-pip-version-check 'Pillow==11.3.0' 'CairoSVG==2.8.2'
+          python scripts/brand/sync_brand_assets.py
+      - name: Commit generated assets to this feature branch only
+        run: |
+          set -euo pipefail
+          git add apps/mobile/assets/icon.png apps/mobile/assets/adaptive-icon.png \
+            apps/mobile/assets/splash-icon.png apps/mobile/assets/notification-icon.png \
+            apps/mobile/assets/favicon.png apps/site/app/apple-icon.png \
+            apps/web/app/apple-icon.png apps/employer/app/apple-icon.png
+          if git diff --cached --quiet; then
+            echo 'Brand assets already synchronized.'
+          else
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'brand: commit approved icons and splash artwork'
+            git push origin HEAD:refs/heads/feat/approved-brand-kit-rollout-20261108
+          fi
