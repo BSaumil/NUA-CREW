@@ -48,3 +48,65 @@ it('requires identity, business details and explicit terms consent before creati
     ),
   );
 });
+
+async function reachBusinessStep() {
+  await renderApp(<RegisterEmployer />);
+  await fireEvent.changeText(screen.getByLabelText('Your full name'), 'Sam Example');
+  await fireEvent.changeText(screen.getByLabelText('Work email'), 'owner@example.invalid');
+  await fireEvent.changeText(screen.getByLabelText('Password'), 'a-long-password-123');
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent.changeText(screen.getByLabelText('Business name'), 'Fictional Cafe');
+}
+async function finish() {
+  await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+  await fireEvent(screen.getByLabelText('Accept terms and privacy notice'), 'valueChange', true);
+  await fireEvent.press(screen.getByRole('button', { name: 'Create employer account' }));
+}
+
+describe('first venue at sign-up (matches the website)', () => {
+  it('is optional: no venue means no location is sent', async () => {
+    mockRegister.mockResolvedValue(undefined);
+    await reachBusinessStep();
+    await finish();
+    await waitFor(() => expect(mockRegister).toHaveBeenCalled());
+    expect(mockRegister.mock.calls[0][0]).not.toHaveProperty('location');
+  });
+
+  it('sends a complete venue, defaulting the name like the website does', async () => {
+    mockRegister.mockResolvedValue(undefined);
+    await reachBusinessStep();
+    await fireEvent.changeText(screen.getByLabelText('Suburb'), ' Fitzroy ');
+    await fireEvent.press(screen.getByRole('button', { name: 'VIC' }));
+    await fireEvent.changeText(screen.getByLabelText('Postcode'), '3065');
+    await finish();
+    await waitFor(() =>
+      expect(mockRegister).toHaveBeenCalledWith(
+        expect.objectContaining({
+          location: { name: 'Main location', suburb: 'Fitzroy', state: 'VIC', postcode: '3065' },
+        }),
+      ),
+    );
+  });
+
+  it('refuses a half-filled venue with a reason and sends nothing', async () => {
+    await reachBusinessStep();
+    await fireEvent.changeText(screen.getByLabelText('Suburb'), 'Fitzroy');
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Choose the venue state or territory');
+    await fireEvent.press(screen.getByRole('button', { name: 'VIC' }));
+    await fireEvent.changeText(screen.getByLabelText('Postcode'), '30');
+    await fireEvent.press(screen.getByRole('button', { name: 'Continue' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a four-digit postcode');
+    expect(mockRegister).not.toHaveBeenCalled();
+  });
+
+  it('lets a chosen state be cleared again', async () => {
+    mockRegister.mockResolvedValue(undefined);
+    await reachBusinessStep();
+    await fireEvent.press(screen.getByRole('button', { name: 'VIC' }));
+    await fireEvent.press(screen.getByRole('button', { name: 'VIC' }));
+    await finish(); // nothing else entered, so the venue is simply absent
+    await waitFor(() => expect(mockRegister).toHaveBeenCalled());
+    expect(mockRegister.mock.calls[0][0]).not.toHaveProperty('location');
+  });
+});
