@@ -14,3 +14,12 @@ export function passwordError(v: string, forNew = false): string | null {
 }
 
 export const nameError = (v: string) => (v.trim() ? null : 'Enter your name');
+
+/** A first venue is optional at sign-up, but a partly filled one is refused with a reason. */
+export function venueError(v: { suburb: string; state: string; postcode: string }): string | null {
+  if (!v.suburb.trim() && !v.state && !v.postcode.trim()) return null;
+  if (!v.suburb.trim()) return 'Enter the venue suburb';
+  if (!v.state) return 'Choose the venue state or territory';
+  if (!/^\d{4}$/.test(v.postcode.trim())) return 'Enter a four-digit postcode';
+  return null;
+}
