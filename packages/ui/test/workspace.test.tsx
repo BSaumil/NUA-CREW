@@ -54,3 +54,20 @@ it('job alerts open the saved-searches page for candidates and never follow payl
   // Employers never receive job alerts; a stray one must not open a candidate-only page.
   expect(notificationHref('job.alert', {}, true)).toBe('/');
 });
+
+it('candidate invitation and message notifications open the inbox pages, with ids checked', () => {
+  expect(notificationHref('invitation_received', { invitation_id: 'abc-123' }, false)).toBe(
+    '/inbox/invitations/abc-123',
+  );
+  expect(notificationHref('message_received', { conversation_id: 'c-1' }, false)).toBe(
+    '/inbox/conversations/c-1',
+  );
+  // A malformed id never becomes part of a path.
+  expect(notificationHref('invitation_received', { invitation_id: '../../x' }, false)).toBe(
+    '/dashboard',
+  );
+  // Employers keep their own destinations.
+  expect(notificationHref('message_received', { conversation_id: 'c-1' }, true)).toBe(
+    '/messages/c-1',
+  );
+});

@@ -2,11 +2,11 @@ import { Link } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Switch } from 'react-native';
 import { messageOf } from '@/api/client';
-import { gateFor } from '@/features/markets';
-import { emailError, nameError, passwordError } from '@/features/validation';
+import { AU_STATES, gateFor } from '@/features/markets';
+import { emailError, nameError, passwordError, venueError } from '@/features/validation';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
-import { BrandLockup, Button, Field, Row, Screen, Text } from '@/ui';
+import { BrandLockup, Button, Chip, Field, Row, Screen, Text } from '@/ui';
 import { MarketChoice } from '@/ui/market';
 import { Notice } from '@/ui/hire';
 import { SetupPolicies, SetupProgress } from '@/ui/setup';
@@ -15,6 +15,10 @@ export default function RegisterEmployer() {
   const { colors } = useTheme();
   const [name, setName] = useState('');
   const [business, setBusiness] = useState('');
+  const [venue, setVenue] = useState('');
+  const [suburb, setSuburb] = useState('');
+  const [state, setState] = useState('');
+  const [postcode, setPostcode] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [agree, setAgree] = useState(false);
@@ -27,7 +31,11 @@ export default function RegisterEmployer() {
   const identityError = () => nameError(name) || emailError(email) || passwordError(password, true);
   const next = () => {
     const validation =
-      step === 0 ? identityError() : business.trim() ? null : 'Enter your business name';
+      step === 0
+        ? identityError()
+        : business.trim()
+          ? venueError({ suburb, state, postcode })
+          : 'Enter your business name';
     setError(validation);
     if (!validation) setStep((s) => s + 1);
   };
@@ -36,6 +44,7 @@ export default function RegisterEmployer() {
     const validation =
       identityError() ||
       (!business.trim() ? 'Enter your business name' : null) ||
+      venueError({ suburb, state, postcode }) ||
       (!agree ? 'Accept the terms and privacy notice to continue.' : null);
     setError(validation);
     if (validation) return;
@@ -47,6 +56,17 @@ export default function RegisterEmployer() {
         organisation_name: business.trim(),
         email: email.trim(),
         password,
+        // The first venue is optional; when given it is sent whole (the API needs all of it).
+        ...(suburb.trim()
+          ? {
+              location: {
+                name: venue.trim() || 'Main location',
+                suburb: suburb.trim(),
+                state: state as 'VIC',
+                postcode: postcode.trim(),
+              },
+            }
+          : {}),
         accept_terms: true,
         client: 'mobile',
       });
@@ -117,10 +137,33 @@ export default function RegisterEmployer() {
               assessed, and no wage or eligibility is stated.
             </Text>
           ) : null}
-          <Text muted>
-            Add your venue details and draft a role after setup. Business verification is required
-            before publishing.
+          <Text variant="heading" accessibilityRole="header">
+            First work location (optional)
           </Text>
+          <Text muted>
+            Add it now, or after setup. You can draft a role either way. Business verification is
+            required before publishing.
+          </Text>
+          <Field label="Venue name" value={venue} onChangeText={setVenue} maxLength={150} />
+          <Field label="Suburb" value={suburb} onChangeText={setSuburb} maxLength={100} />
+          <Text variant="label">State or territory</Text>
+          <Row>
+            {AU_STATES.map((s) => (
+              <Chip
+                key={s}
+                label={s}
+                selected={state === s}
+                onPress={() => setState(state === s ? '' : s)}
+              />
+            ))}
+          </Row>
+          <Field
+            label="Postcode"
+            value={postcode}
+            onChangeText={setPostcode}
+            keyboardType="number-pad"
+            maxLength={4}
+          />
         </>
       ) : (
         <>
