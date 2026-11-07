@@ -54,8 +54,9 @@ describe('native tokens stay in sync with the web design system', () => {
     expect(brand).toEqual({
       burgundy: '#6b1738',
       deepWine: '#3c0b21',
-      obsidian: '#0b0b0c',
-      ivory: '#f7f3ef',
+      obsidian: '#111113',
+      ivory: '#f6f0e5',
+      artworkBurgundy: '#890a31',
       gold: '#c9a96e',
       teal: '#0fa3b1',
     });
