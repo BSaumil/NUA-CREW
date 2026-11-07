@@ -79,24 +79,48 @@ a {
 .nua-lockup {
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--space) * 1.25);
+  gap: 8px;
+  max-width: 100%;
   text-decoration: none;
   color: var(--text);
+  flex-shrink: 0;
+}
+.nua-lockup svg {
+  width: 42px;
+  height: 38px;
+  flex: 0 0 auto;
+}
+.nua-lockup__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 2px;
+}
+.nua-brand-tagline {
+  color: var(--muted);
+  font-size: 0.62rem;
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0;
+  white-space: nowrap;
 }
 .nua-wordmark {
   font-family: var(--font-display);
   font-weight: 800;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.015em;
   line-height: 1;
   display: inline-flex;
   align-items: baseline;
-  gap: 0.35em;
+  gap: 0.23em;
+}
+.nua-wordmark__nua {
+  color: var(--nua-artwork-burgundy);
 }
 .nua-wordmark__crew {
-  font-weight: 600;
-  font-size: 0.62em;
-  letter-spacing: 0.22em;
-  color: var(--muted);
+  font-weight: 750;
+  font-size: 0.85em;
+  letter-spacing: 0.075em;
+  color: var(--text);
 }
 
 /* Button */
