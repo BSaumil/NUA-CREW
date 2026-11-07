@@ -47,7 +47,7 @@ const config: ExpoConfig = {
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
-  backgroundColor: '#F7F3EF',
+  backgroundColor: '#F6F0E5',
   ios: {
     bundleIdentifier: IOS_BUNDLE_ID,
     supportsTablet: false,
@@ -64,7 +64,7 @@ const config: ExpoConfig = {
     package: ANDROID_PACKAGE,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#3C0B21',
+      backgroundColor: '#F6F0E5',
     },
     permissions: [
       'ACCESS_COARSE_LOCATION',
@@ -95,7 +95,7 @@ const config: ExpoConfig = {
     'expo-font',
     [
       'expo-splash-screen',
-      { image: './assets/splash-icon.png', imageWidth: 220, backgroundColor: '#3C0B21' },
+      { image: './assets/splash-icon.png', imageWidth: 250, backgroundColor: '#F6F0E5' },
     ],
     'expo-web-browser',
     [
