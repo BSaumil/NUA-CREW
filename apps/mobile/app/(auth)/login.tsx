@@ -6,7 +6,7 @@ import { emailError, passwordError } from '@/features/validation';
 import { useAuth } from '@/state/AuthProvider';
 import { useTheme } from '@/theme/ThemeProvider';
 import { space } from '@/theme/tokens';
-import { BrandLockup, Button, Field, Screen, Text } from '@/ui';
+import { BrandLogo, Button, Field, Screen, Text } from '@/ui';
 
 export default function Login() {
   const { signIn } = useAuth();
@@ -42,7 +42,7 @@ export default function Login() {
         style={{ gap: space(2.5) }}
       >
         <View style={{ paddingVertical: space(2) }}>
-          <BrandLockup size={44} />
+          <BrandLogo width={220} />
         </View>
         <Text variant="title" accessibilityRole="header">
           Welcome back

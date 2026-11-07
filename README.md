@@ -1,6 +1,6 @@
 # NUA CREW
 
-**Better Jobs. Stronger Teams.** — an AI-first Australian jobs marketplace and recruitment ecosystem, starting with Melbourne hospitality and local services.
+**Where Talent Meets Opportunity** — an AI-first Australian jobs marketplace and recruitment ecosystem, starting with Melbourne hospitality and local services.
 
 > **Working identity.** "NUA CREW" has **not** been legally cleared (trade marks, ASIC, domains, handles). Nothing here claims availability or registration.
 

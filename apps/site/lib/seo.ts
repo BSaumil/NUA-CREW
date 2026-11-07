@@ -7,7 +7,7 @@ type SeoDetails = { title: string; description: string };
 /** Reviewed, unique pre-launch metadata; no public app or paid service is implied. */
 export const SITE_SEO = {
   '/': {
-    title: 'NUA CREW — Better Jobs. Stronger Teams.',
+    title: 'NUA CREW — Where Talent Meets Opportunity',
     description:
       'Explore NUA CREW, a Melbourne-first hospitality recruitment platform in pre-launch testing. Learn how job seekers and employers can connect on their terms.',
   },
@@ -101,10 +101,10 @@ export function buildMetadata(path: SitePath): Metadata {
   const { title, description } = SITE_SEO[path];
   const url = canonicalUrl(path);
   const image = {
-    url: `${SITE.url}/opengraph-image`,
+    url: `${SITE.url}/opengraph-image.png`,
     width: 1200,
     height: 630,
-    alt: 'NUA CREW — Better Jobs. Stronger Teams. Australia and New Zealand in preparation.',
+    alt: 'NUA CREW — Where Talent Meets Opportunity',
   };
   return {
     title: path === '/' ? { absolute: title } : title,

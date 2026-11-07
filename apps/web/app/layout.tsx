@@ -3,12 +3,19 @@ import type { ReactNode } from 'react';
 import '@fontsource-variable/manrope';
 import '@fontsource-variable/inter';
 import '@nua-crew/ui/styles.css';
-import { MatchDisclosure, Button, ButtonLink, CandidateNav, SUPPORT_LINE } from '@nua-crew/ui';
+import {
+  MatchDisclosure,
+  Button,
+  ButtonLink,
+  CandidateNav,
+  SUPPORT_LINE,
+  TAGLINE,
+} from '@nua-crew/ui';
 import { getViewer } from '@/lib/api';
 import { logout } from './actions';
 
 export const metadata: Metadata = {
-  title: { default: 'NUA CREW Jobs — Better Jobs. Stronger Teams.', template: '%s · NUA CREW' },
+  title: { default: `NUA CREW Jobs — ${TAGLINE}`, template: '%s · NUA CREW' },
   description: SUPPORT_LINE,
 };
 

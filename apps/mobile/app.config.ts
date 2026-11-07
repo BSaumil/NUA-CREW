@@ -64,7 +64,8 @@ const config: ExpoConfig = {
     package: ANDROID_PACKAGE,
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#3C0B21',
+      // Warm ivory from the approved brand kit: the same colour as the iOS app icon.
+      backgroundColor: '#F6F0E5',
     },
     permissions: [
       'ACCESS_COARSE_LOCATION',
@@ -95,7 +96,8 @@ const config: ExpoConfig = {
     'expo-font',
     [
       'expo-splash-screen',
-      { image: './assets/splash-icon.png', imageWidth: 220, backgroundColor: '#3C0B21' },
+      // Approved full logo (tagline built in) on the app's ivory background.
+      { image: './assets/splash-icon.png', imageWidth: 260, backgroundColor: '#F7F3EF' },
     ],
     'expo-web-browser',
     [
