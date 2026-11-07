@@ -686,8 +686,16 @@ a {
 
 /* Owner-approved dark treatment: ivory icon/text on deep-wine surfaces. */
 @media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) .nua-lockup svg path { fill: #F6F0E5; }
-  :root:not([data-theme='light']) .nua-wordmark__nua { color: #F6F0E5; }
+  :root:not([data-theme='light']) .nua-lockup svg path {
+    fill: #f6f0e5;
+  }
+  :root:not([data-theme='light']) .nua-wordmark__nua {
+    color: #f6f0e5;
+  }
 }
-:root[data-theme='dark'] .nua-lockup svg path { fill: #F6F0E5; }
-:root[data-theme='dark'] .nua-wordmark__nua { color: #F6F0E5; }
+:root[data-theme='dark'] .nua-lockup svg path {
+  fill: #f6f0e5;
+}
+:root[data-theme='dark'] .nua-wordmark__nua {
+  color: #f6f0e5;
+}

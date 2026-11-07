@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'NUA CREW',
     short_name: 'NUA CREW',
-    description: 'Where Talent Meets Opportunity. Hospitality recruitment information and product previews.',
+    description:
+      'Where Talent Meets Opportunity. Hospitality recruitment information and product previews.',
     start_url: '/',
     display: 'standalone',
     background_color: '#F6F0E5',

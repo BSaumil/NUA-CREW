@@ -2060,8 +2060,13 @@ main {
   display: inline-flex;
   width: min(100%, 310px);
   height: auto;
-  background: #F6F0E5;
+  background: #f6f0e5;
   border-radius: 12px;
   padding: 8px;
 }
-.site-footer__master-logo img { display: block; width: 100%; height: auto; object-fit: contain; }
+.site-footer__master-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}

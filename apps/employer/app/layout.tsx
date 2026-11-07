@@ -9,7 +9,8 @@ import { logout } from './actions';
 
 export const metadata: Metadata = {
   title: { default: 'NUA CREW Hire', template: '%s · NUA CREW Hire' },
-  description: 'NUA CREW — Where Talent Meets Opportunity. Find hospitality talent and manage hiring.',
+  description:
+    'NUA CREW — Where Talent Meets Opportunity. Find hospitality talent and manage hiring.',
 };
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
