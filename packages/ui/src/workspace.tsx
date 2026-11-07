@@ -144,5 +144,9 @@ export function notificationHref(
     if (kind.startsWith('invitation')) return '/invitations';
     return '/';
   }
+  if (kind === 'invitation_received' && id('invitation_id'))
+    return `/inbox/invitations/${id('invitation_id')}`;
+  if (kind === 'message_received' && id('conversation_id'))
+    return `/inbox/conversations/${id('conversation_id')}`;
   return '/dashboard';
 }
