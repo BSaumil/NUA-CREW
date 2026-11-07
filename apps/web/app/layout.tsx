@@ -8,7 +8,7 @@ import { getViewer } from '@/lib/api';
 import { logout } from './actions';
 
 export const metadata: Metadata = {
-  title: { default: 'NUA CREW Jobs — Better Jobs. Stronger Teams.', template: '%s · NUA CREW' },
+  title: { default: 'NUA CREW Jobs — Where Talent Meets Opportunity', template: '%s · NUA CREW' },
   description: SUPPORT_LINE,
 };
 
