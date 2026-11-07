@@ -8,6 +8,7 @@ on:
       - 'scripts/aws_staging_cost_floor.py'
       - 'scripts/staging-smoke.sh'
       - '.github/workflows/aws-staging-terraform-validate.yml'
+      - '.github/workflows/aws-staging-reviewed-plan.yml'
 
 permissions:
   contents: read
@@ -24,6 +25,26 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: '1.11.4'
+      - name: Validate manual plan workflow YAML and security gates
+        working-directory: .
+        run: |
+          python3 -m pip install --quiet pyyaml
+          python3 - <<'PY'
+          from pathlib import Path
+          import yaml
+          p = Path(".github/workflows/aws-staging-reviewed-plan.yml")
+          raw = p.read_text()
+          doc = yaml.safe_load(raw)
+          assert isinstance(doc, dict)
+          assert doc.get("jobs", {}).get("staging-plan", {}).get("if") == "github.ref == 'refs/heads/main'"
+          assert "workflow_dispatch" in raw
+          assert "terraform plan " in raw
+          assert "terraform apply" not in raw
+          assert "environment: nua-crew-staging-plan" in raw
+          assert "TF_VAR_enable_services: 'false'" in raw
+          assert "TF_VAR_allowed_https_cidrs: '[]'" in raw
+          print("Manual plan workflow syntax and static release safeguards verified.")
+          PY
       - name: Verify format
         run: terraform fmt -check -recursive -diff
       - name: Initialise AWS provider without remote state or AWS account
