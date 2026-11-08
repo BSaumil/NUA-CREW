@@ -8,7 +8,7 @@ from starlette.responses import Response
 from app.config import get_settings
 from app.db import assert_rls_safe_role, dispose_engine
 from app.errors import install_error_handlers
-from app.ratelimit import RedisLimiter, get_limiter
+from app.ratelimit import RedisLimiter, assert_shared_rate_limit, get_limiter
 from app.routers import (
     account,
     admin,
@@ -39,6 +39,7 @@ from app.routers import (
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     await assert_rls_safe_role()
+    assert_shared_rate_limit()
     yield
     limiter = get_limiter()
     if isinstance(limiter, RedisLimiter):
