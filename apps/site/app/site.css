@@ -457,6 +457,32 @@ main {
 .site-menu-toggle {
   display: none;
 }
+/* Desktop: logo on the left; the nav on the right with the App status button directly under it,
+   right-aligned beneath "Trust & privacy". Below 900px the compact mobile header below applies. */
+@media (min-width: 900px) {
+  .site-header__inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      'logo nav'
+      'logo cta';
+    align-items: center;
+    column-gap: 16px;
+    row-gap: 4px;
+    padding: 8px 0;
+  }
+  .site-header__inner > .nua-lockup {
+    grid-area: logo;
+  }
+  .site-header__inner > .site-nav {
+    grid-area: nav;
+    justify-self: end;
+  }
+  .site-header__inner > .nua-row {
+    grid-area: cta;
+    justify-self: end;
+  }
+}
 .site-hero {
   padding: 64px 0;
 }
