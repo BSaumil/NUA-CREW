@@ -26,7 +26,7 @@ from app.schemas import (
     TokenOut,
 )
 from app.security import create_access_token, hash_password, verify_password
-from app.services import email, recovery, tokens
+from app.services import email, recovery, registration_gate, tokens
 
 router = APIRouter(prefix="/v1/auth", tags=["auth"])
 
@@ -75,6 +75,7 @@ async def _token(
 async def register_candidate(
     body: CandidateRegister, session: Session, request: Request, background: BackgroundTasks
 ) -> TokenOut:
+    registration_gate.require_open("candidate", body.email)
     async with system_scope(session):
         await _throttle(request, "register", body.email)
         user = await _create_user(session, body.email, body.password, "candidate")
@@ -88,6 +89,7 @@ async def register_candidate(
 async def register_employer(
     body: EmployerRegister, session: Session, request: Request, background: BackgroundTasks
 ) -> TokenOut:
+    registration_gate.require_open("employer", body.email)
     async with system_scope(session):
         await _throttle(request, "register", body.email)
         if body.abn and await session.scalar(select(Employer.id).where(Employer.abn == body.abn)):

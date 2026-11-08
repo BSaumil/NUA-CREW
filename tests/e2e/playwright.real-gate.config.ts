@@ -17,6 +17,9 @@ const api = resolve(__dirname, '../../services/api');
 const apiEnv = {
   NUA_DATABASE_URL: E2E_DB,
   NUA_ENV: 'development',
+  // Registration is closed at the API by default; the owner opens it. Fixtures open it explicitly.
+  NUA_CANDIDATE_REGISTRATION: 'open',
+  NUA_EMPLOYER_REGISTRATION: 'open',
   NUA_AUTH_RATE_LIMIT_PER_MINUTE: '1000',
   // Mail goes to a local folder the spec reads. A provider other than "none" is what switches the
   // verified-email gate on, so this is deliberately not "none".

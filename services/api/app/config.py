@@ -17,6 +17,14 @@ class Settings(BaseSettings):
     # Owner decision: posting and applying need a verified email. Enforced only while email can be
     # delivered (see services/verified_email.py), so it cannot lock everyone out without a provider.
     require_verified_email: bool = True
+    # Who may create an account through the API itself (the web UI is not the barrier: the API is
+    # reachable directly). "closed" refuses everyone, "allowlist" accepts only addresses or
+    # @domains in registration_allowlist, "open" is public enrolment. Closed by default, per role,
+    # and only the owner opens it. Tests and local development open it explicitly.
+    candidate_registration: Literal["closed", "allowlist", "open"] = "closed"
+    employer_registration: Literal["closed", "allowlist", "open"] = "closed"
+    # Exact emails ("a@b.com") or whole domains ("@b.com"), case-insensitive.
+    registration_allowlist: list[str] = []
     database_url: str = "postgresql+asyncpg://nua_runtime:nua_runtime_dev@localhost:5432/nua_crew"
     # Alembic connects with this schema-owning role when set; the API never does (ADR-008).
     migration_database_url: str | None = None

@@ -14,6 +14,8 @@ os.environ["NUA_DB_NULL_POOL"] = "true"
 os.environ.pop("NUA_REDIS_URL", None)
 os.environ["NUA_AUTH_RATE_LIMIT_PER_MINUTE"] = "1000"
 os.environ["NUA_ENV"] = "development"
+os.environ["NUA_CANDIDATE_REGISTRATION"] = "open"
+os.environ["NUA_EMPLOYER_REGISTRATION"] = "open"
 
 import itertools  # noqa: E402
 import random  # noqa: E402
