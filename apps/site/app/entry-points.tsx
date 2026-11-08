@@ -20,7 +20,7 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
           const { Icon, detail } = choices[entry.id];
           return (
             <li key={entry.id} data-entry={entry.id} data-open={entry.open}>
-              <a className="entry-points__link" href={entry.href} aria-label={entry.label}>
+              <a className="entry-points__link" href={entry.href}>
                 <span className="entry-points__icon" aria-hidden="true">
                   <Icon size={19} strokeWidth={1.9} />
                 </span>
