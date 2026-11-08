@@ -16,6 +16,7 @@ os.environ["NUA_AUTH_RATE_LIMIT_PER_MINUTE"] = "1000"
 os.environ["NUA_ENV"] = "development"
 os.environ["NUA_CANDIDATE_REGISTRATION"] = "open"
 os.environ["NUA_EMPLOYER_REGISTRATION"] = "open"
+os.environ["NUA_INTRO_OFFER_ENABLED"] = "true"  # publication is closed unless the owner opens it
 
 import itertools  # noqa: E402
 import random  # noqa: E402

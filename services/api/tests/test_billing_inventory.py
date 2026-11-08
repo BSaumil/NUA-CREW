@@ -55,7 +55,11 @@ async def fixture_receipt(oid, key="fixture-settlement", amount=7900, kind="sett
         return row.status
 
 
-async def test_capacity_race_expiry_and_late_payment_never_overbook(client):
+async def test_capacity_race_expiry_and_late_payment_never_overbook(client, monkeypatch):
+    # This test exercises promotion capacity with many ads for one employer, not the free-offer
+    # fair-use caps, so those are lifted here (they have their own tests in test_intro_offer.py).
+    monkeypatch.setattr(get_settings(), "intro_offer_max_active_per_employer", 50)
+    monkeypatch.setattr(get_settings(), "intro_offer_max_per_30_days", 50)
     emp, eid = await verified_employer(client, "billing-capacity@nua-crew.example.com")
     jobs = [await published_job(client, emp, eid, title=f"Role {n}") for n in range(6)]
 

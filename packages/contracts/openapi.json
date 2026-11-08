@@ -2563,6 +2563,65 @@
         "title": "InstrumentOut",
         "type": "object"
       },
+      "IntroOfferOut": {
+        "description": "The free introductory advertising offer shown to an employer. Nothing here is a charge.",
+        "properties": {
+          "active_used": {
+            "title": "Active Used",
+            "type": "integer"
+          },
+          "card_required": {
+            "title": "Card Required",
+            "type": "boolean"
+          },
+          "charged": {
+            "title": "Charged",
+            "type": "boolean"
+          },
+          "days": {
+            "title": "Days",
+            "type": "integer"
+          },
+          "enabled": {
+            "title": "Enabled",
+            "type": "boolean"
+          },
+          "max_active": {
+            "title": "Max Active",
+            "type": "integer"
+          },
+          "max_per_30_days": {
+            "title": "Max Per 30 Days",
+            "type": "integer"
+          },
+          "planned_paid_price_note": {
+            "title": "Planned Paid Price Note",
+            "type": "string"
+          },
+          "terms_version": {
+            "title": "Terms Version",
+            "type": "string"
+          },
+          "used_30_days": {
+            "title": "Used 30 Days",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "enabled",
+          "days",
+          "terms_version",
+          "charged",
+          "card_required",
+          "max_active",
+          "active_used",
+          "max_per_30_days",
+          "used_30_days",
+          "planned_paid_price_note"
+        ],
+        "title": "IntroOfferOut",
+        "type": "object"
+      },
       "InvitationAcceptIn": {
         "properties": {
           "terms_hash": {
@@ -14160,6 +14219,55 @@
         "summary": "Employer Report",
         "tags": [
           "invitations"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/intro-offer": {
+      "get": {
+        "description": "What the introductory offer is and how much of it this employer has used. Read-only.",
+        "operationId": "intro_offer_status_v1_employers__employer_id__intro_offer_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IntroOfferOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Intro Offer Status",
+        "tags": [
+          "employer"
         ]
       }
     },
