@@ -19,6 +19,10 @@ for (const width of [320, 390, 1440]) {
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(hero).toContainText('Pilot registration is not open yet');
+    // Scannable choices: one central status explanation, not the same paragraph three times.
+    await expect(hero.getByText('Not open yet', { exact: true })).toHaveCount(3);
+    await expect(hero.locator('.entry-points__notice')).toHaveCount(1);
+    await expect(hero.locator('.entry-points__card')).toHaveCount(3);
     await expect(hero).toContainText('A$49');
     await expect(hero).toContainText('A$30');
     await expect(hero).toContainText('A$79');
@@ -60,4 +64,15 @@ test('the phone menu lists the three entry points', async ({ page }) => {
   await page.getByRole('button', { name: 'Menu' }).click();
   const nav = page.getByRole('navigation', { name: 'Main' });
   for (const label of LABELS) await expect(nav.getByRole('link', { name: label })).toBeVisible();
+});
+
+test('closed launch does not reveal unsupported sign-in links', async ({ page }) => {
+  await page.goto(SITE + '/');
+  const header = page.locator('.site-header');
+  await expect(header.getByRole('link', { name: 'App status' })).toBeVisible();
+  await expect(header.getByRole('link', { name: 'Log in', exact: true })).toHaveCount(0);
+  await page.goto(SITE + '/apps#access');
+  await expect(page.locator('#access')).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Employee log in' })).toHaveCount(0);
+  await expect(page.getByRole('link', { name: 'Employer log in' })).toHaveCount(0);
 });
