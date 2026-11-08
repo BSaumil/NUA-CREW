@@ -118,3 +118,106 @@ async def test_api_login_throttle_works_through_redis(client, redis_limiter, mon
     body = {"email": "r@x.example.com", "password": "nope-nope-nope"}
     codes = [(await client.post("/v1/auth/login", json=body)).status_code for _ in range(4)]
     assert codes == [401, 401, 429, 429]
+
+
+# ---- fail-closed on sensitive writes, and the startup guard (launch directive 0D) ------------
+import pytest as _pytest  # noqa: E402
+
+from app.config import Settings, rate_limit_fail_closed  # noqa: E402
+from app.ratelimit import assert_shared_rate_limit, is_sensitive  # noqa: E402
+
+
+def _dead_limiter() -> RedisLimiter:
+    return RedisLimiter("redis://127.0.0.1:1/0", prefix="dead:")  # nothing listens on port 1
+
+
+def test_which_scopes_are_sensitive():
+    for key in (
+        "register:ip:1.2.3.4",
+        "forgot:id:a@b.c",
+        "verify:ip:x",
+        "apply:uid",
+        "job-create:eid",
+        "document-upload:uid",
+        "reset:ip:x",
+        "confirm:id:x",
+    ):
+        assert is_sensitive(key), key
+    for key in (
+        "login:ip:1.2.3.4",
+        "refresh:id:x",
+        "msg:uid",
+        "report:uid",
+        "invite:eid",
+        "talent-search:eid",
+    ):
+        assert not is_sensitive(key), key
+
+
+async def test_redis_outage_refuses_a_sensitive_write_when_fail_closed(monkeypatch):
+    monkeypatch.setattr(get_settings(), "rate_limit_fail_closed", True)
+    lim = _dead_limiter()
+    try:
+        with _pytest.raises(ApiError) as exc:
+            await lim.check("register:ip:9.9.9.9", 5)
+        assert exc.value.status == 503
+        assert exc.value.code == "rate_limit_unavailable"
+        # The refusal is not a bypass: it is repeatable and does not consume the in-process window.
+        with _pytest.raises(ApiError):
+            await lim.check("apply:u", 5)
+    finally:
+        await lim.close()
+
+
+async def test_redis_outage_still_lets_sign_in_degrade_to_the_in_process_window(monkeypatch):
+    monkeypatch.setattr(get_settings(), "rate_limit_fail_closed", True)
+    lim = _dead_limiter()
+    try:
+        for _ in range(3):
+            await lim.check("login:ip:9.9.9.9", 3)  # allowed: in-process fallback
+        with _pytest.raises(ApiError) as exc:
+            await lim.check("login:ip:9.9.9.9", 3)
+        assert exc.value.status == 429  # the fallback still limits
+    finally:
+        await lim.close()
+
+
+async def test_fail_closed_off_keeps_the_old_fallback_for_everything(monkeypatch):
+    monkeypatch.setattr(get_settings(), "rate_limit_fail_closed", False)
+    lim = _dead_limiter()
+    try:
+        await lim.check("register:ip:9.9.9.9", 1)
+        with _pytest.raises(ApiError) as exc:
+            await lim.check("register:ip:9.9.9.9", 1)
+        assert exc.value.status == 429
+    finally:
+        await lim.close()
+
+
+def test_fail_closed_defaults_on_outside_development():
+    assert rate_limit_fail_closed(Settings(env="development")) is False
+    assert rate_limit_fail_closed(Settings(env="staging", jwt_secret="x" * 40)) is True
+    assert rate_limit_fail_closed(Settings(env="development", rate_limit_fail_closed=True)) is True
+    assert (
+        rate_limit_fail_closed(
+            Settings(env="staging", jwt_secret="x" * 40, rate_limit_fail_closed=False)
+        )
+        is False
+    )
+
+
+def test_startup_refuses_no_shared_redis_outside_development(monkeypatch):
+    s = get_settings()
+    monkeypatch.setattr(s, "env", "staging")
+    monkeypatch.setattr(s, "redis_url", None)
+    monkeypatch.setattr(s, "allow_in_process_rate_limit", False)
+    with _pytest.raises(RuntimeError, match="NUA_REDIS_URL"):
+        assert_shared_rate_limit()
+    monkeypatch.setattr(s, "allow_in_process_rate_limit", True)
+    assert_shared_rate_limit()  # explicitly accepted for an isolated staging
+    monkeypatch.setattr(s, "allow_in_process_rate_limit", False)
+    monkeypatch.setattr(s, "redis_url", "redis://example.invalid:6379/0")
+    assert_shared_rate_limit()
+    monkeypatch.setattr(s, "env", "development")
+    monkeypatch.setattr(s, "redis_url", None)
+    assert_shared_rate_limit()

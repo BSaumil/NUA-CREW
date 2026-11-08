@@ -54,6 +54,13 @@ class Settings(BaseSettings):
     invitation_decline_cooldown_days: int = 30  # employer-wide, whichever teammate asks again
     message_limit_per_minute: int = 30
     redis_url: str | None = None
+    # Serverless instances do not share memory, so the in-process limiter is not a real limit
+    # there. Outside development the API therefore refuses to start without NUA_REDIS_URL unless
+    # an isolated staging explicitly accepts that (NUA_ALLOW_IN_PROCESS_RATE_LIMIT=true).
+    allow_in_process_rate_limit: bool = False
+    # When Redis errors, writes that create accounts, send email or publish refuse (503) instead
+    # of falling back to a per-instance window. None = on outside development, off in development.
+    rate_limit_fail_closed: bool | None = None
     push_provider: str = "none"  # "expo" enables real push delivery
     # Outbound email (password reset, email verification). "none" sends nothing. "file" writes each
     # message to a local folder for development and browser tests only; it is refused elsewhere.
@@ -109,6 +116,12 @@ class Settings(BaseSettings):
                         f"NUA_{name.upper()} must be an https:// URL when email is sent"
                     )
         return self
+
+
+def rate_limit_fail_closed(settings: "Settings") -> bool:
+    if settings.rate_limit_fail_closed is not None:
+        return settings.rate_limit_fail_closed
+    return settings.env != "development"
 
 
 @lru_cache
