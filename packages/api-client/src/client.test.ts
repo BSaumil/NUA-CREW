@@ -21,6 +21,48 @@ describe('createApi', () => {
   });
 });
 
+describe('createApi protection bypass', () => {
+  const respond = (seen: { req?: Request }) =>
+    (async (req: Request) => {
+      seen.req = req;
+      return new Response(JSON.stringify({ items: [], total: 0, page: 1, page_size: 20 }), {
+        headers: { 'content-type': 'application/json' },
+      });
+    }) as typeof fetch;
+
+  it('sends the bypass header only when a secret is given', async () => {
+    const withSecret: { req?: Request } = {};
+    await createApi({
+      baseUrl: 'http://api.test',
+      bypassSecret: 's3cret',
+      fetch: respond(withSecret),
+    }).GET('/v1/jobs');
+    expect(withSecret.req?.headers.get('x-vercel-protection-bypass')).toBe('s3cret');
+
+    for (const empty of [undefined, null, '']) {
+      const without: { req?: Request } = {};
+      await createApi({
+        baseUrl: 'http://api.test',
+        bypassSecret: empty,
+        fetch: respond(without),
+      }).GET('/v1/jobs');
+      expect(without.req?.headers.has('x-vercel-protection-bypass')).toBe(false);
+    }
+  });
+
+  it('sends the bypass header alongside the bearer token', async () => {
+    const seen: { req?: Request } = {};
+    await createApi({
+      baseUrl: 'http://api.test',
+      token: 'tok',
+      bypassSecret: 's3cret',
+      fetch: respond(seen),
+    }).GET('/v1/jobs');
+    expect(seen.req?.headers.get('authorization')).toBe('Bearer tok');
+    expect(seen.req?.headers.get('x-vercel-protection-bypass')).toBe('s3cret');
+  });
+});
+
 describe('errorMessage', () => {
   it('reads API and validation error shapes', () => {
     expect(errorMessage({ error: { code: 'x', message: 'Nope' } })).toBe('Nope');
