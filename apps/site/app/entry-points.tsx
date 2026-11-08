@@ -20,11 +20,7 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
           const { Icon, detail } = choices[entry.id];
           return (
             <li key={entry.id} data-entry={entry.id} data-open={entry.open}>
-              <a
-                className="entry-points__link"
-                href={entry.href}
-                aria-label={entry.label}
-              >
+              <a className="entry-points__link" href={entry.href} aria-label={entry.label}>
                 <span className="entry-points__icon" aria-hidden="true">
                   <Icon size={19} strokeWidth={1.9} />
                 </span>
@@ -45,8 +41,8 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
       </p>
       {!compact ? (
         <p className="entry-points__price">
-          Planned: A$49 / 14-day ad · A$30 / 5-day promotion · A$79 together.
-          Payments are not switched on.
+          Planned: A$49 / 14-day ad · A$30 / 5-day promotion · A$79 together. Payments are not
+          switched on.
         </p>
       ) : null}
     </section>
