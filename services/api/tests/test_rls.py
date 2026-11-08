@@ -200,6 +200,8 @@ async def test_runtime_role_cannot_bypass_rls():
 
     info = await current_role()
     assert not info.superuser and not info.bypass_rls, info
+    # ...and it is DML-only: it owns nothing and cannot create objects (ADR-008).
+    assert info.privileges == (), info
 
 
 async def test_startup_guard_refuses_privileged_roles_outside_development(monkeypatch):
@@ -222,12 +224,79 @@ async def test_startup_guard_refuses_privileged_roles_outside_development(monkey
         await db.assert_rls_safe_role()
 
 
+@pytest.mark.parametrize(
+    "role",
+    [
+        ("owner", False, False, ("table users",)),
+        ("schema_owner", False, False, ("schema public",)),
+        ("db_owner", False, False, ("database nua_crew_test",)),
+        ("can_create", False, False, ("CREATE on schema public",)),
+    ],
+)
+async def test_startup_guard_refuses_a_role_that_owns_or_can_alter_the_schema(monkeypatch, role):
+    """Ownership is enough to disable RLS or drop a policy, so it is refused outside development
+    even when the role is neither a superuser nor BYPASSRLS."""
+    from app import db
+    from app.config import get_settings
+
+    info = db.RoleInfo(*role)
+    assert info.unsafe
+
+    async def owner(*_a, **_k):
+        return info
+
+    monkeypatch.setattr(db, "current_role", owner)
+    settings = get_settings()
+    monkeypatch.setattr(settings, "env", "production")
+    monkeypatch.setattr(settings, "jwt_secret", "x" * 40)
+    with pytest.raises(RuntimeError, match="owns or can alter the schema"):
+        await db.assert_rls_safe_role()
+    monkeypatch.setattr(settings, "env", "development")  # development only warns
+    assert (await db.assert_rls_safe_role()).unsafe
+
+
+async def test_a_role_with_no_privileges_is_safe():
+    from app import db
+
+    assert not db.RoleInfo("nua_runtime", False, False, ()).unsafe
+
+
 @pytest.mark.skipif(
     not __import__("os").environ.get("NUA_MIGRATION_DATABASE_URL"),
     reason="split migrator/runtime roles not configured",
 )
 async def test_runtime_role_is_not_the_owner_and_cannot_change_the_schema():
-    """With split roles the API cannot disable RLS, drop policies or alter tables."""
+    """With split roles the API cannot disable RLS, drop policies or alter tables, and the startup
+    guard really does detect an owning role in a live catalog."""
+    import os
+
+    from sqlalchemy import text
+    from sqlalchemy.exc import DBAPIError
+    from sqlalchemy.ext.asyncio import create_async_engine
+
+    from app.db import current_role, get_engine
+
+    # The detector works: the schema owner is reported as owning tables, the schema and the database.
+    owner_engine = create_async_engine(os.environ["NUA_MIGRATION_DATABASE_URL"])
+    try:
+        owner = await current_role(owner_engine)
+    finally:
+        await owner_engine.dispose()
+    assert owner.unsafe and not owner.superuser, owner
+    assert any(p.startswith("table ") for p in owner.privileges), owner
+    assert "schema public" in owner.privileges, owner
+
+    # The runtime role owns nothing and is refused every schema change.
+    assert (await current_role()).privileges == ()
+    for statement in (
+        "ALTER TABLE users DISABLE ROW LEVEL SECURITY",
+        "ALTER TABLE users NO FORCE ROW LEVEL SECURITY",
+        "CREATE TABLE nua_should_not_exist (id int)",
+    ):
+        async with get_engine().connect() as conn:
+            with pytest.raises(DBAPIError, match="(?i)must be owner|permission denied"):
+                await conn.execute(text(statement))
+            await conn.rollback()
     async with db_as(role="system") as s:
         owner = (
             await s.execute(text("select tableowner from pg_tables where tablename='applications'"))

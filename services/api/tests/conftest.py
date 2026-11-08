@@ -14,6 +14,8 @@ os.environ["NUA_DB_NULL_POOL"] = "true"
 os.environ.pop("NUA_REDIS_URL", None)
 os.environ["NUA_AUTH_RATE_LIMIT_PER_MINUTE"] = "1000"
 os.environ["NUA_ENV"] = "development"
+os.environ["NUA_CANDIDATE_REGISTRATION"] = "open"
+os.environ["NUA_EMPLOYER_REGISTRATION"] = "open"
 
 import itertools  # noqa: E402
 import random  # noqa: E402
@@ -71,8 +73,9 @@ def _rls_safe_role() -> None:
     info = asyncio.run(check())
     if info.unsafe:
         pytest.exit(
-            f"Database role {info.name!r} bypasses row-level security (superuser={info.superuser}, "
-            f"bypassrls={info.bypass_rls}). Run db/roles/bootstrap.sql and connect as nua_runtime.",
+            f"Database role {info.name!r} is not a safe runtime role (superuser={info.superuser}, "
+            f"bypassrls={info.bypass_rls}, owns or can alter: {list(info.privileges)}). Run "
+            "db/roles/bootstrap.sql and connect as nua_runtime.",
             returncode=3,
         )
 
