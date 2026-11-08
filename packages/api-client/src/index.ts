@@ -6,12 +6,18 @@ export type { Schemas };
 export type ApiOptions = {
   baseUrl: string;
   token?: string | null;
+  /**
+   * Vercel's "Protection Bypass for Automation" secret, for a server-side caller reaching an API that
+   * sits behind Vercel Authentication. Sent as `x-vercel-protection-bypass`. Server code only: never
+   * pass a value from a `NEXT_PUBLIC_` variable, a browser, or a mobile app.
+   */
+  bypassSecret?: string | null;
   /** Custom transport; receives the fully built Request (openapi-fetch calls `fetch(request)`). */
   fetch?: (input: Request) => Promise<Response>;
 };
 
 /** Typed client generated from the API's OpenAPI document. Never logs bodies (PII). */
-export function createApi({ baseUrl, token, fetch: f }: ApiOptions) {
+export function createApi({ baseUrl, token, bypassSecret, fetch: f }: ApiOptions) {
   const client = createClient<paths>({ baseUrl, ...(f ? { fetch: f } : {}) });
   if (token) {
     const auth: Middleware = {
@@ -21,6 +27,15 @@ export function createApi({ baseUrl, token, fetch: f }: ApiOptions) {
       },
     };
     client.use(auth);
+  }
+  if (bypassSecret) {
+    const bypass: Middleware = {
+      onRequest({ request }) {
+        request.headers.set('x-vercel-protection-bypass', bypassSecret);
+        return request;
+      },
+    };
+    client.use(bypass);
   }
   return client;
 }

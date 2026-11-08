@@ -15,6 +15,8 @@ export async function api() {
   return createApi({
     baseUrl: API_BASE,
     token: await getToken(),
+    // Server-side only. Set when the API sits behind Vercel Authentication (staging).
+    bypassSecret: process.env.API_PROTECTION_BYPASS,
     fetch: (req) => fetch(req, { cache: 'no-store' }),
   });
 }
