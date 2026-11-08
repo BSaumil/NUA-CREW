@@ -19,10 +19,14 @@ for (const width of [320, 390, 1440]) {
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(hero).toContainText('Pilot registration is not open yet');
-    // Scannable choices: one central status explanation, not the same paragraph three times.
-    await expect(hero.getByText('Not open yet', { exact: true })).toHaveCount(3);
+    // The three paths remain visible and accessible without three large cards.
     await expect(hero.locator('.entry-points__notice')).toHaveCount(1);
-    await expect(hero.locator('.entry-points__card')).toHaveCount(3);
+    await expect(hero.locator('.entry-points__list li')).toHaveCount(3);
+    await expect(hero.locator('.entry-points__list li[data-open="false"]')).toHaveCount(3);
+    const panel = await hero.locator('.entry-points').boundingBox();
+    expect(panel).not.toBeNull();
+    expect(panel!.width).toBeLessThanOrEqual(433);
+    await expect(hero.locator('.entry-points__title')).toHaveCount(3);
     await expect(hero).toContainText('A$49');
     await expect(hero).toContainText('A$30');
     await expect(hero).toContainText('A$79');
