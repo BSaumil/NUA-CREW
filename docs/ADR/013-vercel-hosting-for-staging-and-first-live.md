@@ -38,11 +38,11 @@ Why AWS later: an always-on worker, fixed network egress, or Postgres tuning may
 | --- | --- | --- |
 | API | Vercel project `nua-crew-api` (`prj_4mX28cYRbGh5HyIfZiUZR5ZEnL1g`), root `services/api`, region `syd1` | Created 8 Nov 2026 with Vercel Authentication on **all** deployment URLs, including production. No deployment and no environment values yet. |
 | Database | Neon via the Vercel marketplace, region Sydney | Created by the owner in the dashboard (a purchase decision). Staging first. |
-| Roles | `nua_migrator` (owner, runs Alembic) and `nua_runtime` (DML only, not the table owner) | The API **refuses to start** on a role that owns the tables (`assert_rls_safe_role`), so Neon's default owner role cannot be the runtime role. Roles are created by `db/roles/bootstrap.sql`, run once by the owner. |
-| Secrets | Vercel project environment variables, type sensitive | `NUA_JWT_SECRET`, the runtime database URL, the migration database URL. Set by the owner in the dashboard. Never in chat or the repository. |
+| Roles | `nua_migrator` (owner, runs Alembic) and `nua_runtime` (DML only, owns nothing) | The startup guard refuses a role that is a superuser, has BYPASSRLS, **or owns or can alter the schema** (fixed in #73). **Before #73 it did not check ownership; an earlier draft of this record said it did, which was wrong.** Neon's default owner role therefore cannot be the runtime role. Roles come from a provider-compatible bootstrap (see the review section). |
+| Secrets | Vercel project environment variables, type sensitive | On the API function: **only** the runtime `NUA_DATABASE_URL`, `NUA_JWT_SECRET` and `NUA_ENV`. The migration credential never goes on the function. It lives only in a protected one-off migration run (a CI environment with required reviewers, or an owner-controlled run). No production migrations. Set by the owner in the dashboard; never in chat or the repository. |
 | Frontends to API | Server-side calls from the candidate and employer projects | The API is behind Vercel Authentication, so the two frontends need the project's protection-bypass secret sent as a header. Needs a small api-client change. |
 | Worker | Vercel Cron to a protected `/internal/...` route | Ingestion fails closed without a source grant (ADR-005), so this can stay off until a grant exists. |
-| Email | Not decided | The verified-email gate needs a real provider before anyone can post or apply. |
+| Email | **Not built** | `NUA_EMAIL_PROVIDER` accepts only `none` or `file` today, and `file` is development-only. A real provider needs a verified-sender adapter, link-based verification and reset, and delivery tests. Public posting and applying stay off until real verified email exists. Choosing a provider is not enough. |
 
 ### Why the API stays behind Vercel Authentication
 The API itself accepts registration. If it were public, anyone could register by calling it directly
@@ -65,20 +65,36 @@ true at the API, not just in the UI. When the owner opens a pilot, that is a sep
   secret and closed by its own rules: a fail-closed registration switch on the API (so "sign-up
   closed" is true at the API, not just in the UI) is needed first. That is a separate decision and PR.
 
+## Owner review of 8 Nov 2026: corrections and status
+The owner's review of this record (comment on #69) found real problems. Each was checked against the
+code before changing anything.
+
+| # | Finding | Checked | Status |
+| --- | --- | --- | --- |
+| 1 | The guard tested only superuser and BYPASSRLS, not table ownership. | Confirmed in `app/db.py`. All 61 RLS tables are `FORCE`d, so an owner cannot read around policies, but an owner can still run `ALTER TABLE ... DISABLE ROW LEVEL SECURITY` or drop a policy. | **Fixed in #73**: ownership of tables, schema and database (inherited membership included) and `CREATE` on `public` now make the role unsafe. The empty ADR-008 test is now real. |
+| 2 | The migration credential must not be on the long-running function. | Agreed. | **Adopted** (Secrets row above). |
+| 3 | `db/roles/bootstrap.sql` expects a superuser and runs `ALTER DATABASE ... OWNER`; Neon is managed Postgres. | Confirmed the script's assumptions. Not yet run on Neon. | **Open.** Validate Neon's role-creation and ownership permissions first. If a statement fails, never fall back to a table-owning runtime role. Needs a versioned, idempotent, provider-compatible bootstrap with grants for sequences and default privileges (the local schema has no sequences today; future ones need the grant). |
+| 4 | Email is not a dashboard switch. | Confirmed: provider accepts `none`/`file` only. | **Open.** Adapter, flows and delivery tests are a build item. Posting and applying stay off until then. |
+| 5 | The protection bypass is powerful. | Agreed. | **Adopted.** Server-only on the candidate and employer projects, never in a bundle, link, log or Git; use a different token from any application-to-API token where practical; verify 401/403 behaviour for unauthorised registration and tenant access. A header alone is never a launch. |
+| 6 | Cron is not a worker and is not retried. | Agreed. | **Adopted.** The endpoint is off by default, auth-checked, idempotent, bounded and safe to replay. In-memory rate limits are for isolated staging only; shared Redis before live. |
+| 7 | Account snapshot. | Verified 8 Nov: the Neon integration `icfg_4WHdid7INX8UVHuSnBK0RnF6` is installed on the Free plan with **zero** project connections; `nua-crew-api` is protected, has no environment values, and its one READY deployment is not database-backed. | **Confirmed.** No provisioning or payment without the owner's acceptance; the region (Sydney), quote, plan and residency are validated by the owner at creation. |
+
 ## Code changes still needed (each its own reviewed PR, with tests)
 1. `vercel.json` and entrypoint check for `services/api` (the app is `app/main.py`, a supported
    entrypoint); exclude tests and fixtures from the bundle (500 MB limit).
 2. api-client: send the protection-bypass header when `API_PROTECTION_BYPASS` is set (server-side only).
 3. Worker as a cron-driven, secret-checked endpoint, off by default.
-4. A documented one-time migration and role bootstrap the owner runs against the staging database.
+4. A provider-compatible, idempotent role bootstrap and a protected one-off migration run, validated on Neon before any data is loaded (replaces the single script run by hand).
+4a. The ownership guard (#73) and the real verified-email provider adapter (item 4 above).
 5. Rate limiting: serverless instances do not share memory, so the in-process limiter is not a real
    limit. Staging may use it with that stated; the first live release needs a shared Redis.
 
 ## Owner-only steps (nothing here can be done from the repository)
 1. Create the Neon database for staging from the Vercel marketplace (region Sydney) and connect it to
    `nua-crew-api`. Billing and terms are yours to accept.
-2. Run `db/roles/bootstrap.sql` once against it to create the two roles, then set the runtime and
-   migration database URLs as sensitive variables.
+2. After the Neon permission check below passes, create the two roles with the provider-compatible
+   bootstrap, then set **only the runtime** database URL on `nua-crew-api` as a sensitive variable.
+   Keep the migration credential out of the Vercel project.
 3. Set `NUA_ENV=staging` and a new random `NUA_JWT_SECRET` as sensitive variables.
 4. In `nua-crew-api` settings, create the Protection Bypass for Automation secret, and add it to the
    candidate and employer projects as a sensitive variable.
