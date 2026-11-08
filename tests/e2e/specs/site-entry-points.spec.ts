@@ -15,7 +15,7 @@ for (const width of [320, 390, 1440]) {
     for (const [i, label] of LABELS.entries()) {
       const link = hero.getByRole('link', { name: label });
       await expect(link).toBeVisible();
-      await expect(link).toHaveAttribute('href', STATUS[i]);
+      await expect(link).toHaveAttribute('href', STATUS[i]!);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
     await expect(hero).toContainText('Pilot registration is not open yet');
