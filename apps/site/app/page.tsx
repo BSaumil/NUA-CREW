@@ -12,7 +12,7 @@ import {
   JobSearchPreview,
   PreviewFrame,
 } from './visuals';
-import { SITE } from '@/lib/site';
+import { LAUNCH } from '@/lib/site';
 import { EntryPoints } from './entry-points';
 
 export const metadata = buildMetadata('/');
@@ -25,7 +25,7 @@ export default function Home() {
           <div className="home-hero__copy">
             <span className="launch-pill">
               <span aria-hidden="true" />
-              {SITE.productLive ? 'Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
+              {LAUNCH.anyOpen ? 'Limited pilot access · Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
             </span>
             <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
             <h1>
@@ -253,8 +253,8 @@ export default function Home() {
               q: 'Can I use NUA CREW today?',
               a: (
                 <p>
-                  {SITE.productLive
-                    ? 'The web product is open.'
+                  {LAUNCH.anyOpen
+                    ? 'Limited web pilot access is available for approved users.'
                     : 'The website is live; the hiring product is still in pre-launch testing.'}{' '}
                   Check <a href="/apps">app and web status</a> for access. App-store links appear
                   only when the apps are published.
