@@ -3,8 +3,8 @@
  * domain. Defaults are the owner's domain, iksaa.com.au, with `app.` (NUA CREW Jobs) and `hire.`
  * (NUA CREW Hire) subdomains. Nothing here claims the name, domain or trade mark is cleared.
  *
- * - NUA_PRODUCT_LIVE=true   link "Log in / Find work / Register" to the app hosts. Until the
- *                           product apps are deployed those links go to /apps instead of a dead host.
+ * - NUA_PRODUCT_LIVE is a legacy marketing flag, NOT an authorisation to open
+ *   registration, job posting or login. Use the independent LAUNCH readiness gates below.
  * - NUA_CONTACT_EMAIL       published contact address. Defaults to the verified public NUA POS
  *                           support mailbox used by this product family.
  * - NUA_SITE_INDEXABLE=true allow search engines. Unset = noindex.
