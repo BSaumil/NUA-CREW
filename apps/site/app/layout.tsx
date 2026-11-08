@@ -53,14 +53,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="nua-container site-header__inner" style={{ padding: '0 16px' }}>
             <BrandLockup />
             <MainNav entries={LAUNCH.list} />
-            <div className="nua-row">
-              {LAUNCH.anyOpen ? (
+            {LAUNCH.anyOpen ? (
+              <div className="nua-row">
                 <ButtonLink href="/apps#access" variant="secondary">
                   Log in
                 </ButtonLink>
-              ) : null}
-              <ButtonLink href="/apps">App status</ButtonLink>
-            </div>
+              </div>
+            ) : null}
           </div>
         </header>
         <main id="main" tabIndex={-1}>
@@ -135,16 +134,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>
                     </li>
                   ) : null}
-                  {!LAUNCH.anyOpen ? (
-                    <li>
-                      <a href="/apps">Launch status</a>
-                    </li>
-                  ) : null}
                   <li>
                     <a href="/features">Explore features</a>
                   </li>
                   <li>
                     <a href="/help">Help &amp; FAQs</a>
+                  </li>
+                  <li>
+                    <a href="/apps">App status</a>
                   </li>
                 </ul>
               </div>

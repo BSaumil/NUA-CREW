@@ -69,7 +69,10 @@ test('the phone menu lists the three entry points', async ({ page }) => {
 test('closed launch does not reveal unsupported sign-in links', async ({ page }) => {
   await page.goto(SITE + '/');
   const header = page.locator('.site-header');
-  await expect(header.getByRole('link', { name: 'App status' })).toBeVisible();
+  await expect(header.getByRole('link', { name: 'App status' })).toHaveCount(0);
+  await expect(
+    page.locator('footer.site-footer').getByRole('link', { name: 'App status' }),
+  ).toBeVisible();
   await expect(header.getByRole('link', { name: 'Log in', exact: true })).toHaveCount(0);
   await page.goto(SITE + '/apps#access');
   await expect(page.locator('#access')).toBeVisible();

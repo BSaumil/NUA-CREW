@@ -461,7 +461,7 @@ main {
 .site-menu-toggle {
   display: none;
 }
-/* Desktop: logo on the left; the nav on the right with the App status button directly under it,
+/* Desktop: logo on the left; the nav on the right with the (optional) Log in button under it,
    right-aligned beneath "Trust & privacy". Below 900px the compact mobile header below applies. */
 @media (min-width: 900px) {
   .site-header__inner {
