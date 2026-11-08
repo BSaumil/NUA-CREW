@@ -23,7 +23,7 @@ for (const width of [320, 390, 1440]) {
     await expect(hero.locator('.entry-points__notice')).toHaveCount(1);
     await expect(hero.locator('.entry-points__list li')).toHaveCount(3);
     await expect(hero.locator('.entry-points__list li[data-open="false"]')).toHaveCount(3);
-    const panel = await hero.locator('.entry-points').boundingBox();
+    const panel = await hero.boundingBox(); // the region is the .entry-points element itself
     expect(panel).not.toBeNull();
     expect(panel!.width).toBeLessThanOrEqual(433);
     await expect(hero.locator('.entry-points__title')).toHaveCount(3);
