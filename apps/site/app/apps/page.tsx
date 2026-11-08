@@ -37,7 +37,7 @@ export default function Apps() {
           </span>
           <span>
             <Monitor size={18} aria-hidden="true" />
-            Web · {SITE.productLive ? 'Open' : 'Pre-launch'}
+            Web · {LAUNCH.anyOpen ? 'Limited pilot access' : 'Pre-launch'}
           </span>
         </div>
       </PageHero>
@@ -74,6 +74,7 @@ export default function Apps() {
         <VisualShowcase audience="mobile" limit={4} />
       </Section>
       <Section
+        id="access"
         title="Choose your experience"
         intro="The public website is live. Not in the app stores yet; download links will appear when published."
       >
@@ -113,6 +114,11 @@ export default function Apps() {
                 : 'Explore job seeker tools'}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
+            {LAUNCH.entries.employee.open && LAUNCH.appBase ? (
+              <p className="site-note">
+                Already registered? <a href={`${LAUNCH.appBase}/login`}>Employee log in</a>.
+              </p>
+            ) : null}
           </article>
           <article id="employers" className="site-card launch-card">
             <span className="site-icon">
@@ -149,6 +155,11 @@ export default function Apps() {
                 : 'Explore employer tools'}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
+            {LAUNCH.entries.employer.open && LAUNCH.hireBase ? (
+              <p className="site-note">
+                Already registered? <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>.
+              </p>
+            ) : null}
           </article>
           <article id="post-a-job" className="site-card launch-card">
             <span className="site-icon">
