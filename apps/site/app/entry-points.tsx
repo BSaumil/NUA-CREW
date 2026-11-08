@@ -34,7 +34,9 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
             >
               {entry.label} <ArrowRight size={18} aria-hidden="true" />
             </a>
-            {compact ? null : <p className="entry-points__description">{entry.blurb}</p>}
+            {!compact && (entry.open || entry.id === 'post-job') ? (
+              <p className="entry-points__description">{entry.blurb}</p>
+            ) : null}
           </li>
         ))}
       </ul>
