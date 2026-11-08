@@ -30,11 +30,18 @@ export const SITE = {
  */
 export const LAUNCH = readLaunch(process.env);
 
-/** Where a call to action goes: the real app when it is live, otherwise the honest status page. */
+/** Legacy helpers must also respect granular launch gates; the older product flag is not authority. */
 export const toApp = (path: string) =>
-  SITE.productLive ? `${SITE.appUrl}${path}` : '/apps#job-seekers';
-export const toHire = (path: string) =>
-  SITE.productLive ? `${SITE.hireUrl}${path}` : '/apps#employers';
+  LAUNCH.entries.employee.open && LAUNCH.appBase
+    ? `${LAUNCH.appBase}${path}`
+    : '/apps#job-seekers';
+export const toHire = (path: string) => {
+  const posting = path.startsWith('/jobs');
+  const entry = posting ? LAUNCH.entries['post-job'] : LAUNCH.entries.employer;
+  return entry.open && LAUNCH.hireBase
+    ? `${LAUNCH.hireBase}${path}`
+    : posting ? '/apps#post-a-job' : '/apps#employers';
+};
 
 /** Main menu, in the order a visitor reads it: who it is for, how it works, what it costs, where, trust. */
 export const NAV = [
