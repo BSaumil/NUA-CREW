@@ -57,9 +57,16 @@ class Settings(BaseSettings):
     push_provider: str = "none"  # "expo" enables real push delivery
     # Outbound email (password reset, email verification). "none" sends nothing. "file" writes each
     # message to a local folder for development and browser tests only; it is refused elsewhere.
-    # A real provider is an owner decision and is not wired yet.
-    email_provider: Literal["none", "file"] = "none"
+    # "resend" sends through the Resend HTTPS API (the provider is the owner's choice; the sender
+    # interface in services/email.py is the seam for any other). It needs a verified sender
+    # address on a domain the owner has verified with the provider, and an API key, which is a
+    # secret: set it only as a sensitive environment variable, never in the repository.
+    email_provider: Literal["none", "file", "resend"] = "none"
     email_file_dir: str = ".dev-mail"
+    email_from: str | None = None  # e.g. "NUA CREW <no-reply@mail.example.com.au>"
+    email_api_key: SecretStr | None = None
+    email_api_base: str = "https://api.resend.com"
+    email_timeout_seconds: float = 8.0
     # Where the links in emails point. Candidates and employers use separate web apps.
     candidate_web_url: str = "http://localhost:3000"
     employer_web_url: str = "http://localhost:3001"
@@ -88,6 +95,13 @@ class Settings(BaseSettings):
                 raise ValueError("Only Stripe test keys are supported; live charging is disabled")
         if self.email_provider == "file" and self.env != "development":
             raise ValueError("NUA_EMAIL_PROVIDER=file is for development only")
+        if self.email_provider == "resend":
+            if not self.email_api_key or not self.email_api_key.get_secret_value():
+                raise ValueError("NUA_EMAIL_API_KEY is required for NUA_EMAIL_PROVIDER=resend")
+            if not self.email_from or "@" not in self.email_from:
+                raise ValueError("NUA_EMAIL_FROM must be a verified sender address")
+            if not self.email_api_base.startswith("https://"):
+                raise ValueError("NUA_EMAIL_API_BASE must be an https:// URL")
         if self.email_provider != "none" and self.env != "development":
             for name in ("candidate_web_url", "employer_web_url"):
                 if not getattr(self, name).startswith("https://"):
