@@ -38,6 +38,9 @@ export default defineConfig({
     : [['list']],
   use: {
     trace: 'retain-on-failure',
+    // Fail fast on a wrong selector instead of waiting out the whole test timeout.
+    actionTimeout: 30_000,
+    navigationTimeout: 60_000,
     ...devices['Desktop Chrome'],
     channel: process.env.NUA_E2E_BROWSER_CHANNEL,
   },

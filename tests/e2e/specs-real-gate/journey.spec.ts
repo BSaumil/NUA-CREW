@@ -57,9 +57,19 @@ const unique = (tag: string) =>
 async function confirmEmail(browser: Browser, address: string) {
   const reader = await (await browser.newContext()).newPage();
   await reader.goto(await emailedLink(address));
+  await settle(reader);
   await reader.getByRole('button', { name: 'Confirm my email address' }).click();
   await expect(reader.getByText('Your email address is confirmed.')).toBeVisible();
   await reader.context().close();
+}
+
+/**
+ * Wait for a page to finish loading and hydrating before touching its form. On a cold dev server
+ * an early click submits the form natively, before React has attached, and the sign-up fails with
+ * a validation redirect that has nothing to do with the product.
+ */
+async function settle(page: Page) {
+  await page.waitForLoadState('networkidle');
 }
 
 async function fromSite(page: Page, label: string) {
@@ -68,12 +78,26 @@ async function fromSite(page: Page, label: string) {
     .getByRole('region', { name: 'Get started', exact: true })
     .getByRole('link', { name: label })
     .click();
+  await settle(page);
 }
 
 test('sign-up, business verification, a role-based ad, an application and a status update', async ({
   browser,
+  request,
 }) => {
   test.setTimeout(480_000);
+
+  // Compile the pages this journey visits before the clock that matters starts (cold dev server).
+  for (const url of [
+    `${SITE}/`,
+    `${WEB}/register`,
+    `${WEB}/jobs`,
+    `${HIRE}/register`,
+    `${HIRE}/login`,
+    `${HIRE}/jobs/new/guided`,
+  ]) {
+    await request.get(url).catch(() => undefined);
+  }
   const title = `Real-gate Waiter ${Date.now()}`;
   const candidateEmail = unique('rg-candidate');
   const employerEmail = unique('rg-employer');
@@ -115,11 +139,13 @@ test('sign-up, business verification, a role-based ad, an application and a stat
   // 4. An operator verifies the business after reviewing evidence. Only operators can.
   const admin = await (await browser.newContext()).newPage();
   await admin.goto(`${HIRE}/login`);
+  await settle(admin);
   await admin.getByLabel(/email/i).fill(ADMIN.email);
   await admin.getByLabel('Password').fill(ADMIN.password);
   await admin.getByRole('button', { name: 'Log in' }).click();
   await admin.waitForURL((u) => !u.pathname.startsWith('/login'));
   await admin.goto(`${HIRE}/admin`);
+  await settle(admin);
   const card = admin.locator('article', {
     has: admin.getByRole('heading', { name: businessName }),
   });
@@ -137,6 +163,7 @@ test('sign-up, business verification, a role-based ad, an application and a stat
   await fromSite(owner, 'Post a Job');
   await expect(owner).toHaveURL(`${HIRE}/jobs/new`);
   await owner.goto(`${HIRE}/jobs/new/guided`);
+  await settle(owner);
   await owner.getByRole('link', { name: /Restaurant \/ bistro/ }).click();
   await owner.getByLabel('Search roles').fill('waitstaff');
   await owner.getByRole('button', { name: 'Search' }).click();
@@ -161,6 +188,7 @@ test('sign-up, business verification, a role-based ad, an application and a stat
   // 7. Confirm the employer's email from the emailed link, then publish.
   await confirmEmail(browser, employerEmail);
   await owner.reload();
+  await settle(owner);
   await owner.getByRole('button', { name: 'Publish' }).click();
   await expect(owner.getByRole('status')).toContainText('Job published');
   const jobUrl = owner.url().split('?')[0]!;
@@ -175,6 +203,7 @@ test('sign-up, business verification, a role-based ad, an application and a stat
   // 9. Confirm the candidate's email, apply, and the employer sees and advances the application.
   await confirmEmail(browser, candidateEmail);
   await cand.reload();
+  await settle(cand);
   await cand.getByLabel(/Note to the employer/).fill('Happy to start next week.');
   await cand.getByRole('button', { name: 'Submit application' }).click();
   await expect(cand.getByRole('status')).toContainText('Application submitted');
