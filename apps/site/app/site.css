@@ -2130,7 +2130,9 @@ main {
   border-radius: 10px;
   color: #29171f;
   text-decoration: none;
-  transition: background-color 150ms ease, color 150ms ease;
+  transition:
+    background-color 150ms ease,
+    color 150ms ease;
 }
 .entry-points__link:hover {
   background: #f6eceb;
