@@ -50,24 +50,80 @@ class RoleInfo:
     name: str
     superuser: bool
     bypass_rls: bool
+    # A table owner bypasses RLS by default; schema/database owners can regain DDL control.
+    # Membership checks include privileges inherited from an owner role.
+    owns_protected_tables: bool = False
+    owns_database: bool = False
+    owns_schema: bool = False
+    can_create_schema_objects: bool = False
 
     @property
     def unsafe(self) -> bool:
-        return self.superuser or self.bypass_rls
+        return any(
+            (
+                self.superuser,
+                self.bypass_rls,
+                self.owns_protected_tables,
+                self.owns_database,
+                self.owns_schema,
+                self.can_create_schema_objects,
+            )
+        )
 
 
 async def current_role(engine: AsyncEngine | None = None) -> RoleInfo:
+    """Inspect *effective* runtime privileges, not only role attributes.
+
+    PostgreSQL owners normally bypass row-level security, even when they are
+    neither superusers nor marked BYPASSRLS. Inherited owner membership and
+    schema/database ownership are therefore also unsafe for the web API.
+    """
     eng = engine or get_engine()
-    sql = text("SELECT rolname, rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
+    sql = text(
+        """
+        SELECT r.rolname, r.rolsuper, r.rolbypassrls,
+          EXISTS (
+            SELECT 1
+            FROM pg_class c
+            JOIN pg_namespace n ON n.oid = c.relnamespace
+            WHERE n.nspname = 'public'
+              AND c.relkind IN ('r', 'p')
+              AND c.relrowsecurity
+              AND pg_has_role(r.oid, c.relowner, 'USAGE')
+          ) AS owns_protected_tables,
+          EXISTS (
+            SELECT 1 FROM pg_database d
+            WHERE d.datname = current_database()
+              AND pg_has_role(r.oid, d.datdba, 'USAGE')
+          ) AS owns_database,
+          EXISTS (
+            SELECT 1 FROM pg_namespace n
+            WHERE n.nspname = 'public'
+              AND pg_has_role(r.oid, n.nspowner, 'USAGE')
+          ) AS owns_schema,
+          has_schema_privilege(r.oid, 'public', 'CREATE') AS can_create_schema_objects
+        FROM pg_roles r
+        WHERE r.rolname = current_user
+        """
+    )
     async with eng.connect() as conn:
         row = (await conn.execute(sql)).one()
-    return RoleInfo(row[0], row[1], row[2])
+    return RoleInfo(
+        name=row[0],
+        superuser=bool(row[1]),
+        bypass_rls=bool(row[2]),
+        owns_protected_tables=bool(row[3]),
+        owns_database=bool(row[4]),
+        owns_schema=bool(row[5]),
+        can_create_schema_objects=bool(row[6]),
+    )
 
 
 async def assert_rls_safe_role() -> RoleInfo:
-    """A superuser or BYPASSRLS role ignores every row-level-security policy (ADR-003/ADR-008).
+    """Refuse privileged runtime credentials outside development.
 
-    Outside development this refuses to start; in development it warns loudly.
+    A least-privilege runtime account has DML access only. Never point the
+    serving API at the Neon database's table/schema owner or migrator role.
     """
     s = get_settings()
     info = await current_role()
@@ -75,9 +131,22 @@ async def assert_rls_safe_role() -> RoleInfo:
         s.require_rls_safe_role if s.require_rls_safe_role is not None else s.env != "development"
     )
     if info.unsafe:
+        reasons = [
+            name
+            for name, present in (
+                ("superuser", info.superuser),
+                ("BYPASSRLS", info.bypass_rls),
+                ("owns RLS-protected tables", info.owns_protected_tables),
+                ("database owner privileges", info.owns_database),
+                ("public schema owner privileges", info.owns_schema),
+                ("CREATE on public schema", info.can_create_schema_objects),
+            )
+            if present
+        ]
         msg = (
-            f"Database role {info.name!r} is a superuser or has BYPASSRLS: row-level security is "
-            "NOT enforced. Connect as the nua_runtime role (see db/roles/bootstrap.sql)."
+            f"Database role {info.name!r} is unsafe for runtime: {', '.join(reasons)}. "
+            "Use a separate DML-only role such as nua_runtime; "
+            "never connect the serving API using schema/migration credentials."
         )
         if enforce:
             raise RuntimeError(msg)
