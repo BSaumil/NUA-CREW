@@ -41,17 +41,21 @@ test.describe('desktop menu', () => {
     expect(await other.evaluate((el) => getComputedStyle(el).boxShadow)).toBe('none');
   });
 
-  test('the App status button sits under the menu, right-aligned with its last link', async ({
+  test('App status is in the footer, directly under Help & FAQs, and not in the header', async ({
     page,
   }) => {
     await page.goto(SITE + '/');
-    const last = await page
-      .getByRole('navigation', { name: 'Main' })
-      .getByRole('link', { name: 'Trust & privacy' })
-      .boundingBox();
-    const button = await page.locator('.site-header .nua-row a').first().boundingBox();
-    expect(button!.y).toBeGreaterThanOrEqual(last!.y + last!.height - 1);
-    expect(Math.abs(button!.x + button!.width - (last!.x + last!.width))).toBeLessThanOrEqual(1);
+    await expect(
+      page.locator('.site-header').getByRole('link', { name: 'App status' }),
+    ).toHaveCount(0);
+    const footer = page.locator('footer.site-footer');
+    const help = footer.getByRole('link', { name: 'Help & FAQs' });
+    const status = footer.getByRole('link', { name: 'App status' });
+    await expect(status).toHaveAttribute('href', '/apps');
+    const h = await help.boundingBox();
+    const st = await status.boundingBox();
+    expect(st!.y).toBeGreaterThan(h!.y);
+    expect(Math.abs(st!.x - h!.x)).toBeLessThanOrEqual(1); // same column, so "under", not beside
   });
 });
 
