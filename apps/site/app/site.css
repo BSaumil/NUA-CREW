@@ -76,6 +76,10 @@ a {
 .site-nav a:hover {
   background: var(--surface-2);
 }
+/* The page you are on gets the brand's gold underline, as in the apps (not colour alone). */
+.site-nav a[aria-current='page'] {
+  box-shadow: inset 0 -3px 0 var(--nua-gold);
+}
 
 /* Dark hero and footer: fixed brand colours so contrast does not depend on the theme. */
 .site-hero {
@@ -921,6 +925,10 @@ main {
     min-height: 48px;
     padding: 12px;
     font-size: 1rem;
+  }
+  /* In the stacked phone menu the current page is marked by a bar at its side. */
+  .site-nav a[aria-current='page'] {
+    box-shadow: inset 4px 0 0 var(--nua-gold);
   }
   .home-hero {
     padding: 40px 24px 48px;
