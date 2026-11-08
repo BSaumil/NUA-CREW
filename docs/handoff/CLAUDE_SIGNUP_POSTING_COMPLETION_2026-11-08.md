@@ -1,4 +1,4 @@
-# NUA CREW — P0 sign-up and job-posting completion report (in progress: A done, B partly, C and D not started)
+# NUA CREW — P0 sign-up and job-posting completion report (A, C and D merged; B partly done)
 
 ## PR A — marketing entry points
 
@@ -38,3 +38,39 @@ Fetched through the Vercel connector, which uses a temporary share link, so the 
 Not verified: project root directory and install/build settings as configured in Vercel (the builds succeed from the monorepo root, which suggests they are right).
 
 Nothing here is live. No flag is open, and AWS, DNS, Stripe, production database and NZ transactions are untouched.
+
+## PR C: end-to-end journey on the shipped gates (merged)
+
+[#66](https://github.com/BSaumil/NUA-CREW/pull/66), squash commit `37bc5ac37fc71c41a3b46c3cb847925b876cf295`. CI on the exact tested head `46330bd` was green: api, web, dependency-audit, e2e, and the new `e2e-real-gate` job (about 1.5 minutes on its first run).
+
+The run uses `tests/e2e/playwright.real-gate.config.ts`. The API runs on the shipped defaults (verified email and role-on-publish both on; the file mail transport is what turns the email gate on). The marketing site is built with all three launch flags open toward the local apps, so every leg starts from a marketing call-to-action click. Real web apps, real API, real Postgres with RLS.
+
+Journey asserted end to end: Create Free Employee Account, then candidate sign-up; Register Your Business, then employer sign-up with a checksum-valid unique ABN; the workspace says it cannot publish (an ABN checksum is not verification); an operator verifies the business with recorded evidence; Post a Job, then the guided hospitality flow with a pay check; with the employer's email unconfirmed the shipped gate refuses to create the ad (not only to publish it) with "Verify your email address first"; after confirming the email the same flow saves a draft with its pay check and publishes; the candidate sees "Verified business", is refused until their own email is confirmed, then applies; the employer sees the application and starts a review; the candidate sees "Under review".
+
+## PR D: negative scenarios (merged)
+
+[#67](https://github.com/BSaumil/NUA-CREW/pull/67), squash commit `bb78d5101c8312cddea82ecc3307d18dbbe90858`. CI on the exact tested head `bb49a7a` was green: api, web, dependency-audit, e2e and e2e-real-gate. 11 tests with real HTTP codes, each refusal paired with a valid-request control: consent missing or false (422), weak password (422), `NZ` country (422), duplicate email (409), duplicate ABN (409), missing ABN and bad checksum (422), talent discovery consent defaults to OFF, another business gets 404 on a business's jobs (owner gets 200), a candidate account gets 404 and an anonymous caller 401, an unconfirmed email gets 403 on job creation, and hostile `next` values (`https://evil.test`, `//evil.test`, `/\evil.test`, encoded CRLF, `javascript:`) all fall back to `/`.
+
+## Production state (checked through the Vercel deployment URL; the sandbox cannot reach the real domain)
+
+`nua-crew-site` production deployment `dpl_7A3hKfc94AhQg5yQH3tEcwSnAbhQ` is READY at `main` `37bc5ac`. Served page: header has no App status; footer has App status directly after Help & FAQs; no link to an app or hire host; entries read "Not open yet"; noindex.
+
+## Done versus blocked
+
+| Item | State | Proof |
+|---|---|---|
+| Three first-class CTAs, granular launch flags, honest closed states | Done, live on the marketing site | #63 `ffcfd55`, CI green on `ad577ee`, production READY |
+| Open-redirect guard on sign-in return path | Done | unit tests in #63; hostile-`next` cases in #67 |
+| App status moved to the footer | Done, live | #65 `4018d7e`, CI green on `13ac573`, production READY |
+| Candidate and employer apps redeployed from `main` as previews | Done as previews only | `dpl_RjcKAEpHrttdQkJVppbaSe7vKpmw`, `dpl_6hR9uqJUFsPn5y5FaRVvaYQ5MWAR` at `ffcfd558`; SSO and production aliases untouched |
+| Registration, login, job lists and posting on those previews | **Blocked** | no hosted API has passed a health check; no `API_BASE_URL`; candidate `/jobs` returns 500 (`ECONNREFUSED 127.0.0.1:8000`) |
+| Full journey on shipped gates, locally | Done | #66 `37bc5ac`, `e2e-real-gate` green |
+| Negative scenarios | Done | #67 `bb78d51`, `e2e-real-gate` green |
+| Email delivery | **Blocked** | no approved provider; local file transport only |
+| Operator verification of award rates inside the journey | Not covered | pay check uses `supplied_unverified` rates; `rate-verification.spec.ts` covers the operator flow separately |
+| Candidate profile completion and password reset inside the journey | Not covered here | password reset and email verification have their own specs |
+| Connection outage, double-submit, missing pay check via API, unverified-business publish via API | Not covered in the real-gate suite | stated in #67's description |
+| Android and iOS onboarding parity, physical-device proof | Not done | web build only; simulators are not physical devices |
+| Hosted API, AWS staging, DNS, live Stripe, public sign-up, app-store release, NZ hiring | **Not authorised, not touched** | owner gates unchanged |
+
+Pilot launch gates: none is open anywhere. Nothing in this report is a GO statement.
