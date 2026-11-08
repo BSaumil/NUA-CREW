@@ -4,8 +4,9 @@ Same shape as push delivery: a small protocol, a default that does nothing, and 
 for tests. Messages are plain text with one link at most. Nothing here logs a message body or a
 link, because a link is a credential until it is used.
 
-No real provider is wired yet; choosing one is an owner decision. `file` writes messages to a local
-folder for development and browser tests and is refused outside development (see config).
+`resend` hands messages to the Resend HTTPS API. The provider is the owner's choice: another is a
+small class with the same `send` method. `file` writes messages to a local folder for development
+and browser tests and is refused outside development (see config).
 """
 
 import json
@@ -16,6 +17,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Protocol
+
+import httpx
 
 from app.config import get_settings
 
@@ -56,14 +59,79 @@ class FileSender:
         log.info("email written to the development mail folder")
 
 
+class DeliveryError(Exception):
+    """The provider refused or could not be reached. Carries a status only, never message content
+    or the provider's response body (which can echo the recipient)."""
+
+
+class ResendSender:
+    """Transactional email through the Resend HTTPS API: plain text, no tracking added here.
+
+    One attempt per call. The caller (`deliver`) runs after the response and never raises, and the
+    resend-verification flow is the user's retry. Open and click tracking are provider-domain
+    settings: leave them off for the sending domain, because a link here is a credential.
+    """
+
+    def __init__(
+        self,
+        api_key: str,
+        sender: str,
+        base_url: str = "https://api.resend.com",
+        timeout: float = 8.0,
+        transport: httpx.AsyncBaseTransport | None = None,
+    ) -> None:
+        self._key = api_key
+        self._from = sender
+        self._url = base_url.rstrip("/") + "/emails"
+        self._timeout = timeout
+        self._transport = transport
+
+    async def send(self, message: EmailMessage) -> None:
+        payload = {
+            "from": self._from,
+            "to": [message.to],
+            "subject": message.subject,
+            "text": message.text,
+        }
+        headers = {
+            "Authorization": f"Bearer {self._key}",
+            # Makes a retried identical request idempotent at the provider.
+            "Idempotency-Key": uuid.uuid4().hex,
+        }
+        try:
+            async with httpx.AsyncClient(
+                timeout=self._timeout, transport=self._transport
+            ) as client:
+                response = await client.post(self._url, json=payload, headers=headers)
+        except httpx.HTTPError as exc:
+            raise DeliveryError(f"provider unreachable ({type(exc).__name__})") from None
+        if response.status_code >= 300:
+            raise DeliveryError(f"provider returned HTTP {response.status_code}")
+        log.info("email handed to the provider")
+
+
 _sender: EmailSender | None = None
+
+
+def _build_sender() -> EmailSender:
+    s = get_settings()
+    if s.email_provider == "file":
+        return FileSender(s.email_file_dir)
+    if s.email_provider == "resend":
+        assert s.email_api_key is not None and s.email_from is not None  # config validated
+        return ResendSender(
+            s.email_api_key.get_secret_value(),
+            s.email_from,
+            base_url=s.email_api_base,
+            timeout=s.email_timeout_seconds,
+        )
+    return NullSender()
 
 
 def get_sender() -> EmailSender:
     global _sender
     if _sender is None:
-        s = get_settings()
-        _sender = FileSender(s.email_file_dir) if s.email_provider == "file" else NullSender()
+        _sender = _build_sender()
     return _sender
 
 
@@ -82,6 +150,8 @@ async def deliver(message: EmailMessage) -> None:
     """Send and swallow failures. Runs after the response, so it must never raise or log content."""
     try:
         await get_sender().send(message)
+    except DeliveryError as exc:
+        log.error("email delivery failed: %s", exc)  # status only: no address, subject or link
     except Exception:
         log.exception("email delivery failed")  # no message content is attached to this record
 
