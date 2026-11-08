@@ -71,8 +71,9 @@ def _rls_safe_role() -> None:
     info = asyncio.run(check())
     if info.unsafe:
         pytest.exit(
-            f"Database role {info.name!r} bypasses row-level security (superuser={info.superuser}, "
-            f"bypassrls={info.bypass_rls}). Run db/roles/bootstrap.sql and connect as nua_runtime.",
+            f"Database role {info.name!r} is not a safe runtime role (superuser={info.superuser}, "
+            f"bypassrls={info.bypass_rls}, owns or can alter: {list(info.privileges)}). Run "
+            "db/roles/bootstrap.sql and connect as nua_runtime.",
             returncode=3,
         )
 
