@@ -129,7 +129,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
                       <a href={`${LAUNCH.appBase}/login`}>Employee log in</a>
                     </li>
                   ) : null}
-                  {LAUNCH.entries.employer.open && LAUNCH.hireBase ? (
+                  {(LAUNCH.entries.employer.open || LAUNCH.entries['post-job'].open) && LAUNCH.hireBase ? (
                     <li>
                       <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>
                     </li>
