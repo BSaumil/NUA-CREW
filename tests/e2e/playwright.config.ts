@@ -6,6 +6,9 @@ const api = resolve(__dirname, '../../services/api');
 const apiEnv = {
   NUA_DATABASE_URL: E2E_DB,
   NUA_ENV: 'development',
+  // Registration is closed at the API by default; the owner opens it. Fixtures open it explicitly.
+  NUA_CANDIDATE_REGISTRATION: 'open',
+  NUA_EMPLOYER_REGISTRATION: 'open',
   NUA_AUTH_RATE_LIMIT_PER_MINUTE: '1000',
   // Email goes to a local folder the specs read; nothing is sent anywhere (development only).
   NUA_EMAIL_PROVIDER: 'file',
