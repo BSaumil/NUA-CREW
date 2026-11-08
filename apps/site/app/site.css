@@ -2093,3 +2093,38 @@ main {
     padding: 18px;
   }
 }
+
+/* Three first-class entry points (hero, phone menu). */
+.entry-points ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr));
+}
+.entry-points .nua-button {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+}
+.entry-points li p {
+  margin: 6px 2px 0;
+  font-size: 0.875rem;
+}
+.entry-points__price {
+  margin: 14px 0 0;
+  font-size: 0.875rem;
+}
+.site-nav__entry {
+  display: none;
+}
+@media (max-width: 899px) {
+  .site-nav ul.is-open .site-nav__entry {
+    display: list-item;
+  }
+  .site-nav__entry a {
+    font-weight: 700;
+    color: var(--nua-wine, #3c0b21);
+  }
+}

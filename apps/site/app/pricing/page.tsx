@@ -2,7 +2,7 @@ import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, Faq, PageHero, PrimaryLink, Section } from '../components';
 import { PricePreview } from '../price-preview';
 import { AdOptionsComparison } from '../visuals';
-import { SITE, toHire } from '@/lib/site';
+import { LAUNCH } from '@/lib/site';
 
 export const metadata = buildMetadata('/pricing');
 
@@ -113,8 +113,11 @@ export default function Pricing() {
           ]}
         />
         <p>
-          <PrimaryLink href={toHire('/register')}>
-            {SITE.productLive ? 'Register your business' : 'See employer launch status'}
+          <PrimaryLink href={LAUNCH.entries.employer.href}>
+            {LAUNCH.entries.employer.label}
+          </PrimaryLink>{' '}
+          <PrimaryLink href={LAUNCH.entries['post-job'].href}>
+            {LAUNCH.entries['post-job'].label}
           </PrimaryLink>
         </p>
       </Section>

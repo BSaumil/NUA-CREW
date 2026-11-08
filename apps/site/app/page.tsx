@@ -12,7 +12,8 @@ import {
   JobSearchPreview,
   PreviewFrame,
 } from './visuals';
-import { SITE, toApp, toHire } from '@/lib/site';
+import { SITE } from '@/lib/site';
+import { EntryPoints } from './entry-points';
 
 export const metadata = buildMetadata('/');
 
@@ -36,17 +37,7 @@ export default function Home() {
               Find your next role. Meet your next teammate. Hospitality and local work, built around
               real life.
             </p>
-            <div className="site-cta-row">
-              <a className="nua-button" href={SITE.productLive ? toApp('/jobs') : '/job-seekers'}>
-                I’m looking for work <ArrowRight size={18} aria-hidden="true" />
-              </a>
-              <a
-                className="nua-button nua-button--secondary"
-                href={SITE.productLive ? toHire('/register') : '/employers'}
-              >
-                I’m hiring <ArrowRight size={18} aria-hidden="true" />
-              </a>
-            </div>
+            <EntryPoints />
             <p className="home-hero__note">
               <Check size={17} aria-hidden="true" />
               Free for Australian job seekers. <a href="/markets">New Zealand is in preparation.</a>

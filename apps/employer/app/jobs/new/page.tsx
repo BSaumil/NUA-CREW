@@ -12,7 +12,7 @@ export default async function NewJob({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { employerId, role } = await requireEmployer();
+  const { employerId, role } = await requireEmployer('/jobs/new');
   const { error } = await flashFrom(searchParams);
   if (!canWrite(role)) return <p role="alert">Your role cannot create jobs.</p>;
   const { data: locations } = await (

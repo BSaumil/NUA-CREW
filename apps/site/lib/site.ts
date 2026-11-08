@@ -9,6 +9,8 @@
  *                           support mailbox used by this product family.
  * - NUA_SITE_INDEXABLE=true allow search engines. Unset = noindex.
  */
+import { readLaunch } from '@nua-crew/ui';
+
 const env = (k: string, fallback: string) => process.env[k]?.replace(/\/$/, '') || fallback;
 
 export const SITE = {
@@ -20,6 +22,13 @@ export const SITE = {
   productLive: process.env.NUA_PRODUCT_LIVE === 'true',
   indexable: process.env.NUA_SITE_INDEXABLE === 'true',
 } as const;
+
+/**
+ * The three first-class entry points (Create Free Employee Account, Register Your Business, Post a
+ * Job). Each opens on its own flag AND a valid host; otherwise it goes to the honest /apps status
+ * page. A marketing flag such as NUA_PRODUCT_LIVE never opens them. See packages/ui/src/launch.ts.
+ */
+export const LAUNCH = readLaunch(process.env);
 
 /** Where a call to action goes: the real app when it is live, otherwise the honest status page. */
 export const toApp = (path: string) =>

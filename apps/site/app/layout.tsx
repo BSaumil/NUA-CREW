@@ -7,7 +7,7 @@ import './site.css';
 import { BrandLockup, BrandLogo, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { MainNav } from './nav';
 import { BUSINESS } from '@/lib/business';
-import { SITE } from '@/lib/site';
+import { LAUNCH, SITE } from '@/lib/site';
 import { SiteJsonLd } from './site-json-ld';
 
 export const metadata: Metadata = {
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="site-header">
           <div className="nua-container site-header__inner" style={{ padding: '0 16px' }}>
             <BrandLockup />
-            <MainNav />
+            <MainNav entries={LAUNCH.list} />
             <div className="nua-row">
               {SITE.productLive ? (
                 <ButtonLink href={`${SITE.appUrl}/login`} variant="secondary">

@@ -11,7 +11,7 @@ import {
   Phone,
   Section,
 } from '../components';
-import { SITE, toApp } from '@/lib/site';
+import { LAUNCH } from '@/lib/site';
 
 export const metadata = buildMetadata('/job-seekers');
 
@@ -30,9 +30,7 @@ export default function JobSeekers() {
         lede="Search permanent and temporary roles, see what they pay, and decide who can find you. Free in every state and territory."
       >
         <div className="site-cta-row">
-          <Cta href={toApp('/register')}>
-            {SITE.productLive ? 'Create a free account' : 'See job seeker launch status'}
-          </Cta>
+          <Cta href={LAUNCH.entries.employee.href}>{LAUNCH.entries.employee.label}</Cta>
           <Cta href="/apps" ghost>
             Android and iOS apps
           </Cta>
@@ -169,8 +167,8 @@ export default function JobSeekers() {
         </ul>
         <div className="site-cta-row">
           <Cta href="/trust">Read about trust and privacy</Cta>
-          <Cta href={toApp('/register')} ghost>
-            {SITE.productLive ? 'Create a free account' : 'See job seeker launch status'}
+          <Cta href={LAUNCH.entries.employee.href} ghost>
+            {LAUNCH.entries.employee.label}
           </Cta>
         </div>
       </Section>

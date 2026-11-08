@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Button } from '@nua-crew/ui';
+import { safeReturnTo } from '@nua-crew/ui';
 import { login } from '../actions';
 import { Field, Flash, flashFrom } from '../components';
 
@@ -11,11 +12,14 @@ export default async function Login({
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { error, notice } = await flashFrom(searchParams);
+  const raw = (await searchParams).next;
+  const next = safeReturnTo(Array.isArray(raw) ? raw[0] : raw);
   return (
     <div className="nua-stack" style={{ maxWidth: 480 }}>
       <h1>Log in to NUA CREW Hire</h1>
       <Flash error={error} notice={notice} />
       <form action={login} className="nua-card nua-stack">
+        <input type="hidden" name="next" value={next} />
         <Field name="email" label="Work email" type="email" required autoComplete="email" />
         <Field
           name="password"
