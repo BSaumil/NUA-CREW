@@ -155,7 +155,7 @@ export default function Apps() {
                 : 'Explore employer tools'}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
-            {LAUNCH.entries.employer.open && LAUNCH.hireBase ? (
+            {(LAUNCH.entries.employer.open || LAUNCH.entries['post-job'].open) && LAUNCH.hireBase ? (
               <p className="site-note">
                 Already registered? <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>.
               </p>
