@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "uv sync --frozen --no-dev",
+  "buildCommand": "echo 'API: nothing to build'",
+  "regions": ["syd1"],
+  "functions": {
+    "app/main.py": {
+      "maxDuration": 30,
+      "excludeFiles": "{tests/**,unit_tests/**,fixtures/**,scripts/**,**/__pycache__/**,dump.rdb}"
+    }
+  }
+}
