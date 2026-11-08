@@ -25,7 +25,9 @@ export default function Home() {
           <div className="home-hero__copy">
             <span className="launch-pill">
               <span aria-hidden="true" />
-              {LAUNCH.anyOpen ? 'Limited pilot access · Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
+              {LAUNCH.anyOpen
+                ? 'Limited pilot access · Starting in Melbourne'
+                : 'In pre-launch · Starting in Melbourne'}
             </span>
             <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
             <h1>
