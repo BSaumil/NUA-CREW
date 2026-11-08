@@ -27,13 +27,14 @@ export const toApp = (path: string) =>
 export const toHire = (path: string) =>
   SITE.productLive ? `${SITE.hireUrl}${path}` : '/apps#employers';
 
+/** Main menu, in the order a visitor reads it: who it is for, how it works, what it costs, where, trust. */
 export const NAV = [
   { href: '/job-seekers', label: 'Job seekers' },
   { href: '/employers', label: 'Employers' },
-  { href: '/features', label: 'Features' },
   { href: '/how-it-works', label: 'How it works' },
-  { href: '/markets', label: 'AU & NZ' },
+  { href: '/features', label: 'Features' },
   { href: '/pricing', label: 'Pricing' },
+  { href: '/markets', label: 'Countries' },
   { href: '/trust', label: 'Trust & privacy' },
 ] as const;
 
