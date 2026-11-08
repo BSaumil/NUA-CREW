@@ -50,10 +50,41 @@ class RoleInfo:
     name: str
     superuser: bool
     bypass_rls: bool
+    # What the role owns or can alter, found in the catalog: tables in `public` it owns or inherits
+    # ownership of (`pg_has_role(..., 'MEMBER')`, so a NOINHERIT membership still counts), the
+    # `public` schema, the database, and CREATE on `public`. A role that owns the tables can run
+    # `ALTER TABLE ... DISABLE ROW LEVEL SECURITY` or drop a policy, so one injection or bug would
+    # switch the second wall off. The runtime role must be DML-only (ADR-003, ADR-008).
+    privileges: tuple[str, ...] = ()
 
     @property
     def unsafe(self) -> bool:
-        return self.superuser or self.bypass_rls
+        return self.superuser or self.bypass_rls or bool(self.privileges)
+
+
+# `ORDER BY ... LIMIT` keeps the message short; any row at all makes the role unsafe.
+_OWNED_SQL = text(
+    """
+    SELECT 'table ' || c.relname AS what
+      FROM pg_class c
+     WHERE c.relnamespace = 'public'::regnamespace
+       AND c.relkind IN ('r', 'p')
+       AND pg_has_role(current_user, c.relowner, 'MEMBER')
+    UNION ALL
+    SELECT 'schema public'
+      FROM pg_namespace n
+     WHERE n.nspname = 'public' AND pg_has_role(current_user, n.nspowner, 'MEMBER')
+    UNION ALL
+    SELECT 'database ' || d.datname
+      FROM pg_database d
+     WHERE d.datname = current_database() AND pg_has_role(current_user, d.datdba, 'MEMBER')
+    UNION ALL
+    SELECT 'CREATE on schema public'
+     WHERE has_schema_privilege(current_user, 'public', 'CREATE')
+    ORDER BY 1
+    LIMIT 8
+    """
+)
 
 
 async def current_role(engine: AsyncEngine | None = None) -> RoleInfo:
@@ -61,13 +92,16 @@ async def current_role(engine: AsyncEngine | None = None) -> RoleInfo:
     sql = text("SELECT rolname, rolsuper, rolbypassrls FROM pg_roles WHERE rolname = current_user")
     async with eng.connect() as conn:
         row = (await conn.execute(sql)).one()
-    return RoleInfo(row[0], row[1], row[2])
+        owned = tuple((await conn.execute(_OWNED_SQL)).scalars().all())
+    return RoleInfo(row[0], row[1], row[2], owned)
 
 
 async def assert_rls_safe_role() -> RoleInfo:
-    """A superuser or BYPASSRLS role ignores every row-level-security policy (ADR-003/ADR-008).
+    """The API must run as a DML-only role that row-level security applies to (ADR-003/ADR-008).
 
-    Outside development this refuses to start; in development it warns loudly.
+    Unsafe means any of: superuser, BYPASSRLS, or a role that owns (or inherits ownership of) the
+    tables or schema, or can create objects in them. Outside development this refuses to start; in
+    development it warns loudly. Fail closed: a check that cannot run raises and blocks startup.
     """
     s = get_settings()
     info = await current_role()
@@ -75,10 +109,18 @@ async def assert_rls_safe_role() -> RoleInfo:
         s.require_rls_safe_role if s.require_rls_safe_role is not None else s.env != "development"
     )
     if info.unsafe:
-        msg = (
-            f"Database role {info.name!r} is a superuser or has BYPASSRLS: row-level security is "
-            "NOT enforced. Connect as the nua_runtime role (see db/roles/bootstrap.sql)."
-        )
+        if info.superuser or info.bypass_rls:
+            msg = (
+                f"Database role {info.name!r} is a superuser or has BYPASSRLS: row-level security "
+                "is NOT enforced. Connect as the nua_runtime role (see db/roles/bootstrap.sql)."
+            )
+        else:
+            msg = (
+                f"Database role {info.name!r} owns or can alter the schema "
+                f"({', '.join(info.privileges)}), so it could switch row-level security off: the "
+                "second wall is NOT enforced. Connect as the DML-only nua_runtime role and keep "
+                "the owner for migrations only (see db/roles/bootstrap.sql)."
+            )
         if enforce:
             raise RuntimeError(msg)
         log.warning(msg)
