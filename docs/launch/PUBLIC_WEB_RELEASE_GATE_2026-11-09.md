@@ -4,8 +4,8 @@ Directive: `docs/launch/CLAUDE_CODE_PUBLIC_LAUNCH_GO_GO_2026-11-09.md` (#79), is
 Scope: public **web** registration, verified job posting and applications for Australia. Native
 apps, Stripe, paid promotion, document upload and New Zealand stay off and are not gates here.
 
-**Decision at this commit: NO-GO.** Evidence below is as of `main` `7fd7bb4` plus the three open
-PRs named in the table. A READY Vercel build is not evidence of a working service.
+**Decision at this commit: NO-GO.** Evidence below is as of `main` `dcb1dea` plus the open
+PR #83 named in the table. A READY Vercel build is not evidence of a working service.
 
 This file is the checklist. It is updated only with evidence a reader can open: a PR, a commit,
 a CI run, a deployment, a log. Anything not yet evidenced says so.
@@ -25,7 +25,7 @@ dashboard action that cannot be done from the repository. **Not started** = noth
 | 0.4 | Provider-compatible role bootstrap | Code done, **unverified on Neon** | `db/roles/neon_bootstrap.sql` and `docs/operations/NEON_ROLE_BOOTSTRAP.md`: #78 `7fd7bb4`. Rehearsed on a local non-superuser owner. First Neon run must be on a throwaway branch. |
 | 0.5 | Secrets set as sensitive variables, migration credential kept off the function | Owner | `NUA_ENV`, `NUA_DATABASE_URL` (runtime role), `NUA_JWT_SECRET`, `NUA_CORS_ORIGINS`, plus 1.x and 0.7 below. `NUA_MIGRATION_DATABASE_URL` only in a protected one-off migration run. |
 | 0.6 | Backups on, and a restore rehearsed to a disposable database | Owner | Not done. |
-| 0.7 | Shared Redis; sensitive writes fail closed without it | Open PR | #82 (fail closed on registration, reset, verification, apply, job create; API refuses to start outside development without `NUA_REDIS_URL`). **The Redis itself is an Owner purchase.** |
+| 0.7 | Shared Redis; sensitive writes fail closed without it | Code done | #82 `dcb1dea` (fail closed on registration, reset, verification, apply, job create; API refuses to start outside development without `NUA_REDIS_URL`). **The Redis itself is an Owner purchase.** |
 | 0.8 | Candidate and employer web apps deployed from current `main`, public production origins, no Vercel SSO on those origins | **Not done, Owner** | `nua-crew-candidate` last production deployment is `c5236975` (pre-launch); its newest deployment is a preview at `ffcfd55`. Neither web project rebuilds on merges to `main` (only `nua-crew-site` and `nua-crew-api` do). Why is not visible from here: check the Git link and any ignored-build setting. No production domains are attached to these two projects. Previews stay protected. |
 | 0.9 | Server-side bypass header for protected previews only | Code done | #70 `0690f14`. Nothing is sent unless `API_PROTECTION_BYPASS` is set. Never used by the mobile apps. |
 | 0.10 | Bot friction, WAF, security headers, alerting | **Not started** | Security headers exist in the API. No CAPTCHA/Turnstile (needs a provider choice), no WAF rules, no uptime or error alerting, no spend alerts. |
@@ -33,7 +33,7 @@ dashboard action that cannot be done from the repository. **Not started** = noth
 ## 1. Email
 | # | Gate | Status | Evidence / what is missing |
 | --- | --- | --- | --- |
-| 1.1 | Provider-backed sender behind the existing interface | Open PR | #81 (Resend adapter; request, error and log behaviour tested with a mock transport). |
+| 1.1 | Provider-backed sender behind the existing interface | Code done | #81 `845970e` (Resend adapter; request, error and log behaviour tested with a mock transport). |
 | 1.2 | Provider account, verified sending domain (SPF/DKIM/DMARC), tracking off | Owner | Not done. The provider choice is the owner's. |
 | 1.3 | **Real delivery to a real inbox**: verification and password reset | **Not evidenced** | Cannot be shown without 1.2 and a deployed API. A hard NO-GO item. |
 | 1.4 | Verified-email gate stays on | Code done | Posting and applying require a verified email whenever mail can be delivered (owner decision, #56). It is inert while the provider is `none`, which is why 1.3 matters. |
