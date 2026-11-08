@@ -4,8 +4,9 @@ import { useState, useRef, type KeyboardEvent } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X } from 'lucide-react';
 import { NAV } from '@/lib/site';
+import type { Entry } from '@nua-crew/ui';
 
-export function MainNav() {
+export function MainNav({ entries = [] }: { entries?: Entry[] }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
@@ -39,6 +40,13 @@ export function MainNav() {
               onClick={() => setOpen(false)}
             >
               {n.label}
+            </a>
+          </li>
+        ))}
+        {entries.map((e) => (
+          <li key={e.id} className="site-nav__entry" data-entry={e.id}>
+            <a href={e.href} onKeyDown={closeOnEscape} onClick={() => setOpen(false)}>
+              {e.label}
             </a>
           </li>
         ))}

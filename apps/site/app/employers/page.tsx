@@ -2,7 +2,7 @@ import { buildMetadata } from '@/lib/seo';
 import { FeatureExplorer } from '../feature-explorer';
 import { HiringDashboardPreview, JourneySteps, PreviewFrame } from '../visuals';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
-import { SITE, toHire } from '@/lib/site';
+import { SITE, LAUNCH } from '@/lib/site';
 
 export const metadata = buildMetadata('/employers');
 
@@ -23,8 +23,9 @@ export default function Employers() {
         lede="Post a role. Find consenting talent. Start a conversation. Your team makes every hiring decision."
       >
         <div className="site-cta-row">
-          <Cta href={toHire('/register')}>
-            {SITE.productLive ? 'Register your business' : 'See employer launch status'}
+          <Cta href={LAUNCH.entries.employer.href}>{LAUNCH.entries.employer.label}</Cta>
+          <Cta href={LAUNCH.entries['post-job'].href} ghost>
+            {LAUNCH.entries['post-job'].label}
           </Cta>
           <Cta href="/pricing" ghost>
             See pricing
@@ -149,8 +150,11 @@ export default function Employers() {
           Android and iOS apps are also in testing. Check launch status for verified access links.
         </p>
         <div className="nua-row">
-          <a className="nua-button" href={toHire('/register')}>
-            {SITE.productLive ? 'Register your business' : 'See employer launch status'}
+          <a className="nua-button" href={LAUNCH.entries.employer.href}>
+            {LAUNCH.entries.employer.label}
+          </a>
+          <a className="nua-button nua-button--secondary" href={LAUNCH.entries['post-job'].href}>
+            {LAUNCH.entries['post-job'].label}
           </a>
           <a className="nua-button nua-button--secondary" href="/apps">
             App status

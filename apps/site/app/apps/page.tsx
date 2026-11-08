@@ -18,7 +18,7 @@ import {
 } from '../components';
 import { AppWalkthrough } from '../app-walkthrough';
 import { VisualShowcase } from '../visual-showcase';
-import { SITE } from '@/lib/site';
+import { LAUNCH, SITE } from '@/lib/site';
 
 export const metadata = buildMetadata('/apps');
 
@@ -37,7 +37,7 @@ export default function Apps() {
           </span>
           <span>
             <Monitor size={18} aria-hidden="true" />
-            Web · {SITE.productLive ? 'Open' : 'Pre-launch'}
+            Web · {LAUNCH.anyOpen ? 'Limited pilot access' : 'Pre-launch'}
           </span>
         </div>
       </PageHero>
@@ -74,6 +74,7 @@ export default function Apps() {
         <VisualShowcase audience="mobile" limit={4} />
       </Section>
       <Section
+        id="access"
         title="Choose your experience"
         intro="The public website is live. Not in the app stores yet; download links will appear when published."
       >
@@ -100,17 +101,24 @@ export default function Apps() {
               </li>
             </ul>
             <p className="site-note">
-              {SITE.productLive
-                ? 'Web access is open. Mobile apps are in testing.'
-                : 'In testing. Public registration is not open yet.'}
+              {LAUNCH.entries.employee.open
+                ? 'Registration is open for approved pilot users. Mobile apps are in testing.'
+                : 'Pilot registration not yet open. Nobody can create an account yet, and no data is collected here.'}
             </p>
             <a
               className="text-link"
-              href={SITE.productLive ? `${SITE.appUrl}/jobs` : '/job-seekers'}
+              href={LAUNCH.entries.employee.open ? LAUNCH.entries.employee.href : '/job-seekers'}
             >
-              {SITE.productLive ? 'Browse jobs' : 'Explore job seeker tools'}
+              {LAUNCH.entries.employee.open
+                ? LAUNCH.entries.employee.label
+                : 'Explore job seeker tools'}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
+            {LAUNCH.entries.employee.open && LAUNCH.appBase ? (
+              <p className="site-note">
+                Already registered? <a href={`${LAUNCH.appBase}/login`}>Employee log in</a>.
+              </p>
+            ) : null}
           </article>
           <article id="employers" className="site-card launch-card">
             <span className="site-icon">
@@ -134,15 +142,48 @@ export default function Apps() {
               </li>
             </ul>
             <p className="site-note">
-              {SITE.productLive
-                ? 'Web access is open. Mobile apps are in testing.'
-                : 'In testing. Employer registration and payments are not open yet.'}
+              {LAUNCH.entries.employer.open
+                ? 'Business registration is open for approved pilot users. Publishing needs business verification.'
+                : 'Pilot registration not yet open. Employer registration and payments are not open yet.'}
             </p>
             <a
               className="text-link"
-              href={SITE.productLive ? `${SITE.hireUrl}/register` : '/employers'}
+              href={LAUNCH.entries.employer.open ? LAUNCH.entries.employer.href : '/employers'}
             >
-              {SITE.productLive ? 'Register your business' : 'Explore employer tools'}
+              {LAUNCH.entries.employer.open
+                ? LAUNCH.entries.employer.label
+                : 'Explore employer tools'}
+              <ArrowRight size={18} aria-hidden="true" />
+            </a>
+            {(LAUNCH.entries.employer.open || LAUNCH.entries['post-job'].open) &&
+            LAUNCH.hireBase ? (
+              <p className="site-note">
+                Already registered? <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>.
+              </p>
+            ) : null}
+          </article>
+          <article id="post-a-job" className="site-card launch-card">
+            <span className="site-icon">
+              <BriefcaseBusiness size={24} aria-hidden="true" />
+            </span>
+            <p className="section-kicker">POST A JOB</p>
+            <h3>Post a role with clear pay.</h3>
+            <p>
+              Planned pricing: A$49 for a 14-day advertisement, an optional A$30 5-day promotion, or
+              A$79 for both.
+            </p>
+            <p className="site-note">
+              {LAUNCH.entries['post-job'].open
+                ? 'Posting is open for approved pilot employers. Payments are not switched on.'
+                : 'Posting is not open yet and payments are not switched on. You will need a verified business account first.'}
+            </p>
+            <a
+              className="text-link"
+              href={LAUNCH.entries['post-job'].open ? LAUNCH.entries['post-job'].href : '/pricing'}
+            >
+              {LAUNCH.entries['post-job'].open
+                ? LAUNCH.entries['post-job'].label
+                : 'See planned pricing'}
               <ArrowRight size={18} aria-hidden="true" />
             </a>
           </article>

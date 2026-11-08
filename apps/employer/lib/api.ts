@@ -1,6 +1,7 @@
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { createApi, errorMessage } from '@nua-crew/api-client';
+import { safeReturnTo } from '@nua-crew/ui';
 
 export const COOKIE = 'nua_employer_session';
 export const API_BASE = process.env.API_BASE_URL ?? 'http://localhost:8000';
@@ -25,9 +26,16 @@ export async function getViewer() {
 }
 
 /** Single-organisation MVP: the first membership is the active workspace. */
-export async function requireEmployer() {
+/**
+ * `returnTo` is where to come back to after signing in. It is run through the allow-list guard, so
+ * a crafted value can never send a signed-in person to another site.
+ */
+export async function requireEmployer(returnTo?: string) {
   const viewer = await getViewer();
-  if (!viewer) redirect('/login');
+  if (!viewer) {
+    const next = returnTo ? safeReturnTo(returnTo) : '/';
+    redirect(next === '/' ? '/login' : `/login?next=${encodeURIComponent(next)}`);
+  }
   const m = viewer.memberships?.[0];
   if (viewer.role !== 'employer' || !m)
     redirect('/login?error=' + encodeURIComponent('Use an employer account'));

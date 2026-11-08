@@ -12,7 +12,8 @@ import {
   JobSearchPreview,
   PreviewFrame,
 } from './visuals';
-import { SITE, toApp, toHire } from '@/lib/site';
+import { LAUNCH } from '@/lib/site';
+import { EntryPoints } from './entry-points';
 
 export const metadata = buildMetadata('/');
 
@@ -24,7 +25,9 @@ export default function Home() {
           <div className="home-hero__copy">
             <span className="launch-pill">
               <span aria-hidden="true" />
-              {SITE.productLive ? 'Starting in Melbourne' : 'In pre-launch · Starting in Melbourne'}
+              {LAUNCH.anyOpen
+                ? 'Limited pilot access · Starting in Melbourne'
+                : 'In pre-launch · Starting in Melbourne'}
             </span>
             <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
             <h1>
@@ -36,17 +39,7 @@ export default function Home() {
               Find your next role. Meet your next teammate. Hospitality and local work, built around
               real life.
             </p>
-            <div className="site-cta-row">
-              <a className="nua-button" href={SITE.productLive ? toApp('/jobs') : '/job-seekers'}>
-                I’m looking for work <ArrowRight size={18} aria-hidden="true" />
-              </a>
-              <a
-                className="nua-button nua-button--secondary"
-                href={SITE.productLive ? toHire('/register') : '/employers'}
-              >
-                I’m hiring <ArrowRight size={18} aria-hidden="true" />
-              </a>
-            </div>
+            <EntryPoints />
             <p className="home-hero__note">
               <Check size={17} aria-hidden="true" />
               Free for Australian job seekers. <a href="/markets">New Zealand is in preparation.</a>
@@ -262,8 +255,8 @@ export default function Home() {
               q: 'Can I use NUA CREW today?',
               a: (
                 <p>
-                  {SITE.productLive
-                    ? 'The web product is open.'
+                  {LAUNCH.anyOpen
+                    ? 'Limited web pilot access is available for approved users.'
                     : 'The website is live; the hiring product is still in pre-launch testing.'}{' '}
                   Check <a href="/apps">app and web status</a> for access. App-store links appear
                   only when the apps are published.

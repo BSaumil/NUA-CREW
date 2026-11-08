@@ -56,7 +56,7 @@ export default async function GuidedJob({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const { employerId, role: memberRole } = await requireEmployer();
+  const { employerId, role: memberRole } = await requireEmployer('/jobs/new/guided');
   const { error, notice, p } = await flashFrom(searchParams);
   if (!canWrite(memberRole)) return <p role="alert">Your role cannot create jobs.</p>;
   const one = (k: string) => {

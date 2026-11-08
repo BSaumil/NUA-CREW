@@ -7,7 +7,7 @@ import './site.css';
 import { BrandLockup, BrandLogo, ButtonLink, SUPPORT_LINE, TAGLINE } from '@nua-crew/ui';
 import { MainNav } from './nav';
 import { BUSINESS } from '@/lib/business';
-import { SITE } from '@/lib/site';
+import { LAUNCH, SITE } from '@/lib/site';
 import { SiteJsonLd } from './site-json-ld';
 
 export const metadata: Metadata = {
@@ -52,16 +52,14 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <header className="site-header">
           <div className="nua-container site-header__inner" style={{ padding: '0 16px' }}>
             <BrandLockup />
-            <MainNav />
+            <MainNav entries={LAUNCH.list} />
             <div className="nua-row">
-              {SITE.productLive ? (
-                <ButtonLink href={`${SITE.appUrl}/login`} variant="secondary">
+              {LAUNCH.anyOpen ? (
+                <ButtonLink href="/apps#access" variant="secondary">
                   Log in
                 </ButtonLink>
               ) : null}
-              <ButtonLink href="/apps">
-                {SITE.productLive ? 'Open NUA CREW' : 'App status'}
-              </ButtonLink>
+              <ButtonLink href="/apps">App status</ButtonLink>
             </div>
           </div>
         </header>
@@ -126,20 +124,22 @@ export default function RootLayout({ children }: { children: ReactNode }) {
               <div>
                 <h2>Open the product</h2>
                 <ul>
-                  {SITE.productLive ? (
-                    <>
-                      <li>
-                        <a href={`${SITE.appUrl}/jobs`}>NUA CREW Jobs</a>
-                      </li>
-                      <li>
-                        <a href={`${SITE.hireUrl}/login`}>NUA CREW Hire</a>
-                      </li>
-                    </>
-                  ) : (
+                  {LAUNCH.entries.employee.open && LAUNCH.appBase ? (
+                    <li>
+                      <a href={`${LAUNCH.appBase}/login`}>Employee log in</a>
+                    </li>
+                  ) : null}
+                  {(LAUNCH.entries.employer.open || LAUNCH.entries['post-job'].open) &&
+                  LAUNCH.hireBase ? (
+                    <li>
+                      <a href={`${LAUNCH.hireBase}/login`}>Employer log in</a>
+                    </li>
+                  ) : null}
+                  {!LAUNCH.anyOpen ? (
                     <li>
                       <a href="/apps">Launch status</a>
                     </li>
-                  )}
+                  ) : null}
                   <li>
                     <a href="/features">Explore features</a>
                   </li>

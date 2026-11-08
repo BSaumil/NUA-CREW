@@ -2,7 +2,7 @@
 
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
-import { abnError, normaliseAbn } from '@nua-crew/ui';
+import { abnError, normaliseAbn, safeReturnTo } from '@nua-crew/ui';
 import { marketRefusal } from '@/lib/market';
 import { api, COOKIE, errorMessage, requireEmployer, TOKEN_MAX_AGE_S } from '@/lib/api';
 
@@ -35,7 +35,7 @@ export async function login(form: FormData) {
     back('/login', 'error', 'This is the employer app. Candidates use NUA CREW Jobs.');
   else {
     await startSession(data.access_token);
-    redirect(data.role === 'admin' ? '/admin' : '/');
+    redirect(data.role === 'admin' ? '/admin' : safeReturnTo(form.get('next')));
   }
 }
 

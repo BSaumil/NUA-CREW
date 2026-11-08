@@ -2093,3 +2093,86 @@ main {
     padding: 18px;
   }
 }
+
+/* Stage A: three compact, equal-weight decisions instead of a wall of repeated warnings. */
+.entry-points {
+  max-width: 580px;
+  margin-top: 20px;
+}
+.entry-points ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+}
+.entry-points__card {
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #e6dcd9;
+  border-radius: 16px;
+  background: #fffcf7;
+  display: grid;
+  gap: 5px;
+}
+.entry-points__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+}
+.entry-points__audience {
+  color: #3c0b21;
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.025em;
+}
+.entry-points__status {
+  color: #514548;
+  border: 1px solid #ded4d0;
+  border-radius: 99px;
+  padding: 2px 9px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.entry-points__card[data-open='true'] .entry-points__status {
+  color: #3c0b21;
+  background: #f4e9eb;
+  border-color: #bfa6ad;
+}
+.entry-points .nua-button {
+  width: 100%;
+  min-height: 48px;
+  min-width: 0;
+  justify-content: center;
+  white-space: normal;
+  text-align: center;
+  padding: 10px 14px;
+}
+.entry-points__description {
+  margin: 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: #5a4f51;
+}
+.entry-points__notice {
+  margin: 10px 2px 0;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: #4d4344;
+}
+.site-nav__entry {
+  display: none;
+}
+@media (max-width: 899px) {
+  .site-nav ul.is-open .site-nav__entry {
+    display: list-item;
+  }
+  .site-nav__entry a {
+    font-weight: 700;
+    color: var(--nua-wine, #3c0b21);
+  }
+}

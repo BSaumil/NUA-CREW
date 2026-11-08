@@ -11,6 +11,8 @@ const ORDER = [
   ['Trust & privacy', '/trust'],
 ] as const;
 
+const ENTRIES = ['Create Free Employee Account', 'Register Your Business', 'Post a Job'];
+
 test.describe('desktop menu', () => {
   test.use({ viewport: { width: 1280, height: 800 } });
 
@@ -72,7 +74,7 @@ test.describe('phone menu', () => {
       'true',
     );
     const links = nav.getByRole('link');
-    await expect(links).toHaveText(ORDER.map(([label]) => label));
+    await expect(links).toHaveText([...ORDER.map(([label]) => label), ...ENTRIES]);
     for (const link of await links.all()) {
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
