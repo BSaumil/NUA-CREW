@@ -118,6 +118,10 @@ test.describe('who may act on a business', () => {
     };
     const url = `${API}/v1/employers/${a.employerId}/jobs`;
 
+    // Control: the owner can read its own jobs, so the refusals below are about tenancy, not a
+    // broken route or a bad token.
+    expect((await request.get(url, { headers: a.headers })).status()).toBe(200);
+
     // Another business gets a 404, not a 403: the other tenant's data is not even confirmed to exist.
     expect((await request.get(url, { headers: b.headers })).status()).toBe(404);
     expect((await request.get(url, { headers: candidateHeaders })).status()).toBe(404);
