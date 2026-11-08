@@ -50,6 +50,21 @@ even while every web page said sign-up is closed. Keeping it protected, reachabl
 frontends (via the bypass header) and by signed-in team members, keeps "public registration closed"
 true at the API, not just in the UI. When the owner opens a pilot, that is a separate, reviewed change.
 
+## Findings from the first builds (8 Nov 2026)
+- **Packaging.** Vercel detected the monorepo's Turbo setup, ran `pnpm install` and `turbo run build`,
+  and never installed the Python dependencies (`ModuleNotFoundError: fastapi`). An explicit
+  `services/api/vercel.json` (install with `uv sync --frozen --no-dev`, no-op build, `syd1`) fixes it:
+  the preview build installs the full lockfile and the function now loads the app. Tracked in its own PR.
+- **Startup.** With no database connected the app stops in `assert_rls_safe_role`, as designed. That is
+  the expected state until the owner steps above are done.
+- **Function region not yet confirmed.** The first invocation logged `iad1` before it failed. Re-check
+  once the API is healthy; if it is not Sydney, fix before relying on residency.
+- **Mobile cannot use the protected setup.** The Android and iOS apps call the API directly from
+  devices, and a bypass secret cannot ship inside an app. So Deployment Protection on the API works
+  for staging and the web apps only. Before any mobile release the API must be reachable without the
+  secret and closed by its own rules: a fail-closed registration switch on the API (so "sign-up
+  closed" is true at the API, not just in the UI) is needed first. That is a separate decision and PR.
+
 ## Code changes still needed (each its own reviewed PR, with tests)
 1. `vercel.json` and entrypoint check for `services/api` (the app is `app/main.py`, a supported
    entrypoint); exclude tests and fixtures from the bundle (500 MB limit).
