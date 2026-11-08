@@ -1,8 +1,10 @@
 """Sliding-window rate limiting. Redis when configured (shared across instances), else in-process.
 
 Limits are abuse guards, not exclusion: defaults are generous and a limited candidate always gets a
-clear message. If Redis is unreachable the limiter degrades to the in-process window (logged) rather
-than blocking sign-in or taking the API down.
+clear message. If Redis is unreachable, sign-in and messaging degrade to the in-process window
+(logged) rather than taking the API down. Writes that create accounts, send email or publish
+(SENSITIVE_SCOPES) instead refuse with 503 when fail-closed is on, which is the default outside
+development: a per-instance window on serverless is not a limit, and these are the abuse targets.
 """
 
 import logging
@@ -14,10 +16,38 @@ from typing import Protocol
 from redis import asyncio as aioredis
 from redis.exceptions import RedisError
 
-from app.config import get_settings
+from app.config import get_settings, rate_limit_fail_closed
 from app.errors import ApiError
 
 log = logging.getLogger(__name__)
+
+
+# Key prefixes (the part before the first ":") whose checks must not fall back to memory.
+SENSITIVE_SCOPES = frozenset(
+    {
+        "register",
+        "forgot",
+        "reset",
+        "verify",
+        "confirm",
+        "apply",
+        "job-create",
+        "document-create",
+        "document-upload",
+    }
+)
+
+
+def is_sensitive(key: str) -> bool:
+    return key.split(":", 1)[0] in SENSITIVE_SCOPES
+
+
+def _unavailable() -> ApiError:
+    return ApiError(
+        503,
+        "rate_limit_unavailable",
+        "This is temporarily unavailable. Please try again in a few minutes.",
+    )
 
 
 def _limited() -> ApiError:
@@ -72,6 +102,9 @@ class RedisLimiter:
                 keys=[self._prefix + key], args=[window_s, limit, uuid.uuid4().hex]
             )
         except (RedisError, OSError):
+            if is_sensitive(key) and rate_limit_fail_closed(get_settings()):
+                log.error("rate limiter: Redis unavailable, refusing a sensitive write")
+                raise _unavailable() from None
             log.warning("rate limiter: Redis unavailable, using in-process fallback")
             await self._fallback.check(key, limit, window_s)
             return
@@ -91,6 +124,18 @@ class RedisLimiter:
 
 
 _limiter: Limiter | None = None
+
+
+def assert_shared_rate_limit() -> None:
+    """Startup guard: no shared Redis outside development is refused unless explicitly accepted."""
+    s = get_settings()
+    if s.env == "development" or s.redis_url or s.allow_in_process_rate_limit:
+        return
+    raise RuntimeError(
+        "NUA_REDIS_URL is not set. Serverless instances do not share memory, so the in-process "
+        "rate limiter would not limit anything. Set NUA_REDIS_URL, or for an isolated staging only "
+        "set NUA_ALLOW_IN_PROCESS_RATE_LIMIT=true."
+    )
 
 
 def get_limiter() -> Limiter:
