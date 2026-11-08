@@ -58,11 +58,6 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - uses: astral-sh/setup-uv@v5
       - run: pnpm install --frozen-lockfile
-      - name: Print exact Prettier diff for new marketing UI
-        run: |
-          pnpm exec prettier --write apps/site/app/entry-points.tsx apps/site/app/site.css
-          git diff -- apps/site/app/entry-points.tsx apps/site/app/site.css
-          exit 1
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm lint
