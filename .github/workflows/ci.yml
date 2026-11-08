@@ -120,3 +120,41 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with: { name: playwright-traces-and-ui, path: tests/e2e/test-results, retention-days: 7 }
+
+  e2e-real-gate:
+    runs-on: ubuntu-latest
+    needs: [api, web]
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env: { POSTGRES_USER: postgres, POSTGRES_PASSWORD: postgres_ci, POSTGRES_DB: nua_crew_e2e }
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 3s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: pnpm }
+      - uses: astral-sh/setup-uv@v5
+      - name: Create least-privilege database roles
+        run: |
+          sudo apt-get install -y --no-install-recommends postgresql-client >/dev/null
+          PGPASSWORD=postgres_ci psql -h localhost -U postgres -d nua_crew_e2e -v ON_ERROR_STOP=1 \
+            -v migrator_password=nua_migrator_ci -v runtime_password=nua_runtime_ci -v grant_truncate=1 \
+            -f db/roles/bootstrap.sql
+      - run: pnpm install --frozen-lockfile
+      - run: cd services/api && uv sync --frozen
+      - name: Check the hosted runner Chrome installation
+        run: google-chrome --version
+      # The shipped gates stay ON here (verified email, role-based ads, operator verification) and
+      # every journey starts from a marketing call-to-action click. See playwright.real-gate.config.ts.
+      - run: pnpm e2e:real-gate
+        env:
+          CI: 'true'
+          NUA_E2E_BROWSER_CHANNEL: chrome
+          NUA_E2E_DATABASE_URL: postgresql+asyncpg://nua_runtime:nua_runtime_ci@localhost:5432/nua_crew_e2e
+          NUA_E2E_MIGRATION_DATABASE_URL: postgresql+asyncpg://nua_migrator:nua_migrator_ci@localhost:5432/nua_crew_e2e
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with: { name: real-gate-traces-and-ui, path: tests/e2e/test-results, retention-days: 7 }
