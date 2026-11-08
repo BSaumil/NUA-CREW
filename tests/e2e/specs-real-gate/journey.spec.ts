@@ -72,6 +72,27 @@ async function settle(page: Page) {
   await page.waitForLoadState('networkidle');
 }
 
+/** The guided hospitality flow: venue, role, award, pay check, details, then Save draft. */
+async function draftGuidedJob(owner: Page, title: string) {
+  await owner.goto(`${HIRE}/jobs/new/guided`);
+  await settle(owner);
+  await owner.getByRole('link', { name: /Restaurant \/ bistro/ }).click();
+  await owner.getByLabel('Search roles').fill('waitstaff');
+  await owner.getByRole('button', { name: 'Search' }).click();
+  await owner.getByRole('link', { name: /^Waiter \/ Waitress,/ }).click();
+  await owner.getByRole('link', { name: /^Restaurant\s*MA000119/ }).click();
+  await owner.getByLabel('This award covers my business and this work').check();
+  await owner.getByLabel(/Level 2/).check();
+  await owner.getByLabel(/I’ve matched this to the real duties/).check();
+  await owner.getByLabel('Hourly rate (AUD, before super)').fill('34.50');
+  await owner.getByRole('button', { name: 'Check this pay' }).click();
+  await expect(owner.getByText('Meets the minimum as assessed', { exact: true })).toBeVisible();
+  await owner.getByLabel('Job title shown to candidates').fill(title);
+  await owner.getByLabel('What will they do?').fill('Table service, weekends included.');
+  await owner.getByLabel('Skills').fill('Customer Service');
+  await owner.getByRole('button', { name: 'Save draft' }).click();
+}
+
 async function fromSite(page: Page, label: string) {
   await page.goto(`${SITE}/`);
   await page
@@ -162,33 +183,16 @@ test('sign-up, business verification, a role-based ad, an application and a stat
   // 5. Marketing "Post a Job" CTA -> the employer's guided hospitality posting.
   await fromSite(owner, 'Post a Job');
   await expect(owner).toHaveURL(`${HIRE}/jobs/new`);
-  await owner.goto(`${HIRE}/jobs/new/guided`);
-  await settle(owner);
-  await owner.getByRole('link', { name: /Restaurant \/ bistro/ }).click();
-  await owner.getByLabel('Search roles').fill('waitstaff');
-  await owner.getByRole('button', { name: 'Search' }).click();
-  await owner.getByRole('link', { name: /^Waiter \/ Waitress,/ }).click();
-  await owner.getByRole('link', { name: /^Restaurant\s*MA000119/ }).click();
-  await owner.getByLabel('This award covers my business and this work').check();
-  await owner.getByLabel(/Level 2/).check();
-  await owner.getByLabel(/I’ve matched this to the real duties/).check();
-  await owner.getByLabel('Hourly rate (AUD, before super)').fill('34.50');
-  await owner.getByRole('button', { name: 'Check this pay' }).click();
-  await expect(owner.getByText('Meets the minimum as assessed', { exact: true })).toBeVisible();
-  await owner.getByLabel('Job title shown to candidates').fill(title);
-  await owner.getByLabel('What will they do?').fill('Table service, weekends included.');
-  await owner.getByLabel('Skills').fill('Customer Service');
-  await owner.getByRole('button', { name: 'Save draft' }).click();
-  await expect(owner.getByRole('status')).toContainText('Draft saved with its pay check');
+  await draftGuidedJob(owner, title);
 
-  // 6. The employer's own email is still unconfirmed, so publishing is refused (real gate).
-  await owner.getByRole('button', { name: 'Publish' }).click();
-  await expect(owner.locator('p[role="alert"]')).toContainText(/email/i);
+  // 6. The employer's own email is still unconfirmed. The shipped gate refuses to create the ad at
+  //    all (not only to publish it), and says why.
+  await expect(owner.locator('p[role="alert"]')).toContainText(/verify your email/i);
 
-  // 7. Confirm the employer's email from the emailed link, then publish.
+  // 7. Confirm the employer's email from the emailed link, run the same flow again, then publish.
   await confirmEmail(browser, employerEmail);
-  await owner.reload();
-  await settle(owner);
+  await draftGuidedJob(owner, title);
+  await expect(owner.getByRole('status')).toContainText('Draft saved with its pay check');
   await owner.getByRole('button', { name: 'Publish' }).click();
   await expect(owner.getByRole('status')).toContainText('Job published');
   const jobUrl = owner.url().split('?')[0]!;
