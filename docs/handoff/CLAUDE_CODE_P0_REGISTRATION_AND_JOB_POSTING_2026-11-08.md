@@ -1,0 +1,62 @@
+# P0 Claude Code directive — registration, employer onboarding and job posting
+Date: 8 November 2026 | Product: NUA CREW | Priority: P0 — implement next, before extra features
+
+## Owner's instruction
+Make EMPLOYEE REGISTRATION, EMPLOYER REGISTRATION and POST A JOB immediately visible, understandable and fully usable for authorised pilot testers on website, employer web, candidate web and Android/iOS where those experiences exist. Do not pretend public signup is working before a hosted API and database are functional. Work and merge/deploy in small independently tested increments; do not accumulate everything into one giant PR.
+
+## Evidence-based baseline — do not rebuild work Claude already completed
+- Source of truth is GitHub BSaumil/NUA-CREW, **main**, not repository's stale GitHub default branch claude/new-session-kszaxl. Fetch latest main and record exact SHA before writing. Check other contributors and open PRs first.
+- Employer registration page: apps/employer/app/register/page.tsx (three steps). The Australian ABN input is dynamically rendered by MarketLocationFields in packages/ui/src/market.tsx; **do not add a duplicate ABN field**. Employer action: apps/employer/app/actions.ts; route POST /v1/auth/register/employer.
+- Candidate signup: apps/web/app/register/page.tsx (two steps), apps/web/app/actions.ts; route POST /v1/auth/register/candidate. Candidate signup is free.
+- Employer new job route: apps/employer/app/jobs/new/page.tsx; draft action createJob; publishJob is separate, with verification and hospitality role/pay-check controls. Employer homepage apps/employer/app/page.tsx has the workspace entry points.
+- Important merged PRs: #38 password reset/email verification; #42 duplicate job; #49 role reconciliation; #50 commit-before-response; #52 optional initial venue in mobile onboarding; #56 employer ABN required, verified-email gate when provider is active, hospitality role required to publish; #58 approved NUA CREW brand; #59 header layout. Preserve all of them.
+- Marketing site apps/site/lib/site.ts defaults NUA_PRODUCT_LIVE=false. Its toApp('/register') and toHire('/register') intentionally redirect to /apps when not live. Home and /job-seekers, /employers hide genuine signup links. This is the MAIN visibility problem.
+- Vercel: nua-crew-site (marketing) has current READY deployment; candidate nua-crew-candidate and employer nua-crew-employer each show READY but only at old main SHA c5236975ed5afa194d312bf83850cba077bd16ee, before most recent registration fixes. Both are SSO protected. Project environment variable listings returned zero keys for both, so NO hosted API integration was demonstrated. Do not confuse a READY Next.js build with a working signup or job-posting service.
+- Hosted AWS Sydney staging and secure OIDC/quote/remote state are still separately gated by owner US$300/month target and secure access. No production migration, public live hiring or DNS change authorised by this directive.
+- docs/pilot/readiness.json has 11 pending gates. Do not mark complete without attached proof.
+
+## Delivery sequence — one PR and verification at a time
+
+### P0-A: Fix public discovery and onboarding navigation NOW (safe independently)
+Implement a responsive, unmistakable three-entry conversion journey on the NUA CREW marketing homepage and appropriate header/landing pages:
+1. Job Seeker / Employee Registration — clearly labelled Create Free Employee Account.
+2. Employer Registration — clearly labelled Register Your Business.
+3. Post a Job — clearly labelled Post a Job, with A$49 / 14-day advertising price disclosed and A$30 optional 5-day promotion; A$79 bundle. Do not imply checkout is active.
+Promote these in homepage first viewport, mobile menu and relevant /job-seekers, /employers and /pricing CTAs. Keep current NUA CREW official burgundy/black/ivory visual identity, approved connected-N logo and tagline 'Where Talent Meets Opportunity'. No generic banners or AI marketing.
+NO DEAD LINKS: while the candidate/employer site or API is not accepted, show honest 'Pilot registration not yet open' or 'Preview / request pilot access' states that lead to /apps with accurate status. Do not render false forms or quietly route users to old/SSO-blocked deployments. Approved pilot testers may use protected deployment URLs only once tested; public visitors must never bypass protection.
+Prefer granular availability flags for candidate sign-up, employer sign-up and job posting, with a single source of truth and tests. Prevent a marketing flag alone from claiming workflows are live; document the environment contract. Keep pre-launch noindex unless owner explicitly releases indexing.
+Make Post a Job take an already authenticated authorised employer to /jobs/new; unauthenticated employer must login/register first and safely return to job creation. Validate any next/return_to path to prevent open redirects. If verification or pay-check is pending, show exact next step, not a blank page or 500.
+Test semantic navigation, headings, contrast and touch target sizes at 320, 375/390, 768 and 1440px; keyboard, focus, mobile menu, light and dark themes. Include no misleading claims.
+Ship this marketing-only PR when CI + preview screenshot QA passes, even if backend hosting remains blocked; **keep public controls safely gated**.
+
+### P0-B: Recover current candidate and employer deployments (preview access only)
+Review Vercel project settings for nua-crew-candidate and nua-crew-employer: correct repo, monorepo rootDirectory apps/web vs apps/employer, install/build commands, Node 22, latest verified main SHA, branch association, preview protection and route routing. Redeploy each from latest green main as independently testable protected previews. A READY deployment is not proof that the expected app was served: verify /register, /login, employer /jobs/new, candidate /jobs and actual response codes/screens.
+Inspect server-only API base URL env contract in apps/web/lib/api.ts and apps/employer/lib/api.ts and docs; do not hardcode localhost, fake API, secrets or client-provided businessId. Confirm API health/readiness, TLS and allowlist before configuring API URL. Request missing secure AWS/Vercel environment configuration from owner via protected management surfaces, NEVER chat plaintext credentials. CORS must allow only validated origins; cookies HttpOnly/Secure/SameSite and role enforcement preserved. No Railway.
+Do NOT remove Vercel SSO or change public DNS to make screenshots look good. Show a visible unavailable/unconfigured state when server API is absent. Only flip readiness flags when a genuine hosted backend has passed tests.
+
+### P0-C: Complete the REAL registration-to-post-to-apply journey
+Against an isolated PostgreSQL16+pgvector database and Redis with migrations through current head, run employer and employee registration end-to-end using real web UI + API, not mocks alone:
+- Candidate: enter name, email, >=12-character password, accept real terms/privacy, receive confirmation where an email provider is available, login, set basic profile and search jobs. Never charge candidates; discovery consent is OFF by default.
+- Employer: enter account details, legal business name, Australian ABN with required checksum and uniqueness, optional initial venue or later add venue, verified business country AU, accept terms, create workspace and login. ABN checksum is **not** administrative business verification. NZ remains preview-only.
+- Employer drafts a hospitality job with location, role, pay/hours, publish prerequisites and award/pay check. Admin verifies employer, current award/rates and any required assessment by an explicitly authorised admin. A normal unverified employer CANNOT publish or access other employers' data. Preserve require_role_on_publish=true; do not fabricate award rates.
+- Candidate sees only an actually published eligible job, applies once, employer sees application and can progress it; candidate sees status and notifications. Check role auth and employerId-derived server context. Verify a user in a second business cannot read or mutate the first business's jobs/applicants.
+- Validate failure cases: duplicate email, malformed/taken ABN, weak password, absent terms, unknown country/NZ, unverified employer, unverified email once mail provider active, no hospitality role, expired/inconsistent pay check, bad location, unsafe next URL, double submission, cross-tenant access, rate limiting and broken API connectivity.
+- Email provider not yet approved: confirm existing gates are conditional, but NEVER market public signup as production-ready if verification/recovery email cannot be delivered. Test with file email in staging, then real approved provider after owner selects and configures it; DO NOT silently bypass verified email gate or let unsupported users get stranded.
+- Stripe/live checkout is disabled. Do not activate charging, invent paid-ad entitlements or imply that publication includes payment. If pilot publishing is intentionally permitted without payment, restrict it to approved pilot employers and clearly document audit trail and expiration; public paid posting stays gated.
+- Document uploads remain off until private S3+ClamAV scanning is accepted; do not expose a broken upload form.
+
+### P0-D: Add missing journey E2E and deployment gates
+Create a Playwright full-journey suite that starts from MARKETING homepage CTAs (not direct deep-linked /register), follows actual signup/redirect, uses real API/PG, joins employer verification and award data through an authorised test admin, posts job, applies as candidate and confirms employer view. Include negative tests proving non-pilot/public users see accurate unavailable state; protected previews retain access control. Cover Android/iOS native onboarding parity with simulator/Jest, and disclose real-device testing separately.
+Do not weaken production defaults just to pass the test suite: existing Playwright sets NUA_REQUIRE_VERIFIED_EMAIL=false and NUA_REQUIRE_ROLE_ON_PUBLISH=false for fixture speed; ADD dedicated real-gate integration E2E using isolated mail transport and role+pay fixture without changing shipped defaults. Include tests that catch regressions in both routes and marketing flags.
+Evidence: exact branch/SHA, CI green API/web/dependency/E2E, backend readiness, domain/status/redirect screenshots at desktop and 390px, one full successful pilot user journey, negative RLS and ABN/verification cases, console/network errors, before/after URLs. Report any untestable steps as blocked.
+
+## Completion conditions / RELEASE-GO rules
+- Marketing site first viewport and mobile nav visibly direct users to Employee Registration, Employer Registration and Post a Job, with accurately gated states.
+- Candidate /register and employer /register are actually rendered on current protected builds (not stale SHA or marketing-site fallback). The employer form already gets ABN via MarketLocationFields; preserve it.
+- Job creation works in a real test backend, and publish happens only after proper employer, email (when deliverable), role/pay and jurisdiction checks. Candidate can apply to published job. No false success messages.
+- No public signup or live payment switch until verified provider/access/legal/pilot gates have been accepted. Never run production migration or paid AWS apply without separate approval.
+- No client businessId trust, tenant isolation weakening, fake credentials, broken auth flows, missing accessibility, or off-brand assets.
+- Split implementation into independently green, reviewed PRs; merge/deploy marketing-only visibility improvements separately while app/API staging gets completed. If infra blocked, do all code/tests and a locally reproduced real-DB journey, then hand back exact blocker list rather than claiming live access.
+
+## Return-to-ChatGPT handoff
+Write docs/handoff/CLAUDE_SIGNUP_POSTING_COMPLETION_2026-11-08.md with PRs/merged SHAs, deployed Vercel project and exact SHA, screenshots, test summaries, accepted P0 checklist, API/staging proof, any failed gates and precise owner actions. Post a short status to the relevant PRs. Do not claim the product or public hiring is live unless every applicable gate is evidenced.
