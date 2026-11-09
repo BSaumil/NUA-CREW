@@ -4,8 +4,8 @@ Directive: `docs/launch/CLAUDE_CODE_PUBLIC_LAUNCH_GO_GO_2026-11-09.md` (#79), is
 Scope: public **web** registration, verified job posting and applications for Australia. Native
 apps, Stripe, paid promotion, document upload and New Zealand stay off and are not gates here.
 
-**Decision at this commit: NO-GO.** Evidence below is as of `main` `dcb1dea` plus the open
-PR #83 named in the table. A READY Vercel build is not evidence of a working service.
+**Decision at this commit: NO-GO.** Evidence below is as of `main` `6eaf69b` (all PRs named in the
+table are merged). A READY Vercel build is not evidence of a working service.
 
 This file is the checklist. It is updated only with evidence a reader can open: a PR, a commit,
 a CI run, a deployment, a log. Anything not yet evidenced says so.
@@ -53,7 +53,7 @@ dashboard action that cannot be done from the repository. **Not started** = noth
 | 3.1 | Register with a checksum-valid ABN (format only, never verification) | Code done, local only | #66, #67. |
 | 3.2 | Operator verifies the business with evidence, reviewer and timestamp | Code done, local only | Admin verification in #66. **A named human operator with an SLA is an Owner item.** |
 | 3.3 | Role, current award and pay check; under-award rate cannot publish | Code done, local only | Hard block in the API (ADR-011). Award data is `supplied_unverified` until an admin verifies it. **Verified current award rates are an Owner/operator item.** |
-| 3.4 | Publishing is closed unless the owner opens the introductory offer; 14-day, capped, audited, no card | Open PR | #83. `NUA_INTRO_OFFER_ENABLED` defaults false; terms version `unapproved-draft`; caps are my proposals. |
+| 3.4 | Publishing is closed unless the owner opens the introductory offer; 14-day, capped, audited, no card | Code done | #83 `6eaf69b` (adds migration `f88b44ff1008`, which the first protected migration run will apply). `NUA_INTRO_OFFER_ENABLED` defaults false; terms version `unapproved-draft`; caps are my proposals. |
 | 3.5 | Cross-tenant access refused (API and RLS) | Code done, local only | Negative tests in #67 and #83. |
 | 3.6 | Report and takedown path for published jobs | **Not evidenced** | A moderation router exists; a public job report/takedown path has not been verified for this launch. |
 | 3.7 | Employer-app wording for the introductory offer and planned (not chargeable) A$49 pricing | Not started | #83 provides the endpoint; no UI yet. Pricing pages still describe A$49 and A$30 as planned. |
