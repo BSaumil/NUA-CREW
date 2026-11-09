@@ -9,6 +9,12 @@ const apiEnv = {
   // Registration is closed at the API by default; the owner opens it. Fixtures open it explicitly.
   NUA_CANDIDATE_REGISTRATION: 'open',
   NUA_EMPLOYER_REGISTRATION: 'open',
+  // Publication is closed at the API unless the owner opens the introductory offer.
+  NUA_INTRO_OFFER_ENABLED: 'true',
+  // The shared fixtures publish many ads for a few employers; the shipped fair-use caps are
+  // exercised by the real-gate run and services/api/tests/test_intro_offer.py.
+  NUA_INTRO_OFFER_MAX_ACTIVE_PER_EMPLOYER: '500',
+  NUA_INTRO_OFFER_MAX_PER_30_DAYS: '5000',
   NUA_AUTH_RATE_LIMIT_PER_MINUTE: '1000',
   // Email goes to a local folder the specs read; nothing is sent anywhere (development only).
   NUA_EMAIL_PROVIDER: 'file',

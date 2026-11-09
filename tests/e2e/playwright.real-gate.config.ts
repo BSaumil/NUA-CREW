@@ -20,6 +20,8 @@ const apiEnv = {
   // Registration is closed at the API by default; the owner opens it. Fixtures open it explicitly.
   NUA_CANDIDATE_REGISTRATION: 'open',
   NUA_EMPLOYER_REGISTRATION: 'open',
+  // Publication is closed at the API unless the owner opens the introductory offer.
+  NUA_INTRO_OFFER_ENABLED: 'true',
   NUA_AUTH_RATE_LIMIT_PER_MINUTE: '1000',
   // Mail goes to a local folder the spec reads. A provider other than "none" is what switches the
   // verified-email gate on, so this is deliberately not "none".

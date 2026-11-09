@@ -1997,6 +1997,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/intro-offer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Intro Offer Status
+         * @description What the introductory offer is and how much of it this employer has used. Read-only.
+         */
+        get: operations["intro_offer_status_v1_employers__employer_id__intro_offer_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/invitations": {
         parameters: {
             query?: never;
@@ -3754,6 +3774,32 @@ export interface components {
             source_url: string;
             /** Title */
             title: string;
+        };
+        /**
+         * IntroOfferOut
+         * @description The free introductory advertising offer shown to an employer. Nothing here is a charge.
+         */
+        IntroOfferOut: {
+            /** Active Used */
+            active_used: number;
+            /** Card Required */
+            card_required: boolean;
+            /** Charged */
+            charged: boolean;
+            /** Days */
+            days: number;
+            /** Enabled */
+            enabled: boolean;
+            /** Max Active */
+            max_active: number;
+            /** Max Per 30 Days */
+            max_per_30_days: number;
+            /** Planned Paid Price Note */
+            planned_paid_price_note: string;
+            /** Terms Version */
+            terms_version: string;
+            /** Used 30 Days */
+            used_30_days: number;
         };
         /** InvitationAcceptIn */
         InvitationAcceptIn: {
@@ -9518,6 +9564,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ReportOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    intro_offer_status_v1_employers__employer_id__intro_offer_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["IntroOfferOut"];
                 };
             };
             /** @description Validation Error */

@@ -91,6 +91,15 @@ class Settings(BaseSettings):
     billing_terms_approved: bool = False
     billing_return_url: str = "http://localhost:3001/billing"
     paid_advertising_enabled: bool = False
+    # Introductory offer: while paid advertising is off, a verified employer may publish a job
+    # for intro_offer_days at no charge, recorded as an auditable grant. Closed by default: the
+    # owner opens publication by approving the published offer terms and setting this true. The
+    # limits below are PROPOSED fair-use numbers for the owner to confirm, not legal terms.
+    intro_offer_enabled: bool = False
+    intro_offer_terms_version: str = "unapproved-draft"
+    intro_offer_days: int = 14
+    intro_offer_max_active_per_employer: int = 3
+    intro_offer_max_per_30_days: int = 6
 
     @model_validator(mode="after")
     def _no_dev_secret_outside_dev(self) -> "Settings":

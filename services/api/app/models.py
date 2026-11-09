@@ -1248,6 +1248,31 @@ class AdEntitlement(Base):
     active: Mapped[bool] = mapped_column(Boolean, server_default="true")
 
 
+class IntroAdGrant(Base):
+    """One free introductory advertising period for one job: the audit record of the offer.
+
+    Created only in system scope when a verified employer publishes under the introductory offer.
+    No order, no card, no renewal: it ends at ends_at and the job expires with it.
+    """
+
+    __tablename__ = "intro_ad_grants"
+    __table_args__ = (
+        CheckConstraint("ends_at > starts_at", name="ck_intro_ad_grants_window"),
+        Index("ix_intro_ad_grants_employer_starts", "employer_id", "starts_at"),
+    )
+    id: Mapped[uuid.UUID] = _uuid_pk()
+    employer_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("employers.id", ondelete="CASCADE"))
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
+    granted_by: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
+    terms_version: Mapped[str] = mapped_column(String(80))
+    starts_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    ends_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+
+
 class BillingLedger(Base):
     __tablename__ = "billing_ledger"
     __table_args__ = (UniqueConstraint("provider", "event_key", name="uq_billing_provider_event"),)

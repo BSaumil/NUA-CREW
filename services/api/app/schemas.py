@@ -1073,3 +1073,18 @@ class ReportIn(BaseModel):
 class ReportOut(BaseModel):
     id: uuid.UUID
     status: str
+
+
+class IntroOfferOut(BaseModel):
+    """The free introductory advertising offer shown to an employer. Nothing here is a charge."""
+
+    enabled: bool
+    days: int
+    terms_version: str
+    charged: bool
+    card_required: bool
+    max_active: int
+    active_used: int
+    max_per_30_days: int
+    used_30_days: int
+    planned_paid_price_note: str

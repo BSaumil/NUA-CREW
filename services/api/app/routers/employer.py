@@ -18,6 +18,7 @@ from app.models import (
     CandidateSkill,
     Employer,
     EmployerMembership,
+    IntroAdGrant,
     Job,
     Location,
     PayAssessment,
@@ -33,6 +34,7 @@ from app.schemas import (
     EmployerApplicationOut,
     EmployerOut,
     EventOut,
+    IntroOfferOut,
     JobIn,
     JobOut,
     LocationIn,
@@ -44,6 +46,7 @@ from app.schemas import (
     RoleGapsOut,
     StatusChangeIn,
 )
+from app.services import intro_offer
 from app.services.applications import change_status
 from app.services.hospitality.pay import JOB_TO_EMPLOYMENT, enforce_on_publish
 from app.services.jobs import (
@@ -367,9 +370,17 @@ async def update_job(
             "Finish the checkout or refund the active promotion before editing its terms",
         )
     expires_at = job.expires_at
-    paid = get_settings().paid_advertising_enabled or bool(
-        await session.scalar(
-            select(AdEntitlement.id).where(AdEntitlement.job_id == job_id).limit(1)
+    paid = (
+        get_settings().paid_advertising_enabled
+        or bool(
+            await session.scalar(
+                select(AdEntitlement.id).where(AdEntitlement.job_id == job_id).limit(1)
+            )
+        )
+        or bool(
+            await session.scalar(
+                select(IntroAdGrant.id).where(IntroAdGrant.job_id == job_id).limit(1)
+            )
         )
     )
     if job.status in ("closed", "expired"):
@@ -383,6 +394,27 @@ async def update_job(
     await record_version(session, job, names, user.id)
     await audit(session, user.id, "job.updated", "job", job.id)
     return (await to_out(session, [job]))[0]
+
+
+@router.get("/{employer_id}/intro-offer", response_model=IntroOfferOut)
+async def intro_offer_status(employer_id: uuid.UUID, _: Viewer, session: Session) -> IntroOfferOut:
+    """What the introductory offer is and how much of it this employer has used. Read-only."""
+    st = await intro_offer.status(session, employer_id)
+    return IntroOfferOut(
+        enabled=st.enabled,
+        days=st.days,
+        terms_version=st.terms_version,
+        charged=False,
+        card_required=False,
+        max_active=st.max_active,
+        active_used=st.active_used,
+        max_per_30_days=st.max_per_30_days,
+        used_30_days=st.used_30_days,
+        planned_paid_price_note=(
+            "Planned pricing of A$49 for 14 days is not currently chargeable. "
+            "You will not be charged for the introductory offer."
+        ),
+    )
 
 
 @router.post("/{employer_id}/jobs/{job_id}/publish", response_model=JobOut)
@@ -410,6 +442,12 @@ async def publish_job(
     require_job_currency(country, job.pay_currency)
     now = datetime.now(UTC)
     await enforce_on_publish(session, job, user.id)
+    if not get_settings().paid_advertising_enabled:
+        grant = await intro_offer.ensure_grant(session, job, employer_id, user.id, now)
+        # The advertisement ends when its free period does, whatever the employer entered.
+        job.expires_at = (
+            min(job.expires_at, grant.ends_at) if job.expires_at is not None else grant.ends_at
+        )
     if get_settings().paid_advertising_enabled:
         entitlement = await session.scalar(
             select(AdEntitlement.id)
