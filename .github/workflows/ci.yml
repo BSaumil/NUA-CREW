@@ -58,6 +58,11 @@ jobs:
         with: { node-version: 22, cache: pnpm }
       - uses: astral-sh/setup-uv@v5
       - run: pnpm install --frozen-lockfile
+      - name: Print one-time Prettier diff for employer offer UI
+        run: |
+          pnpm exec prettier --write apps/employer/app/intro-offer.tsx apps/employer/app/billing/page.tsx
+          git diff -- apps/employer/app/intro-offer.tsx apps/employer/app/billing/page.tsx
+          exit 1
       - run: pnpm format:check
       - run: pnpm typecheck
       - run: pnpm lint
