@@ -1,6 +1,7 @@
 import { ButtonLink, EmptyState, StatusBadge, WorkspaceSteps, WorkspaceTask } from '@nua-crew/ui';
 import { api, canWrite, requireEmployer } from '@/lib/api';
 import { Flash, flashFrom } from './components';
+import { IntroOfferNotice } from './intro-offer';
 
 export default async function Dashboard({
   searchParams,
@@ -10,7 +11,7 @@ export default async function Dashboard({
   const { employerId, role } = await requireEmployer();
   const { error, notice } = await flashFrom(searchParams);
   const client = await api();
-  const [{ data: employer }, { data: jobs }, bookings, updates, gaps] = await Promise.all([
+  const [{ data: employer }, { data: jobs }, bookings, updates, gaps, offer] = await Promise.all([
     client.GET('/v1/employers/{employer_id}', { params: { path: { employer_id: employerId } } }),
     client.GET('/v1/employers/{employer_id}/jobs', {
       params: { path: { employer_id: employerId } },
@@ -20,6 +21,9 @@ export default async function Dashboard({
     }),
     client.GET('/v1/notifications'),
     client.GET('/v1/employers/{employer_id}/jobs-missing-role', {
+      params: { path: { employer_id: employerId } },
+    }),
+    client.GET('/v1/employers/{employer_id}/intro-offer', {
       params: { path: { employer_id: employerId } },
     }),
   ]);
@@ -35,6 +39,7 @@ export default async function Dashboard({
           business and authorised representative. We never publish on an ABN number alone.
         </p>
       ) : null}
+      <IntroOfferNotice offer={offer.data} />
       {gaps.data && gaps.data.jobs.length > 0 ? (
         <section className="nua-card nua-stack" aria-labelledby="gaps-title">
           <h2 id="gaps-title">

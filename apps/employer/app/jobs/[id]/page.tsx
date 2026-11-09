@@ -12,6 +12,7 @@ import {
 import { api, canWrite, requireEmployer } from '@/lib/api';
 import { closeJob, duplicateJob, publishJob, unpublishJob } from '../../actions';
 import { Flash, flashFrom } from '../../components';
+import { IntroOfferNotice } from '../../intro-offer';
 
 export const metadata: Metadata = { title: 'Manage job' };
 
@@ -27,9 +28,12 @@ export default async function ManageJob({
   const { error, notice } = await flashFrom(searchParams);
   const client = await api();
   const path = { employer_id: employerId, job_id: id };
-  const [{ data: job }, { data: applicants }] = await Promise.all([
+  const [{ data: job }, { data: applicants }, { data: offer }] = await Promise.all([
     client.GET('/v1/employers/{employer_id}/jobs/{job_id}', { params: { path } }),
     client.GET('/v1/employers/{employer_id}/jobs/{job_id}/applications', { params: { path } }),
+    client.GET('/v1/employers/{employer_id}/intro-offer', {
+      params: { path: { employer_id: employerId } },
+    }),
   ]);
   if (!job) notFound();
   const { data: assessment } = job.pay_assessment_id
@@ -57,6 +61,7 @@ export default async function ManageJob({
         basis={job.pay_basis as never}
         superIncluded={job.super_included}
       />
+      <IntroOfferNotice offer={offer} />
       {canWrite(role) ? (
         <div className="nua-row">
           <ButtonLink href="/billing" variant="secondary">

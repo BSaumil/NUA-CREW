@@ -3,6 +3,7 @@ import { randomUUID } from 'node:crypto';
 import { Button, ButtonLink, EmptyState } from '@nua-crew/ui';
 import { api, requireEmployer } from '@/lib/api';
 import { Flash, flashFrom } from '../components';
+import { IntroOfferNotice } from '../intro-offer';
 import { cancelQuote, refundOrder, resumeCheckout, startCheckout } from './actions';
 
 export const metadata: Metadata = { title: 'Advertising and billing' };
@@ -29,11 +30,13 @@ export default async function Billing({
     { data: jobs },
     { data: orders, error: ordersError },
     { data: business },
+    { data: offer },
   ] = await Promise.all([
     client.GET('/v1/billing/status'),
     client.GET('/v1/employers/{employer_id}/jobs', { params: { path } }),
     client.GET('/v1/employers/{employer_id}/billing/orders', { params: { path } }),
     client.GET('/v1/employers/{employer_id}', { params: { path } }),
+    client.GET('/v1/employers/{employer_id}/intro-offer', { params: { path } }),
   ]);
   const { error, notice } = await flashFrom(searchParams);
   const ready = status?.checkout_enabled === true;
@@ -49,6 +52,7 @@ export default async function Billing({
           choice, with no automatic renewal.
         </p>
       </header>
+      <IntroOfferNotice offer={offer} />
       <div className="nua-card nua-stack" role="status">
         <h2>{ready ? 'Stripe sandbox is configured' : 'Payments are not connected yet'}</h2>
         <p>
@@ -57,7 +61,9 @@ export default async function Billing({
             : 'Payment configuration is unavailable. Nothing can be purchased here.'}
         </p>
         <p className="nua-hint">
-          Test payments only. Your advertisement goes live once payment is confirmed.
+          {ready
+            ? 'Test payments only. No real funds are collected.'
+            : 'Paid checkout is unavailable. Publishing is controlled separately by the introductory offer and business/pay verification.'}
         </p>
       </div>
       <section
@@ -83,7 +89,9 @@ export default async function Billing({
           ],
         ].map(([price, title, copy]) => (
           <article key={title} className="nua-card nua-stack">
-            <span className="nua-badge">One-time purchase</span>
+            <span className="nua-badge">
+              {ready ? 'Test checkout only' : 'Planned paid option'}
+            </span>
             <h2>{title}</h2>
             <strong style={{ fontSize: '2rem' }}>{price}</strong>
             <p>{copy}</p>
