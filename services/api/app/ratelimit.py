@@ -1,7 +1,7 @@
 """Sliding-window rate limiting. Redis when configured (shared across instances), else in-process.
 
 Limits are abuse guards, not exclusion: defaults are generous and a limited candidate always gets a
-clear message. If Redis is unreachable, sign-in and messaging degrade to the in-process window
+clear message. If Redis is unreachable, non-sensitive messaging may degrade to an in-process window
 (logged) rather than taking the API down. Writes that create accounts, send email or publish
 (SENSITIVE_SCOPES) instead refuse with 503 when fail-closed is on, which is the default outside
 development: a per-instance window on serverless is not a limit, and these are the abuse targets.
@@ -26,6 +26,8 @@ log = logging.getLogger(__name__)
 SENSITIVE_SCOPES = frozenset(
     {
         "register",
+        "login",
+        "refresh",
         "forgot",
         "reset",
         "verify",
@@ -91,7 +93,7 @@ return 1
 
 class RedisLimiter:
     def __init__(self, url: str, prefix: str = "nua:rl:") -> None:
-        self._redis = aioredis.from_url(url, socket_timeout=0.5, socket_connect_timeout=0.5)
+        self._redis = aioredis.from_url(url, socket_timeout=3.0, socket_connect_timeout=1.0)
         self._script = self._redis.register_script(_LUA)
         self._prefix = prefix
         self._fallback = MemoryLimiter()

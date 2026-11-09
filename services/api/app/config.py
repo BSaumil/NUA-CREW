@@ -111,6 +111,14 @@ class Settings(BaseSettings):
                 raise ValueError("Only Stripe test keys are supported; live charging is disabled")
         if self.email_provider == "file" and self.env != "development":
             raise ValueError("NUA_EMAIL_PROVIDER=file is for development only")
+        if (
+            self.env == "production"
+            and (self.candidate_registration == "open" or self.employer_registration == "open")
+            and self.email_provider == "none"
+        ):
+            raise ValueError(
+                "Public registration requires a real transactional email provider in production"
+            )
         if self.email_provider == "resend":
             if not self.email_api_key or not self.email_api_key.get_secret_value():
                 raise ValueError("NUA_EMAIL_API_KEY is required for NUA_EMAIL_PROVIDER=resend")
