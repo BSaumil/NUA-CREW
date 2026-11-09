@@ -134,6 +134,8 @@ def _dead_limiter() -> RedisLimiter:
 def test_which_scopes_are_sensitive():
     for key in (
         "register:ip:1.2.3.4",
+        "login:ip:1.2.3.4",
+        "refresh:id:x",
         "forgot:id:a@b.c",
         "verify:ip:x",
         "apply:uid",
@@ -144,8 +146,6 @@ def test_which_scopes_are_sensitive():
     ):
         assert is_sensitive(key), key
     for key in (
-        "login:ip:1.2.3.4",
-        "refresh:id:x",
         "msg:uid",
         "report:uid",
         "invite:eid",
@@ -169,15 +169,15 @@ async def test_redis_outage_refuses_a_sensitive_write_when_fail_closed(monkeypat
         await lim.close()
 
 
-async def test_redis_outage_still_lets_sign_in_degrade_to_the_in_process_window(monkeypatch):
+async def test_redis_outage_fails_closed_on_login_and_refresh(monkeypatch):
     monkeypatch.setattr(get_settings(), "rate_limit_fail_closed", True)
     lim = _dead_limiter()
     try:
-        for _ in range(3):
-            await lim.check("login:ip:9.9.9.9", 3)  # allowed: in-process fallback
-        with _pytest.raises(ApiError) as exc:
-            await lim.check("login:ip:9.9.9.9", 3)
-        assert exc.value.status == 429  # the fallback still limits
+        for key in ("login:ip:9.9.9.9", "refresh:token:x"):
+            with _pytest.raises(ApiError) as exc:
+                await lim.check(key, 3)
+            assert exc.value.status == 503
+            assert exc.value.code == "rate_limit_unavailable"
     finally:
         await lim.close()
 
