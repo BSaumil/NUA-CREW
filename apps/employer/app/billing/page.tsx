@@ -89,7 +89,9 @@ export default async function Billing({
           ],
         ].map(([price, title, copy]) => (
           <article key={title} className="nua-card nua-stack">
-            <span className="nua-badge">{ready ? 'Test checkout only' : 'Planned paid option'}</span>
+            <span className="nua-badge">
+              {ready ? 'Test checkout only' : 'Planned paid option'}
+            </span>
             <h2>{title}</h2>
             <strong style={{ fontSize: '2rem' }}>{price}</strong>
             <p>{copy}</p>
