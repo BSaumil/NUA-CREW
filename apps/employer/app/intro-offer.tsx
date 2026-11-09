@@ -26,7 +26,9 @@ export function IntroOfferNotice({ offer }: { offer: IntroOffer | null | undefin
   return (
     <aside className="nua-card nua-stack" aria-label="Job advertising availability">
       <div className="nua-row" style={{ alignItems: 'center', justifyContent: 'space-between' }}>
-        <strong>{approved ? 'Introductory job advertising — A$0' : 'Publishing not open yet'}</strong>
+        <strong>
+          {approved ? 'Introductory job advertising — A$0' : 'Publishing not open yet'}
+        </strong>
         <span className="nua-badge">
           {approved ? `${offer.days} days per listing` : 'Drafts available'}
         </span>
@@ -38,8 +40,8 @@ export function IntroOfferNotice({ offer }: { offer: IntroOffer | null | undefin
       </p>
       {approved ? (
         <p className="nua-hint">
-          Remaining: {remainingActive} of {offer.max_active} active ad slots and {remainingWindow} of{' '}
-          {offer.max_per_30_days} ads in a rolling 30-day window.
+          Remaining: {remainingActive} of {offer.max_active} active ad slots and {remainingWindow}{' '}
+          of {offer.max_per_30_days} ads in a rolling 30-day window.
         </p>
       ) : null}
       <p className="nua-hint">
