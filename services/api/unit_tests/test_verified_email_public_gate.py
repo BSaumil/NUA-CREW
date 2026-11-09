@@ -10,7 +10,9 @@ from app.services import verified_email
 
 
 @pytest.mark.parametrize("environment", ["staging", "production"])
-def test_hiring_writes_fail_closed_without_mail(environment: str, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_hiring_writes_fail_closed_without_mail(
+    environment: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setattr(
         verified_email,
         "get_settings",
@@ -25,7 +27,9 @@ def test_hiring_writes_fail_closed_without_mail(environment: str, monkeypatch: p
     assert caught.value.code == "email_verification_unavailable"
 
 
-def test_development_without_mail_keeps_fixture_writes_possible(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_development_without_mail_keeps_fixture_writes_possible(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         verified_email,
         "get_settings",
@@ -36,7 +40,9 @@ def test_development_without_mail_keeps_fixture_writes_possible(monkeypatch: pyt
     verified_email.require_verified_email(Mock(email_verified_at=None))
 
 
-def test_verified_email_is_still_required_when_delivery_is_enabled(monkeypatch: pytest.MonkeyPatch) -> None:
+def test_verified_email_is_still_required_when_delivery_is_enabled(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     monkeypatch.setattr(
         verified_email,
         "get_settings",
