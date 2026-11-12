@@ -177,8 +177,8 @@ export default async function Jobs({
       )}
       {!listingsUnavailable ? (
         <nav aria-label="Pagination" className="nua-row">
-        {page > 1 ? <a href={`/jobs?${qs(page - 1)}`}>Previous</a> : null}
-        {page * 12 < total ? <a href={`/jobs?${qs(page + 1)}`}>Next</a> : null}
+          {page > 1 ? <a href={`/jobs?${qs(page - 1)}`}>Previous</a> : null}
+          {page * 12 < total ? <a href={`/jobs?${qs(page + 1)}`}>Next</a> : null}
         </nav>
       ) : null}
     </div>
