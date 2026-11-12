@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { listMarkets } from '@nua-crew/markets';
 import { EmptyState, JobCard } from '@nua-crew/ui';
-import { api, getViewer, toCard } from '@/lib/api';
+import { api, getViewer, toCard, type Job } from '@/lib/api';
 import { planSearch } from '@/lib/search-markets';
 import { saveSearch } from '../actions';
 import { Flash, flashFrom } from '../components';
@@ -23,7 +23,15 @@ export default async function Jobs({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const { p, error, notice } = await flashFrom(searchParams);
-  const viewer = await getViewer();
+  // A failed backend must not turn the public jobs page into an HTTP 500.
+  // Do not treat an outage as an empty, authoritative set of job listings.
+  let listingsUnavailable = false;
+  let viewer: Awaited<ReturnType<typeof getViewer>> = null;
+  try {
+    viewer = await getViewer();
+  } catch {
+    listingsUnavailable = true;
+  }
   const one = (k: string) =>
     (Array.isArray(p[k]) ? p[k]![0] : (p[k] as string | undefined)) || undefined;
   const rawMarkets = p['markets'];
@@ -38,12 +46,21 @@ export default async function Jobs({
     page_size: 12,
   };
   // Only markets with an existing flow are queried; a preview-only market is never requested.
-  const { data } =
-    plan.searchable.length > 0
-      ? await (await api()).GET('/v1/jobs', { params: { query } })
-      : { data: undefined };
-  const jobs = data?.items ?? [];
-  const total = data?.total ?? 0;
+  let jobs: Job[] = [];
+  let total = 0;
+  if (plan.searchable.length > 0) {
+    try {
+      const response = await (await api()).GET('/v1/jobs', { params: { query } });
+      if (!response.data || response.error) {
+        listingsUnavailable = true;
+      } else {
+        jobs = response.data.items;
+        total = response.data.total;
+      }
+    } catch {
+      listingsUnavailable = true;
+    }
+  }
   const qs = (n: number) =>
     new URLSearchParams(
       Object.entries({
@@ -116,10 +133,16 @@ export default async function Jobs({
           across countries.
         </p>
       ) : null}
-      <p role="status" className="nua-muted">
-        {total} {total === 1 ? 'job' : 'jobs'} found
-      </p>
-      {viewer?.role === 'candidate' ? (
+      {listingsUnavailable ? (
+        <p role="alert" className="nua-alert" data-testid="job-listings-unavailable">
+          Job listings are temporarily unavailable. Please try again shortly.
+        </p>
+      ) : (
+        <p role="status" className="nua-muted">
+          {total} {total === 1 ? 'job' : 'jobs'} found
+        </p>
+      )}
+      {!listingsUnavailable && viewer?.role === 'candidate' ? (
         <form action={saveSearch} className="nua-card nua-stack" aria-label="Save this search">
           <input type="hidden" name="q" value={query.q ?? ''} />
           <input type="hidden" name="suburb" value={query.suburb ?? ''} />
@@ -143,7 +166,7 @@ export default async function Jobs({
           </p>
         </form>
       ) : null}
-      {jobs.length === 0 ? (
+      {listingsUnavailable ? null : jobs.length === 0 ? (
         <EmptyState title="No jobs match yet" description="Try fewer filters or a nearby suburb." />
       ) : (
         <div className="nua-grid">
@@ -152,10 +175,12 @@ export default async function Jobs({
           ))}
         </div>
       )}
-      <nav aria-label="Pagination" className="nua-row">
+      {!listingsUnavailable ? (
+        <nav aria-label="Pagination" className="nua-row">
         {page > 1 ? <a href={`/jobs?${qs(page - 1)}`}>Previous</a> : null}
         {page * 12 < total ? <a href={`/jobs?${qs(page + 1)}`}>Next</a> : null}
-      </nav>
+        </nav>
+      ) : null}
     </div>
   );
 }
