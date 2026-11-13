@@ -1,3 +1,4 @@
+import os
 from functools import lru_cache
 from typing import Literal
 
@@ -120,8 +121,12 @@ class Settings(BaseSettings):
                 "Public registration requires a real transactional email provider in production"
             )
         if self.email_provider == "resend":
+            if self.email_api_key is None:
+                marketplace_key = os.getenv("RESEND_API_KEY")
+                if marketplace_key:
+                    self.email_api_key = SecretStr(marketplace_key)
             if not self.email_api_key or not self.email_api_key.get_secret_value():
-                raise ValueError("NUA_EMAIL_API_KEY is required for NUA_EMAIL_PROVIDER=resend")
+                raise ValueError("NUA_EMAIL_API_KEY or RESEND_API_KEY is required for NUA_EMAIL_PROVIDER=resend")
             if not self.email_from or "@" not in self.email_from:
                 raise ValueError("NUA_EMAIL_FROM must be a verified sender address")
             if not self.email_api_base.startswith("https://"):
