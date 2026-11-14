@@ -126,7 +126,9 @@ class Settings(BaseSettings):
                 if marketplace_key:
                     self.email_api_key = SecretStr(marketplace_key)
             if not self.email_api_key or not self.email_api_key.get_secret_value():
-                raise ValueError("NUA_EMAIL_API_KEY or RESEND_API_KEY is required for NUA_EMAIL_PROVIDER=resend")
+                raise ValueError(
+                    "NUA_EMAIL_API_KEY or RESEND_API_KEY is required for NUA_EMAIL_PROVIDER=resend"
+                )
             if not self.email_from or "@" not in self.email_from:
                 raise ValueError("NUA_EMAIL_FROM must be a verified sender address")
             if not self.email_api_base.startswith("https://"):
