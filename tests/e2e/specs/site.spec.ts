@@ -117,7 +117,7 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
   for (const [id, base, flag, destination, fallback] of [
     ['employee', 'NUA_APP_URL', 'NUA_CANDIDATE_SIGNUP_OPEN', '/register', '/apps#job-seekers'],
     ['employer', 'NUA_HIRE_URL', 'NUA_EMPLOYER_SIGNUP_OPEN', '/register', '/apps#employers'],
-  ]) {
+  ] as const) {
     const origin = process.env[base];
     const href =
       process.env[flag] === 'true' && origin ? new URL(destination, origin).href : fallback;
