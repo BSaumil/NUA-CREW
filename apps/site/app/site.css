@@ -64,13 +64,14 @@ a {
   flex-wrap: wrap;
 }
 .site-nav a {
-  display: inline-block;
   padding: 10px 12px;
   border-radius: var(--radius-button);
   text-decoration: none;
   color: var(--text);
   font-weight: 600;
-  min-height: 24px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 .site-nav a[aria-current='page'],
 .site-nav a:hover {
@@ -192,6 +193,8 @@ a {
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
 }
 .site-card {
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius-card);
@@ -316,6 +319,8 @@ a {
 }
 .site-footer a {
   color: var(--nua-ivory);
+  text-underline-offset: 0.22em;
+  overflow-wrap: anywhere;
 }
 .site-footer h2 {
   font-size: 1rem;
@@ -334,7 +339,7 @@ a {
 .site-footer__grid {
   display: grid;
   gap: 32px;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr));
   margin-bottom: 32px;
 }
 .site-footer small {
@@ -566,23 +571,6 @@ main {
 .home-hero__note svg {
   color: var(--nua-burgundy);
   flex-shrink: 0;
-}
-.launch-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 7px 12px;
-  border: 1px solid #ded1d3;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #59474d;
-}
-.launch-pill > span {
-  width: 6px;
-  height: 6px;
-  background: var(--nua-burgundy);
-  border-radius: 50%;
 }
 .home-hero__art {
   margin: 0;
@@ -1002,9 +990,6 @@ main {
   }
   .home-hero__art figcaption {
     margin-top: 12px;
-  }
-  .launch-pill {
-    font-size: 0.6875rem;
   }
   .benefit-strip .nua-container {
     padding-inline: 24px;
@@ -2176,18 +2161,6 @@ main {
 }
 .entry-points__link:hover .entry-points__arrow {
   transform: translateX(2px);
-}
-.entry-points__notice {
-  margin: 10px 2px 0;
-  color: #584d50;
-  font-size: 0.76rem;
-  line-height: 1.45;
-}
-.entry-points__price {
-  margin: 6px 2px 0;
-  color: #6a5c5f;
-  font-size: 0.72rem;
-  line-height: 1.45;
 }
 @media (prefers-reduced-motion: reduce) {
   .entry-points__link,

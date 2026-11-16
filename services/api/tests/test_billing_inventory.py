@@ -21,10 +21,12 @@ from app.models import (
     AdEntitlement,
     BillingLedger,
     BillingOrder,
+    Employer,
     Job,
     PromotionReservation,
     PublishedPromotion,
 )
+from app.services import billing as billing_domain
 from app.services import stripe_payments as payments
 from app.services.billing import prepare_order, record_verified_event, sweep_billing
 from app.services.pricing import EstimateAction
@@ -123,6 +125,55 @@ async def test_prices_idempotent_receipts_refunds_and_immutable_ledger(client):
             result = await s.execute(text(sql))
             assert result.rowcount == 0  # RLS denies mutation before a row trigger is reached.
             assert await s.scalar(select(func.count()).select_from(BillingLedger)) == 3
+
+
+async def test_first_promotion_discount_is_reserved_and_consumed_once(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "first_promotion_discount_enabled", True)
+    monkeypatch.setattr(
+        billing_domain, "FIRST_PROMOTION_END", datetime.now(UTC) + timedelta(days=1)
+    )
+    emp, eid = await verified_employer(client, "billing-first-promotion@nua-crew.example.com")
+    first = await published_job(client, emp, eid, title="First promotion")
+    second = await published_job(client, emp, eid, title="Second promotion")
+    order = await prepare(eid, first["id"], "first-discount")
+    assert await prepare(eid, first["id"], "first-discount") == order
+    async with db_as("system") as s:
+        quote = await s.get(BillingOrder, order)
+        assert quote.amount_minor == 6400
+        assert quote.first_promotion_discount
+    with pytest.raises(ApiError) as exc:
+        await prepare(eid, second["id"], "second-discount")
+    assert exc.value.code == "first_promotion_pending"
+    assert await fixture_receipt(order, amount=6400) == "settled"
+    assert await fixture_receipt(order, "full-promotion-refund", 6400, "refunded") == "refunded"
+    following = await prepare(eid, second["id"], "second-full-price")
+    async with db_as("system") as s:
+        employer = await s.get(Employer, uuid.UUID(eid))
+        assert employer.first_job_promotion_redeemed
+        assert (await s.get(BillingOrder, following)).amount_minor == 7900
+
+
+async def test_first_promotion_payment_at_cutoff_is_refunded(client, monkeypatch):
+    monkeypatch.setattr(get_settings(), "first_promotion_discount_enabled", True)
+    cutoff = datetime.now(UTC) + timedelta(minutes=5)
+    monkeypatch.setattr(billing_domain, "FIRST_PROMOTION_END", cutoff)
+    emp, eid = await verified_employer(client, "billing-promo-cutoff@nua-crew.example.com")
+    job = await published_job(client, emp, eid)
+    oid = await prepare(eid, job["id"], "deadline-discount")
+    async with db_as("system") as s:
+        order = await record_verified_event(
+            s,
+            order_id=oid,
+            provider="fixture",
+            event_key="paid-at-cutoff",
+            amount_minor=6400,
+            currency="AUD",
+            kind="settled",
+            paid_at=cutoff,
+        )
+        assert order.status == "refund_required"
+        employer = await s.get(Employer, uuid.UUID(eid))
+        assert not employer.first_job_promotion_redeemed
 
 
 async def test_renewal_repeat_promotion_and_search_scope(client, monkeypatch):

@@ -2,7 +2,7 @@ import { buildMetadata } from '@/lib/seo';
 import { FeatureExplorer } from '../feature-explorer';
 import { HiringDashboardPreview, JourneySteps, PreviewFrame } from '../visuals';
 import { Card, Cards, Cta, PageHero, Phone, Section, Steps, TalentScreen } from '../components';
-import { SITE, LAUNCH } from '@/lib/site';
+import { LAUNCH } from '@/lib/site';
 
 export const metadata = buildMetadata('/employers');
 
@@ -144,9 +144,9 @@ export default function Employers() {
 
       <Section title="On your phone or on the web">
         <p className="site-intro">
-          {SITE.productLive
-            ? 'The hiring workspace is available on the web.'
-            : 'The web hiring workspace is in pre-launch testing.'}{' '}
+          {LAUNCH.entries.employer.open
+            ? 'Australian businesses can register on the web and draft jobs.'
+            : 'Check web registration availability on the app status page.'}{' '}
           Android and iOS apps are also in testing. Check launch status for verified access links.
         </p>
         <div className="nua-row">

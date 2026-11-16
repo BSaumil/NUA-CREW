@@ -23,21 +23,15 @@ export default function Home() {
       <header className="home-hero">
         <div className="nua-container home-hero__grid">
           <div className="home-hero__copy">
-            <span className="launch-pill">
-              <span aria-hidden="true" />
-              {LAUNCH.anyOpen
-                ? 'Limited pilot access · Starting in Melbourne'
-                : 'In pre-launch · Starting in Melbourne'}
-            </span>
-            <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
+            <p className="section-kicker">HOSPITALITY JOBS ACROSS AUSTRALIA</p>
             <h1>
               Where Talent
               <br />
               <span>Meets Opportunity.</span>
             </h1>
             <p className="home-hero__lede">
-              Find your next role. Meet your next teammate. Hospitality and local work, built around
-              real life.
+              Find hospitality work or build your team anywhere in Australia. Job seekers can create
+              an account for free.
             </p>
             <EntryPoints />
             <p className="home-hero__note">
@@ -59,9 +53,7 @@ export default function Home() {
                 <JobSearchPreview />
               </div>
             </div>
-            <figcaption>
-              Illustration with a fictional sample job search. Not a live service.
-            </figcaption>
+            <figcaption>Illustration with a sample job search.</figcaption>
           </figure>
         </div>
       </header>
@@ -150,7 +142,7 @@ export default function Home() {
         />
         <p className="nua-visual-note">
           Concept illustrations and previews with fictional sample data, not screenshots of live
-          accounts. NUA CREW's hiring apps remain in pre-launch testing.
+          accounts.
         </p>
       </Section>
       <Section
@@ -256,8 +248,8 @@ export default function Home() {
               a: (
                 <p>
                   {LAUNCH.anyOpen
-                    ? 'Limited web pilot access is available for approved users.'
-                    : 'The website is live; the hiring product is still in pre-launch testing.'}{' '}
+                    ? 'Australian job seekers and businesses can register on the web.'
+                    : 'Check the app status page for current registration availability.'}{' '}
                   Check <a href="/apps">app and web status</a> for access. App-store links appear
                   only when the apps are published.
                 </p>
@@ -281,8 +273,7 @@ export default function Home() {
               q: 'Where are you starting?',
               a: (
                 <p>
-                  Melbourne hospitality and local services first, with job seeker access planned
-                  across Australia.
+                  Job seekers and businesses can register from any Australian state or territory.
                 </p>
               ),
             },

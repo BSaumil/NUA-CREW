@@ -14,9 +14,9 @@ export default function Trust() {
 
       <Section>
         <p className="site-note">
-          Product privacy controls described here are in pre-launch testing. This public website
-          does not accept accounts, applications or documents.{' '}
-          <a href="/privacy">Read the privacy policy</a> for current website and enquiry handling.
+          Accounts are created through the candidate and employer portals.{' '}
+          <a href="/privacy">Read the privacy policy</a> for how NUA Crew handles account details,
+          enquiries and recruitment information.
         </p>
       </Section>
       <Section title="What our labels mean">

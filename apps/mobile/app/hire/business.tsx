@@ -61,6 +61,16 @@ function BusinessContent() {
     queryKey: ['billing-status'],
     queryFn: async () => unwrap(await api.GET('/v1/billing/status')),
   });
+  const firstPromotion = useQuery({
+    queryKey: ['hire', employerId, 'first-promotion'],
+    enabled: !!employerId && role === 'owner' && billingStatus.data?.checkout_enabled === true,
+    queryFn: async () =>
+      unwrap(
+        await api.GET('/v1/employers/{employer_id}/billing/first-promotion', {
+          params: { path: { employer_id: employerId! } },
+        }),
+      ),
+  });
   const orders = useHireQuery(['billing-orders'], async (id) =>
     unwrap(
       await api.GET('/v1/employers/{employer_id}/billing/orders', {
@@ -239,6 +249,19 @@ function BusinessContent() {
       </Card>
       <Card>
         <Text variant="heading">Advertising</Text>
+        {role === 'owner' &&
+        billingStatus.data?.checkout_enabled === true &&
+        firstPromotion.data?.eligible ? (
+          <>
+            <Text variant="heading">
+              50% off your first promoted job post — valid until Dec 31!
+            </Text>
+            <Text variant="caption" muted>
+              Save A$15 on the five-day promotion through employer web checkout. Offer closes 31
+              December 2026 at 11:59:59 pm AEDT.
+            </Text>
+          </>
+        ) : null}
         {prices.data ? (
           <>
             {prices.data.products.map((p) => (

@@ -14,6 +14,7 @@ from sqlalchemy import func, select, text, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.audit import audit
+from app.config import get_settings
 from app.errors import conflict, forbidden, not_found
 from app.models import (
     AdEntitlement,
@@ -28,7 +29,37 @@ from app.models import (
 )
 from app.rls import system_scope
 from app.services.jobs import record_version
-from app.services.pricing import EstimateAction, estimate_action
+from app.services.pricing import EstimateAction, ProductCode, estimate_action
+
+# Midnight on 1 January in Australia/Sydney (AEDT), exclusive.
+FIRST_PROMOTION_END = datetime(2026, 12, 31, 13, tzinfo=UTC)
+PROMOTION_ACTIONS = (EstimateAction.NEW_PROMOTED_AD, EstimateAction.PROMOTE_EXISTING)
+
+
+async def first_promotion_available(
+    session: AsyncSession, employer: Employer, now: datetime
+) -> bool:
+    if (
+        not get_settings().first_promotion_discount_enabled
+        or now >= FIRST_PROMOTION_END
+        or employer.country_code not in (None, "AU")
+        or employer.verification_status != "verified"
+        or employer.first_job_promotion_redeemed
+    ):
+        return False
+    # Historic purchases pre-date the redemption flag; the ledger survives refunds.
+    paid_order = await session.scalar(
+        select(BillingLedger.id)
+        .join(BillingOrder, BillingOrder.id == BillingLedger.order_id)
+        .where(
+            BillingOrder.employer_id == employer.id,
+            BillingOrder.action.in_(PROMOTION_ACTIONS),
+            BillingLedger.event_kind == "settled",
+            BillingOrder.status.in_(["settled", "refunded"]),
+        )
+        .limit(1)
+    )
+    return paid_order is None
 
 
 def terms_hash(job: Job) -> str:
@@ -131,11 +162,35 @@ async def prepare_order(
                 "checkout_pending", "Resume or cancel the existing checkout for this job"
             )
         price = estimate_action(action)
+        discounted = action in PROMOTION_ACTIONS and await first_promotion_available(
+            session, employer, now
+        )
+        if discounted:
+            pending_discount = await session.scalar(
+                select(BillingOrder.id)
+                .where(
+                    BillingOrder.employer_id == employer_id,
+                    BillingOrder.first_promotion_discount.is_(True),
+                    BillingOrder.status == "pending",
+                    BillingOrder.expires_at > now,
+                )
+                .limit(1)
+            )
+            if pending_discount:
+                raise conflict(
+                    "first_promotion_pending", "Resume or cancel your existing promotion checkout"
+                )
+        discount = sum(
+            product.amount_minor // 2
+            for product in price.products
+            if discounted and product.code == ProductCode.PROMOTION
+        )
         order = BillingOrder(
             employer_id=employer_id,
             job_id=job_id,
             action=action,
-            amount_minor=price.total_minor,
+            amount_minor=price.total_minor - discount,
+            first_promotion_discount=discounted,
             client_key=client_key,
             terms_hash=terms_hash(job),
             status="pending",
@@ -143,7 +198,7 @@ async def prepare_order(
         )
         session.add(order)
         await session.flush()
-        if action in (EstimateAction.NEW_PROMOTED_AD, EstimateAction.PROMOTE_EXISTING):
+        if action in PROMOTION_ACTIONS:
             market = market_for(job)
             await _market_lock(session, market)
             await session.execute(
@@ -220,6 +275,7 @@ async def record_verified_event(
     amount_minor: int,
     currency: str,
     kind: str,
+    paid_at: datetime | None = None,
 ) -> BillingOrder:
     """Trusted adapter boundary, intentionally not exposed by any router.
 
@@ -351,6 +407,12 @@ async def record_verified_event(
         elif (
             order.expires_at <= now
             or (
+                order.first_promotion_discount
+                and (
+                    employer.first_job_promotion_redeemed or (paid_at or now) >= FIRST_PROMOTION_END
+                )
+            )
+            or (
                 reservation and (reservation.status != "held" or reservation.hold_expires_at <= now)
             )
             or employer.verification_status != "verified"
@@ -395,6 +457,8 @@ async def record_verified_event(
                         active=True,
                     )
                 )
+            if order.first_promotion_discount:
+                employer.first_job_promotion_redeemed = True
             order.status = "settled"
             if order.action != EstimateAction.PROMOTE_EXISTING:
                 job.status = "published"
