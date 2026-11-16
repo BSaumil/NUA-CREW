@@ -210,7 +210,7 @@ export default function RegisterEmployer() {
           </Row>
           <Notice
             title="Clear costs, no surprise charges"
-            body="Creating a workspace takes no payment. Planned advertising is A$19 for 14 days, with an optional A$30 five-day promotion. Payments are not active yet. Verification is required before publishing."
+            body="Creating a workspace takes no payment. Planned advertising is A$49 for 14 days, with an optional A$30 five-day promotion. Payments are not active yet. Verification is required before publishing."
           />
         </>
       )}

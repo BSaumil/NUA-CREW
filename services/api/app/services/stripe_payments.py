@@ -16,7 +16,7 @@ from app.config import get_settings
 from app.errors import ApiError, conflict, not_found
 from app.models import BillingOrder, PromotionReservation
 from app.rls import system_scope
-from app.services.billing import record_verified_event
+from app.services.billing import FIRST_PROMOTION_END, record_verified_event
 
 
 def readiness() -> tuple[bool, str]:
@@ -62,6 +62,8 @@ async def create_checkout(order: BillingOrder) -> tuple[str, str]:
         if order.checkout_session_id:
             session = await sdk.v1.checkout.sessions.retrieve_async(order.checkout_session_id)
         else:
+            if order.first_promotion_discount and datetime.now(UTC) >= FIRST_PROMOTION_END:
+                raise conflict("promotion_expired", "The first promotion offer has ended")
             if (order.expires_at - datetime.now(UTC)).total_seconds() < 30 * 60 + 10:
                 raise conflict(
                     "quote_expired", "Start a new checkout quote; this one is too old to open"
@@ -83,7 +85,13 @@ async def create_checkout(order: BillingOrder) -> tuple[str, str]:
                         "price_data": {
                             "currency": "aud",
                             "unit_amount": order.amount_minor,
-                            "product_data": {"name": f"NUA CREW advertising · {order.action}"},
+                            "product_data": {
+                                "name": (
+                                    "NUA CREW advertising · first promotion discount applied"
+                                    if order.first_promotion_discount
+                                    else f"NUA CREW advertising · {order.action}"
+                                )
+                            },
                         },
                     }
                 ],
@@ -247,6 +255,12 @@ async def receive(session: AsyncSession, event: dict[str, Any]) -> None:
         await bind_session(session, current)
         if current.payment_status != "paid":
             return
+        paid_at = None
+        if row.first_promotion_discount:
+            timestamp = event.get("created")
+            if type(timestamp) is not int or not 0 < timestamp < 253_402_300_800:
+                raise ApiError(400, "invalid_event", "Stripe payment has no valid timestamp")
+            paid_at = datetime.fromtimestamp(timestamp, UTC)
         await record_verified_event(
             session,
             order_id=row.id,
@@ -255,6 +269,7 @@ async def receive(session: AsyncSession, event: dict[str, Any]) -> None:
             amount_minor=row.amount_minor,
             currency="AUD",
             kind="settled",
+            paid_at=paid_at,
         )
 
 

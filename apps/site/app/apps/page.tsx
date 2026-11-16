@@ -37,7 +37,7 @@ export default function Apps() {
           </span>
           <span>
             <Monitor size={18} aria-hidden="true" />
-            Web · {LAUNCH.anyOpen ? 'Limited pilot access' : 'Pre-launch'}
+            Web · {LAUNCH.anyOpen ? 'Registration open' : 'Registration unavailable'}
           </span>
         </div>
       </PageHero>
@@ -102,8 +102,8 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employee.open
-                ? 'Registration is open for approved pilot users. Mobile apps are in testing.'
-                : 'Pilot registration not yet open. Nobody can create an account yet, and no data is collected here.'}
+                ? 'Australian job seekers can register free on the web. Mobile apps are in testing.'
+                : 'Web registration is currently unavailable.'}
             </p>
             <a
               className="text-link"
@@ -143,8 +143,8 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employer.open
-                ? 'Business registration is open for approved pilot users. Publishing needs business verification.'
-                : 'Pilot registration not yet open. Employer registration and payments are not open yet.'}
+                ? 'Australian businesses can register on the web. Publishing requires business verification.'
+                : 'Business registration and payments are currently unavailable.'}
             </p>
             <a
               className="text-link"
@@ -174,7 +174,7 @@ export default function Apps() {
             </p>
             <p className="site-note">
               {LAUNCH.entries['post-job'].open
-                ? 'Posting is open for approved pilot employers. Payments are not switched on.'
+                ? 'Verified businesses can publish when job posting is enabled.'
                 : 'Posting is not open yet and payments are not switched on. You will need a verified business account first.'}
             </p>
             <a

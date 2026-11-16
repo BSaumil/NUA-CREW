@@ -4,22 +4,22 @@ import { PAGES, SITE } from './site';
 type SitePath = (typeof PAGES)[number];
 type SeoDetails = { title: string; description: string };
 
-/** Reviewed, unique pre-launch metadata; no public app or paid service is implied. */
+/** Page-specific search and social metadata for the marketing website. */
 export const SITE_SEO = {
   '/': {
-    title: 'NUA CREW — Where Talent Meets Opportunity',
+    title: 'Hospitality Jobs & Hiring in Australia | NUA CREW',
     description:
-      'Explore NUA CREW, a Melbourne-first hospitality recruitment platform in pre-launch testing. Learn how job seekers and employers can connect on their terms.',
+      'NUA CREW is a hospitality recruitment platform for Australian job seekers and employers. Create a free job seeker account or register your business.',
   },
   '/job-seekers': {
     title: 'Find Hospitality Work Across Australia',
     description:
-      'Explore how NUA CREW plans to help people find hospitality jobs, see disclosed pay, manage availability and accept invitations. Free for job seekers.',
+      'Create a free NUA CREW account for Australian hospitality work. Learn how job discovery, disclosed pay and candidate privacy work.',
   },
   '/employers': {
-    title: 'Hire Hospitality Staff with NUA CREW',
+    title: 'Hospitality Recruitment for Australian Employers',
     description:
-      "Explore NUA CREW's planned employer tools for posting hospitality roles with disclosed pay, reviewing applicants and inviting candidates. In pre-launch testing.",
+      'Register your Australian hospitality business, set up your hiring workspace and learn how business verification and job publishing work.',
   },
   '/how-it-works': {
     title: 'How Hospitality Hiring and Shifts Work',
@@ -29,7 +29,7 @@ export const SITE_SEO = {
   '/markets': {
     title: 'Australia and New Zealand Hospitality Recruitment',
     description:
-      'Explore NUA CREW plans for hospitality recruitment in Australia and New Zealand, with separate local currencies, employment rules and pre-launch checks.',
+      'See which NUA CREW services are available in Australia and learn about the planned New Zealand hospitality recruitment launch.',
   },
   '/features': {
     title: 'Explore Hospitality Recruitment Features',
@@ -44,12 +44,12 @@ export const SITE_SEO = {
   '/trust': {
     title: 'Trust, Privacy and Fair Recruitment Practices',
     description:
-      'Understand how NUA CREW describes business checks, pay labels, applicant choice and personal information. Its recruitment services remain in pre-launch testing.',
+      'Learn how NUA CREW handles business verification, pay labels, applicant visibility and personal information in hospitality recruitment.',
   },
   '/apps': {
     title: 'Android, iPhone and Web App Launch Status',
     description:
-      "Check NUA CREW's Android, iPhone and web application status. Mobile apps and employer registration remain in testing; there are no public app store links yet.",
+      'Find NUA CREW web signup and sign-in for job seekers and employers, and check availability for Android and iPhone.',
   },
   '/help': {
     title: 'Help with Jobs, Shifts and Employer Hiring',
@@ -64,12 +64,12 @@ export const SITE_SEO = {
   '/privacy': {
     title: 'Privacy Policy for NUA CREW Recruitment',
     description:
-      'Read how NUA CREW describes website information, enquiries, privacy requests and future recruitment accounts. Public registration and document uploads remain closed.',
+      'Read how NUA CREW handles website enquiries, Australian web accounts, recruitment information and privacy requests.',
   },
   '/terms': {
     title: 'Terms of Use for NUA CREW Recruitment',
     description:
-      'Read the terms governing the NUA CREW marketing website and proposed recruitment services, including account duties, conduct and pre-launch limitations.',
+      'Read the terms for using the NUA CREW website and recruitment portals, including account responsibilities and acceptable conduct.',
   },
   '/employer-terms': {
     title: 'Employer Terms for Hospitality Recruitment',

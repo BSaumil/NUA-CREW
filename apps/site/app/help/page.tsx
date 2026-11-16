@@ -1,5 +1,6 @@
 import { buildMetadata } from '@/lib/seo';
 import { Faq, PageHero, Section } from '../components';
+import { LAUNCH } from '@/lib/site';
 import { BUSINESS } from '@/lib/business';
 export const metadata = buildMetadata('/help');
 export default function Help() {
@@ -19,12 +20,14 @@ export default function Help() {
         <Faq
           items={[
             {
-              q: 'Can I use the app or upload my resume today?',
+              q: 'Can I register or upload my resume today?',
               a: (
                 <p>
-                  Not yet. Public accounts and uploads are closed while web, Android and iOS
-                  experiences are tested. The examples on this website do not upload or save
-                  documents. Check <a href="/apps">app status</a> for verified access links.
+                  {LAUNCH.entries.employee.open
+                    ? 'Free web registration is open to Australian job seekers.'
+                    : 'Check the app status page for web registration availability.'}{' '}
+                  Resume uploads are currently unavailable. See{' '}
+                  <a href="/apps">web and mobile availability</a>.
                 </p>
               ),
             },

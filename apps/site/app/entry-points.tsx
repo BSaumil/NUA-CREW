@@ -4,7 +4,7 @@ import { LAUNCH } from '@/lib/site';
 const choices = {
   employee: { Icon: UserRound, detail: 'Find work · always free' },
   employer: { Icon: Building2, detail: 'Set up your hiring workspace' },
-  'post-job': { Icon: BriefcaseBusiness, detail: 'Advertise a role · A$49 / 14 days' },
+  'post-job': { Icon: BriefcaseBusiness, detail: 'Check job posting availability' },
 } as const;
 
 /**
@@ -34,17 +34,6 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
           );
         })}
       </ul>
-      <p className="entry-points__notice">
-        {LAUNCH.anyOpen
-          ? 'Limited pilot access. Unavailable options show their launch status.'
-          : 'Pilot registration is not open yet. Each option shows its launch status.'}
-      </p>
-      {!compact ? (
-        <p className="entry-points__price">
-          Planned: A$49 / 14-day ad · A$30 / 5-day promotion · A$79 together. Payments are not
-          switched on.
-        </p>
-      ) : null}
     </section>
   );
 }

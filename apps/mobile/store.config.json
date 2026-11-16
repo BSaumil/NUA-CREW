@@ -1,0 +1,16 @@
+{
+  "configVersion": 0,
+  "apple": {
+    "info": {
+      "en-AU": {
+        "title": "NUA CREW",
+        "subtitle": "Hospitality jobs in Australia",
+        "description": "Find hospitality work or register your business with NUA CREW across Australia. Job seekers can create a free account, build a profile and manage their applications. Employers can set up a workspace and prepare job ads.",
+        "keywords": ["hospitality", "jobs", "hiring", "Australia", "barista", "chef"],
+        "marketingUrl": "https://iksaa.com.au/",
+        "supportUrl": "https://iksaa.com.au/help",
+        "privacyPolicyUrl": "https://iksaa.com.au/privacy"
+      }
+    }
+  }
+}

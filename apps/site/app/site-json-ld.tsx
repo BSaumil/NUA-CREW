@@ -31,7 +31,8 @@ const websiteGraph = {
       name: SITE.name,
       url: SITE.url,
       inLanguage: 'en-AU',
-      description: 'NUA CREW hospitality recruitment information and pre-launch product previews.',
+      description:
+        'Hospitality recruitment information and web registration for Australian job seekers and employers.',
       publisher: { '@id': `${SITE.url}/#operator` },
     },
   ],

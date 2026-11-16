@@ -92,6 +92,7 @@ class Settings(BaseSettings):
     billing_terms_approved: bool = False
     billing_return_url: str = "http://localhost:3001/billing"
     paid_advertising_enabled: bool = False
+    first_promotion_discount_enabled: bool = False
     # Introductory offer: while paid advertising is off, a verified employer may publish a job
     # for intro_offer_days at no charge, recorded as an auditable grant. Closed by default: the
     # owner opens publication by approving the published offer terms and setting this true. The

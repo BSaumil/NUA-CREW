@@ -74,8 +74,12 @@ def test_terms_and_callback_configuration_gate_checkout(stripe_test_settings, mo
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("action", "amount", "discounted"),
+    [("new_ad", 4900, False), ("promote_existing", 1500, True), ("new_promoted_ad", 6400, True)],
+)
 async def test_checkout_uses_server_amount_stable_key_and_fixed_return_urls(
-    stripe_test_settings, monkeypatch
+    stripe_test_settings, monkeypatch, action, amount, discounted
 ):
     create = AsyncMock(
         return_value=SimpleNamespace(
@@ -91,17 +95,19 @@ async def test_checkout_uses_server_amount_stable_key_and_fixed_return_urls(
         yield sdk
 
     monkeypatch.setattr(payments, "client", provider)
+    monkeypatch.setattr(payments, "FIRST_PROMOTION_END", datetime.now(UTC) + timedelta(days=1))
     row = BillingOrder(
         id=uuid.uuid4(),
-        amount_minor=4900,
-        action="new_ad",
+        amount_minor=amount,
+        action=action,
+        first_promotion_discount=discounted,
         checkout_session_id=None,
         expires_at=datetime.now(UTC) + timedelta(minutes=35),
     )
     result = await payments.create_checkout(row)
     assert result[1] == "cs_test_fixture"
     params = create.call_args.args[0]
-    assert params["line_items"][0]["price_data"]["unit_amount"] == 4900
+    assert params["line_items"][0]["price_data"]["unit_amount"] == amount
     assert params["allowed_payment_method_types"] == ["card"]
     assert params["metadata"]["order_id"] == str(row.id)
     assert params["success_url"].startswith("http://localhost:3001/billing?order=")

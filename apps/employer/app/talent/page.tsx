@@ -5,6 +5,19 @@ import { randomUUID } from 'node:crypto';
 import { sendInvitation } from '../actions';
 import { Field, Flash, flashFrom } from '../components';
 
+const AU_TIME_ZONES = [
+  ['Australia/Sydney', 'New South Wales and ACT'],
+  ['Australia/Melbourne', 'Victoria'],
+  ['Australia/Brisbane', 'Queensland'],
+  ['Australia/Adelaide', 'South Australia'],
+  ['Australia/Perth', 'Western Australia'],
+  ['Australia/Darwin', 'Northern Territory'],
+  ['Australia/Hobart', 'Tasmania'],
+  ['Australia/Broken_Hill', 'Broken Hill'],
+  ['Australia/Lord_Howe', 'Lord Howe Island'],
+  ['Australia/Eucla', 'Eucla'],
+] as const;
+
 export const metadata: Metadata = { title: 'Find talent' };
 
 type Params = Record<string, string | string[] | undefined>;
@@ -44,6 +57,8 @@ export default async function Talent({ searchParams }: { searchParams: Promise<P
   });
   const openJobs = (jobs ?? []).filter((j) => j.status === 'published');
 
+  const zone =
+    AU_TIME_ZONES.find(([value]) => value === one(p, 'zone'))?.[0] ?? 'Australia/Melbourne';
   let result: Awaited<ReturnType<typeof run>> | null = null;
   async function run() {
     const date = one(p, 'date');
@@ -64,7 +79,7 @@ export default async function Talent({ searchParams }: { searchParams: Promise<P
         window_date: date || null,
         window_start: start || null,
         window_end: end || null,
-        window_time_zone: 'Australia/Melbourne',
+        window_time_zone: zone,
         limit: 25,
         min_weekly_hours: one(p, 'min_weekly_hours') || null,
         availability: one(p, 'availability') === 'any' ? 'any' : 'available_or_unknown',
@@ -119,10 +134,21 @@ export default async function Talent({ searchParams }: { searchParams: Promise<P
         <fieldset className="nua-stack" style={{ border: 0, padding: 0 }}>
           <legend style={{ fontWeight: 700 }}>When (optional)</legend>
           <p className="nua-hint">
-            Times are Melbourne time. An end time before the start runs into the next day. People
-            who haven&rsquo;t shared availability show as &ldquo;unknown&rdquo;, never as free.
+            Use the time zone of the work location. An end time before the start runs into the next
+            day. People who haven&rsquo;t shared availability show as &ldquo;unknown&rdquo;, never
+            as free.
           </p>
           <div className="nua-grid">
+            <div className="nua-field">
+              <label htmlFor="zone">Work location time zone</label>
+              <select id="zone" name="zone" defaultValue={zone}>
+                {AU_TIME_ZONES.map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </select>
+            </div>
             <Field name="date" label="Date" type="date" defaultValue={one(p, 'date')} />
             <Field name="start" label="From" type="time" defaultValue={one(p, 'start')} />
             <Field name="end" label="Until" type="time" defaultValue={one(p, 'end')} />
