@@ -61,7 +61,7 @@ test('every marketing page has unique search metadata and factual structured dat
     expect(descriptions.has(description!), `Duplicate description at ${path}`).toBe(false);
     descriptions.add(description!);
 
-    const canonical = `https://iksaa.com.au${path}`;
+    const canonical = path === '/' ? 'https://iksaa.com.au' : `https://iksaa.com.au${path}`;
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', canonical);
     await expect(page.locator('meta[property="og:url"]')).toHaveAttribute('content', canonical);
     await expect(page.locator('meta[property="og:description"]')).toHaveAttribute(
@@ -103,7 +103,9 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
   const sitemap = await (await request.get(SITE + '/sitemap.xml')).text();
   const urls = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g), ([, url]) => url);
   if (process.env.NUA_SITE_INDEXABLE === 'true') {
-    expect(urls).toEqual(PAGES.map((path) => `https://iksaa.com.au${path}`));
+    expect(urls).toEqual(
+      PAGES.map((path) => (path === '/' ? 'https://iksaa.com.au' : `https://iksaa.com.au${path}`)),
+    );
     expect(robots).toMatch(/Allow: \//);
     expect(robots).toContain('Sitemap: https://iksaa.com.au/sitemap.xml');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);

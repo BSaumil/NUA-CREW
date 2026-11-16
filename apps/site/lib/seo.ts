@@ -94,7 +94,7 @@ export const SITE_SEO = {
 } satisfies Record<SitePath, SeoDetails>;
 
 export function canonicalUrl(path: SitePath): string {
-  return `${SITE.url}${path}`;
+  return `${SITE.url}${path === '/' ? '' : path}`;
 }
 
 export function buildMetadata(path: SitePath): Metadata {
