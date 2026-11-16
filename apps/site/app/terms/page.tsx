@@ -18,11 +18,9 @@ export default function Terms() {
                 employing entity. You do not need a NUA POS subscription to look for work.
               </p>
               <p>
-                The public website is informational. Product examples are fictional, account
-                services remain in testing and payments are disabled. Browsing does not enrol you in
-                paid services. Before an account or paid service opens, its applicable terms will be
-                presented for acceptance. Additional <a href="/employer-terms">employer terms</a>{' '}
-                apply to business services when enabled.
+                Product illustrations use fictional examples. The web portals present the applicable
+                account terms during registration. Employer payments are currently unavailable.
+                Additional <a href="/employer-terms">employer terms</a> apply to business services.
               </p>
             </>
           ),
