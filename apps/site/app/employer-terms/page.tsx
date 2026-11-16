@@ -13,8 +13,9 @@ export default function EmployerTerms() {
           body: (
             <p>
               These additional conditions describe NUA CREW employer services and supplement the{' '}
-              <a href="/terms">terms of use</a>. Public employer registration and billing remain
-              closed. No paid order is created by viewing a price or preview. Applicable purchase
+              <a href="/terms">terms of use</a>. Check the website for current employer registration
+              availability. Billing remains closed. No paid order is created by viewing a price or
+              preview. Applicable purchase
               conditions will be shown and accepted before payment becomes available.
             </p>
           ),
