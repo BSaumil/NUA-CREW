@@ -100,23 +100,32 @@ test('crawlers are told to stay away until launch, and the sitemap uses the conf
     page.getByText(/no separate registration or trade mark status is claimed/),
   ).toBeVisible();
   const robots = await (await request.get(SITE + '/robots.txt')).text();
+  const sitemap = await (await request.get(SITE + '/sitemap.xml')).text();
+  const urls = Array.from(sitemap.matchAll(/<loc>(.*?)<\/loc>/g), ([, url]) => url);
   if (process.env.NUA_SITE_INDEXABLE === 'true') {
+    expect(urls).toEqual(
+      PAGES.map((path) => (path === '/' ? 'https://iksaa.com.au' : `https://iksaa.com.au${path}`)),
+    );
     expect(robots).toMatch(/Allow: \//);
     expect(robots).toContain('Sitemap: https://iksaa.com.au/sitemap.xml');
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /index, follow/);
   } else {
+    expect(urls).toEqual([]);
     expect(robots).toMatch(/Disallow: \//);
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', /noindex/);
   }
-  // a launch-status page instead of dead links while the product apps are not deployed
-  await page.goto(SITE + '/');
-  await expect(
-    page.locator('a[href*="app.iksaa.com.au"], a[href*="hire.iksaa.com.au"]'),
-  ).toHaveCount(0);
-  const sitemap = await (await request.get(SITE + '/sitemap.xml')).text();
-  expect(sitemap).toContain('https://iksaa.com.au');
-  expect((sitemap.match(/<loc>/g) ?? []).length).toBe(PAGES.length);
-  expect((sitemap.match(/<lastmod>/g) ?? []).length).toBe(PAGES.length);
+  for (const [id, base, flag, destination, fallback] of [
+    ['employee', 'NUA_APP_URL', 'NUA_CANDIDATE_SIGNUP_OPEN', '/register', '/apps#job-seekers'],
+    ['employer', 'NUA_HIRE_URL', 'NUA_EMPLOYER_SIGNUP_OPEN', '/register', '/apps#employers'],
+  ]) {
+    const origin = process.env[base];
+    const href =
+      process.env[flag] === 'true' && origin ? new URL(destination, origin).href : fallback;
+    await expect(page.locator(`.entry-points [data-entry="${id}"] a`)).toHaveAttribute(
+      'href',
+      href,
+    );
+  }
 });
 
 test('country guidance lists Australia and New Zealand without enabling recruitment', async ({
@@ -130,7 +139,7 @@ test('country guidance lists Australia and New Zealand without enabling recruitm
   await expect(page.getByRole('heading', { name: 'New Zealand', exact: true })).toBeVisible();
   await expect(page.getByText('AUD', { exact: false }).first()).toBeVisible();
   await expect(page.getByText('NZD', { exact: false }).first()).toBeVisible();
-  await expect(page.getByText(/not publicly available yet/i).first()).toBeVisible();
+  await expect(page.getByText('Job publishing:', { exact: true }).last()).toBeVisible();
   await expect(page.locator('form, input, button[type="submit"]')).toHaveCount(0);
   await expect(page.locator('a[href*="checkout"], a[href*="stripe.com"]')).toHaveCount(0);
 });
