@@ -18,19 +18,14 @@ for (const width of [320, 390, 1440]) {
       await expect(link).toHaveAttribute('href', STATUS[i]!);
       expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     }
-    await expect(hero).toContainText('Pilot registration is not open yet');
     // The three paths remain visible and accessible without three large cards.
-    await expect(hero.locator('.entry-points__notice')).toHaveCount(1);
     await expect(hero.locator('.entry-points__list li')).toHaveCount(3);
     await expect(hero.locator('.entry-points__list li[data-open="false"]')).toHaveCount(3);
     const panel = await hero.boundingBox(); // the region is the .entry-points element itself
     expect(panel).not.toBeNull();
     expect(panel!.width).toBeLessThanOrEqual(433);
     await expect(hero.locator('.entry-points__title')).toHaveCount(3);
-    await expect(hero).toContainText('A$49');
-    await expect(hero).toContainText('A$30');
-    await expect(hero).toContainText('A$79');
-    await expect(hero).toContainText('Payments are not switched on');
+    await expect(hero).not.toContainText('A$');
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
     );
