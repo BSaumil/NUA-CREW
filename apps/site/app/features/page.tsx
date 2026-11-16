@@ -1,3 +1,4 @@
+import { LAUNCH } from '@/lib/site';
 import { buildMetadata } from '@/lib/seo';
 import { Card, Cards, Cta, PageHero, Section } from '../components';
 import { FeatureExplorer } from '../feature-explorer';
@@ -35,10 +36,12 @@ export default function Features() {
           <Card icon="✓" title="Public website · Live">
             <p>Explore the product, planned pricing, policies and support details today.</p>
           </Card>
-          <Card icon="5" title="Web, Android & iOS · In testing">
+          <Card icon="5" title="Web and mobile access">
             <p>
-              Hiring, document uploads and shift workflows are not open for public use. Store links
-              will appear on the app-status page.
+              {LAUNCH.anyOpen
+                ? 'Australian job seekers and employers can register on the web.'
+                : 'Check the app status page for web registration.'}{' '}
+              Android and iOS are in testing. See <a href="/apps">current availability</a>.
             </p>
           </Card>
           <Card icon="$" title="Payments & integrations · Not live">

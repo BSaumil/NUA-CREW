@@ -13,7 +13,7 @@ import { SiteJsonLd } from './site-json-ld';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: { default: `NUA CREW — ${TAGLINE}`, template: '%s · NUA CREW' },
-  description: `${SUPPORT_LINE} Hospitality recruitment in pre-launch testing for Australia, with New Zealand in preparation.`,
+  description: `${SUPPORT_LINE} A hospitality recruitment platform for Australian job seekers and employers.`,
   applicationName: 'NUA CREW',
   openGraph: {
     siteName: 'NUA CREW',

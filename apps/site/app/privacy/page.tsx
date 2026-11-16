@@ -15,10 +15,9 @@ export default function Privacy() {
             <>
               <p>
                 This policy applies to the NUA CREW website, enquiries and any NUA CREW recruitment
-                services we make available. The public website is live. Public registration,
-                document uploads, employer payments and the Android and iOS apps are not open yet.
-                Descriptions of account features below apply only when those features are enabled
-                for you; reading a preview does not create an account.
+                services we make available. Account registration is available through the Australian
+                web portals. Document uploads, employer payments and native mobile apps are
+                currently unavailable. The account features below apply as they become available.
               </p>
               <p>
                 NUA CREW shares an operator with NUA POS. That does not automatically share your
@@ -141,11 +140,12 @@ export default function Privacy() {
                 sensitive material.
               </p>
               <p>
-                Recruitment storage, scanning, communications and payment arrangements are still
-                being configured. Before public account and document services open, we will update
-                this policy with the actual providers and likely overseas recipient countries, where
-                practicable. We do not promise Australian-only storage. We assess providers and use
-                contractual and access safeguards appropriate to the information and applicable law.
+                Vercel hosts the web portals and API. Neon provides the production account database
+                in Sydney, Australia. Upstash supports request rate limiting from Sydney, and Resend
+                sends account verification and password reset emails through its Japan region.
+                Providers may also process technical information in other locations used by their
+                infrastructure. Document scanning and employer payment arrangements will be
+                described as those services become available.
               </p>
               <p>
                 We may also disclose information to professional advisers, authorities where legally

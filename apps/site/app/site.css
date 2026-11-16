@@ -2183,12 +2183,6 @@ main {
   font-size: 0.76rem;
   line-height: 1.45;
 }
-.entry-points__price {
-  margin: 6px 2px 0;
-  color: #6a5c5f;
-  font-size: 0.72rem;
-  line-height: 1.45;
-}
 @media (prefers-reduced-motion: reduce) {
   .entry-points__link,
   .entry-points__arrow {
