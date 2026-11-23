@@ -27,7 +27,7 @@ export default function Apps() {
     <>
       <PageHero
         eyebrow="APP AND WEB STATUS"
-        title="Good things are taking shape."
+        title="NUA Crew web and mobile app availability"
         lede="A simpler way to find work and build a team. Here’s where each experience stands."
       >
         <div className="platform-labels">
@@ -37,7 +37,7 @@ export default function Apps() {
           </span>
           <span>
             <Monitor size={18} aria-hidden="true" />
-            Web · {LAUNCH.anyOpen ? 'Limited pilot access' : 'Pre-launch'}
+            Web · {LAUNCH.anyOpen ? 'Registration open' : 'Pre-launch'}
           </span>
         </div>
       </PageHero>
@@ -102,7 +102,7 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employee.open
-                ? 'Registration is open for approved pilot users. Mobile apps are in testing.'
+                ? 'Free web registration is open across Australia. Mobile apps are in testing.'
                 : 'Pilot registration not yet open. Nobody can create an account yet, and no data is collected here.'}
             </p>
             <a
@@ -130,7 +130,7 @@ export default function Apps() {
             <ul className="visual-features">
               <li>
                 <BriefcaseBusiness size={20} aria-hidden="true" />
-                Post roles with clear pay
+                Draft roles with clear pay
               </li>
               <li>
                 <Users size={20} aria-hidden="true" />
@@ -143,7 +143,7 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employer.open
-                ? 'Business registration is open for approved pilot users. Publishing needs business verification.'
+                ? 'Australian businesses can register and draft jobs. Publishing requires business verification.'
                 : 'Pilot registration not yet open. Employer registration and payments are not open yet.'}
             </p>
             <a
@@ -174,7 +174,7 @@ export default function Apps() {
             </p>
             <p className="site-note">
               {LAUNCH.entries['post-job'].open
-                ? 'Posting is open for approved pilot employers. Payments are not switched on.'
+                ? 'Verified employers can publish jobs. Employer payments are unavailable.'
                 : 'Posting is not open yet and payments are not switched on. You will need a verified business account first.'}
             </p>
             <a

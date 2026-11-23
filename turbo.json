@@ -2,32 +2,23 @@
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
     "build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
     "typecheck": {
-      "dependsOn": [
-        "^build"
-      ]
+      "dependsOn": ["^build"]
     },
     "lint": {},
     "test": {},
     "@nua-crew/site#build": {
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        ".next/**",
-        "!.next/cache/**",
-        "dist/**"
-      ],
+      "dependsOn": ["^build"],
+      "outputs": [".next/**", "!.next/cache/**", "dist/**"],
       "env": [
+        "NUA_SITE_URL",
+        "NUA_SITE_INDEXABLE",
+        "NUA_CONTACT_EMAIL",
+        "NUA_GOOGLE_SITE_VERIFICATION",
+        "NUA_BING_SITE_VERIFICATION",
         "NUA_APP_URL",
         "NUA_HIRE_URL",
         "NUA_CANDIDATE_SIGNUP_OPEN",

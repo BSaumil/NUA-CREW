@@ -1,4 +1,5 @@
 import { buildMetadata } from '@/lib/seo';
+import { LAUNCH } from '@/lib/site';
 import { MARKETS } from '@/lib/markets';
 import { Card, Cards, PageHero, Section } from '../components';
 
@@ -10,7 +11,7 @@ export default function Markets() {
       <PageHero
         eyebrow="WHERE WE ARE HEADED"
         title="One platform. Built for local work."
-        lede="NUA CREW is preparing for Australia and New Zealand, starting with hospitality. The website is open for information; hiring accounts, job advertising and shifts are not yet available to the public."
+        lede="NUA CREW is starting with Australian hospitality. New Zealand is the next planned market."
       />
       <Section
         title="Australia and New Zealand"
@@ -20,7 +21,9 @@ export default function Markets() {
           {Object.values(MARKETS).map((market) => (
             <Card key={market.code} title={market.label}>
               <p className="section-kicker">
-                {market.stage === 'prelaunch' ? 'Pre-launch testing' : 'Preparing for launch'}
+                {market.code === 'AU' && LAUNCH.anyOpen
+                  ? 'Web registration open'
+                  : 'Preparing for launch'}
               </p>
               <p>
                 {market.code === 'AU'
@@ -32,7 +35,10 @@ export default function Markets() {
                 {market.regionLabel}
               </p>
               <p>
-                <strong>Hiring services:</strong> Not publicly available yet
+                <strong>Job publishing:</strong>{' '}
+                {market.code === 'AU' && LAUNCH.entries['post-job'].open
+                  ? 'Available to verified employers'
+                  : 'Unavailable'}
               </p>
               <p>
                 <a href="/apps">Check product launch status</a>

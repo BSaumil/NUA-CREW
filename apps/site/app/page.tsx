@@ -26,7 +26,7 @@ export default function Home() {
             <span className="launch-pill">
               <span aria-hidden="true" />
               {LAUNCH.anyOpen
-                ? 'Limited pilot access · Starting in Melbourne'
+                ? 'Web registration open · Australia'
                 : 'In pre-launch · Starting in Melbourne'}
             </span>
             <p className="section-kicker">REAL WORK. REAL PEOPLE.</p>
@@ -150,7 +150,7 @@ export default function Home() {
         />
         <p className="nua-visual-note">
           Concept illustrations and previews with fictional sample data, not screenshots of live
-          accounts. NUA CREW's hiring apps remain in pre-launch testing.
+          accounts.
         </p>
       </Section>
       <Section
@@ -256,7 +256,7 @@ export default function Home() {
               a: (
                 <p>
                   {LAUNCH.anyOpen
-                    ? 'Limited web pilot access is available for approved users.'
+                    ? 'Australian job seekers and employers can register on the web.'
                     : 'The website is live; the hiring product is still in pre-launch testing.'}{' '}
                   Check <a href="/apps">app and web status</a> for access. App-store links appear
                   only when the apps are published.
