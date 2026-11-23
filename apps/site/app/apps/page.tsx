@@ -27,7 +27,7 @@ export default function Apps() {
     <>
       <PageHero
         eyebrow="APP AND WEB STATUS"
-        title="NUA Crew web and mobile app availability"
+        title="Good things are taking shape."
         lede="A simpler way to find work and build a team. Here’s where each experience stands."
       >
         <div className="platform-labels">
@@ -37,7 +37,7 @@ export default function Apps() {
           </span>
           <span>
             <Monitor size={18} aria-hidden="true" />
-            Web · {LAUNCH.anyOpen ? 'Registration open' : 'Pre-launch'}
+            Web · {LAUNCH.anyOpen ? 'Registration open' : 'Registration unavailable'}
           </span>
         </div>
       </PageHero>
@@ -102,8 +102,8 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employee.open
-                ? 'Free web registration is open across Australia. Mobile apps are in testing.'
-                : 'Pilot registration not yet open. Nobody can create an account yet, and no data is collected here.'}
+                ? 'Australian job seekers can register free on the web. Mobile apps are in testing.'
+                : 'Web registration is currently unavailable.'}
             </p>
             <a
               className="text-link"
@@ -130,7 +130,7 @@ export default function Apps() {
             <ul className="visual-features">
               <li>
                 <BriefcaseBusiness size={20} aria-hidden="true" />
-                Draft roles with clear pay
+                Post roles with clear pay
               </li>
               <li>
                 <Users size={20} aria-hidden="true" />
@@ -143,8 +143,8 @@ export default function Apps() {
             </ul>
             <p className="site-note">
               {LAUNCH.entries.employer.open
-                ? 'Australian businesses can register and draft jobs. Publishing requires business verification.'
-                : 'Pilot registration not yet open. Employer registration and payments are not open yet.'}
+                ? 'Australian businesses can register on the web. Publishing requires business verification.'
+                : 'Business registration and payments are currently unavailable.'}
             </p>
             <a
               className="text-link"
@@ -174,7 +174,7 @@ export default function Apps() {
             </p>
             <p className="site-note">
               {LAUNCH.entries['post-job'].open
-                ? 'Verified employers can publish jobs. Employer payments are unavailable.'
+                ? 'Verified businesses can publish when job posting is enabled.'
                 : 'Posting is not open yet and payments are not switched on. You will need a verified business account first.'}
             </p>
             <a

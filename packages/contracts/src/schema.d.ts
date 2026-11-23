@@ -1860,6 +1860,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/employers/{employer_id}/billing/first-promotion": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** First Promotion */
+        get: operations["first_promotion_v1_employers__employer_id__billing_first_promotion_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/employers/{employer_id}/billing/orders": {
         parameters: {
             query?: never;
@@ -3720,6 +3737,16 @@ export interface components {
             note: string | null;
             /** To Status */
             to_status: string | null;
+        };
+        /** FirstPromotionOut */
+        FirstPromotionOut: {
+            /** Eligible */
+            eligible: boolean;
+            /**
+             * Expires At
+             * Format: date-time
+             */
+            expires_at: string;
         };
         /** ForgotPasswordIn */
         ForgotPasswordIn: {
@@ -9257,6 +9284,37 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["CheckoutOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    first_promotion_v1_employers__employer_id__billing_first_promotion_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                employer_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FirstPromotionOut"];
                 };
             };
             /** @description Validation Error */

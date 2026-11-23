@@ -59,3 +59,16 @@ Generated native config (from `app.config.ts`): iOS asks only for **Face ID** an
 ## Known gaps
 
 No messaging, interview scheduling, shifts (NUA CREW Local), resume file upload/camera scan, maps view, employer mobile app, localisation beyond en-AU, tablet layouts, deep links via https (needs a cleared domain), crash reporting, automated device-farm tests. Tracked in `docs/IMPLEMENTATION_TRACKER.md`.
+
+## Australia production storefront settings
+
+| Store | Localisation | Production availability | Listing description |
+| --- | --- | --- | --- |
+| App Store Connect | English (Australia) | Pricing and Availability → App Availability → Australia | Find hospitality work or register your business with NUA CREW across Australia. |
+| Google Play Console | English (Australia), `en-AU` | Production → Countries/regions → Australia | Find hospitality work or register your business with NUA CREW across Australia. |
+
+Use Australia as the production storefront country. The shared market registry covers all eight
+Australian states and territories, with New Zealand in preview. Store availability is configured
+in the store accounts. EAS build profiles do not control storefront territories. Before submission,
+verify the listing and production availability for each store and check nationwide signup on
+physical iOS and Android devices.

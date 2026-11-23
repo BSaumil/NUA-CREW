@@ -224,6 +224,7 @@ class Employer(TimestampMixin, Base):
     verification_status: Mapped[str] = mapped_column(
         String(16), nullable=False, server_default="unverified"
     )
+    first_job_promotion_redeemed: Mapped[bool] = mapped_column(Boolean, server_default="false")
     verified_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
     verified_by: Mapped[uuid.UUID | None] = mapped_column(UUID(as_uuid=True))
     verification_evidence: Mapped[str | None] = mapped_column(Text)
@@ -1171,7 +1172,13 @@ class BillingOrder(TimestampMixin, Base):
     __tablename__ = "billing_orders"
     __table_args__ = (
         UniqueConstraint("employer_id", "client_key", name="uq_billing_order_retry"),
-        CheckConstraint("amount_minor IN (1900, 3000, 4900, 7900)", name="ck_order_amount"),
+        CheckConstraint(
+            "(first_promotion_discount AND "
+            "((action = 'promote_existing' AND amount_minor = 1500) OR "
+            "(action = 'new_promoted_ad' AND amount_minor = 6400))) OR "
+            "(NOT first_promotion_discount AND amount_minor IN (1900, 3000, 4900, 7900))",
+            name="ck_order_amount",
+        ),
         CheckConstraint(
             "status IN ('pending', 'settled', 'expired', 'refund_required', 'refunded')",
             name="ck_order_status",
@@ -1182,6 +1189,7 @@ class BillingOrder(TimestampMixin, Base):
     job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"))
     action: Mapped[str] = mapped_column(String(30))
     amount_minor: Mapped[int] = mapped_column(Integer)
+    first_promotion_discount: Mapped[bool] = mapped_column(Boolean, server_default="false")
     client_key: Mapped[str] = mapped_column(String(80))
     terms_hash: Mapped[str] = mapped_column(String(64))
     checkout_session_id: Mapped[str | None] = mapped_column(String(200), unique=True)

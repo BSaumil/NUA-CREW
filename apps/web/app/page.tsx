@@ -21,8 +21,8 @@ export default function Home() {
           </p>
           <h1 id="home-title">{TAGLINE}</h1>
           <p style={{ fontSize: '1.125rem' }}>
-            {SUPPORT_LINE} Find work that fits your skills, life and ambitions — starting with
-            hospitality and local services in Melbourne.
+            {SUPPORT_LINE} Find hospitality and local work that fits your skills and availability,
+            across Australia.
           </p>
         </div>
       </section>
@@ -40,7 +40,7 @@ export default function Home() {
           </div>
           <div className="nua-field">
             <label htmlFor="suburb">Suburb</label>
-            <input id="suburb" name="suburb" placeholder="e.g. Fitzroy" />
+            <input id="suburb" name="suburb" placeholder="Enter an Australian suburb" />
           </div>
         </div>
         <div className="nua-row">

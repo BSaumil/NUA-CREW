@@ -10,7 +10,7 @@ from sqlalchemy import select, update
 from app.audit import audit
 from app.deps import CurrentUser, Owner, Session, Viewer, _bind_rls_context
 from app.errors import ApiError, conflict, not_found
-from app.models import BillingOrder, Job, PromotionReservation
+from app.models import BillingOrder, Employer, Job, PromotionReservation
 from app.rls import system_scope
 from app.services import billing as domain
 from app.services import stripe_payments as payments
@@ -50,6 +50,25 @@ class OrderOut(BaseModel):
     promotion_slot: int | None
     promotion_starts_at: datetime | None
     promotion_ends_at: datetime | None
+
+
+class FirstPromotionOut(BaseModel):
+    eligible: bool
+    expires_at: datetime
+
+
+@router.get("/employers/{employer_id}/billing/first-promotion", response_model=FirstPromotionOut)
+async def first_promotion(
+    employer_id: uuid.UUID, _: Owner, user: CurrentUser, session: Session
+) -> FirstPromotionOut:
+    if user.role != "employer":
+        raise not_found("employer")
+    employer = await session.get(Employer, employer_id)
+    if employer is None:
+        raise not_found("employer")
+    async with system_scope(session):
+        eligible = await domain.first_promotion_available(session, employer, datetime.now(UTC))
+    return FirstPromotionOut(eligible=eligible, expires_at=domain.FIRST_PROMOTION_END)
 
 
 @router.get("/billing/status")
@@ -116,6 +135,8 @@ async def orders(employer_id: uuid.UUID, _: Viewer, session: Session) -> list[Or
 async def checkout(
     employer_id: uuid.UUID, body: CheckoutIn, _: Owner, user: CurrentUser, session: Session
 ) -> CheckoutOut:
+    if user.role != "employer":
+        raise not_found("employer")
     payments.require_ready()
     row = await domain.prepare_order(
         session,

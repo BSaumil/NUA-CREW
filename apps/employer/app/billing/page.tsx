@@ -31,12 +31,16 @@ export default async function Billing({
     { data: orders, error: ordersError },
     { data: business },
     { data: offer },
+    { data: firstPromotion },
   ] = await Promise.all([
     client.GET('/v1/billing/status'),
     client.GET('/v1/employers/{employer_id}/jobs', { params: { path } }),
     client.GET('/v1/employers/{employer_id}/billing/orders', { params: { path } }),
     client.GET('/v1/employers/{employer_id}', { params: { path } }),
     client.GET('/v1/employers/{employer_id}/intro-offer', { params: { path } }),
+    role === 'owner'
+      ? client.GET('/v1/employers/{employer_id}/billing/first-promotion', { params: { path } })
+      : { data: undefined },
   ]);
   const { error, notice } = await flashFrom(searchParams);
   const ready = status?.checkout_enabled === true;
@@ -53,6 +57,15 @@ export default async function Billing({
         </p>
       </header>
       <IntroOfferNotice offer={offer} />
+      {owner && ready && firstPromotion?.eligible ? (
+        <aside className="nua-card nua-stack" aria-label="First promotion offer">
+          <strong>50% off your first promoted job post — valid until Dec 31!</strong>
+          <p className="nua-hint">
+            Save A$15 on the five-day promotion. The standard job ad price still applies. Offer
+            closes 31 December 2026 at 11:59:59 pm AEDT.
+          </p>
+        </aside>
+      ) : null}
       <div className="nua-card nua-stack" role="status">
         <h2>{ready ? 'Stripe sandbox is configured' : 'Payments are not connected yet'}</h2>
         <p>

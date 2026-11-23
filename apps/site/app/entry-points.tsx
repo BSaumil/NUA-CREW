@@ -4,7 +4,7 @@ import { LAUNCH } from '@/lib/site';
 const choices = {
   employee: { Icon: UserRound, detail: 'Find work · always free' },
   employer: { Icon: Building2, detail: 'Set up your hiring workspace' },
-  'post-job': { Icon: BriefcaseBusiness, detail: 'Check job publishing availability' },
+  'post-job': { Icon: BriefcaseBusiness, detail: 'Check job posting availability' },
 } as const;
 
 /**
@@ -34,11 +34,6 @@ export function EntryPoints({ compact = false }: { compact?: boolean }) {
           );
         })}
       </ul>
-      <p className="entry-points__notice">
-        {LAUNCH.anyOpen
-          ? 'Web registration is available. Check job posting for publishing availability.'
-          : 'Pilot registration is not open yet. Each option shows its launch status.'}
-      </p>
     </section>
   );
 }

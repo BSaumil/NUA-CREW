@@ -2429,6 +2429,25 @@
         "title": "EventOut",
         "type": "object"
       },
+      "FirstPromotionOut": {
+        "properties": {
+          "eligible": {
+            "title": "Eligible",
+            "type": "boolean"
+          },
+          "expires_at": {
+            "format": "date-time",
+            "title": "Expires At",
+            "type": "string"
+          }
+        },
+        "required": [
+          "eligible",
+          "expires_at"
+        ],
+        "title": "FirstPromotionOut",
+        "type": "object"
+      },
       "ForgotPasswordIn": {
         "properties": {
           "email": {
@@ -13639,6 +13658,54 @@
           }
         ],
         "summary": "Checkout",
+        "tags": [
+          "billing"
+        ]
+      }
+    },
+    "/v1/employers/{employer_id}/billing/first-promotion": {
+      "get": {
+        "operationId": "first_promotion_v1_employers__employer_id__billing_first_promotion_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "employer_id",
+            "required": true,
+            "schema": {
+              "format": "uuid",
+              "title": "Employer Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/FirstPromotionOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "First Promotion",
         "tags": [
           "billing"
         ]
